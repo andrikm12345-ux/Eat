@@ -84,6 +84,16 @@ function errorFor(status: number, body: string): AiError {
     return new AiError('rate', 'Слишком много запросов к ИИ, попробуйте позже', status);
   if (status === 529 || status >= 500)
     return new AiError('server', 'Сервис ИИ перегружен или недоступен', status);
+  if (
+    status === 400 &&
+    /image|multimodal|vision/i.test(body) &&
+    /support|accept|multimodal/i.test(body)
+  )
+    return new AiError(
+      'badRequest',
+      'эта модель не понимает фото — выберите для фото другую (с поддержкой изображений) в «ИИ-настройках»',
+      status,
+    );
   return new AiError('badRequest', `Запрос отклонён (${status}): ${body.slice(0, 200)}`, status);
 }
 

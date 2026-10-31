@@ -443,4 +443,26 @@ describe('custom API address', () => {
     };
     expect(await listModels('k', net as unknown as typeof fetch)).toBeNull();
   });
+
+  it('explains when the model cannot take images', async () => {
+    const f = vi.fn(
+      async () =>
+        new Response(
+          '{"error":{"message":"Model \'x\' does not support image input on /v1/messages. Please use a multimodal model."}}',
+          { status: 400 },
+        ),
+    );
+    await expect(
+      callClaude({
+        apiKey: 'k',
+        model: 'm',
+        system: 's',
+        messages: [{ role: 'user', content: 'x' }],
+        fetchImpl: f as unknown as typeof fetch,
+      }),
+    ).rejects.toMatchObject({
+      kind: 'badRequest',
+      message: expect.stringContaining('не понимает фото'),
+    });
+  });
 });
