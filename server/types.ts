@@ -10,6 +10,8 @@ export type Deps = {
   now: () => number;
   /** false (SIGNUP_DISABLED=1) closes registration; existing accounts keep working. */
   signupOpen: boolean;
+  /** Temporary owner key (ADMIN_RESET_KEY). Unset = the admin endpoint does not exist. */
+  adminKey?: string;
   /** Milliseconds to wait before answering a failed login (slows guessing). */
   failDelayMs?: () => number;
 };
