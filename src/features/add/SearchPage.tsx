@@ -1,11 +1,15 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { addDays } from '../../domain/dates';
 import { frequentAround, timeToMinutes } from '../../domain/day';
 import type { Food } from '../../domain/types';
+import type { FoodDraft } from '../../domain/off';
+import { formatKcal } from '../../domain/format';
+import { cacheOffDraft, searchOff } from '../../services/off';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
-import { LinkButton } from '../../ui/kit';
+import { Button, LinkButton } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { useAddTarget } from './addTarget';
 import { useCatalog } from './catalog';
@@ -44,6 +48,25 @@ export function FoodSearch({
     [catalog.foods],
   );
   const results = q.trim() ? catalog.search(q) : [];
+  const [off, setOff] = useState<{
+    q: string;
+    state: 'busy' | 'ok' | 'offline' | 'error';
+    drafts: FoodDraft[];
+  } | null>(null);
+  const navigate = useNavigate();
+
+  async function searchOnline() {
+    const query = q.trim();
+    setOff({ q: query, state: 'busy', drafts: [] });
+    const res = await searchOff(query);
+    setOff({ q: query, state: res.kind, drafts: res.kind === 'ok' ? res.drafts : [] });
+  }
+
+  async function pickOff(d: FoodDraft) {
+    const food = await cacheOffDraft(repos, d);
+    if (onPick) onPick(food);
+    else navigate(link(food));
+  }
   const link = (f: Food) => `/add/food/${f.id}${qs}`;
   const list = (foods: Food[]) => (
     <ul className={styles.list}>
@@ -79,14 +102,64 @@ export function FoodSearch({
         </div>
       )}
       {q.trim() ? (
-        results.length ? (
-          <>
-            <h2 className={styles.sectionTitle}>{t.results}</h2>
-            {list(results)}
-          </>
-        ) : (
-          <p className={styles.muted}>{t.nothing}</p>
-        )
+        <>
+          {results.length ? (
+            <>
+              <h2 className={styles.sectionTitle}>{t.results}</h2>
+              {list(results)}
+            </>
+          ) : (
+            <p className={styles.muted}>{t.nothing}</p>
+          )}
+          <p className={styles.muted}>{t.notFoundHint}</p>
+          <Button
+            block
+            variant="secondary"
+            disabled={off?.state === 'busy'}
+            onClick={() => void searchOnline()}
+          >
+            {off?.state === 'busy' ? t.searchingOff : t.searchOff}
+          </Button>
+          {off && off.q === q.trim() && off.state === 'offline' && (
+            <p className={styles.muted}>{t.offOffline}</p>
+          )}
+          {off && off.q === q.trim() && off.state === 'error' && (
+            <p className={styles.muted}>{t.offError}</p>
+          )}
+          {off && off.q === q.trim() && off.state === 'ok' && (
+            <>
+              <h2 className={styles.sectionTitle}>{t.offResults}</h2>
+              {off.drafts.length === 0 ? (
+                <p className={styles.muted}>{t.offNothing}</p>
+              ) : (
+                <>
+                  <ul className={styles.list}>
+                    {off.drafts.map((d, i) => (
+                      <li key={`${d.barcode ?? ''}-${i}`} className={styles.row}>
+                        <button
+                          type="button"
+                          className={styles.rowLink}
+                          onClick={() => void pickOff(d)}
+                        >
+                          <span className={styles.rowMain}>
+                            <span className={styles.rowName}>
+                              {d.name}
+                              {d.brand ? ` · ${d.brand}` : ''}
+                            </span>
+                            <span className={styles.rowSub}>
+                              {t.per100(formatKcal(d.per100g.kcal))}
+                            </span>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className={styles.muted}>{t.offUnverified}</p>
+                </>
+              )}
+            </>
+          )}
+        </>
       ) : (
         <>
           {frequent.length > 0 && (
