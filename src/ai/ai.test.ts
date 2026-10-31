@@ -8,6 +8,7 @@ import {
   checkKey,
   headers,
   isCustomBase,
+  listModels,
   messagesUrl,
   modelsUrl,
   normalizeBase,
@@ -420,5 +421,26 @@ describe('custom API address', () => {
     expect(f.mock.calls[0]![0]).toBe('https://r.example.com/v1/messages');
     await checkKey('k', f as unknown as typeof fetch, 'https://r.example.com');
     expect(f.mock.calls[1]![0]).toBe('https://r.example.com/v1/models?limit=1');
+  });
+
+  it('lists models of the service', async () => {
+    const f = vi.fn(
+      async (_url: string) =>
+        new Response(JSON.stringify({ data: [{ id: 'a' }, { id: 7 }, { id: 'b' }] }), {
+          status: 200,
+        }),
+    );
+    expect(await listModels('k', f as unknown as typeof fetch, 'https://r.example.com/v1')).toEqual(
+      ['a', 'b'],
+    );
+    expect(f.mock.calls[0]![0]).toBe('https://r.example.com/v1/models?limit=200');
+    const empty = async () => new Response('{"data":[]}', { status: 200 });
+    expect(await listModels('k', empty as unknown as typeof fetch)).toBeNull();
+    const bad = async () => new Response('no', { status: 401 });
+    expect(await listModels('k', bad as unknown as typeof fetch)).toBeNull();
+    const net = async () => {
+      throw new TypeError('offline');
+    };
+    expect(await listModels('k', net as unknown as typeof fetch)).toBeNull();
   });
 });

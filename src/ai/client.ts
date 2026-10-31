@@ -161,3 +161,24 @@ export async function checkKey(
     return false;
   }
 }
+
+/** Model ids offered by the service (Anthropic and compatible APIs: `{data: [{id}]}`), or null. */
+export async function listModels(
+  apiKey: string,
+  fetchImpl: typeof fetch = fetch,
+  baseUrl?: string,
+): Promise<string[] | null> {
+  try {
+    const res = await fetchImpl(`${normalizeBase(baseUrl)}/v1/models?limit=200`, {
+      headers: headers(apiKey, baseUrl),
+    });
+    if (!res.ok) return null;
+    const body = (await res.json()) as { data?: { id?: unknown }[] };
+    const ids = (body.data ?? [])
+      .map((m) => m.id)
+      .filter((id): id is string => typeof id === 'string');
+    return ids.length > 0 ? ids : null;
+  } catch {
+    return null;
+  }
+}

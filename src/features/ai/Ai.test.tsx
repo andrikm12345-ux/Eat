@@ -127,4 +127,42 @@ describe('AI settings', () => {
     expect(await screen.findByText(ru.ai.keySaved('sk-ant-…ijkl'))).toBeVisible();
     expect(await repos.settings.get(AI_KEYS.enabled, false)).toBe(true);
   });
+
+  it('shows the service models and picks them for text and photo', async () => {
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-teamo-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.baseUrl, 'https://r.example.com');
+    const calls: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        calls.push(url);
+        return new Response(
+          JSON.stringify({ data: [{ id: 'deepseek-chat' }, { id: 'vision-x' }] }),
+        );
+      }),
+    );
+    const user = userEvent.setup();
+    await renderApp('/more/ai');
+    await user.click(await screen.findByRole('button', { name: ru.ai.modelsShow }));
+    expect(await screen.findByText('vision-x')).toBeVisible();
+    expect(calls[0]).toBe('https://r.example.com/v1/models?limit=200');
+    await user.click(screen.getByRole('button', { name: `${ru.ai.forText}: deepseek-chat` }));
+    await user.click(screen.getByRole('button', { name: `${ru.ai.forPhoto}: vision-x` }));
+    await waitFor(async () => {
+      expect(await repos.settings.get(AI_KEYS.modelText, '')).toBe('deepseek-chat');
+      expect(await repos.settings.get(AI_KEYS.modelVision, '')).toBe('vision-x');
+    });
+  });
+
+  it('reports a failed model list', async () => {
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-teamo-xxxxxxxxxxxx');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('no', { status: 401 })),
+    );
+    const user = userEvent.setup();
+    await renderApp('/more/ai');
+    await user.click(await screen.findByRole('button', { name: ru.ai.modelsShow }));
+    expect(await screen.findByText(ru.ai.modelsFail)).toBeVisible();
+  });
 });
