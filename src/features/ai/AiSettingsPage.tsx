@@ -15,6 +15,7 @@ const t = ru.ai;
 
 const PRESETS = [
   { name: 'OpenRouter', url: 'https://openrouter.ai/api/v1' },
+  { name: 'TeamoRouter', url: 'https://api.teamorouter.com/v1' },
   { name: 'Google Gemini', url: 'https://generativelanguage.googleapis.com/v1beta/openai' },
 ];
 
