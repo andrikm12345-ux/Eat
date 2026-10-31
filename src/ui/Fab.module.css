@@ -1,0 +1,21 @@
+.fab {
+  position: fixed;
+  z-index: 25;
+  left: 50%;
+  bottom: calc(var(--nav-height) + var(--safe-bottom) + 12px);
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.fab:active {
+  transform: translateX(-50%) scale(0.95);
+}

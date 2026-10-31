@@ -1,0 +1,11 @@
+.main {
+  min-height: 100%;
+  /* Leave room for bottom nav + FAB. */
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 48px);
+}
+
+.loading {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--text-muted);
+}
