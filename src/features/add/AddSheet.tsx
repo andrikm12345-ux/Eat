@@ -8,6 +8,7 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { useUi } from '../../state/ui';
 import { BottomSheet } from '../../ui/BottomSheet';
+import { useAiConfig } from '../ai/useAi';
 import { addQs } from './addTarget';
 import { ADD_TILES } from './addTiles';
 import styles from './AddSheet.module.css';
@@ -19,6 +20,7 @@ export function AddSheet() {
   const navigate = useNavigate();
   const time = atTime ?? toLocalTime(new Date());
   const qs = addQs(date, time);
+  const ai = useAiConfig();
 
   const frequent = useLiveQuery(async () => {
     if (!open) return [];
@@ -36,23 +38,27 @@ export function AddSheet() {
   return (
     <BottomSheet open={open} title={atTime ? ru.today.addAt(atTime) : ru.add.title} onClose={close}>
       <div className={styles.grid}>
-        {ADD_TILES.map(({ key, path }) =>
-          path ? (
+        {ADD_TILES.map((tile) => {
+          const { key, path } = tile;
+          // Without AI set up, AI tiles lead to the manual equivalent.
+          const manual = 'manual' in tile && !ai?.ready ? tile.manual : null;
+          return path ? (
             <button
               key={key}
               type="button"
               className={styles.tile}
-              onClick={() => go(`${path}${qs}`)}
+              onClick={() => go(`${manual ?? path}${qs}`)}
             >
               <span>{ru.add.tiles[key]}</span>
+              {manual && <span className={styles.soon}>{ru.add.manualHint}</span>}
             </button>
           ) : (
             <button key={key} type="button" className={styles.tile} disabled>
               <span>{ru.add.tiles[key]}</span>
               <span className={styles.soon}>{ru.add.soon}</span>
             </button>
-          ),
-        )}
+          );
+        })}
       </div>
       {frequent && frequent.length > 0 && (
         <>

@@ -150,3 +150,24 @@ export function search<T extends SearchItem>(
   scored.sort((a, b) => b.score - a.score || a.item.name.localeCompare(b.item.name, 'ru'));
   return scored.slice(0, limit).map((s) => s.item);
 }
+
+/** Best verified match for a hint with similarity in [0, 1] (1 = exact name). */
+export function bestMatch<T extends SearchItem>(
+  index: readonly IndexedItem<T>[],
+  hint: string,
+): { item: T; similarity: number } | null {
+  const q = tokenize(hint);
+  if (!q.length) return null;
+  const key = q.join(' ');
+  let best: { item: T; similarity: number } | null = null;
+  for (const ix of index) {
+    if (!ix.item.verified) continue;
+    // Exact tokens (3 each) + exact key bonus (2) = 5 at most; extra name words lower it.
+    const raw = matchScore(q, key, ix);
+    if (!raw) continue;
+    const coverage = q.length / Math.max(q.length, ix.tokens.length);
+    const similarity = Math.min(1, (raw / 5) * (0.5 + 0.5 * coverage));
+    if (!best || similarity > best.similarity) best = { item: ix.item, similarity };
+  }
+  return best;
+}

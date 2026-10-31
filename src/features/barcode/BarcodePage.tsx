@@ -119,9 +119,12 @@ export default function BarcodePage() {
           </p>
           <div className={styles.actions}>
             <LinkButton to={createUrl(status.code)}>{t.createManual}</LinkButton>
-            <Button variant="secondary" disabled title={ru.add.soon}>
+            <LinkButton
+              to={`/add/ai-label${addQs(target.date, target.time)}&log=1&barcode=${encodeURIComponent(status.code)}`}
+              variant="secondary"
+            >
               {t.createLabel}
-            </Button>
+            </LinkButton>
             <Button
               variant="ghost"
               onClick={() => {

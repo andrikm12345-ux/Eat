@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { formatKcal } from '../../domain/format';
 import { atwaterKcal } from '../../domain/nutrients';
 import { repos } from '../../db/repos';
@@ -16,7 +16,8 @@ export default function QuickPage() {
   const target = useAddTarget();
   const navigate = useNavigate();
   const setDate = useUi((s) => s.setDate);
-  const [name, setName] = useState('');
+  const [params] = useSearchParams();
+  const [name, setName] = useState(params.get('name') ?? '');
   const [kcal, setKcal] = useState<number | null>(null);
   const [p, setP] = useState<number | null>(null);
   const [f, setF] = useState<number | null>(null);

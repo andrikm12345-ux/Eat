@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  bestMatch,
   buildIndex,
   editDistance,
   matchScore,
@@ -135,5 +136,26 @@ describe('search', () => {
     for (const q of ['кур', 'творог 5', 'ujdzlbyf', 'молако']) search(big, q, { nowMs: NOW });
     const per = (performance.now() - t0) / 4;
     expect(per).toBeLessThan(50);
+  });
+});
+
+describe('bestMatch', () => {
+  const index = buildIndex([
+    item('1', 'Гречка варёная', { verified: true }),
+    item('2', 'Гречка (крупа)', { verified: true }),
+    item('3', 'Банан', { verified: false }),
+    item('4', 'Рис белый варёный', { verified: true }),
+  ]);
+  it('exact verified names score 1', () => {
+    expect(bestMatch(index, 'гречка варёная')).toMatchObject({ item: { id: '1' }, similarity: 1 });
+  });
+  it('partial matches score lower; unverified ignored', () => {
+    const r = bestMatch(index, 'рис варёный');
+    expect(r?.item.id).toBe('4');
+    expect(r!.similarity).toBeLessThan(0.8);
+    expect(bestMatch(index, 'банан')).toBeNull();
+    // Ties keep the first candidate.
+    expect(bestMatch(index, 'гречка')?.item.id).toBe('1');
+    expect(bestMatch(index, '  ')).toBeNull();
   });
 });

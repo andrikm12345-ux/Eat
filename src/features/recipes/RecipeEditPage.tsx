@@ -7,6 +7,10 @@ import type { Food, Recipe } from '../../domain/types';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { compressImage } from '../../services/images';
+import { mealToIngredients } from '../../services/aiFood';
+import { PROMPT_MEAL } from '../../ai/prompts';
+import { runAi } from '../../ai/run';
+import { validateMeal } from '../../ai/validators';
 import { toast } from '../../state/ui';
 import { BottomSheet } from '../../ui/BottomSheet';
 import { Button, Card, NumberField, Row, Stat, TextField } from '../../ui/kit';
@@ -43,6 +47,34 @@ function Editor({ recipe }: { recipe: Recipe | null }) {
   const [servings, setServings] = useState<number | null>(recipe?.servingsCount ?? 1);
   const [photo, setPhoto] = useState<string | undefined>(recipe?.photoBlobId);
   const [picking, setPicking] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importBusy, setImportBusy] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+
+  async function importAi() {
+    setImportBusy(true);
+    setImportError(null);
+    try {
+      const { value } = await runAi(repos, {
+        kind: 'text',
+        vision: false,
+        system: PROMPT_MEAL,
+        content: [
+          { type: 'text', text: `Это список ингредиентов рецепта (на всё блюдо):\n${importText}` },
+        ],
+        validate: validateMeal,
+      });
+      const added = await mealToIngredients(repos, value);
+      setIngs((list) => [...list, ...added]);
+      setImporting(false);
+      setImportText('');
+    } catch (e) {
+      setImportError((e as Error).message);
+    } finally {
+      setImportBusy(false);
+    }
+  }
   const foods = useLiveQuery(async () => {
     const list = await repos.db.foods.bulkGet(ings.map((i) => i.foodId));
     return new Map(list.filter((f): f is Food => !!f).map((f) => [f.id, f]));
@@ -112,6 +144,9 @@ function Editor({ recipe }: { recipe: Recipe | null }) {
         <Button variant="secondary" block onClick={() => setPicking(true)}>
           {t.addIngredient}
         </Button>
+        <Button variant="ghost" block onClick={() => setImporting(true)}>
+          {t.importAi}
+        </Button>
       </Card>
       <Card>
         <NumberField
@@ -179,6 +214,24 @@ function Editor({ recipe }: { recipe: Recipe | null }) {
           {t.save}
         </Button>
       </Row>
+      <BottomSheet open={importing} title={t.importAi} onClose={() => setImporting(false)}>
+        <p className={styles.muted}>{t.importHint}</p>
+        <textarea
+          aria-label={t.importAi}
+          className={styles.input}
+          style={{ minHeight: 140, padding: 12 }}
+          value={importText}
+          onChange={(e) => setImportText(e.target.value)}
+        />
+        {importError && <p className={styles.muted}>{ru.ai.error(importError)}</p>}
+        <Button
+          block
+          disabled={importBusy || importText.trim().length < 3}
+          onClick={() => void importAi()}
+        >
+          {importBusy ? ru.ai.working : ru.ai.text.go}
+        </Button>
+      </BottomSheet>
       <BottomSheet open={picking} title={t.pickIngredient} onClose={() => setPicking(false)}>
         <FoodSearch
           autoFocus={false}

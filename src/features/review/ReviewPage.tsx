@@ -6,7 +6,7 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { saveAsTemplate } from '../../services/entries';
 import { saveReview } from '../../services/review';
-import { useReview, type ReviewDraft, type ReviewItem } from '../../state/review';
+import { swapAlt, useReview, type ReviewDraft, type ReviewItem } from '../../state/review';
 import { toast, useUi } from '../../state/ui';
 import { BottomSheet } from '../../ui/BottomSheet';
 import { Button, Card, Notice, NumberField, Row, TextField } from '../../ui/kit';
@@ -98,6 +98,16 @@ function Review({ initial }: { initial: ReviewDraft }) {
               <b>{formatKcal(n.kcal)} ккал</b> · Б {formatGrams(n.protein)} · Ж {formatGrams(n.fat)}{' '}
               · У {formatGrams(n.carbs)}
             </p>
+            {i.alt && (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  setItems((list) => list.map((x) => (x.key === i.key ? swapAlt(x) : x)))
+                }
+              >
+                {i.alt.source === 'ai' ? ru.ai.useAi : ru.ai.useCatalog(i.alt.name)}
+              </Button>
+            )}
             <Row>
               <Button variant="ghost" onClick={() => setReplacing(i.key)}>
                 {t.replace}
