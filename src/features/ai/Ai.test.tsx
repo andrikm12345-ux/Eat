@@ -187,4 +187,36 @@ describe('AI settings', () => {
     expect(await repos.settings.get(AI_KEYS.format, '')).toBe('openai');
     await waitFor(() => expect(screen.queryByText(ru.ai.needAddress)).not.toBeInTheDocument());
   });
+
+  it('model list: badges and the free / photo filters', async () => {
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-or-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.format, 'openai');
+    await repos.settings.set(AI_KEYS.baseUrl, 'https://openrouter.ai/api/v1');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              data: [
+                { id: 'paid/model', pricing: { prompt: '1', completion: '1' } },
+                { id: 'free/vision:free', architecture: { input_modalities: ['text', 'image'] } },
+                { id: 'free/text:free', architecture: { input_modalities: ['text'] } },
+              ],
+            }),
+          ),
+      ),
+    );
+    const user = userEvent.setup();
+    await renderApp('/more/ai');
+    await user.click(await screen.findByRole('button', { name: ru.ai.modelsShow }));
+    expect(await screen.findByText('paid/model')).toBeVisible();
+    expect(screen.getAllByText(new RegExp(ru.ai.freeBadge))).toHaveLength(2);
+    expect(screen.getAllByText(new RegExp(ru.ai.visionBadge))).toHaveLength(1);
+    await user.click(screen.getByRole('switch', { name: ru.ai.onlyFree }));
+    expect(screen.queryByText('paid/model')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('switch', { name: ru.ai.onlyVision }));
+    expect(screen.queryByText(/free\/text/)).not.toBeInTheDocument();
+    expect(screen.getByText(/free\/vision/)).toBeVisible();
+  });
 });

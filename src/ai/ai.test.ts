@@ -431,9 +431,11 @@ describe('custom API address', () => {
           status: 200,
         }),
     );
-    expect(await listModels('k', f as unknown as typeof fetch, 'https://r.example.com/v1')).toEqual(
-      ['a', 'b'],
-    );
+    expect(
+      (await listModels('k', f as unknown as typeof fetch, 'https://r.example.com/v1'))?.map(
+        (m) => m.id,
+      ),
+    ).toEqual(['a', 'b']);
     expect(f.mock.calls[0]![0]).toBe('https://r.example.com/v1/models?limit=200');
     const empty = async () => new Response('{"data":[]}', { status: 200 });
     expect(await listModels('k', empty as unknown as typeof fetch)).toBeNull();
@@ -558,10 +560,36 @@ describe('OpenAI-compatible format', () => {
   it('checks the key and lists models via /models', async () => {
     const f = vi.fn(async (_u: string) => new Response('{"data":[{"id":"m1"}]}'));
     expect(await checkKey('k', f as unknown as typeof fetch, base, 'openai')).toBe(true);
-    expect(await listModels('k', f as unknown as typeof fetch, base, 'openai')).toEqual(['m1']);
+    expect(
+      (await listModels('k', f as unknown as typeof fetch, base, 'openai'))?.map((m) => m.id),
+    ).toEqual(['m1']);
     expect(f.mock.calls.map((c) => c[0])).toEqual([
       'https://openrouter.ai/api/v1/models',
       'https://openrouter.ai/api/v1/models',
+    ]);
+  });
+
+  it('marks free and image-capable models and strips the Google prefix', async () => {
+    const f = async () =>
+      new Response(
+        JSON.stringify({
+          data: [
+            { id: 'a/paid', pricing: { prompt: '0.001', completion: '0.002' } },
+            {
+              id: 'a/zero',
+              pricing: { prompt: '0', completion: '0' },
+              architecture: { input_modalities: ['text', 'image'] },
+            },
+            { id: 'b/x:free', architecture: { input_modalities: ['text'] } },
+            { id: 'models/gemini-2.5-flash' },
+          ],
+        }),
+      );
+    expect(await listModels('k', f as unknown as typeof fetch, base, 'openai')).toEqual([
+      { id: 'a/paid', free: false, vision: null },
+      { id: 'a/zero', free: true, vision: true },
+      { id: 'b/x:free', free: true, vision: false },
+      { id: 'gemini-2.5-flash', free: false, vision: null },
     ]);
   });
 });

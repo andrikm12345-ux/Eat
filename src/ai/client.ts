@@ -266,23 +266,48 @@ export async function checkKey(
   }
 }
 
-/** Model ids offered by the service (Anthropic and compatible APIs: `{data: [{id}]}`), or null. */
+export type ModelInfo = {
+  id: string;
+  /** Priced at zero (OpenRouter reports pricing; other services: unknown = false). */
+  free: boolean;
+  /** Accepts images, when the service says so (OpenRouter); null = unknown. */
+  vision: boolean | null;
+};
+
+type RawModel = {
+  id?: unknown;
+  pricing?: { prompt?: unknown; completion?: unknown };
+  architecture?: { input_modalities?: unknown };
+};
+
+const isZero = (v: unknown) => v === '0' || v === 0 || v === '0.0';
+
+/** Models offered by the service (`{data: [{id, pricing?, architecture?}]}`), or null. */
 export async function listModels(
   apiKey: string,
   fetchImpl: typeof fetch = fetch,
   baseUrl?: string,
   format: ApiFormat = 'anthropic',
-): Promise<string[] | null> {
+): Promise<ModelInfo[] | null> {
   try {
     const res = await fetchImpl(modelsUrl(baseUrl, format, 200), {
       headers: headers(apiKey, baseUrl, format),
     });
     if (!res.ok) return null;
-    const body = (await res.json()) as { data?: { id?: unknown }[] };
-    const ids = (body.data ?? [])
-      .map((m) => m.id)
-      .filter((id): id is string => typeof id === 'string');
-    return ids.length > 0 ? ids : null;
+    const body = (await res.json()) as { data?: RawModel[] };
+    const out: ModelInfo[] = [];
+    for (const m of body.data ?? []) {
+      if (typeof m.id !== 'string') continue;
+      const mods = m.architecture?.input_modalities;
+      out.push({
+        // Google lists ids as "models/gemini-…" but expects the bare name in requests.
+        id: m.id.replace(/^models\//, ''),
+        free:
+          m.id.endsWith(':free') || (isZero(m.pricing?.prompt) && isZero(m.pricing?.completion)),
+        vision: Array.isArray(mods) ? mods.includes('image') : null,
+      });
+    }
+    return out.length > 0 ? out : null;
   } catch {
     return null;
   }

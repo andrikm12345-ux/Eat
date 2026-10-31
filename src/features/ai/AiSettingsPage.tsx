@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
-import { checkKey, listModels } from '../../ai/client';
+import { checkKey, listModels, type ModelInfo } from '../../ai/client';
 import { AI_DEFAULTS, AI_KEYS, maskKey } from '../../ai/settings';
 import type { ApiFormat } from '../../ai/client';
 import { repos } from '../../db/repos';
@@ -23,7 +23,9 @@ export default function AiSettingsPage() {
   const [key, setKey] = useState('');
   const [checking, setChecking] = useState(false);
   const [base, setBase] = useState<string | null>(null);
-  const [models, setModels] = useState<string[] | 'loading' | 'fail' | null>(null);
+  const [models, setModels] = useState<ModelInfo[] | 'loading' | 'fail' | null>(null);
+  const [onlyFree, setOnlyFree] = useState(false);
+  const [onlyVision, setOnlyVision] = useState(false);
   const logs = useLiveQuery(
     async () =>
       (await repos.aiRuns.list())
@@ -164,37 +166,53 @@ export default function AiSettingsPage() {
         {Array.isArray(models) && (
           <>
             <p className={styles.muted}>{t.modelsHint}</p>
+            {models.some((m) => m.free) && (
+              <Switch label={t.onlyFree} checked={onlyFree} onChange={setOnlyFree} />
+            )}
+            {models.some((m) => m.vision) && (
+              <Switch label={t.onlyVision} checked={onlyVision} onChange={setOnlyVision} />
+            )}
             <ul
-              style={{ maxHeight: 280, overflow: 'auto', padding: 0, margin: 0, listStyle: 'none' }}
+              style={{ maxHeight: 320, overflow: 'auto', padding: 0, margin: 0, listStyle: 'none' }}
             >
-              {models.map((id) => (
-                <li
-                  key={id}
-                  style={{
-                    display: 'flex',
-                    gap: 8,
-                    alignItems: 'center',
-                    padding: '6px 0',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <span style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>{id}</span>
-                  <Button
-                    variant={cfg.modelText === id ? 'primary' : 'secondary'}
-                    aria-label={`${t.forText}: ${id}`}
-                    onClick={() => void repos.settings.set(AI_KEYS.modelText, id)}
+              {models
+                .filter((m) => (!onlyFree || m.free) && (!onlyVision || m.vision))
+                .sort(
+                  (a, b) =>
+                    Number(b.free) - Number(a.free) || Number(!!b.vision) - Number(!!a.vision),
+                )
+                .map((m) => (
+                  <li
+                    key={m.id}
+                    style={{
+                      display: 'flex',
+                      gap: 8,
+                      alignItems: 'center',
+                      padding: '6px 0',
+                      flexWrap: 'wrap',
+                    }}
                   >
-                    {t.forText}
-                  </Button>
-                  <Button
-                    variant={cfg.modelVision === id ? 'primary' : 'secondary'}
-                    aria-label={`${t.forPhoto}: ${id}`}
-                    onClick={() => void repos.settings.set(AI_KEYS.modelVision, id)}
-                  >
-                    {t.forPhoto}
-                  </Button>
-                </li>
-              ))}
+                    <span style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
+                      {m.id}
+                      {m.free && <small className={styles.muted}> · {t.freeBadge}</small>}
+                      {m.vision && <small className={styles.muted}> · {t.visionBadge}</small>}
+                    </span>
+                    <Button
+                      variant={cfg.modelText === m.id ? 'primary' : 'secondary'}
+                      aria-label={`${t.forText}: ${m.id}`}
+                      onClick={() => void repos.settings.set(AI_KEYS.modelText, m.id)}
+                    >
+                      {t.forText}
+                    </Button>
+                    <Button
+                      variant={cfg.modelVision === m.id ? 'primary' : 'secondary'}
+                      aria-label={`${t.forPhoto}: ${m.id}`}
+                      onClick={() => void repos.settings.set(AI_KEYS.modelVision, m.id)}
+                    >
+                      {t.forPhoto}
+                    </Button>
+                  </li>
+                ))}
             </ul>
           </>
         )}
