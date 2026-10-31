@@ -102,3 +102,27 @@ export async function createRecoveryCode(
   if (res.ok && data.recoveryCode) return { recoveryCode: data.recoveryCode };
   return { error: res.status === 401 ? 'wrong_credentials' : 'unknown' };
 }
+
+/** Changes the password of the signed-in account. */
+export async function changeAccountPassword(
+  r: Repos,
+  password: string,
+  newPassword: string,
+): Promise<{ ok: true } | { error: AccountError }> {
+  const session = await getSession(r);
+  if (!session) return { error: 'wrong_credentials' };
+  let res: Response;
+  try {
+    res = await fetch('/api/auth/password', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${session.token}` },
+      body: JSON.stringify({ password, newPassword }),
+    });
+  } catch {
+    return { error: 'network' };
+  }
+  if (res.ok) return { ok: true };
+  const data = (await res.json().catch(() => ({}))) as Reply;
+  if (data.error === 'bad_password') return { error: 'bad_password' };
+  return { error: res.status === 401 ? 'wrong_credentials' : 'unknown' };
+}

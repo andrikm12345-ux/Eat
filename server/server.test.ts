@@ -10,7 +10,15 @@ import {
   userIdFor,
   verifySession,
 } from './auth.js';
-import { getSync, login, newRecovery, putSync, register, resetPassword } from './handlers.js';
+import {
+  changePassword,
+  getSync,
+  login,
+  newRecovery,
+  putSync,
+  register,
+  resetPassword,
+} from './handlers.js';
 import type { Deps, Store } from './types.js';
 
 const SECRET = 'x'.repeat(40);
@@ -350,5 +358,43 @@ describe('recovery code for existing accounts', () => {
     // A session whose account record is gone is rejected.
     store.data.delete(key);
     expect((await ask(token, 'new-password')).status).toBe(401);
+  });
+});
+
+describe('change password', () => {
+  it('needs a session and the current password; keeps data and the recovery code', async () => {
+    const { d } = deps();
+    const reg = (await (await register(d, creds('ivan', 'old-password'))).json()) as {
+      token: string;
+      recoveryCode: string;
+    };
+    const ask = (tok: string | null, password: string, newPassword: string) =>
+      changePassword(
+        d,
+        new Request('http://x', {
+          method: 'POST',
+          headers: tok ? { authorization: `Bearer ${tok}` } : {},
+          body: JSON.stringify({ password, newPassword }),
+        }),
+      );
+    expect((await ask(null, 'old-password', 'new-password')).status).toBe(401);
+    expect((await ask('bad.token', 'old-password', 'new-password')).status).toBe(401);
+    expect((await ask(reg.token, 'wrong-password', 'new-password')).status).toBe(401);
+    expect((await ask(reg.token, 'old-password', 'short')).status).toBe(400);
+    expect((await ask(reg.token, 'old-password', 'new-password')).status).toBe(200);
+    expect((await login(d, creds('ivan', 'old-password'))).status).toBe(401);
+    expect((await login(d, creds('ivan', 'new-password'))).status).toBe(200);
+    expect(
+      (
+        await resetPassword(
+          d,
+          post({ login: 'ivan', recoveryCode: reg.recoveryCode, password: 'third-password' }),
+        )
+      ).status,
+    ).toBe(200);
+    // A session whose account record is gone is rejected.
+    const store = d.store as ReturnType<typeof memoryStore>;
+    store.data.clear();
+    expect((await ask(reg.token, 'third-password', 'x-password-1')).status).toBe(401);
   });
 });

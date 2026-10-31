@@ -5,6 +5,7 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import {
   ACCOUNT,
+  changeAccountPassword,
   createRecoveryCode,
   loginAccount,
   registerAccount,
@@ -39,8 +40,11 @@ export default function AccountPage() {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
+  const [oldPw, setOldPw] = useState('');
+  const [newPw, setNewPw] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
   if (!session) return <div className={styles.wrap}>{ru.common.loading}</div>;
 
@@ -80,7 +84,7 @@ export default function AccountPage() {
     setError(null);
     const s = await syncNow(repos);
     setBusy(false);
-    if (s.ok) toast({ text: t.synced });
+    if (s.ok) setInfo(t.synced);
     else setError(t.syncErrors[s.reason]);
   }
 
@@ -107,12 +111,13 @@ export default function AccountPage() {
                 variant="secondary"
                 onClick={() => {
                   void navigator.clipboard?.writeText(newCode);
-                  toast({ text: t.copied });
+                  setInfo(t.copied);
                 }}
               >
                 {t.copy}
               </Button>
             </Card>
+            {info && <Notice tone="info">{info}</Notice>}
             <Button
               block
               disabled={busy}
@@ -136,10 +141,47 @@ export default function AccountPage() {
               <p>{t.what}</p>
             </Card>
             {error && <Notice>{error}</Notice>}
+            {info && <Notice tone="info">{info}</Notice>}
             <Button block disabled={busy} onClick={() => void sync()}>
               {busy ? t.syncing : t.syncNow}
             </Button>
             <p>{t.signOutHint}</p>
+            <Card title={t.changeTitle}>
+              <TextField
+                label={t.currentPassword}
+                type={show ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={oldPw}
+                onChange={setOldPw}
+              />
+              <TextField
+                label={t.newPassword}
+                hint={t.passwordHint}
+                type={show ? 'text' : 'password'}
+                autoComplete="new-password"
+                value={newPw}
+                onChange={setNewPw}
+              />
+              <Switch label={t.showPassword} checked={show} onChange={setShow} />
+              <Button
+                block
+                variant="secondary"
+                disabled={busy || !oldPw || !newPw}
+                onClick={async () => {
+                  setBusy(true);
+                  setError(null);
+                  setInfo(null);
+                  const r = await changeAccountPassword(repos, oldPw, newPw);
+                  setBusy(false);
+                  if ('error' in r) return setError(message(r.error));
+                  setOldPw('');
+                  setNewPw('');
+                  setInfo(t.changed);
+                }}
+              >
+                {t.changeGo}
+              </Button>
+            </Card>
             <Card title={t.newCodeTitle}>
               <p>{t.newCodeHint}</p>
               <TextField
@@ -157,6 +199,7 @@ export default function AccountPage() {
                 onClick={async () => {
                   setBusy(true);
                   setError(null);
+                  setInfo(null);
                   const r = await createRecoveryCode(repos, password);
                   setBusy(false);
                   if ('error' in r) return setError(message(r.error));
@@ -233,6 +276,7 @@ export default function AccountPage() {
               )}
               <Switch label={t.showPassword} checked={show} onChange={setShow} />
               {error && <Notice>{error}</Notice>}
+              {info && <Notice tone="info">{info}</Notice>}
               {mode === 'signUp' && <p>{t.noReset}</p>}
               <Button block type="submit" disabled={busy || !login || !password}>
                 {busy

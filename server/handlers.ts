@@ -143,6 +143,21 @@ export async function newRecovery(d: Deps, req: Request): Promise<Response> {
   return json({ recoveryCode });
 }
 
+/** POST {password, newPassword} (signed in) → changes the password; data and recovery code stay. */
+export async function changePassword(d: Deps, req: Request): Promise<Response> {
+  const token = bearer(req);
+  const userId = token ? verifySession(d.secret, token, d.now()) : null;
+  if (!userId) return json({ error: 'unauthorized' }, 401);
+  const body = await readJson(req);
+  const creds = await readCreds(d, userId);
+  if (!creds) return json({ error: 'unauthorized' }, 401);
+  const next = String(body?.newPassword ?? '');
+  if (!isValidPassword(next)) return json({ error: 'bad_password' }, 400);
+  if (!(await checkSecret(creds, String(body?.password ?? '')))) return failed(d);
+  await d.store.put(credPath(userId), JSON.stringify({ ...creds, ...(await hashSecret(next)) }));
+  return json({ ok: true });
+}
+
 const dataPath = (userId: string) => `users/${userId}.json`;
 
 /** GET → the stored snapshot (or {empty:true}). */

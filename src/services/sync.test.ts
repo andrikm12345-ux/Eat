@@ -6,6 +6,7 @@ import {
   login as srvLogin,
   putSync,
   register as srvRegister,
+  changePassword as srvPassword,
   newRecovery as srvRecovery,
   resetPassword as srvReset,
 } from '../../server/handlers';
@@ -15,6 +16,7 @@ import { ru } from '../i18n/ru';
 import { renderApp } from '../test/renderApp';
 import {
   ACCOUNT,
+  changeAccountPassword,
   createRecoveryCode,
   getSession,
   loginAccount,
@@ -46,6 +48,7 @@ beforeEach(() => {
     if (url === '/api/auth/login') return srvLogin(deps(), req);
     if (url === '/api/auth/reset') return srvReset(deps(), req);
     if (url === '/api/auth/recovery') return srvRecovery(deps(), req);
+    if (url === '/api/auth/password') return srvPassword(deps(), req);
     return req.method === 'PUT' ? putSync(deps(), req) : getSync(deps(), req);
   });
 });
@@ -262,6 +265,53 @@ describe('recovery code for the signed-in account', () => {
   });
 });
 
+describe('change password', () => {
+  it('service: needs the current password', async () => {
+    await registerAccount(repos, 'ivan', PW);
+    expect(await changeAccountPassword(repos, 'wrong-password', 'new-password')).toEqual({
+      error: 'wrong_credentials',
+    });
+    expect(await changeAccountPassword(repos, PW, 'short')).toEqual({ error: 'bad_password' });
+    expect(await changeAccountPassword(repos, PW, 'new-password')).toEqual({ ok: true });
+    expect(await loginAccount(repos, 'ivan', PW)).toEqual({ error: 'wrong_credentials' });
+    expect(await loginAccount(repos, 'ivan', 'new-password')).toMatchObject({ login: 'ivan' });
+    vi.stubGlobal('fetch', async () => new Response('x', { status: 500 }));
+    expect(await changeAccountPassword(repos, PW, 'other-password')).toEqual({ error: 'unknown' });
+    vi.stubGlobal('fetch', async () => {
+      throw new TypeError('offline');
+    });
+    expect(await changeAccountPassword(repos, PW, 'other-password')).toEqual({ error: 'network' });
+    await signOut(repos);
+    expect(await changeAccountPassword(repos, PW, 'x-password-1')).toEqual({
+      error: 'wrong_credentials',
+    });
+  });
+
+  it('account page: change the password', async () => {
+    await registerAccount(repos, 'ivan', PW);
+    const user = userEvent.setup();
+    await renderApp('/account');
+    await user.type(await screen.findByLabelText(ru.account.currentPassword), PW);
+    await user.type(screen.getByLabelText(ru.account.newPassword), 'brand-new-pass');
+    await user.click(screen.getByRole('button', { name: ru.account.changeGo }));
+    expect(await screen.findByText(ru.account.changed)).toBeVisible();
+    expect(await loginAccount(repos, 'ivan', 'brand-new-pass')).toMatchObject({ login: 'ivan' });
+    await user.type(screen.getByLabelText(ru.account.currentPassword), 'wrong-password');
+    await user.type(screen.getByLabelText(ru.account.newPassword), 'another-pass-1');
+    await user.click(screen.getByRole('button', { name: ru.account.changeGo }));
+    expect(await screen.findByText(ru.account.errors.wrong_credentials)).toBeVisible();
+  });
+});
+
+describe('storage screen', () => {
+  it('tells whether the cloud copy is on', async () => {
+    await renderApp('/more/storage');
+    expect(await screen.findByText(ru.storage.cloudOff)).toBeVisible();
+    await registerAccount(repos, 'ivan', PW);
+    expect(await screen.findByText(ru.storage.cloudOn('ivan'))).toBeVisible();
+  });
+});
+
 describe('account page', () => {
   it('create an account: password mismatch, taken login, then success', async () => {
     await registerAccount(repos, 'busy', PW);
@@ -284,6 +334,7 @@ describe('account page', () => {
     expect(await screen.findByText(ru.account.saveCodeTitle)).toBeVisible();
     await waitFor(async () => expect(await getSession(repos)).toMatchObject({ login: 'fresh' }));
     await user.click(screen.getByRole('button', { name: ru.account.copy }));
+    expect(await screen.findByText(ru.account.copied)).toBeVisible();
     await user.click(screen.getByRole('button', { name: ru.account.saved }));
     await waitFor(() => expect(screen.queryByText(ru.account.saveCodeTitle)).toBeNull());
   });
@@ -334,7 +385,7 @@ describe('account page', () => {
     await renderApp('/account');
     expect(await screen.findByText(ru.account.signedIn('ivan'))).toBeVisible();
     await user.click(screen.getByRole('button', { name: ru.account.syncNow }));
-    expect(await screen.findByText(/Последняя синхронизация/)).toBeVisible();
+    expect(await screen.findByText(ru.account.synced)).toBeVisible();
     await user.click(screen.getByRole('button', { name: ru.account.signOut }));
     expect(await screen.findByLabelText(ru.account.login)).toBeVisible();
   });
