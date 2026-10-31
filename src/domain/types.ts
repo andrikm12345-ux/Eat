@@ -93,8 +93,11 @@ export type Recipe = BaseRecord & {
 export type TemplateItem = {
   foodId?: string;
   recipeId?: string;
+  /** Item name at save time (kept next to the snapshot: `Nutrients` cannot hold strings). */
+  name: string;
   grams: number;
-  snapshot: Nutrients & { name: string };
+  /** Absolute nutrients for `grams` at save time. */
+  snapshot: Nutrients;
 };
 
 export type Template = BaseRecord & { id: string; name: string; items: TemplateItem[] };

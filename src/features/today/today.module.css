@@ -1,0 +1,316 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: calc(8px + var(--safe-top)) 0 4px;
+  touch-action: pan-y;
+}
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  flex: 1;
+}
+.arrow {
+  width: var(--tap);
+  height: var(--tap);
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin: 4px 0 12px;
+  touch-action: pan-y;
+}
+.dayBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+  border-radius: 12px;
+  cursor: pointer;
+  min-height: var(--tap);
+}
+.dayBtnActive {
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--border);
+}
+.dow {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.dayCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  position: relative;
+}
+.dayNum {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+}
+.summary {
+  display: grid;
+  grid-template-columns: 136px 1fr;
+  gap: 16px;
+  align-items: center;
+}
+.ring {
+  position: relative;
+  width: 136px;
+  height: 136px;
+}
+.ringCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.ringValue {
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ringLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.ringOver {
+  color: var(--over);
+}
+.eatenRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+.eatenRow b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.barLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+.barValue {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.barFill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+}
+.barOver {
+  background: var(--over);
+}
+.waterValue {
+  margin: 0 0 8px;
+  font-variant-numeric: tabular-nums;
+}
+.waterRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.waterRow > * {
+  flex: 1;
+  padding: 0 8px;
+}
+.flow {
+  position: relative;
+  padding-left: 64px;
+}
+.flow::before {
+  content: '';
+  position: absolute;
+  left: 52px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+.gap {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: copy;
+  padding: 0;
+  position: relative;
+}
+.gap:hover::after,
+.gap:focus-visible::after {
+  content: '+';
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font-weight: 700;
+}
+.stack {
+  position: relative;
+  margin: 2px 0;
+}
+.stackTime {
+  position: absolute;
+  left: -64px;
+  width: 44px;
+  white-space: nowrap;
+  top: 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.dot {
+  position: absolute;
+  left: -16px;
+  top: 18px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--bg);
+}
+.rowWrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  margin-bottom: 4px;
+}
+.swipeBg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 8px 4px 8px 12px;
+  min-height: 56px;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: transform 0.15s ease-out;
+}
+.rowDragging {
+  transition: none;
+}
+.rowMain {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.rowTitle {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+.rowSub {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.rowKcal {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.more {
+  width: 36px;
+  height: var(--tap);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 10px;
+}
+.count {
+  display: inline-block;
+  margin: 0 4px;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.empty {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 8px 0;
+}
+.sheetActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.countBtn {
+  border: none;
+  background: var(--accent-soft);
+  border-radius: 8px;
+  padding: 4px 6px;
+  min-height: 32px;
+  cursor: pointer;
+}

@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { ru } from './i18n/ru';
@@ -57,7 +57,7 @@ describe('add sheet', () => {
     expect(fab).toHaveAttribute('aria-expanded', 'false');
     await user.click(fab);
     const dialog = screen.getByRole('dialog', { name: ru.add.title });
-    for (const key of ADD_TILES) {
+    for (const { key } of ADD_TILES) {
       expect(within(dialog).getByText(ru.add.tiles[key])).toBeInTheDocument();
     }
     expect(fab).toHaveAttribute('aria-expanded', 'true');
@@ -73,19 +73,19 @@ describe('add sheet', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('opens from the manifest shortcut and strips the action param on close', async () => {
+  it('opens from the manifest shortcut and strips the action param', async () => {
     const user = userEvent.setup();
     const { router } = await renderApp('/?action=add');
     expect(await screen.findByRole('dialog', { name: ru.add.title })).toBeVisible();
+    await waitFor(() => expect(router.state.location.search).toBe(''));
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(router.state.location.search).toBe('');
   });
 
   it('ignores the weigh shortcut for now but still strips the param', async () => {
     const { router } = await renderApp('/?action=weigh');
     await screen.findByRole('heading', { level: 1 });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(router.state.location.search).toBe('');
+    await waitFor(() => expect(router.state.location.search).toBe(''));
   });
 });

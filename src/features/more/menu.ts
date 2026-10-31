@@ -6,7 +6,7 @@ type Key = keyof typeof ru.more.items;
 export const MORE_MENU: { key: Key; to: string | null }[] = [
   { key: 'profile', to: '/more/profile' },
   { key: 'wizard', to: '/wizard' },
-  { key: 'foods', to: null },
+  { key: 'foods', to: '/foods' },
   { key: 'recipes', to: null },
   { key: 'templates', to: null },
   { key: 'workouts', to: null },

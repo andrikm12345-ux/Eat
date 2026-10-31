@@ -4,6 +4,8 @@ import {
   ageOn,
   daysBetween,
   formatDateRu,
+  weekDays,
+  weekStart,
   isLocalDate,
   parseLocalDate,
   toLocalDate,
@@ -51,5 +53,20 @@ describe('dates', () => {
   it('formats Russian dates', () => {
     expect(formatDateRu('2026-03-05')).toBe('5 марта 2026');
     expect(formatDateRu('2026-03-05', 'EEEEEE, d MMM')).toBe('чт, 5 мар.');
+  });
+
+  it('week starts on Monday', () => {
+    expect(weekStart('2026-03-05')).toBe('2026-03-02'); // Thu
+    expect(weekStart('2026-03-08')).toBe('2026-03-02'); // Sun
+    expect(weekStart('2026-03-02')).toBe('2026-03-02'); // Mon
+    expect(weekDays('2026-03-05')).toEqual([
+      '2026-03-02',
+      '2026-03-03',
+      '2026-03-04',
+      '2026-03-05',
+      '2026-03-06',
+      '2026-03-07',
+      '2026-03-08',
+    ]);
   });
 });

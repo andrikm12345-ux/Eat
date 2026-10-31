@@ -49,3 +49,15 @@ export function ageOn(birthDate: LocalDate, on: LocalDate): number {
 export function formatDateRu(date: LocalDate, pattern = 'd MMMM yyyy'): string {
   return format(parseLocalDate(date), pattern, { locale: ru });
 }
+
+/** Monday of the week containing `date`. */
+export function weekStart(date: LocalDate): LocalDate {
+  const dow = parseLocalDate(date).getDay(); // 0 = Sunday
+  return addDays(date, dow === 0 ? -6 : 1 - dow);
+}
+
+/** The 7 days (Mon..Sun) of the week containing `date`. */
+export function weekDays(date: LocalDate): LocalDate[] {
+  const start = weekStart(date);
+  return Array.from({ length: 7 }, (_, i) => addDays(start, i));
+}

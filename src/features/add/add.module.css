@@ -1,0 +1,124 @@
+.searchBox {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--bg);
+  padding: calc(8px + var(--safe-top)) 0 8px;
+}
+.input {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0 14px;
+  font: inherit;
+  font-size: 17px;
+  color: var(--text);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.sectionTitle {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 16px 4px 6px;
+  font-weight: 600;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.row + .row {
+  border-top: 1px solid var(--border);
+}
+.rowLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  min-height: 52px;
+  color: var(--text);
+  text-decoration: none;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.rowMain {
+  flex: 1;
+  min-width: 0;
+}
+.rowName {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rowSub {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.rowRight {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: right;
+  white-space: nowrap;
+}
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  border-radius: 6px;
+  padding: 1px 6px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  margin-left: 6px;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+.actions > * {
+  flex: 1;
+}
+.stepper {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.stepper > :nth-child(2) {
+  flex: 1;
+}
+.stepBtn {
+  width: 52px;
+  height: 46px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.big {
+  font-size: 34px;
+  font-weight: 700;
+  margin: 8px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+.muted {
+  color: var(--text-muted);
+  font-size: 14px;
+}

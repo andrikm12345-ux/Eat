@@ -1,10 +1,12 @@
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect } from 'react';
 import { Navigate, Outlet, useSearchParams } from 'react-router';
 import { useProfile } from '../db/hooks';
 import { AddSheet } from '../features/add/AddSheet';
 import { ru } from '../i18n/ru';
 import { UpdateBanner } from '../pwa/UpdateBanner';
+import { useUi } from '../state/ui';
 import { BottomNav } from './BottomNav';
+import { ToastHost } from './ToastHost';
 import { Fab } from './Fab';
 import styles from './AppShell.module.css';
 
@@ -12,11 +14,10 @@ import styles from './AppShell.module.css';
 const ADD_ACTIONS = new Set(['add', 'scan']);
 
 export function AppShell() {
-  const [addOpen, setAddOpen] = useState(false);
   const [params, setParams] = useSearchParams();
   const action = params.get('action');
-  // A shortcut action keeps the sheet open until it is closed; then the param is dropped.
-  const open = addOpen || (action !== null && ADD_ACTIONS.has(action));
+  const addOpen = useUi((s) => s.addSheet.open);
+  const openAdd = useUi((s) => s.openAdd);
 
   const clearAction = useCallback(() => {
     setParams(
@@ -30,14 +31,11 @@ export function AppShell() {
   }, [setParams]);
 
   useEffect(() => {
-    // TODO(stage 3/4/5): route `scan` to the scanner and `weigh` to the weight sheet.
-    if (action !== null && !ADD_ACTIONS.has(action)) clearAction();
-  }, [action, clearAction]);
-
-  const closeAdd = useCallback(() => {
-    setAddOpen(false);
-    if (action !== null) clearAction();
-  }, [action, clearAction]);
+    if (action === null) return;
+    // TODO(stage 4/5): route `scan` to the scanner and `weigh` to the weight sheet.
+    if (ADD_ACTIONS.has(action)) openAdd();
+    clearAction();
+  }, [action, clearAction, openAdd]);
 
   const profile = useProfile();
   if (profile === null) return <Navigate to="/wizard" replace />;
@@ -50,9 +48,10 @@ export function AppShell() {
           <Outlet />
         </Suspense>
       </main>
-      <Fab onClick={() => setAddOpen(true)} expanded={open} />
+      <Fab onClick={() => openAdd()} expanded={addOpen} />
       <BottomNav />
-      <AddSheet open={open} onClose={closeAdd} />
+      <AddSheet />
+      <ToastHost />
     </>
   );
 }
