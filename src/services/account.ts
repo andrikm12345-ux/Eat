@@ -12,7 +12,6 @@ export type AccountError =
   | 'bad_password'
   | 'taken'
   | 'wrong_credentials'
-  | 'locked'
   | 'signup_closed'
   | 'network'
   | 'unknown';
@@ -22,16 +21,13 @@ type Reply = {
   login?: string;
   recoveryCode?: string;
   error?: string;
-  retryAfterSec?: number;
 };
 
 async function auth(
   r: Repos,
   kind: 'register' | 'login' | 'reset',
   body: Record<string, string>,
-): Promise<
-  { login: string; recoveryCode?: string } | { error: AccountError; retryAfterSec?: number }
-> {
+): Promise<{ login: string; recoveryCode?: string } | { error: AccountError }> {
   let res: Response;
   try {
     res = await fetch(`/api/auth/${kind}`, {
@@ -53,11 +49,10 @@ async function auth(
     'bad_password',
     'taken',
     'wrong_credentials',
-    'locked',
     'signup_closed',
   ];
   const error = known.find((k) => k === data.error) ?? 'unknown';
-  return { error, retryAfterSec: data.retryAfterSec };
+  return { error };
 }
 
 /** Creates an account and signs in. */
@@ -88,7 +83,7 @@ export async function signOut(r: Repos) {
 export async function createRecoveryCode(
   r: Repos,
   password: string,
-): Promise<{ recoveryCode: string } | { error: AccountError; retryAfterSec?: number }> {
+): Promise<{ recoveryCode: string } | { error: AccountError }> {
   const session = await getSession(r);
   if (!session) return { error: 'wrong_credentials' };
   let res: Response;
@@ -103,6 +98,5 @@ export async function createRecoveryCode(
   }
   const data = (await res.json().catch(() => ({}))) as Reply;
   if (res.ok && data.recoveryCode) return { recoveryCode: data.recoveryCode };
-  if (res.status === 429) return { error: 'locked', retryAfterSec: data.retryAfterSec };
   return { error: res.status === 401 ? 'wrong_credentials' : 'unknown' };
 }

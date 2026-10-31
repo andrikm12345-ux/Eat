@@ -41,10 +41,7 @@ export default function AccountPage() {
 
   if (!session) return <div className={styles.wrap}>{ru.common.loading}</div>;
 
-  const message = (e: AccountError, retryAfterSec?: number) =>
-    e === 'locked'
-      ? t.errors.locked(Math.max(1, Math.ceil((retryAfterSec ?? 60) / 60)))
-      : t.errors[e];
+  const message = (e: AccountError) => t.errors[e];
 
   async function finish() {
     const s = await syncNow(repos);
@@ -65,7 +62,7 @@ export default function AccountPage() {
           : await loginAccount(repos, login, password);
     if ('error' in r) {
       setBusy(false);
-      return setError(message(r.error, r.retryAfterSec));
+      return setError(message(r.error));
     }
     // New accounts and resets show the recovery code once before going on.
     if (r.recoveryCode) {
@@ -159,7 +156,7 @@ export default function AccountPage() {
                   setError(null);
                   const r = await createRecoveryCode(repos, password);
                   setBusy(false);
-                  if ('error' in r) return setError(message(r.error, r.retryAfterSec));
+                  if ('error' in r) return setError(message(r.error));
                   setPassword('');
                   setNewCode(r.recoveryCode);
                 }}

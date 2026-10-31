@@ -89,12 +89,6 @@ describe('account', () => {
     });
     expect(await loginAccount(repos, 'ivan', PW)).toEqual({ error: 'network' });
   });
-
-  it('locks after repeated wrong passwords', async () => {
-    await registerAccount(repos, 'ivan', PW);
-    for (let i = 0; i < 5; i++) await loginAccount(repos, 'ivan', 'wrong-password');
-    expect(await loginAccount(repos, 'ivan', PW)).toMatchObject({ error: 'locked' });
-  });
 });
 
 describe('sync', () => {
@@ -244,10 +238,8 @@ describe('recovery code for the signed-in account', () => {
     expect(await createRecoveryCode(repos, PW)).toEqual({ error: 'wrong_credentials' });
   });
 
-  it('reports lock and network errors', async () => {
+  it('reports server and network errors', async () => {
     await registerAccount(repos, 'ivan', PW);
-    for (let i = 0; i < 5; i++) await createRecoveryCode(repos, 'wrong-password');
-    expect(await createRecoveryCode(repos, PW)).toMatchObject({ error: 'locked' });
     vi.stubGlobal('fetch', async () => new Response('x', { status: 500 }));
     expect(await createRecoveryCode(repos, PW)).toEqual({ error: 'unknown' });
     vi.stubGlobal('fetch', async () => {
@@ -334,18 +326,6 @@ describe('account page', () => {
     expect(await screen.findByLabelText(ru.account.recoveryCode)).toBeVisible();
     await user.click(screen.getByRole('button', { name: ru.account.backToSignIn }));
     expect(await screen.findByRole('button', { name: ru.account.forgot })).toBeVisible();
-  });
-
-  it('shows the lock message', async () => {
-    await registerAccount(repos, 'ivan', PW);
-    await signOut(repos);
-    for (let i = 0; i < 5; i++) await loginAccount(repos, 'ivan', 'wrong-password');
-    const user = userEvent.setup();
-    await renderApp('/account', { seed: false });
-    await user.type(await screen.findByLabelText(ru.account.login), 'ivan');
-    await user.type(screen.getByLabelText(ru.account.password), PW);
-    await user.click(screen.getByRole('button', { name: ru.account.signIn }));
-    expect(await screen.findByText(ru.account.errors.locked(15))).toBeVisible();
   });
 
   it('signed-in view: sync now and sign out', async () => {

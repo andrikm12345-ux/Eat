@@ -4,8 +4,6 @@ import {
   isValidLogin,
   generateRecoveryCode,
   isValidPassword,
-  LOCK_MS,
-  MAX_FAILS,
   normalizeLogin,
   normalizeRecovery,
   SESSION_TTL_MS,
@@ -170,17 +168,11 @@ describe('register and login', () => {
     expect((await login(d, creds('x', 'password2'))).status).toBe(400);
   });
 
-  it('locks after repeated failures, then unlocks; success resets the counter', async () => {
-    const { d, advance } = deps();
+  it('never locks the account: many wrong passwords, the right one still works', async () => {
+    const { d } = deps();
     await register(d, creds('ivan', 'password1'));
-    for (let i = 0; i < MAX_FAILS - 1; i++) await login(d, creds('ivan', 'bad-password'));
-    // A success in between clears the counter.
-    expect((await login(d, creds('ivan', 'password1'))).status).toBe(200);
-    for (let i = 0; i < MAX_FAILS; i++) await login(d, creds('ivan', 'bad-password'));
-    const locked = await login(d, creds('ivan', 'password1'));
-    expect(locked.status).toBe(429);
-    expect(await locked.json()).toMatchObject({ error: 'locked', retryAfterSec: LOCK_MS / 1000 });
-    advance(LOCK_MS + 1);
+    for (let i = 0; i < 12; i++)
+      expect((await login(d, creds('ivan', 'bad-password'))).status).toBe(401);
     expect((await login(d, creds('ivan', 'password1'))).status).toBe(200);
   });
 
@@ -284,7 +276,7 @@ describe('password recovery', () => {
   });
 
   it('wrong code, unknown login, bad input, lockout and accounts without a code', async () => {
-    const { d, advance } = deps();
+    const { d } = deps();
     const reg = (await (await register(d, creds('ivan', 'old-password'))).json()) as {
       recoveryCode: string;
     };
@@ -296,12 +288,6 @@ describe('password recovery', () => {
     );
     expect((await resetPassword(d, reset('ivan', reg.recoveryCode, 'short'))).status).toBe(400);
     expect((await resetPassword(d, reset('x', reg.recoveryCode, 'new-password'))).status).toBe(400);
-    for (let i = 0; i < MAX_FAILS; i++)
-      await resetPassword(d, reset('ivan', 'WRONG', 'new-password'));
-    expect((await resetPassword(d, reset('ivan', reg.recoveryCode, 'new-password'))).status).toBe(
-      429,
-    );
-    advance(LOCK_MS + 1);
     expect((await resetPassword(d, reset('ivan', reg.recoveryCode, 'new-password'))).status).toBe(
       200,
     );
@@ -330,7 +316,7 @@ describe('password recovery', () => {
 
 describe('recovery code for existing accounts', () => {
   it('a signed-in user can issue a code after confirming the password', async () => {
-    const { d, advance } = deps();
+    const { d } = deps();
     const { token } = (await (await register(d, creds('ivan', 'old-password'))).json()) as {
       token: string;
     };
@@ -360,10 +346,6 @@ describe('recovery code for existing accounts', () => {
         .status,
     ).toBe(200);
 
-    // Wrong passwords lock it like login does.
-    for (let i = 0; i < MAX_FAILS; i++) await ask(token, 'wrong-password');
-    expect((await ask(token, 'new-password')).status).toBe(429);
-    advance(LOCK_MS + 1);
     expect((await ask(token, 'new-password')).status).toBe(200);
     // A session whose account record is gone is rejected.
     store.data.delete(key);

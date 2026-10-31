@@ -5,8 +5,6 @@ import {
   hashSecret,
   isValidLogin,
   isValidPassword,
-  LOCK_MS,
-  MAX_FAILS,
   normalizeLogin,
   normalizeRecovery,
   userIdFor,
@@ -66,8 +64,6 @@ const newAccount = async (password: string) => {
   const recoveryCode = generateRecoveryCode();
   const creds: Credentials = {
     ...(await hashSecret(password)),
-    fails: 0,
-    lockedUntil: 0,
     recovery: await hashSecret(normalizeRecovery(recoveryCode)),
   };
   return { creds, recoveryCode };
@@ -85,38 +81,21 @@ export async function register(d: Deps, req: Request): Promise<Response> {
   return json({ token: createSession(d.secret, userId, d.now()), login: c.login, recoveryCode });
 }
 
-/** Counts a failed attempt; locks the account after MAX_FAILS. */
-async function failed(d: Deps, userId: string, creds: Credentials | null): Promise<Response> {
-  if (creds) {
-    const fails = creds.fails + 1;
-    const locked = fails >= MAX_FAILS;
-    await d.store.put(
-      credPath(userId),
-      JSON.stringify({
-        ...creds,
-        fails: locked ? 0 : fails,
-        lockedUntil: locked ? d.now() + LOCK_MS : 0,
-      }),
-    );
-  }
+/** A failed attempt: slow answer, same reply for unknown login and wrong secret. */
+async function failed(d: Deps): Promise<Response> {
   await delay(d);
   return json({ error: 'wrong_credentials' }, 401);
 }
 
-const lockedResponse = (d: Deps, creds: Credentials) =>
-  json({ error: 'locked', retryAfterSec: Math.ceil((creds.lockedUntil - d.now()) / 1000) }, 429);
-
-/** POST {login, password} → {token, login}. Locks the account after repeated failures. */
+/** POST {login, password} → {token, login}. */
 export async function login(d: Deps, req: Request): Promise<Response> {
   const c = await credentials(req);
   if ('fail' in c) return c.fail;
   const userId = userIdFor(d.secret, c.login);
   const creds = await readCreds(d, userId);
-  if (creds && creds.lockedUntil > d.now()) return lockedResponse(d, creds);
   // Unknown users cost the same hashing time, so timing does not reveal them.
   const ok = creds ? await checkSecret(creds, c.password) : (await hashSecret(c.password), false);
-  if (!creds || !ok) return failed(d, userId, creds);
-  if (creds.fails > 0) await d.store.put(credPath(userId), JSON.stringify({ ...creds, fails: 0 }));
+  if (!creds || !ok) return failed(d);
   return json({ token: createSession(d.secret, userId, d.now()), login: c.login });
 }
 
@@ -133,11 +112,10 @@ export async function resetPassword(d: Deps, req: Request): Promise<Response> {
   const code = normalizeRecovery(String(body?.recoveryCode ?? ''));
   const userId = userIdFor(d.secret, c.login);
   const creds = await readCreds(d, userId);
-  if (creds && creds.lockedUntil > d.now()) return lockedResponse(d, creds);
   const ok = creds?.recovery
     ? await checkSecret(creds.recovery, code)
     : (await hashSecret(code), false);
-  if (!creds || !ok) return failed(d, userId, creds);
+  if (!creds || !ok) return failed(d);
   const fresh = await newAccount(c.password);
   await d.store.put(credPath(userId), JSON.stringify(fresh.creds));
   return json({
@@ -155,12 +133,10 @@ export async function newRecovery(d: Deps, req: Request): Promise<Response> {
   const body = await readJson(req);
   const creds = await readCreds(d, userId);
   if (!creds) return json({ error: 'unauthorized' }, 401);
-  if (creds.lockedUntil > d.now()) return lockedResponse(d, creds);
-  if (!(await checkSecret(creds, String(body?.password ?? '')))) return failed(d, userId, creds);
+  if (!(await checkSecret(creds, String(body?.password ?? '')))) return failed(d);
   const recoveryCode = generateRecoveryCode();
   const updated: Credentials = {
     ...creds,
-    fails: 0,
     recovery: await hashSecret(normalizeRecovery(recoveryCode)),
   };
   await d.store.put(credPath(userId), JSON.stringify(updated));

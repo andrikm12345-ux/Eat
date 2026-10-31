@@ -9,8 +9,6 @@ import {
 
 /** Login + password accounts. Sessions are signed tokens; only a password hash is stored. */
 export const SESSION_TTL_MS = 180 * 24 * 60 * 60 * 1000;
-export const MAX_FAILS = 5;
-export const LOCK_MS = 15 * 60 * 1000;
 export const MIN_PASSWORD = 8;
 export const MAX_PASSWORD = 200;
 
@@ -43,8 +41,6 @@ export function userIdFor(secret: string, login: string): string {
 
 export type Secret = { salt: string; hash: string };
 export type Credentials = Secret & {
-  fails: number;
-  lockedUntil: number;
   /** Hash of the one-time recovery code (accounts created before recovery existed lack it). */
   recovery?: Secret;
 };
