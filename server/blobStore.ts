@@ -1,5 +1,5 @@
 import { get, put } from '@vercel/blob';
-import type { Store } from './types';
+import type { Store } from './types.js';
 
 /** Private Vercel Blob store (token comes from BLOB_READ_WRITE_TOKEN). */
 export const blobStore: Store = {

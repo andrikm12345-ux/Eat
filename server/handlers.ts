@@ -7,8 +7,8 @@ import {
   verifyChallenge,
   verifySession,
   CODE_DIGITS,
-} from './auth';
-import type { Deps } from './types';
+} from './auth.js';
+import type { Deps } from './types.js';
 
 export const MAX_SYNC_BYTES = 4 * 1024 * 1024;
 

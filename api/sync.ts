@@ -1,5 +1,5 @@
-import { getSync, putSync } from '../server/handlers';
-import { envDeps } from '../server/deps';
+import { getSync, putSync } from '../server/handlers.js';
+import { envDeps } from '../server/deps.js';
 
 async function run(fn: typeof getSync, request: Request): Promise<Response> {
   try {

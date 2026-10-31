@@ -1,7 +1,7 @@
-import { randomDelayMs } from './auth';
-import { blobStore } from './blobStore';
-import { resendMailer } from './mail';
-import type { Deps } from './types';
+import { randomDelayMs } from './auth.js';
+import { blobStore } from './blobStore.js';
+import { resendMailer } from './mail.js';
+import type { Deps } from './types.js';
 
 /** Production wiring from environment variables. */
 export function envDeps(): Deps {

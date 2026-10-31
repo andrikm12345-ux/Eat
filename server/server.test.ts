@@ -10,10 +10,10 @@ import {
   CODE_TTL_MS,
   SESSION_TTL_MS,
   CODE_DIGITS,
-} from './auth';
-import { getSync, putSync, requestCode, verifyCode } from './handlers';
-import { resendMailer } from './mail';
-import type { Deps, Store } from './types';
+} from './auth.js';
+import { getSync, putSync, requestCode, verifyCode } from './handlers.js';
+import { resendMailer } from './mail.js';
+import type { Deps, Store } from './types.js';
 
 const SECRET = 'x'.repeat(40);
 const T0 = Date.UTC(2026, 9, 31, 12, 0, 0);

@@ -1,5 +1,5 @@
-import { verifyCode } from '../../server/handlers';
-import { envDeps } from '../../server/deps';
+import { verifyCode } from '../../server/handlers.js';
+import { envDeps } from '../../server/deps.js';
 
 export async function POST(request: Request): Promise<Response> {
   try {

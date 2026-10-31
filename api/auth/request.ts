@@ -1,5 +1,5 @@
-import { requestCode } from '../../server/handlers';
-import { envDeps } from '../../server/deps';
+import { requestCode } from '../../server/handlers.js';
+import { envDeps } from '../../server/deps.js';
 
 export async function POST(request: Request): Promise<Response> {
   try {

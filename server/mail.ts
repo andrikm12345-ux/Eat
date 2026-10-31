@@ -1,4 +1,4 @@
-import type { Mailer } from './types';
+import type { Mailer } from './types.js';
 
 /** Sends the login code through Resend (https://resend.com). */
 export function resendMailer(
