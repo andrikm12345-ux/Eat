@@ -45,7 +45,7 @@ export async function runAi<T>(r: Repos, o: RunOptions<T>): Promise<{ value: T; 
   const cfg = await getAiConfig(r);
   if (!cfg.apiKey.trim()) throw new AiError('noKey', 'API-ключ не задан');
   if (!aiReady(cfg)) throw new AiError('disabled', 'ИИ выключен в настройках');
-  if (!cfg.consent) throw new AiError('noConsent', 'Нужно согласие на отправку данных в Anthropic');
+  if (!cfg.consent) throw new AiError('noConsent', 'Нужно согласие на отправку данных ИИ-сервису');
   const model = o.vision ? cfg.modelVision : cfg.modelText;
   const messages: Message[] = [{ role: 'user', content: o.content }];
   const t0 = performance.now();
@@ -55,6 +55,7 @@ export async function runAi<T>(r: Repos, o: RunOptions<T>): Promise<{ value: T; 
     for (let attempt = 0; attempt < 2; attempt++) {
       const res = await callClaude({
         apiKey: cfg.apiKey.trim(),
+        baseUrl: cfg.baseUrl,
         model,
         system: o.system,
         messages,

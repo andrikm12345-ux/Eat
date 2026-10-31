@@ -2,7 +2,17 @@ import { describe, expect, it, vi } from 'vitest';
 import { repos } from '../db/repos';
 import { labelToDraft, mealToDraft, mealToIngredients } from '../services/aiFood';
 import { swapAlt } from '../state/review';
-import { AiError, callClaude, checkKey, headers, supportsEffort } from './client';
+import {
+  AiError,
+  callClaude,
+  checkKey,
+  headers,
+  isCustomBase,
+  messagesUrl,
+  modelsUrl,
+  normalizeBase,
+  supportsEffort,
+} from './client';
 import { extractFirstJson } from './json';
 import { PROMPT_MEAL } from './prompts';
 import { runAi } from './run';
@@ -370,5 +380,45 @@ describe('catalog matching', () => {
     );
     expect(r.draft).toMatchObject({ name: '', brand: 'Б', barcode: '4600', servings: [] });
     expect(r.warnings).toHaveLength(2);
+  });
+});
+
+describe('custom API address', () => {
+  it('normalizes the base address', () => {
+    expect(normalizeBase('')).toBe('https://api.anthropic.com');
+    expect(normalizeBase(undefined)).toBe('https://api.anthropic.com');
+    expect(normalizeBase(' https://r.example.com/ ')).toBe('https://r.example.com');
+    expect(normalizeBase('https://r.example.com/v1')).toBe('https://r.example.com');
+    expect(normalizeBase('https://r.example.com/v1/')).toBe('https://r.example.com');
+    expect(messagesUrl('https://r.example.com/v1')).toBe('https://r.example.com/v1/messages');
+    expect(modelsUrl('https://r.example.com')).toBe('https://r.example.com/v1/models?limit=1');
+    expect(isCustomBase('')).toBe(false);
+    expect(isCustomBase('https://r.example.com')).toBe(true);
+  });
+
+  it('sends the bearer header only to a custom address', () => {
+    expect(headers('k')).not.toHaveProperty('authorization');
+    expect(headers('k', 'https://r.example.com')).toMatchObject({
+      authorization: 'Bearer k',
+      'x-api-key': 'k',
+    });
+  });
+
+  it('calls the custom address for messages and the key check', async () => {
+    const f = vi.fn(
+      async (_url: string) =>
+        new Response(JSON.stringify({ content: [{ type: 'text', text: 'ok' }] }), { status: 200 }),
+    );
+    await callClaude({
+      apiKey: 'k',
+      model: 'm',
+      system: 's',
+      messages: [{ role: 'user', content: 'x' }],
+      baseUrl: 'https://r.example.com/v1',
+      fetchImpl: f as unknown as typeof fetch,
+    });
+    expect(f.mock.calls[0]![0]).toBe('https://r.example.com/v1/messages');
+    await checkKey('k', f as unknown as typeof fetch, 'https://r.example.com');
+    expect(f.mock.calls[1]![0]).toBe('https://r.example.com/v1/models?limit=1');
   });
 });

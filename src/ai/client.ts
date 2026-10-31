@@ -1,7 +1,17 @@
 // Minimal Claude Messages API client for the browser (no backend; key stays local).
 
-export const API_URL = 'https://api.anthropic.com/v1/messages';
-export const MODELS_URL = 'https://api.anthropic.com/v1/models?limit=1';
+export const DEFAULT_BASE = 'https://api.anthropic.com';
+export const API_URL = `${DEFAULT_BASE}/v1/messages`;
+export const MODELS_URL = `${DEFAULT_BASE}/v1/models?limit=1`;
+
+/** Accepts `https://host`, `https://host/` or `https://host/v1`; empty = Anthropic. */
+export function normalizeBase(raw?: string): string {
+  const b = (raw ?? '').trim().replace(/\/+$/, '').replace(/\/v1$/, '');
+  return b || DEFAULT_BASE;
+}
+export const isCustomBase = (raw?: string) => normalizeBase(raw) !== DEFAULT_BASE;
+export const messagesUrl = (raw?: string) => `${normalizeBase(raw)}/v1/messages`;
+export const modelsUrl = (raw?: string) => `${normalizeBase(raw)}/v1/models?limit=1`;
 export const AI_TIMEOUT_MS = 45_000;
 
 export type AiErrorKind =
@@ -41,6 +51,8 @@ export type CallOptions = {
   system: string;
   messages: Message[];
   maxTokens?: number;
+  /** Address of an Anthropic-compatible API; empty = Anthropic. */
+  baseUrl?: string;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
   /** Delay before the single retry (ms); doubled for each attempt. */
@@ -55,9 +67,11 @@ const RETRYABLE = (s: number) => s === 429 || s === 408 || s >= 500;
 export const supportsEffort = (model: string) =>
   /^claude-(haiku|sonnet|opus|fable|mythos)-5/.test(model);
 
-export function headers(apiKey: string): Record<string, string> {
+export function headers(apiKey: string, baseUrl?: string): Record<string, string> {
   return {
     'x-api-key': apiKey,
+    // Other services often expect a bearer token instead of (or besides) x-api-key.
+    ...(isCustomBase(baseUrl) ? { authorization: `Bearer ${apiKey}` } : {}),
     'anthropic-version': '2023-06-01',
     'anthropic-dangerous-direct-browser-access': 'true',
     'content-type': 'application/json',
@@ -87,9 +101,9 @@ async function once(o: CallOptions): Promise<CallResult> {
     };
     let res: Response;
     try {
-      res = await (o.fetchImpl ?? fetch)(API_URL, {
+      res = await (o.fetchImpl ?? fetch)(messagesUrl(o.baseUrl), {
         method: 'POST',
-        headers: headers(o.apiKey),
+        headers: headers(o.apiKey, o.baseUrl),
         body: JSON.stringify(body),
         signal: ctrl.signal,
       });
@@ -135,9 +149,13 @@ export async function callClaude(o: CallOptions): Promise<CallResult> {
 }
 
 /** Cheap key check (lists one model). */
-export async function checkKey(apiKey: string, fetchImpl: typeof fetch = fetch): Promise<boolean> {
+export async function checkKey(
+  apiKey: string,
+  fetchImpl: typeof fetch = fetch,
+  baseUrl?: string,
+): Promise<boolean> {
   try {
-    const res = await fetchImpl(MODELS_URL, { headers: headers(apiKey) });
+    const res = await fetchImpl(modelsUrl(baseUrl), { headers: headers(apiKey, baseUrl) });
     return res.ok;
   } catch {
     return false;

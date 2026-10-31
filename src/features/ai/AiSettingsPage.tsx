@@ -16,6 +16,7 @@ export default function AiSettingsPage() {
   const cfg = useAiConfig();
   const [key, setKey] = useState('');
   const [checking, setChecking] = useState(false);
+  const [base, setBase] = useState<string | null>(null);
   const logs = useLiveQuery(
     async () =>
       (await repos.aiRuns.list())
@@ -61,7 +62,7 @@ export default function AiSettingsPage() {
             disabled={!cfg.apiKey || checking}
             onClick={async () => {
               setChecking(true);
-              const ok = await checkKey(cfg.apiKey);
+              const ok = await checkKey(cfg.apiKey, fetch, cfg.baseUrl);
               setChecking(false);
               toast({ text: ok ? t.keyOk : t.keyBad });
             }}
@@ -76,6 +77,26 @@ export default function AiSettingsPage() {
         )}
       </Card>
       <Card>
+        <TextField
+          label={t.baseUrl}
+          type="url"
+          inputMode="url"
+          autoCapitalize="none"
+          spellCheck={false}
+          placeholder="https://"
+          value={base ?? cfg.baseUrl}
+          error={
+            base !== null && base.trim() !== '' && !/^https:\/\//i.test(base.trim())
+              ? t.baseUrlBad
+              : null
+          }
+          hint={t.baseUrlHint}
+          onChange={(v) => {
+            setBase(v);
+            const x = v.trim();
+            if (x === '' || /^https:\/\//i.test(x)) void repos.settings.set(AI_KEYS.baseUrl, x);
+          }}
+        />
         <TextField
           label={t.modelText}
           value={cfg.modelText}
