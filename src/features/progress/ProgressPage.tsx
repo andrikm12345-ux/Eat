@@ -13,6 +13,7 @@ import { toast, useUi } from '../../state/ui';
 import { Button, Card, LinkButton, Row, Segmented } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import listStyles from '../add/add.module.css';
+import { EnergyCard } from './EnergyCard';
 import { useTrend } from './useTrend';
 import { WeightChart } from './WeightChart';
 import styles from './progress.module.css';
@@ -55,6 +56,7 @@ export default function ProgressPage() {
         </div>
       </Card>
       <GoalScale points={data.points} goal={goal} today={today} />
+      <EnergyCard />
       <Row>
         <LinkButton to="/progress/measurements" variant="secondary">
           {t.measurements}

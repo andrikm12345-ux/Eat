@@ -138,6 +138,8 @@ export type DayMeta = BaseRecord & {
   steps?: number;
   activeKcal?: number;
   note?: string;
+  /** "Не учитывать эту неделю": excluded from the adaptive TDEE window. */
+  excludeFromTdee?: boolean;
 };
 
 export type Weight = BaseRecord & {

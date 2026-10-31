@@ -34,6 +34,7 @@ export const routes: RouteObject[] = [
       { path: 'foods/new', lazy: lazyPage(() => import('./features/foods/FoodEditPage')) },
       { path: 'foods/:id/edit', lazy: lazyPage(() => import('./features/foods/FoodEditPage')) },
       { path: 'entry/:id', lazy: lazyPage(() => import('./features/entry/EntryPage')) },
+      { path: 'checkin', lazy: lazyPage(() => import('./features/checkin/CheckinPage')) },
       { path: 'more/profile', lazy: lazyPage(() => import('./features/profile/ProfilePage')) },
       { path: '*', lazy: lazyPage(() => import('./features/NotFoundPage')) },
     ],

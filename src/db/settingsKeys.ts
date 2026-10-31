@@ -4,6 +4,10 @@ export const SETTINGS = {
   weightDailyPick: { key: 'weightDailyPick', def: 'first' as 'first' | 'min' },
   /** Day of week for the measurement reminder (0 = Sunday … 6 = Saturday). */
   measureWeekday: { key: 'measureWeekday', def: 0 },
+  tdeeWindowDays: { key: 'tdeeWindowDays', def: 21 },
+  tdeeRho: { key: 'tdeeRho', def: 7700 },
+  /** Day of week for the weekly check-in (1 = Monday). */
+  checkinWeekday: { key: 'checkinWeekday', def: 1 },
 } as const;
 
 /** Key for a banner dismissed on a specific day. */

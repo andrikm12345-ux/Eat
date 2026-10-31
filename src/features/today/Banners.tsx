@@ -32,6 +32,14 @@ export function Banners() {
         action: { label: ru.banners.measureAction, to: '/progress/measurements' },
       });
     }
+    const pending = await repos.checkins.where('status', 'pending');
+    if (pending.length && !(await dismissed('checkin'))) {
+      out.unshift({
+        id: 'checkin',
+        text: ru.checkin.banner,
+        action: { label: ru.checkin.open, to: '/checkin' },
+      });
+    }
     return out;
   }, [today]);
 
