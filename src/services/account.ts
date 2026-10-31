@@ -5,6 +5,8 @@ export const ACCOUNT = {
   token: 'accountToken',
   login: 'accountLogin',
   lastSync: 'accountLastSync',
+  /** The visitor chose to start without an account. */
+  skipped: 'accountSkipped',
 } as const;
 
 export type AccountError =

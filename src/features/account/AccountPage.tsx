@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import {
@@ -29,7 +29,10 @@ export default function AccountPage() {
     ]);
     return { login, signedIn: !!token, last };
   }, []);
-  const [mode, setMode] = useState<'signIn' | 'signUp' | 'reset'>('signIn');
+  const [params] = useSearchParams();
+  const [mode, setMode] = useState<'signIn' | 'signUp' | 'reset'>(
+    params.get('mode') === 'signUp' ? 'signUp' : 'signIn',
+  );
   const [show, setShow] = useState(false);
   const [code, setCode] = useState('');
   const [newCode, setNewCode] = useState<string | null>(null);

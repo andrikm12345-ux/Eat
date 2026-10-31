@@ -1,0 +1,55 @@
+import { useLiveQuery } from 'dexie-react-hooks';
+import { Navigate, useNavigate } from 'react-router';
+import { repos } from '../../db/repos';
+import { ru } from '../../i18n/ru';
+import { ACCOUNT } from '../../services/account';
+import { LinkButton } from '../../ui/kit';
+import styles from '../onboarding/Wizard.module.css';
+
+const t = ru.welcome;
+
+/** First screen for a new visitor: sign in or create an account. */
+export default function WelcomePage() {
+  const navigate = useNavigate();
+  const signedIn = useLiveQuery(
+    async () => !!(await repos.settings.get<string>(ACCOUNT.token, '')),
+    [],
+  );
+  if (signedIn === undefined) return <div className={styles.wrap}>{ru.common.loading}</div>;
+  if (signedIn) return <Navigate to="/" replace />;
+  return (
+    <div className={styles.wrap}>
+      <div
+        className={styles.body}
+        style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+      >
+        <h1 className={styles.title} style={{ fontSize: 40 }}>
+          {t.title}
+        </h1>
+        <p className={styles.stepHint}>{t.tagline}</p>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <LinkButton to="/account?mode=signUp" block>
+          {t.signUp}
+        </LinkButton>
+        <LinkButton to="/account?mode=signIn" variant="secondary" block>
+          {t.signIn}
+        </LinkButton>
+        <p className={styles.stepHint} style={{ textAlign: 'center' }}>
+          <button
+            type="button"
+            className={styles.linkBtn}
+            onClick={async () => {
+              await repos.settings.set(ACCOUNT.skipped, true);
+              navigate('/wizard', { replace: true });
+            }}
+          >
+            {t.skip}
+          </button>
+          <br />
+          {t.skipHint}
+        </p>
+      </div>
+    </div>
+  );
+}

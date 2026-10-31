@@ -1,6 +1,9 @@
+import { useLiveQuery } from 'dexie-react-hooks';
 import { Suspense, useCallback, useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { useProfile } from '../db/hooks';
+import { repos } from '../db/repos';
+import { ACCOUNT } from '../services/account';
 import { AddSheet } from '../features/add/AddSheet';
 import { WeighSheet } from '../features/weight/WeighSheet';
 import { ru } from '../i18n/ru';
@@ -51,7 +54,18 @@ export function AppShell() {
 
   useOpenNotifications();
   const profile = useProfile();
-  if (profile === null) return <Navigate to="/wizard" replace />;
+  // A new visitor first signs in or creates an account (or explicitly skips it).
+  const entered = useLiveQuery(async () => {
+    const [token, skipped] = await Promise.all([
+      repos.settings.get<string>(ACCOUNT.token, ''),
+      repos.settings.get<boolean>(ACCOUNT.skipped, false),
+    ]);
+    return !!token || skipped;
+  }, []);
+  if (profile === null) {
+    if (entered === undefined) return null;
+    return <Navigate to={entered ? '/wizard' : '/welcome'} replace />;
+  }
 
   return (
     <>

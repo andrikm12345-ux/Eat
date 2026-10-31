@@ -9,10 +9,37 @@ import { renderApp } from '../../test/renderApp';
 const t = ru.wizard;
 
 describe('onboarding wizard', () => {
-  it('redirects to the wizard without a profile', async () => {
+  it('redirects to the wizard without a profile once an account was skipped', async () => {
+    await repos.settings.set('accountSkipped', true);
     const { router } = await renderApp('/', { seed: false });
     expect(await screen.findByRole('heading', { name: t.steps.about })).toBeVisible();
     expect(router.state.location.pathname).toBe('/wizard');
+  });
+
+  it('a new visitor first sees sign in / create account', async () => {
+    const user = userEvent.setup();
+    const { router } = await renderApp('/', { seed: false });
+    expect(await screen.findByRole('link', { name: ru.welcome.signUp })).toBeVisible();
+    expect(router.state.location.pathname).toBe('/welcome');
+    await user.click(screen.getByRole('link', { name: ru.welcome.signIn }));
+    expect(await screen.findByRole('radio', { name: ru.account.tabs.signIn })).toBeChecked();
+  });
+
+  it('create account opens on the sign-up tab; "without account" goes to the wizard', async () => {
+    const user = userEvent.setup();
+    const { router } = await renderApp('/welcome', { seed: false });
+    await user.click(await screen.findByRole('link', { name: ru.welcome.signUp }));
+    expect(await screen.findByRole('radio', { name: ru.account.tabs.signUp })).toBeChecked();
+    await router.navigate('/welcome');
+    await user.click(await screen.findByRole('button', { name: ru.welcome.skip }));
+    expect(await screen.findByRole('heading', { name: t.steps.about })).toBeVisible();
+    expect(router.state.location.pathname).toBe('/wizard');
+  });
+
+  it('a signed-in visitor skips the welcome screen', async () => {
+    await repos.settings.set('accountToken', 'x');
+    const { router } = await renderApp('/welcome', { seed: false });
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'));
   });
 
   it('walks through all steps and saves profile, weight and goal', async () => {
