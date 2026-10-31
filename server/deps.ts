@@ -10,7 +10,6 @@ export function envDeps(): Deps {
     secret,
     store: blobStore,
     now: () => Date.now(),
-    adminKey: process.env.ADMIN_RESET_KEY || undefined,
     signupOpen: process.env.SIGNUP_DISABLED !== '1',
     failDelayMs: randomDelayMs,
   };

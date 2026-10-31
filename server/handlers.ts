@@ -1,4 +1,3 @@
-import { createHash, timingSafeEqual } from 'node:crypto';
 import {
   checkSecret,
   createSession,
@@ -166,32 +165,6 @@ export async function newRecovery(d: Deps, req: Request): Promise<Response> {
   };
   await d.store.put(credPath(userId), JSON.stringify(updated));
   return json({ recoveryCode });
-}
-
-/** POST {adminKey, login, password} → owner sets a new password (keeps data and recovery code). */
-export async function adminReset(d: Deps, req: Request): Promise<Response> {
-  if (!d.adminKey) return json({ error: 'not_found' }, 404);
-  const body = await readJson(req);
-  const given = createHash('sha256')
-    .update(String(body?.adminKey ?? ''))
-    .digest();
-  const real = createHash('sha256').update(d.adminKey).digest();
-  if (!timingSafeEqual(given, real)) return json({ error: 'not_found' }, 404);
-  const login = normalizeLogin(String(body?.login ?? ''));
-  const password = String(body?.password ?? '');
-  if (!isValidLogin(login)) return json({ error: 'bad_login' }, 400);
-  if (!isValidPassword(password)) return json({ error: 'bad_password' }, 400);
-  const userId = userIdFor(d.secret, login);
-  const creds = await readCreds(d, userId);
-  if (!creds) return json({ error: 'no_such_user' }, 404);
-  const updated: Credentials = {
-    ...creds,
-    ...(await hashSecret(password)),
-    fails: 0,
-    lockedUntil: 0,
-  };
-  await d.store.put(credPath(userId), JSON.stringify(updated));
-  return json({ ok: true });
 }
 
 const dataPath = (userId: string) => `users/${userId}.json`;

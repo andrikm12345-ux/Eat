@@ -12,15 +12,7 @@ import {
   userIdFor,
   verifySession,
 } from './auth.js';
-import {
-  adminReset,
-  getSync,
-  login,
-  newRecovery,
-  putSync,
-  register,
-  resetPassword,
-} from './handlers.js';
+import { getSync, login, newRecovery, putSync, register, resetPassword } from './handlers.js';
 import type { Deps, Store } from './types.js';
 
 const SECRET = 'x'.repeat(40);
@@ -376,34 +368,5 @@ describe('recovery code for existing accounts', () => {
     // A session whose account record is gone is rejected.
     store.data.delete(key);
     expect((await ask(token, 'new-password')).status).toBe(401);
-  });
-});
-
-describe('admin reset', () => {
-  const call = (d: Deps, body: unknown) => adminReset(d, post(body));
-  it('is off without a key, needs the key, and keeps data and recovery code', async () => {
-    const { d } = deps();
-    const reg = (await (await register(d, creds('ivan', 'old-password'))).json()) as {
-      recoveryCode: string;
-    };
-    const off = { login: 'ivan', password: 'temp-password', adminKey: 'k' };
-    expect((await call(d, off)).status).toBe(404);
-    const on = { ...d, adminKey: 'secret-key' };
-    expect((await call(on, { ...off, adminKey: 'wrong' })).status).toBe(404);
-    expect((await call(on, { ...off, adminKey: 'secret-key', login: 'ghost' })).status).toBe(404);
-    expect((await call(on, { ...off, adminKey: 'secret-key', password: 'short' })).status).toBe(
-      400,
-    );
-    expect((await call(on, { ...off, adminKey: 'secret-key' })).status).toBe(200);
-    expect((await login(d, creds('ivan', 'old-password'))).status).toBe(401);
-    expect((await login(d, creds('ivan', 'temp-password'))).status).toBe(200);
-    expect(
-      (
-        await resetPassword(
-          d,
-          post({ login: 'ivan', recoveryCode: reg.recoveryCode, password: 'again-password' }),
-        )
-      ).status,
-    ).toBe(200);
   });
 });
