@@ -1,5 +1,5 @@
 import { Suspense, useCallback, useEffect } from 'react';
-import { Navigate, Outlet, useSearchParams } from 'react-router';
+import { Navigate, Outlet, useNavigate, useSearchParams } from 'react-router';
 import { useProfile } from '../db/hooks';
 import { AddSheet } from '../features/add/AddSheet';
 import { ru } from '../i18n/ru';
@@ -11,10 +11,11 @@ import { Fab } from './Fab';
 import styles from './AppShell.module.css';
 
 /** Manifest shortcut actions (`/?action=…`) that open the add sheet. */
-const ADD_ACTIONS = new Set(['add', 'scan']);
+const ADD_ACTIONS = new Set(['add']);
 
 export function AppShell() {
   const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
   const action = params.get('action');
   const addOpen = useUi((s) => s.addSheet.open);
   const openAdd = useUi((s) => s.openAdd);
@@ -32,10 +33,11 @@ export function AppShell() {
 
   useEffect(() => {
     if (action === null) return;
-    // TODO(stage 4/5): route `scan` to the scanner and `weigh` to the weight sheet.
+    // TODO(stage 5): route `weigh` to the weight sheet.
     if (ADD_ACTIONS.has(action)) openAdd();
-    clearAction();
-  }, [action, clearAction, openAdd]);
+    if (action === 'scan') navigate('/add/barcode', { replace: true });
+    else clearAction();
+  }, [action, clearAction, openAdd, navigate]);
 
   const profile = useProfile();
   if (profile === null) return <Navigate to="/wizard" replace />;

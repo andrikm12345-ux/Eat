@@ -82,6 +82,11 @@ describe('add sheet', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('routes the scan shortcut to the scanner', async () => {
+    const { router } = await renderApp('/?action=scan');
+    await waitFor(() => expect(router.state.location.pathname).toBe('/add/barcode'));
+  });
+
   it('ignores the weigh shortcut for now but still strips the param', async () => {
     const { router } = await renderApp('/?action=weigh');
     await screen.findByRole('heading', { level: 1 });

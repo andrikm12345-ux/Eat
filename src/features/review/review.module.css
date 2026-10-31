@@ -1,0 +1,73 @@
+.item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px 4px;
+  margin-bottom: 10px;
+}
+.low {
+  background: var(--attention);
+  color: var(--attention-text);
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+.name {
+  font-weight: 600;
+}
+.badge {
+  font-size: 11px;
+  border-radius: 6px;
+  padding: 1px 6px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.meta {
+  margin: 2px 0 6px;
+  font-size: 12px;
+  opacity: 0.8;
+  min-height: 1em;
+}
+.stepper {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.stepper > :nth-child(2) {
+  flex: 1;
+}
+.step {
+  width: 48px;
+  height: 46px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.macros {
+  margin: 0;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.total {
+  margin: 0 0 12px;
+  font-variant-numeric: tabular-nums;
+}
+.notes {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
