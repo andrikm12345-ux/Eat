@@ -84,5 +84,12 @@ export default defineConfig(({ mode }) => ({
     setupFiles: ['./src/test/setup.ts'],
     css: { modules: { classNameStrategy: 'non-scoped' } },
     include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.{ts,mjs}'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/domain/**/*.ts'],
+      exclude: ['**/*.test.ts', 'src/domain/types.ts'],
+      // Pure domain logic must stay fully covered.
+      thresholds: { statements: 100, branches: 100, functions: 100, lines: 100 },
+    },
   },
 }));
