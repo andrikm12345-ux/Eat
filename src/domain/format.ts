@@ -34,6 +34,15 @@ export function formatSignedKcal(v: number): string {
   return r > 0 ? `+${kcalFmt.format(r)}` : kcalFmt.format(r).replace('-', '−');
 }
 
+const rateFmt = nf(2);
+
+/** Weekly rate in kg with sign and up to 2 decimals: "−0,25", "+0,2", "0". */
+export function formatRate(v: number): string {
+  const r = noNegZero(Math.round(v * 100) / 100);
+  if (r > 0) return `+${rateFmt.format(r)}`;
+  return rateFmt.format(r).replace('-', '−');
+}
+
 /**
  * Parses user input accepting both "," and "." as the decimal separator and
  * ignoring spaces. Returns `null` for anything that is not a finite number.

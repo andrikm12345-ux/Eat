@@ -7,7 +7,7 @@ import { ADD_TILES } from './features/add/addTiles';
 
 describe('app shell', () => {
   it('renders Today with five bottom tabs', async () => {
-    renderApp('/');
+    await renderApp('/');
     expect(
       await screen.findByRole('heading', { level: 1, name: ru.pages.today.title }),
     ).toBeVisible();
@@ -33,7 +33,7 @@ describe('app shell', () => {
     [ru.nav.more, ru.pages.more.title, '/more'],
   ])('navigates to %s', async (tab, heading, path) => {
     const user = userEvent.setup();
-    const { router } = renderApp('/');
+    const { router } = await renderApp('/');
     await screen.findByRole('heading', { level: 1 });
     const nav = screen.getByRole('navigation', { name: ru.nav.label });
     await user.click(within(nav).getByRole('link', { name: tab }));
@@ -42,7 +42,7 @@ describe('app shell', () => {
   });
 
   it('shows not-found page for unknown routes', async () => {
-    renderApp('/nope');
+    await renderApp('/nope');
     expect(
       await screen.findByRole('heading', { level: 1, name: ru.pages.notFound.title }),
     ).toBeVisible();
@@ -52,7 +52,7 @@ describe('app shell', () => {
 describe('add sheet', () => {
   it('opens from the FAB with all tiles and closes on Escape', async () => {
     const user = userEvent.setup();
-    renderApp('/');
+    await renderApp('/');
     const fab = await screen.findByRole('button', { name: ru.add.fab });
     expect(fab).toHaveAttribute('aria-expanded', 'false');
     await user.click(fab);
@@ -67,7 +67,7 @@ describe('add sheet', () => {
 
   it('closes via the close button', async () => {
     const user = userEvent.setup();
-    renderApp('/');
+    await renderApp('/');
     await user.click(await screen.findByRole('button', { name: ru.add.fab }));
     await user.click(screen.getByRole('button', { name: ru.add.close }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('add sheet', () => {
 
   it('opens from the manifest shortcut and strips the action param on close', async () => {
     const user = userEvent.setup();
-    const { router } = renderApp('/?action=add');
+    const { router } = await renderApp('/?action=add');
     expect(await screen.findByRole('dialog', { name: ru.add.title })).toBeVisible();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -83,7 +83,7 @@ describe('add sheet', () => {
   });
 
   it('ignores the weigh shortcut for now but still strips the param', async () => {
-    const { router } = renderApp('/?action=weigh');
+    const { router } = await renderApp('/?action=weigh');
     await screen.findByRole('heading', { level: 1 });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(router.state.location.search).toBe('');

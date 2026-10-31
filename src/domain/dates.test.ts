@@ -3,6 +3,7 @@ import {
   addDays,
   ageOn,
   daysBetween,
+  formatDateRu,
   isLocalDate,
   parseLocalDate,
   toLocalDate,
@@ -45,5 +46,10 @@ describe('dates', () => {
     expect(ageOn('1990-06-15', '2026-06-15')).toBe(36);
     expect(ageOn('1990-06-15', '2026-05-20')).toBe(35);
     expect(ageOn('1990-06-15', '2026-07-01')).toBe(36);
+  });
+
+  it('formats Russian dates', () => {
+    expect(formatDateRu('2026-03-05')).toBe('5 марта 2026');
+    expect(formatDateRu('2026-03-05', 'EEEEEE, d MMM')).toBe('чт, 5 мар.');
   });
 });

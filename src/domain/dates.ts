@@ -1,4 +1,5 @@
 import { addDays as addDaysFns, differenceInCalendarDays, format, isValid, parse } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import type { LocalDate } from './types';
 
 const DATE_FMT = 'yyyy-MM-dd';
@@ -42,4 +43,9 @@ export function ageOn(birthDate: LocalDate, on: LocalDate): number {
   let age = y - by;
   if (m < bm || (m === bm && d < bd)) age -= 1;
   return age;
+}
+
+/** Human date in Russian, e.g. "5 марта 2026". */
+export function formatDateRu(date: LocalDate, pattern = 'd MMMM yyyy'): string {
+  return format(parseLocalDate(date), pattern, { locale: ru });
 }

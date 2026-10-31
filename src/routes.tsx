@@ -9,6 +9,7 @@ const lazyPage = (load: () => Promise<{ default: ComponentType }>) => async () =
 });
 
 export const routes: RouteObject[] = [
+  { path: '/wizard', lazy: lazyPage(() => import('./features/onboarding/WizardPage')) },
   {
     path: '/',
     Component: AppShell,
@@ -18,6 +19,7 @@ export const routes: RouteObject[] = [
       { path: 'progress', lazy: lazyPage(() => import('./features/progress/ProgressPage')) },
       { path: 'reports', lazy: lazyPage(() => import('./features/reports/ReportsPage')) },
       { path: 'more', lazy: lazyPage(() => import('./features/more/MorePage')) },
+      { path: 'more/profile', lazy: lazyPage(() => import('./features/profile/ProfilePage')) },
       { path: '*', lazy: lazyPage(() => import('./features/NotFoundPage')) },
     ],
   },

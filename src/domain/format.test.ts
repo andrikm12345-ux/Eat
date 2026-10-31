@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { formatGrams, formatKcal, formatKg, formatSignedKcal, parseDecimal } from './format';
+import {
+  formatGrams,
+  formatKcal,
+  formatKg,
+  formatRate,
+  formatSignedKcal,
+  parseDecimal,
+} from './format';
 
 const plain = (s: string) => s.replace(/[\u00a0\u202f]/g, ' ');
 
@@ -23,6 +30,11 @@ describe('format', () => {
     expect(formatSignedKcal(-180)).toBe('−180');
     expect(formatSignedKcal(0)).toBe('0');
     expect(formatSignedKcal(-0.3)).toBe('0');
+  });
+  it('rate with sign and 2 decimals', () => {
+    expect(formatRate(-0.25)).toBe('−0,25');
+    expect(formatRate(0.2)).toBe('+0,2');
+    expect(formatRate(-0.001)).toBe('0');
   });
   it('parses comma and dot decimals', () => {
     expect(parseDecimal('80,5')).toBe(80.5);

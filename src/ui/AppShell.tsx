@@ -1,5 +1,6 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
-import { Outlet, useSearchParams } from 'react-router';
+import { Navigate, Outlet, useSearchParams } from 'react-router';
+import { useProfile } from '../db/hooks';
 import { AddSheet } from '../features/add/AddSheet';
 import { ru } from '../i18n/ru';
 import { UpdateBanner } from '../pwa/UpdateBanner';
@@ -37,6 +38,9 @@ export function AppShell() {
     setAddOpen(false);
     if (action !== null) clearAction();
   }, [action, clearAction]);
+
+  const profile = useProfile();
+  if (profile === null) return <Navigate to="/wizard" replace />;
 
   return (
     <>
