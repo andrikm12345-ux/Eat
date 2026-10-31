@@ -3,6 +3,7 @@ import { ru } from '../../i18n/ru';
 import {
   IconBell,
   IconBook,
+  IconCloud,
   IconCopy,
   IconDatabase,
   IconDownload,
@@ -40,6 +41,7 @@ export const MORE_GROUPS: { title: string; items: MenuItem[] }[] = [
     items: [
       { key: 'reminders', to: '/more/reminders', Icon: IconBell },
       { key: 'ai', to: '/more/ai', Icon: IconSpark },
+      { key: 'account', to: '/account', Icon: IconCloud },
       { key: 'data', to: '/data', Icon: IconDownload },
       { key: 'storage', to: '/more/storage', Icon: IconDatabase },
       { key: 'about', to: '/more/about', Icon: IconInfo },

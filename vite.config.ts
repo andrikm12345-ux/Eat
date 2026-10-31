@@ -91,7 +91,7 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     setupFiles: ['./test-setup/node-blob.js', './src/test/setup.ts'],
     css: { modules: { classNameStrategy: 'non-scoped' } },
-    include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.{ts,mjs}'],
+    include: ['src/**/*.test.{ts,tsx}', 'server/**/*.test.ts', 'scripts/**/*.test.{ts,mjs}'],
     coverage: {
       provider: 'v8',
       include: ['src/domain/**/*.ts'],

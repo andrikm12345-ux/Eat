@@ -109,6 +109,7 @@ export const IconTrophy = mk(
 );
 export const IconBell = mk(<path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7M10 20a2 2 0 004 0" />);
 export const IconSpark = mk(<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" />);
+export const IconCloud = mk(<path d="M7 18a4 4 0 010-8 5.5 5.5 0 0110.6 1.2A3.4 3.4 0 0117 18z" />);
 export const IconDownload = mk(<path d="M12 4v11M7 11l5 5 5-5M4 20h16" />);
 export const IconDatabase = mk(
   <>

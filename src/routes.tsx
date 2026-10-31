@@ -10,6 +10,7 @@ const lazyPage = (load: () => Promise<{ default: ComponentType }>) => async () =
 
 export const routes: RouteObject[] = [
   { path: '/wizard', lazy: lazyPage(() => import('./features/onboarding/WizardPage')) },
+  { path: '/account', lazy: lazyPage(() => import('./features/account/AccountPage')) },
   {
     path: '/',
     Component: AppShell,

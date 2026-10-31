@@ -12,6 +12,9 @@ export const BACKUP_FORMAT = 'dnevnik-backup';
 const TABLES = Object.keys(SCHEMA_V1) as TableName[];
 /** Settings never exported (secrets). */
 const SECRET_SETTINGS = new Set<string>([AI_KEYS.apiKey]);
+/** Account session settings (token, email) never leave the device either. */
+export const isSecretSetting = (key: string) =>
+  SECRET_SETTINGS.has(key) || key.startsWith('account');
 
 type SerializedBlob = Omit<BlobRecord, 'blob'> & { data: string };
 export type Backup = {
@@ -28,7 +31,7 @@ export async function exportJson(r: Repos, opts: { includePhotos: boolean }): Pr
   for (const name of TABLES) {
     const rows = (await r.db.table(name).toArray()) as Record<string, unknown>[];
     if (name === 'settings') {
-      tables.settings = rows.filter((s) => !SECRET_SETTINGS.has(s.key as string));
+      tables.settings = rows.filter((s) => !isSecretSetting(s.key as string));
     } else if (name === 'blobs') {
       if (!opts.includePhotos) continue;
       const out: SerializedBlob[] = [];
@@ -101,7 +104,7 @@ export async function importJson(
       if (mode === 'replace') {
         for (const name of TABLES) {
           if (name === 'settings') {
-            const keep = (await r.db.settings.toArray()).filter((s) => SECRET_SETTINGS.has(s.key));
+            const keep = (await r.db.settings.toArray()).filter((s) => isSecretSetting(s.key));
             await r.db.settings.clear();
             await r.db.settings.bulkPut(keep);
           } else if (name !== 'blobs' || b.includesPhotos) await r.db.table(name).clear();
@@ -111,7 +114,7 @@ export async function importJson(
         let rows = (b.tables[name] as Record<string, unknown>[]).filter(
           (x) => x && typeof x === 'object',
         );
-        if (name === 'settings') rows = rows.filter((s) => !SECRET_SETTINGS.has(s.key as string));
+        if (name === 'settings') rows = rows.filter((s) => !isSecretSetting(s.key as string));
         if (name === 'blobs') {
           rows = (rows as unknown as SerializedBlob[]).map(({ data, ...rest }) => ({
             ...rest,

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { navyBodyFat } from '../../domain/body';
 import { addDays, ageOn, formatDateRu, isLocalDate, toLocalDate } from '../../domain/dates';
 import { PAL } from '../../domain/energy';
@@ -168,6 +168,11 @@ function Wizard({ initial, editing, today }: { initial: Draft; editing: boolean;
       <div className={styles.body}>
         {name === 'about' && (
           <>
+            {!editing && (
+              <p className={styles.stepHint}>
+                <Link to="/account">{ru.account.haveAccount}</Link>
+              </p>
+            )}
             <Segmented
               label={t.sexLabel}
               value={d.sex}

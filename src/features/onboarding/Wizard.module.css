@@ -75,3 +75,11 @@
   border-radius: 3px;
   transition: width 0.3s ease;
 }
+.linkBtn {
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
