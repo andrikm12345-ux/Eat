@@ -82,9 +82,10 @@ export default function AiTextPage() {
         autoFocus
       />
       <p className={styles.muted}>{t.text.hint}</p>
+      {useAiNow && cfg && <p className={styles.muted}>{t.statusOn(cfg.modelText)}</p>}
       {error && <Notice>{t.error(error)}</Notice>}
       <Button block onClick={() => void analyze()} disabled={busy || text.trim().length < 2}>
-        {busy ? t.working : t.text.go}
+        {busy ? (useAiNow ? t.workingText : t.working) : t.text.go}
       </Button>
       {cfg && !useAiNow && (cfg.ready || SHOW_AI_SETUP_HINT) && (
         <Card>

@@ -79,10 +79,15 @@ describe('AI text flow', () => {
     const { router } = await renderApp('/add/ai-text?date=2026-03-01&time=08:00');
     await user.click(await screen.findByRole('button', { name: ru.ai.consentAccept }));
     await waitFor(() => expect(screen.queryByText(ru.ai.text.consentNote)).not.toBeInTheDocument());
+    // With AI switched on the screen shows which model will be used.
+    expect(await screen.findByText(ru.ai.statusOn('claude-haiku-5-5'))).toBeVisible();
     await user.type(await screen.findByLabelText(ru.ai.text.label), 'овсянка 250 г');
     await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
     expect(screen.getByText(/уверенность средняя/)).toBeVisible();
+    // The review screen says the AI did the recognition, and with which model.
+    expect(screen.getByText(ru.review.byAi('claude-haiku-5-5'))).toBeVisible();
+    expect(screen.queryByText(ru.review.byCatalog)).not.toBeInTheDocument();
     expect(await repos.entries.byDate('2026-03-01')).toHaveLength(0);
     await user.click(screen.getByRole('button', { name: ru.review.save }));
     await waitFor(() => expect(router.state.location.pathname).toBe('/'));
@@ -113,6 +118,8 @@ describe('AI text flow', () => {
     await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
     expect(screen.getByText(/ИИ недоступен/)).toBeVisible();
+    expect(screen.getByText(ru.review.byCatalog)).toBeVisible();
+    expect(screen.queryByText(/Распознано ИИ/)).not.toBeInTheDocument();
     expect(screen.getByLabelText(/^Количество: Суп/)).toHaveValue('300');
   });
 });

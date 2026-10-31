@@ -347,6 +347,9 @@ export const ru = {
   },
   review: {
     title: 'Проверка',
+    byAi: (model: string) => `Распознано ИИ · ${model}`,
+    byAiNoModel: 'Распознано ИИ',
+    byCatalog: 'Разобрано по каталогу, без ИИ',
     empty: 'Нет данных для проверки.',
     total: 'Итого',
     save: 'Сохранить',
@@ -664,6 +667,8 @@ export const ru = {
     setup: 'Настроить ИИ',
     manual: 'Ввести вручную',
     working: 'Распознаём…',
+    workingText: 'ИИ разбирает описание…',
+    statusOn: (model: string) => `ИИ включён · ${model}`,
     error: (msg: string) => `Не получилось: ${msg}. Можно ввести вручную.`,
     text: {
       title: 'Описать словами',

@@ -1,3 +1,4 @@
+import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import { formatGrams, formatKcal } from '../../domain/format';
@@ -33,6 +34,10 @@ function Review({ initial }: { initial: ReviewDraft }) {
   const [time, setTime] = useState(initial.time);
   const [replacing, setReplacing] = useState<string | null>(null);
   const [tplName, setTplName] = useState<string | null>(null);
+  const run = useLiveQuery(
+    async () => (initial.aiRunId ? await repos.db.aiRuns.get(initial.aiRunId) : undefined),
+    [initial.aiRunId],
+  );
   const totals = sumNutrients(items.map(nutrientsOf));
   const valid = items.length > 0 && items.every((i) => i.grams > 0);
   const update = (key: string, patch: Partial<ReviewItem>) =>
@@ -55,6 +60,10 @@ function Review({ initial }: { initial: ReviewDraft }) {
 
   return (
     <Page title={t.title}>
+      {initial.analysis === 'ai' && (
+        <Notice tone="info">{run?.model ? t.byAi(run.model) : t.byAiNoModel}</Notice>
+      )}
+      {initial.analysis === 'local' && <Notice tone="info">{t.byCatalog}</Notice>}
       {items.some((i) => i.source === 'off') && <Notice tone="info">{t.unverified}</Notice>}
       {items.map((i) => {
         const n = nutrientsOf(i);

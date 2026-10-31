@@ -57,6 +57,7 @@ export async function mealToDraft(
     items,
     entrySource: meta.entrySource,
     aiRunId: meta.aiRunId,
+    analysis: 'ai',
     date: at.date,
     time: at.time,
     ...(res.notes ? { notes: res.notes } : {}),

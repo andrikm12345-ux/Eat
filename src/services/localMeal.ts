@@ -62,6 +62,7 @@ export async function analyzeMealLocally(
   return {
     items,
     entrySource: 'manual',
+    analysis: 'local',
     date: at.date,
     time: at.time,
     ...(opts.note ? { notes: opts.note } : {}),

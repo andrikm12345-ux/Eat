@@ -58,6 +58,8 @@ export type ReviewDraft = {
   /** Small-print comment, e.g. AI assumptions. */
   notes?: string;
   aiRunId?: string;
+  /** How the items were produced: by AI or locally from the catalog (shown on the review screen). */
+  analysis?: 'ai' | 'local';
 };
 
 type ReviewState = {
