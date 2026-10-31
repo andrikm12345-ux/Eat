@@ -65,6 +65,7 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,json}'],
         navigateFallback: '/index.html',
+        importScripts: ['sw-update.js'],
         cleanupOutdatedCaches: true,
         // A new version activates immediately (an old cached shell must never linger);
         // the page then offers a reload via the update banner (see UpdateBanner).
