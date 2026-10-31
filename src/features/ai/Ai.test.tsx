@@ -55,9 +55,11 @@ describe('AI without a key', () => {
     expect(screen.queryByRole('link', { name: ru.barcode.createLabel })).not.toBeInTheDocument();
   });
 
-  it('the text screen works without a key and explains how AI helps', async () => {
+  it('the text screen works without a key and shows no AI setup hint', async () => {
     await renderApp('/add/ai-text');
-    expect(await screen.findByText(ru.ai.text.localNote)).toBeVisible();
+    expect(await screen.findByLabelText(ru.ai.text.label)).toBeVisible();
+    expect(screen.queryByText(ru.ai.text.localNote)).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: ru.ai.setup })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: ru.ai.text.go })).toBeDisabled();
   });
 });

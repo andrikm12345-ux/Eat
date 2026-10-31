@@ -13,6 +13,7 @@ import { Button, Card, LinkButton, Notice } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
 import { useAddTarget } from '../add/addTarget';
+import { SHOW_AI_SETUP_HINT } from '../flags';
 import { useAiConfig } from './useAi';
 
 const t = ru.ai;
@@ -85,7 +86,7 @@ export default function AiTextPage() {
       <Button block onClick={() => void analyze()} disabled={busy || text.trim().length < 2}>
         {busy ? t.working : t.text.go}
       </Button>
-      {cfg && !useAiNow && (
+      {cfg && !useAiNow && (cfg.ready || SHOW_AI_SETUP_HINT) && (
         <Card>
           <p className={styles.muted} style={{ marginTop: 0 }}>
             {cfg.ready ? t.text.consentNote : t.text.localNote}
