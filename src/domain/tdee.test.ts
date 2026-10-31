@@ -80,7 +80,7 @@ describe('adaptive TDEE', () => {
     errors.sort((a, b) => a - b);
     expect(errors[100]).toBeLessThan(100); // median
     expect(errors.filter((e) => e < 150).length / errors.length).toBeGreaterThan(0.85);
-  });
+  }, 30_000); // 200 simulations; slower under coverage instrumentation
 
   it('uses TDEE₀ for the first 7 days and limits changes to ±75 kcal/day', () => {
     const input = simulate({ days: 40, trueTdee: 3400, intake: 2200, noise: 0.3, seed: 7 });
