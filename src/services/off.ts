@@ -3,6 +3,27 @@ import type { Food } from '../domain/types';
 import type { Repos } from '../db/repos';
 
 export const OFF_TIMEOUT_MS = 8000;
+const RETRY_DELAY_MS = 800;
+
+/**
+ * fetch with one automatic retry on a network failure (Open Food Facts sometimes drops or
+ * rate-limits a request, which the browser reports as a bare "Failed to fetch").
+ */
+async function fetchRetry(
+  fetchImpl: typeof fetch,
+  url: string,
+  init: RequestInit,
+  signal: AbortSignal,
+  retryDelayMs: number,
+): Promise<Response> {
+  try {
+    return await fetchImpl(url, init);
+  } catch (e) {
+    if (signal.aborted) throw e;
+    await new Promise((r) => setTimeout(r, retryDelayMs));
+    return fetchImpl(url, init);
+  }
+}
 const FIELDS = [
   'code',
   'product_name',
@@ -27,17 +48,25 @@ export const offUrl = (code: string) =>
 /** Fetches a product from Open Food Facts with an 8 s timeout. Never throws. */
 export async function fetchOff(
   code: string,
-  opts: { fetchImpl?: typeof fetch; timeoutMs?: number; online?: boolean } = {},
+  opts: {
+    fetchImpl?: typeof fetch;
+    timeoutMs?: number;
+    online?: boolean;
+    retryDelayMs?: number;
+  } = {},
 ): Promise<OffLookup> {
   const online = opts.online ?? (typeof navigator === 'undefined' ? true : navigator.onLine);
   if (!online) return { kind: 'offline' };
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? OFF_TIMEOUT_MS);
   try {
-    const res = await (opts.fetchImpl ?? fetch)(offUrl(code), {
-      signal: ctrl.signal,
-      headers: { Accept: 'application/json' },
-    });
+    const res = await fetchRetry(
+      opts.fetchImpl ?? fetch,
+      offUrl(code),
+      { signal: ctrl.signal, headers: { Accept: 'application/json' } },
+      ctrl.signal,
+      opts.retryDelayMs ?? RETRY_DELAY_MS,
+    );
     if (res.status === 404) return { kind: 'notFound' };
     if (!res.ok) return { kind: 'error', message: `HTTP ${res.status}` };
     const raw = (await res.json()) as OffResponse;
@@ -46,7 +75,7 @@ export async function fetchOff(
   } catch {
     if (ctrl.signal.aborted) return { kind: 'error', message: 'timeout' };
     // fetch rejects with TypeError on network failure.
-    return { kind: 'offline' };
+    return { kind: 'error', message: 'network' };
   } finally {
     clearTimeout(timer);
   }
@@ -88,17 +117,25 @@ const hasNutrition = (d: FoodDraft) =>
 /** Text search in Open Food Facts (Russian products first). Never throws. */
 export async function searchOff(
   q: string,
-  opts: { fetchImpl?: typeof fetch; timeoutMs?: number; online?: boolean } = {},
+  opts: {
+    fetchImpl?: typeof fetch;
+    timeoutMs?: number;
+    online?: boolean;
+    retryDelayMs?: number;
+  } = {},
 ): Promise<OffSearchResult> {
   const online = opts.online ?? (typeof navigator === 'undefined' ? true : navigator.onLine);
   if (!online) return { kind: 'offline' };
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? OFF_TIMEOUT_MS * 2);
   try {
-    const res = await (opts.fetchImpl ?? fetch)(offSearchUrl(q), {
-      signal: ctrl.signal,
-      headers: { Accept: 'application/json' },
-    });
+    const res = await fetchRetry(
+      opts.fetchImpl ?? fetch,
+      offSearchUrl(q),
+      { signal: ctrl.signal, headers: { Accept: 'application/json' } },
+      ctrl.signal,
+      opts.retryDelayMs ?? RETRY_DELAY_MS,
+    );
     if (!res.ok) return { kind: 'error', message: `HTTP ${res.status}` };
     const body = (await res.json()) as {
       products?: (OffProduct & { countries_tags?: string[] })[];
@@ -119,7 +156,7 @@ export async function searchOff(
     return { kind: 'ok', drafts };
   } catch {
     if (ctrl.signal.aborted) return { kind: 'error', message: 'timeout' };
-    return { kind: 'offline' };
+    return { kind: 'error', message: 'network' };
   } finally {
     clearTimeout(timer);
   }

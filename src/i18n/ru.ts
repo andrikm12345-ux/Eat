@@ -247,7 +247,8 @@ export const ru = {
     offResults: 'Open Food Facts',
     offNothing: 'В Open Food Facts ничего не нашлось.',
     offOffline: 'Нет сети: поиск в Open Food Facts недоступен.',
-    offError: 'Не удалось выполнить поиск. Попробуйте ещё раз.',
+    offError: 'Open Food Facts сейчас не отвечает (это бывает). Попробуйте ещё раз.',
+    retry: 'Повторить поиск',
     offUnverified: 'Данные не проверены — сверьте с упаковкой.',
   },
   portion: {

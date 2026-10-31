@@ -9,7 +9,7 @@ import { formatKcal } from '../../domain/format';
 import { cacheOffDraft, searchOff } from '../../services/off';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
-import { LinkButton } from '../../ui/kit';
+import { Button, LinkButton } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { useAddTarget } from './addTarget';
 import { useCatalog } from './catalog';
@@ -61,6 +61,7 @@ export function FoodSearch({
 
   // Online search runs by itself while typing (debounced); results are kept per query.
   const query = q.trim();
+  const [tick, setTick] = useState(0);
   useEffect(() => {
     if (query.length < MIN_ONLINE_CHARS) return;
     const cached = OFF_CACHE.get(query);
@@ -83,7 +84,7 @@ export function FoodSearch({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [query]);
+  }, [query, tick]);
   const offNow = off && off.q === query && query.length >= MIN_ONLINE_CHARS ? off : null;
 
   async function pickOff(d: FoodDraft) {
@@ -140,6 +141,11 @@ export function FoodSearch({
             )}
           {offNow?.state === 'busy' && <p className={styles.muted}>{t.searchingOff}</p>}
           {offNow?.state === 'offline' && <p className={styles.muted}>{t.offOffline}</p>}
+          {(offNow?.state === 'error' || offNow?.state === 'offline') && (
+            <Button variant="secondary" block onClick={() => setTick((n) => n + 1)}>
+              {t.retry}
+            </Button>
+          )}
           {offNow?.state === 'error' && <p className={styles.muted}>{t.offError}</p>}
           {offNow?.state === 'ok' && offNow.drafts.length > 0 && (
             <>

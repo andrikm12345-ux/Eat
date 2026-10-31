@@ -58,6 +58,47 @@ describe('online product search', () => {
     expect(await screen.findByText(ru.search.nothing)).toBeVisible();
   });
 
+  it('a failing request is not reported as "no network"; the retry button searches again', async () => {
+    let fail = true;
+    const f = vi.fn(async () => {
+      if (fail) throw new TypeError('Failed to fetch');
+      return new Response(
+        JSON.stringify({
+          products: [
+            {
+              code: '5',
+              product_name: 'Молоко отборное',
+              brands: 'Белая Долина',
+              countries_tags: ['en:russia'],
+              nutriments: {
+                'energy-kcal_100g': 73,
+                proteins_100g: 3,
+                fat_100g: 3.2,
+                carbohydrates_100g: 4.7,
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      );
+    });
+    vi.stubGlobal('fetch', f);
+    const user = userEvent.setup();
+    await renderApp('/add/search');
+    await user.type(await screen.findByLabelText(ru.search.placeholder), 'белая долина');
+    expect(await screen.findByText(ru.search.offError, undefined, { timeout: 6000 })).toBeVisible();
+    expect(screen.queryByText(ru.search.offOffline)).not.toBeInTheDocument();
+    fail = false;
+    await user.click(screen.getByRole('button', { name: ru.search.retry }));
+    expect(
+      await screen.findByRole(
+        'button',
+        { name: /Молоко отборное · Белая Долина/ },
+        { timeout: 4000 },
+      ),
+    ).toBeVisible();
+  }, 20000);
+
   it('says so when offline', async () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
     const user = userEvent.setup();

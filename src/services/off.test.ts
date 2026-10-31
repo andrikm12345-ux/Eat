@@ -46,7 +46,12 @@ describe('OFF client', () => {
     const failing = vi.fn(async () => {
       throw new TypeError('Failed to fetch');
     });
-    expect(await fetchOff('1', { fetchImpl: failing, online: true })).toEqual({ kind: 'offline' });
+    // A failing request is retried once, then reported as an error (not as "no network").
+    expect(await fetchOff('1', { fetchImpl: failing, online: true, retryDelayMs: 1 })).toEqual({
+      kind: 'error',
+      message: 'network',
+    });
+    expect(failing).toHaveBeenCalledTimes(2);
   });
 
   it('times out after the limit', async () => {
@@ -155,7 +160,22 @@ describe('OFF text search', () => {
     const failing = vi.fn(async () => {
       throw new TypeError('x');
     });
-    expect(await searchOff('x', { fetchImpl: failing, online: true })).toEqual({ kind: 'offline' });
+    expect(await searchOff('x', { fetchImpl: failing, online: true, retryDelayMs: 1 })).toEqual({
+      kind: 'error',
+      message: 'network',
+    });
+    // One dropped request is recovered by the automatic retry.
+    const flaky = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ products: [] }), { status: 200 }));
+    expect(
+      await searchOff('x', {
+        fetchImpl: flaky as unknown as typeof fetch,
+        online: true,
+        retryDelayMs: 1,
+      }),
+    ).toEqual({ kind: 'ok', drafts: [] });
     const hang = vi.fn(
       (_u: string, init?: RequestInit) =>
         new Promise<Response>((_r, rej) =>
