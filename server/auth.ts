@@ -1,9 +1,18 @@
-import { createHash, createHmac, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
+import {
+  createHash,
+  createHmac,
+  randomBytes,
+  randomInt,
+  scrypt,
+  timingSafeEqual,
+} from 'node:crypto';
 
-/** Stateless email-code login: nothing is stored until the code is verified. */
-export const CODE_DIGITS = 8;
-export const CODE_TTL_MS = 10 * 60 * 1000;
+/** Login + password accounts. Sessions are signed tokens; only a password hash is stored. */
 export const SESSION_TTL_MS = 180 * 24 * 60 * 60 * 1000;
+export const MAX_FAILS = 5;
+export const LOCK_MS = 15 * 60 * 1000;
+export const MIN_PASSWORD = 8;
+export const MAX_PASSWORD = 200;
 
 const b64 = (s: string) => Buffer.from(s, 'utf8').toString('base64url');
 const unb64 = (s: string) => Buffer.from(s, 'base64url').toString('utf8');
@@ -16,61 +25,38 @@ function safeEqual(a: string, b: string): boolean {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
-export function normalizeEmail(raw: string): string {
-  return raw.trim().toLowerCase();
-}
+export const normalizeLogin = (raw: string) => raw.trim().toLowerCase();
 
-export function isValidEmail(email: string): boolean {
-  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
-}
+/** 3–32 characters: latin letters, digits, dot, dash, underscore. */
+export const isValidLogin = (login: string) => /^[a-z0-9._-]{3,32}$/.test(login);
+
+export const isValidPassword = (pw: string) =>
+  pw.length >= MIN_PASSWORD && pw.length <= MAX_PASSWORD;
 
 /** Stable, non-reversible user id (also the storage key of the user's data). */
-export function userIdFor(secret: string, email: string): string {
+export function userIdFor(secret: string, login: string): string {
   return createHash('sha256')
-    .update(`${secret}|user|${normalizeEmail(email)}`)
+    .update(`${secret}|user|${normalizeLogin(login)}`)
     .digest('hex')
     .slice(0, 40);
 }
 
-/** Digits derived from the challenge, so only the mail recipient knows them. */
-function codeFor(secret: string, payload: string): string {
-  const n = BigInt('0x' + hmac(secret, `code|${payload}`).slice(0, 12)) % BigInt(10 ** CODE_DIGITS);
-  return n.toString().padStart(CODE_DIGITS, '0');
+export type Credentials = { salt: string; hash: string; fails: number; lockedUntil: number };
+
+const derive = (password: string, salt: string) =>
+  new Promise<string>((resolve, reject) =>
+    scrypt(password, Buffer.from(salt, 'hex'), 64, (err, key) =>
+      err ? reject(err) : resolve(key.toString('hex')),
+    ),
+  );
+
+export async function hashPassword(password: string): Promise<Credentials> {
+  const salt = randomBytes(16).toString('hex');
+  return { salt, hash: await derive(password, salt), fails: 0, lockedUntil: 0 };
 }
 
-export function createChallenge(
-  secret: string,
-  emailRaw: string,
-  now: number,
-  nonce = randomBytes(12).toString('hex'),
-) {
-  const email = normalizeEmail(emailRaw);
-  const payload = `${email}|${now + CODE_TTL_MS}|${nonce}`;
-  return {
-    challenge: `${b64(payload)}.${hmac(secret, `c|${payload}`)}`,
-    code: codeFor(secret, payload),
-  };
-}
-
-/** Checks a challenge + code pair; returns the (normalized) email on success. */
-export function verifyChallenge(
-  secret: string,
-  challenge: string,
-  code: string,
-  now: number,
-): string | null {
-  const [p, sig] = challenge.split('.');
-  if (!p || !sig) return null;
-  let payload: string;
-  try {
-    payload = unb64(p);
-  } catch {
-    return null;
-  }
-  if (!safeEqual(sig, hmac(secret, `c|${payload}`))) return null;
-  const [email, exp] = payload.split('|');
-  if (!email || Number(exp) < now) return null;
-  return safeEqual(code.replace(/\s/g, ''), codeFor(secret, payload)) ? email : null;
+export async function checkPassword(c: Credentials, password: string): Promise<boolean> {
+  return safeEqual(await derive(password, c.salt), c.hash);
 }
 
 export function createSession(secret: string, userId: string, now: number): string {

@@ -3,66 +3,70 @@ import type { Repos } from '../db/repos';
 /** Settings holding the signed-in session (never exported or synced). */
 export const ACCOUNT = {
   token: 'accountToken',
-  email: 'accountEmail',
+  login: 'accountLogin',
   lastSync: 'accountLastSync',
 } as const;
 
-export type AccountError = 'invalid_email' | 'bad_code' | 'mail' | 'network' | 'unknown';
+export type AccountError =
+  | 'bad_login'
+  | 'bad_password'
+  | 'taken'
+  | 'wrong_credentials'
+  | 'locked'
+  | 'signup_closed'
+  | 'network'
+  | 'unknown';
 
-async function post<T>(
-  url: string,
-  body: unknown,
-): Promise<{ ok: true; data: T } | { ok: false; status: number; error: string }> {
+type Reply = { token?: string; login?: string; error?: string; retryAfterSec?: number };
+
+async function auth(
+  r: Repos,
+  kind: 'register' | 'login',
+  login: string,
+  password: string,
+): Promise<{ login: string } | { error: AccountError; retryAfterSec?: number }> {
   let res: Response;
   try {
-    res = await fetch(url, {
+    res = await fetch(`/api/auth/${kind}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ login, password }),
     });
   } catch {
-    return { ok: false, status: 0, error: 'network' };
+    return { error: 'network' };
   }
-  const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-  if (res.ok) return { ok: true, data: data as T };
-  return { ok: false, status: res.status, error: String(data.error ?? 'unknown') };
+  const data = (await res.json().catch(() => ({}))) as Reply;
+  if (res.ok && data.token && data.login) {
+    await r.settings.set(ACCOUNT.token, data.token);
+    await r.settings.set(ACCOUNT.login, data.login);
+    return { login: data.login };
+  }
+  const known: AccountError[] = [
+    'bad_login',
+    'bad_password',
+    'taken',
+    'wrong_credentials',
+    'locked',
+    'signup_closed',
+  ];
+  const error = known.find((k) => k === data.error) ?? 'unknown';
+  return { error, retryAfterSec: data.retryAfterSec };
 }
 
-const toError = (status: number, error: string): AccountError => {
-  if (status === 0) return 'network';
-  if (error === 'bad_email') return 'invalid_email';
-  if (error === 'bad_code') return 'bad_code';
-  if (error.startsWith('mail_')) return 'mail';
-  return 'unknown';
-};
+/** Creates an account and signs in. */
+export const registerAccount = (r: Repos, login: string, password: string) =>
+  auth(r, 'register', login, password);
 
-/** Asks the server to email a code. Returns the challenge to send back with the code. */
-export async function requestCode(
-  email: string,
-): Promise<{ challenge: string; digits: number } | { error: AccountError }> {
-  const r = await post<{ challenge: string; digits: number }>('/api/auth/request', { email });
-  return r.ok ? r.data : { error: toError(r.status, r.error) };
-}
+/** Signs in to an existing account. */
+export const loginAccount = (r: Repos, login: string, password: string) =>
+  auth(r, 'login', login, password);
 
-/** Exchanges the emailed code for a session and stores it. */
-export async function verifyCode(
-  r: Repos,
-  challenge: string,
-  code: string,
-): Promise<{ email: string } | { error: AccountError }> {
-  const res = await post<{ token: string; email: string }>('/api/auth/verify', { challenge, code });
-  if (!res.ok) return { error: toError(res.status, res.error) };
-  await r.settings.set(ACCOUNT.token, res.data.token);
-  await r.settings.set(ACCOUNT.email, res.data.email);
-  return { email: res.data.email };
-}
-
-export async function getSession(r: Repos): Promise<{ token: string; email: string } | null> {
-  const [token, email] = await Promise.all([
+export async function getSession(r: Repos): Promise<{ token: string; login: string } | null> {
+  const [token, login] = await Promise.all([
     r.settings.get<string>(ACCOUNT.token, ''),
-    r.settings.get<string>(ACCOUNT.email, ''),
+    r.settings.get<string>(ACCOUNT.login, ''),
   ]);
-  return token ? { token, email } : null;
+  return token ? { token, login } : null;
 }
 
 export async function signOut(r: Repos) {

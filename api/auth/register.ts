@@ -1,11 +1,11 @@
-import { verifyCode } from '../../server/handlers.js';
 import { envDeps } from '../../server/deps.js';
+import { register } from '../../server/handlers.js';
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    return await verifyCode(envDeps(), request);
+    return await register(envDeps(), request);
   } catch (e) {
-    console.error('auth/verify failed', e);
+    console.error('auth/register failed', e);
     return Response.json({ error: 'server_error' }, { status: 500 });
   }
 }

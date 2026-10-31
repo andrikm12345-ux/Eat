@@ -1,12 +1,15 @@
 import {
-  createChallenge,
+  checkPassword,
   createSession,
-  isValidEmail,
-  normalizeEmail,
+  hashPassword,
+  isValidLogin,
+  isValidPassword,
+  LOCK_MS,
+  MAX_FAILS,
+  normalizeLogin,
   userIdFor,
-  verifyChallenge,
   verifySession,
-  CODE_DIGITS,
+  type Credentials,
 } from './auth.js';
 import type { Deps } from './types.js';
 
@@ -30,45 +33,78 @@ const readJson = async (req: Request): Promise<Record<string, unknown> | null> =
 const bearer = (req: Request) =>
   /^Bearer\s+(.+)$/i.exec(req.headers.get('authorization') ?? '')?.[1] ?? null;
 
-/** POST {email} → sends a code; returns {challenge} to be echoed back with the code. */
-export async function requestCode(d: Deps, req: Request): Promise<Response> {
-  const body = await readJson(req);
-  const email = normalizeEmail(String(body?.email ?? ''));
-  if (!isValidEmail(email)) return json({ error: 'bad_email' }, 400);
-  // Don't reveal whether an address is allowed: pretend to send.
-  const { challenge, code } = createChallenge(d.secret, email, d.now());
-  if (d.allowed.length === 0 || d.allowed.includes(email)) {
-    try {
-      await d.mail(email, code);
-    } catch (e) {
-      return json(
-        {
-          error:
-            e instanceof Error && e.message === 'mail_not_configured'
-              ? 'mail_not_configured'
-              : 'mail_failed',
-        },
-        503,
-      );
-    }
+const credPath = (userId: string) => `creds/${userId}.json`;
+
+async function readCreds(d: Deps, userId: string): Promise<Credentials | null> {
+  const text = await d.store.get(credPath(userId));
+  if (!text) return null;
+  try {
+    return JSON.parse(text) as Credentials;
+  } catch {
+    return null;
   }
-  return json({ challenge, digits: CODE_DIGITS });
 }
 
-/** POST {challenge, code} → {token, email}. */
-export async function verifyCode(d: Deps, req: Request): Promise<Response> {
+const delay = (d: Deps) =>
+  d.failDelayMs ? new Promise((r) => setTimeout(r, d.failDelayMs?.())) : null;
+
+/** Parses and validates {login, password}; null + response on problems. */
+async function credentials(
+  req: Request,
+): Promise<{ fail: Response } | { login: string; password: string }> {
   const body = await readJson(req);
-  const email = verifyChallenge(
-    d.secret,
-    String(body?.challenge ?? ''),
-    String(body?.code ?? ''),
-    d.now(),
-  );
-  if (!email || (d.allowed.length > 0 && !d.allowed.includes(email))) {
-    if (d.failDelayMs) await new Promise((r) => setTimeout(r, d.failDelayMs?.()));
-    return json({ error: 'bad_code' }, 401);
+  const login = normalizeLogin(String(body?.login ?? ''));
+  const password = String(body?.password ?? '');
+  if (!isValidLogin(login)) return { fail: json({ error: 'bad_login' }, 400) };
+  if (!isValidPassword(password)) return { fail: json({ error: 'bad_password' }, 400) };
+  return { login, password };
+}
+
+/** POST {login, password} → creates the account and signs in. */
+export async function register(d: Deps, req: Request): Promise<Response> {
+  if (!d.signupOpen) return json({ error: 'signup_closed' }, 403);
+  const c = await credentials(req);
+  if ('fail' in c) return c.fail;
+  const userId = userIdFor(d.secret, c.login);
+  if (await readCreds(d, userId)) return json({ error: 'taken' }, 409);
+  await d.store.put(credPath(userId), JSON.stringify(await hashPassword(c.password)));
+  return json({ token: createSession(d.secret, userId, d.now()), login: c.login });
+}
+
+/** POST {login, password} → {token, login}. Locks the account after repeated failures. */
+export async function login(d: Deps, req: Request): Promise<Response> {
+  const c = await credentials(req);
+  if ('fail' in c) return c.fail;
+  const userId = userIdFor(d.secret, c.login);
+  const creds = await readCreds(d, userId);
+  if (creds && creds.lockedUntil > d.now()) {
+    return json(
+      { error: 'locked', retryAfterSec: Math.ceil((creds.lockedUntil - d.now()) / 1000) },
+      429,
+    );
   }
-  return json({ token: createSession(d.secret, userIdFor(d.secret, email), d.now()), email });
+  // Unknown users cost the same hashing time, so timing does not reveal them.
+  const ok = creds
+    ? await checkPassword(creds, c.password)
+    : (await hashPassword(c.password), false);
+  if (!creds || !ok) {
+    if (creds) {
+      const fails = creds.fails + 1;
+      const locked = fails >= MAX_FAILS;
+      await d.store.put(
+        credPath(userId),
+        JSON.stringify({
+          ...creds,
+          fails: locked ? 0 : fails,
+          lockedUntil: locked ? d.now() + LOCK_MS : 0,
+        }),
+      );
+    }
+    await delay(d);
+    return json({ error: 'wrong_credentials' }, 401);
+  }
+  if (creds.fails > 0) await d.store.put(credPath(userId), JSON.stringify({ ...creds, fails: 0 }));
+  return json({ token: createSession(d.secret, userId, d.now()), login: c.login });
 }
 
 const dataPath = (userId: string) => `users/${userId}.json`;

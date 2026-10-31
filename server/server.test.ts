@@ -1,18 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-  createChallenge,
   createSession,
-  isValidEmail,
-  normalizeEmail,
-  userIdFor,
-  verifyChallenge,
-  verifySession,
-  CODE_TTL_MS,
+  isValidLogin,
+  isValidPassword,
+  LOCK_MS,
+  MAX_FAILS,
+  normalizeLogin,
   SESSION_TTL_MS,
-  CODE_DIGITS,
+  userIdFor,
+  verifySession,
 } from './auth.js';
-import { getSync, putSync, requestCode, verifyCode } from './handlers.js';
-import { resendMailer } from './mail.js';
+import { getSync, login, putSync, register } from './handlers.js';
 import type { Deps, Store } from './types.js';
 
 const SECRET = 'x'.repeat(40);
@@ -24,69 +22,41 @@ function memoryStore(): Store & { data: Map<string, string> } {
 }
 
 function deps(over: Partial<Deps> = {}) {
-  const sent: { to: string; code: string }[] = [];
+  let t = T0;
   const d: Deps = {
     secret: SECRET,
     store: memoryStore(),
-    mail: async (to, code) => void sent.push({ to, code }),
-    now: () => T0,
-    allowed: [],
+    now: () => t,
+    signupOpen: true,
     ...over,
   };
-  return { d, sent };
+  return { d, advance: (ms: number) => (t += ms) };
 }
 
-const post = (body: unknown, headers: Record<string, string> = {}) =>
+const post = (body: unknown) =>
   new Request('http://x/api', {
     method: 'POST',
-    headers: { 'content-type': 'application/json', ...headers },
+    headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
   });
+const creds = (l: string, p: string) => post({ login: l, password: p });
 
 describe('auth primitives', () => {
-  it('validates and normalizes emails', () => {
-    expect(normalizeEmail('  A@B.ru ')).toBe('a@b.ru');
-    expect(isValidEmail('a@b.ru')).toBe(true);
-    for (const bad of [
-      '',
-      'a',
-      'a@b',
-      'a b@c.ru',
-      '@c.ru',
-      'a@.ru'.slice(0, 3),
-      `${'a'.repeat(250)}@b.ru`,
-    ])
-      expect(isValidEmail(bad)).toBe(false);
+  it('validates logins and passwords', () => {
+    expect(normalizeLogin('  Ivan_01 ')).toBe('ivan_01');
+    for (const ok of ['abc', 'a.b-c_9', 'x'.repeat(32)]) expect(isValidLogin(ok)).toBe(true);
+    for (const bad of ['', 'ab', 'x'.repeat(33), 'иван', 'a b c', 'a@b.ru', 'A!B']) {
+      expect(isValidLogin(bad)).toBe(false);
+    }
+    expect(isValidPassword('1234567')).toBe(false);
+    expect(isValidPassword('12345678')).toBe(true);
+    expect(isValidPassword('x'.repeat(201))).toBe(false);
   });
 
-  it('code: right pair passes, wrong code / tampering / expiry fail', () => {
-    const { challenge, code } = createChallenge(SECRET, 'Me@Mail.ru', T0, 'nonce1');
-    expect(code).toMatch(new RegExp(`^\\d{${CODE_DIGITS}}$`));
-    expect(verifyChallenge(SECRET, challenge, code, T0 + 1000)).toBe('me@mail.ru');
-    expect(verifyChallenge(SECRET, challenge, ` ${code.slice(0, 4)} ${code.slice(4)} `, T0)).toBe(
-      'me@mail.ru',
-    );
-    expect(
-      verifyChallenge(SECRET, challenge, '00000000' === code ? '11111111' : '00000000', T0),
-    ).toBeNull();
-    expect(verifyChallenge(SECRET, challenge, code, T0 + CODE_TTL_MS + 1)).toBeNull();
-    expect(verifyChallenge('y'.repeat(40), challenge, code, T0)).toBeNull();
-    const [p, sig] = challenge.split('.');
-    const forged = Buffer.from(
-      Buffer.from(p!, 'base64url').toString().replace('me@mail.ru', 'evil@mail.ru'),
-    ).toString('base64url');
-    expect(verifyChallenge(SECRET, `${forged}.${sig}`, code, T0)).toBeNull();
-    for (const junk of ['', 'abc', 'a.b', '!!!.???'])
-      expect(verifyChallenge(SECRET, junk, code, T0)).toBeNull();
-    // Another challenge for the same address has another code.
-    expect(createChallenge(SECRET, 'me@mail.ru', T0, 'nonce2').code).not.toBe(code);
-  });
-
-  it('sessions: valid until expiry, bound to the secret', () => {
-    const uid = userIdFor(SECRET, 'a@b.ru');
-    expect(uid).toBe(userIdFor(SECRET, ' A@B.ru '));
-    expect(uid).not.toBe(userIdFor(SECRET, 'c@d.ru'));
-    expect(uid).not.toContain('@');
+  it('sessions: valid until expiry, bound to the secret, tamper-proof', () => {
+    const uid = userIdFor(SECRET, 'ivan');
+    expect(uid).toBe(userIdFor(SECRET, ' IVAN '));
+    expect(uid).not.toBe(userIdFor(SECRET, 'petr'));
     const t = createSession(SECRET, uid, T0);
     expect(verifySession(SECRET, t, T0 + 1000)).toBe(uid);
     expect(verifySession(SECRET, t, T0 + SESSION_TTL_MS + 1)).toBeNull();
@@ -94,65 +64,126 @@ describe('auth primitives', () => {
     for (const junk of ['', 'x', 'a.b', '%%%.%%%'])
       expect(verifySession(SECRET, junk, T0)).toBeNull();
     const [p, sig] = t.split('.');
-    expect(
-      verifySession(
-        SECRET,
-        `${Buffer.from(Buffer.from(p!, 'base64url').toString().replace(uid, 'other')).toString('base64url')}.${sig}`,
-        T0,
-      ),
-    ).toBeNull();
+    const forged = Buffer.from(
+      Buffer.from(p!, 'base64url').toString().replace(uid, 'other'),
+    ).toString('base64url');
+    expect(verifySession(SECRET, `${forged}.${sig}`, T0)).toBeNull();
   });
 });
 
-describe('endpoints', () => {
-  it('full flow: request code → mail → verify → store and read data', async () => {
-    const { d, sent } = deps();
-    const r1 = await requestCode(d, post({ email: ' Me@Mail.ru ' }));
-    expect(r1.status).toBe(200);
-    const { challenge } = (await r1.json()) as { challenge: string };
-    expect(sent).toHaveLength(1);
-    expect(sent[0]!.to).toBe('me@mail.ru');
-
-    const r2 = await verifyCode(d, post({ challenge, code: sent[0]!.code }));
-    expect(r2.status).toBe(200);
-    const { token } = (await r2.json()) as { token: string };
+describe('register and login', () => {
+  it('full flow: register → data → login on another browser sees the same data', async () => {
+    const { d } = deps();
+    const reg = await register(d, creds(' Ivan ', 'correct horse'));
+    expect(reg.status).toBe(200);
+    const { token, login: name } = (await reg.json()) as { token: string; login: string };
+    expect(name).toBe('ivan');
     const auth = { authorization: `Bearer ${token}` };
 
-    const empty = await getSync(d, new Request('http://x/api/sync', { headers: auth }));
-    expect(await empty.json()).toEqual({ empty: true });
-
+    expect(await (await getSync(d, new Request('http://x', { headers: auth }))).json()).toEqual({
+      empty: true,
+    });
     const snapshot = JSON.stringify({
       format: 'dnevnik-backup',
       schemaVersion: 1,
       tables: { weights: [] },
     });
-    const put = await putSync(
+    expect(
+      (await putSync(d, new Request('http://x', { method: 'PUT', headers: auth, body: snapshot })))
+        .status,
+    ).toBe(200);
+
+    const again = await login(d, creds('IVAN', 'correct horse'));
+    expect(again.status).toBe(200);
+    const t2 = ((await again.json()) as { token: string }).token;
+    const got = await getSync(
       d,
-      new Request('http://x/api/sync', { method: 'PUT', headers: auth, body: snapshot }),
+      new Request('http://x', { headers: { authorization: `Bearer ${t2}` } }),
     );
-    expect(put.status).toBe(200);
-    const got = await getSync(d, new Request('http://x/api/sync', { headers: auth }));
     expect(await got.text()).toBe(snapshot);
-    // The key in storage is an opaque id, not the email.
-    expect([...(d.store as ReturnType<typeof memoryStore>).data.keys()][0]).toMatch(
-      /^users\/[0-9a-f]{40}\.json$/,
-    );
+
+    const store = d.store as ReturnType<typeof memoryStore>;
+    const stored = [...store.data.entries()];
+    expect(stored.map(([k]) => k).sort()).toEqual([
+      expect.stringMatching(/^creds\/[0-9a-f]{40}\.json$/),
+      expect.stringMatching(/^users\/[0-9a-f]{40}\.json$/),
+    ]);
+    // The password itself is never stored.
+    expect(JSON.stringify(stored)).not.toContain('correct horse');
   });
 
-  it('rejects bad emails, wrong codes (with a delay) and unauthenticated sync', async () => {
-    const delay = vi.fn(() => 1);
-    const { d, sent } = deps({ failDelayMs: delay });
-    expect((await requestCode(d, post({ email: 'nope' }))).status).toBe(400);
+  it('accounts are isolated from each other', async () => {
+    const { d } = deps();
+    const a = (await (await register(d, creds('alice', 'password-a'))).json()) as { token: string };
+    const b = (await (await register(d, creds('bobby', 'password-b'))).json()) as { token: string };
+    const put = (token: string, body: string) =>
+      putSync(
+        d,
+        new Request('http://x', {
+          method: 'PUT',
+          headers: { authorization: `Bearer ${token}` },
+          body,
+        }),
+      );
+    await put(a.token, JSON.stringify({ format: 'dnevnik-backup', tables: { a: [1] } }));
+    const read = await getSync(
+      d,
+      new Request('http://x', { headers: { authorization: `Bearer ${b.token}` } }),
+    );
+    expect(await read.json()).toEqual({ empty: true });
+  });
+
+  it('rejects duplicates, bad input and closed signup', async () => {
+    const { d } = deps();
+    expect((await register(d, creds('ivan', 'password1'))).status).toBe(200);
+    expect(await (await register(d, creds('IVAN', 'other-pass1'))).json()).toEqual({
+      error: 'taken',
+    });
+    expect(await (await register(d, creds('a', 'password1'))).json()).toEqual({
+      error: 'bad_login',
+    });
+    expect(await (await register(d, creds('ivan2', 'short'))).json()).toEqual({
+      error: 'bad_password',
+    });
     expect(
-      (await requestCode(d, new Request('http://x', { method: 'POST', body: 'not json' }))).status,
+      (await register(d, new Request('http://x', { method: 'POST', body: 'nope' }))).status,
     ).toBe(400);
-    expect(sent).toHaveLength(0);
-    const { challenge } = (await (await requestCode(d, post({ email: 'a@b.ru' }))).json()) as {
-      challenge: string;
-    };
-    expect((await verifyCode(d, post({ challenge, code: '12345678' }))).status).toBe(401);
-    expect(delay).toHaveBeenCalled();
-    expect((await verifyCode(d, post({}))).status).toBe(401);
+    const closed = deps({ signupOpen: false });
+    expect(await (await register(closed.d, creds('ivan', 'password1'))).json()).toEqual({
+      error: 'signup_closed',
+    });
+  });
+
+  it('wrong password and unknown login look the same', async () => {
+    const delay = vi.fn(() => 1);
+    const { d } = deps({ failDelayMs: delay });
+    await register(d, creds('ivan', 'password1'));
+    const wrong = await login(d, creds('ivan', 'password2'));
+    const unknown = await login(d, creds('nobody', 'password2'));
+    expect(wrong.status).toBe(401);
+    expect(await wrong.json()).toEqual({ error: 'wrong_credentials' });
+    expect(unknown.status).toBe(401);
+    expect(await unknown.json()).toEqual({ error: 'wrong_credentials' });
+    expect(delay).toHaveBeenCalledTimes(2);
+    expect((await login(d, creds('x', 'password2'))).status).toBe(400);
+  });
+
+  it('locks after repeated failures, then unlocks; success resets the counter', async () => {
+    const { d, advance } = deps();
+    await register(d, creds('ivan', 'password1'));
+    for (let i = 0; i < MAX_FAILS - 1; i++) await login(d, creds('ivan', 'bad-password'));
+    // A success in between clears the counter.
+    expect((await login(d, creds('ivan', 'password1'))).status).toBe(200);
+    for (let i = 0; i < MAX_FAILS; i++) await login(d, creds('ivan', 'bad-password'));
+    const locked = await login(d, creds('ivan', 'password1'));
+    expect(locked.status).toBe(429);
+    expect(await locked.json()).toMatchObject({ error: 'locked', retryAfterSec: LOCK_MS / 1000 });
+    advance(LOCK_MS + 1);
+    expect((await login(d, creds('ivan', 'password1'))).status).toBe(200);
+  });
+
+  it('sync needs a valid session and validates what is stored', async () => {
+    const { d } = deps();
     expect((await getSync(d, new Request('http://x'))).status).toBe(401);
     expect(
       (
@@ -166,74 +197,20 @@ describe('endpoints', () => {
         )
       ).status,
     ).toBe(401);
-  });
-
-  it('validates what is stored', async () => {
-    const { d, sent } = deps();
-    const { challenge } = (await (await requestCode(d, post({ email: 'a@b.ru' }))).json()) as {
-      challenge: string;
+    const { token } = (await (await register(d, creds('ivan', 'password1'))).json()) as {
+      token: string;
     };
-    const { token } = (await (
-      await verifyCode(d, post({ challenge, code: sent[0]!.code }))
-    ).json()) as { token: string };
-    const h = { authorization: `Bearer ${token}` };
     const put = (body: string) =>
-      putSync(d, new Request('http://x', { method: 'PUT', headers: h, body }));
+      putSync(
+        d,
+        new Request('http://x', {
+          method: 'PUT',
+          headers: { authorization: `Bearer ${token}` },
+          body,
+        }),
+      );
     expect((await put('not json')).status).toBe(400);
     expect((await put('{"format":"other","tables":{}}')).status).toBe(400);
     expect((await put('x'.repeat(4 * 1024 * 1024 + 1))).status).toBe(413);
-  });
-
-  it('allowlist: other addresses get no mail and cannot sign in', async () => {
-    const { d, sent } = deps({ allowed: ['me@mail.ru'] });
-    const stranger = await requestCode(d, post({ email: 'x@y.ru' }));
-    expect(stranger.status).toBe(200); // looks identical
-    expect(sent).toHaveLength(0);
-    const { challenge } = (await stranger.json()) as { challenge: string };
-    const forgedCode = createChallenge(SECRET, 'x@y.ru', T0).code;
-    expect((await verifyCode(d, post({ challenge, code: forgedCode }))).status).toBe(401);
-    expect((await requestCode(d, post({ email: 'me@mail.ru' }))).status).toBe(200);
-    expect(sent).toHaveLength(1);
-  });
-
-  it('mail problems are reported', async () => {
-    const off = deps({ mail: resendMailer(undefined, 'a@b.c') });
-    expect((await requestCode(off.d, post({ email: 'a@b.ru' }))).status).toBe(503);
-    expect(await (await requestCode(off.d, post({ email: 'a@b.ru' }))).json()).toEqual({
-      error: 'mail_not_configured',
-    });
-    const broken = deps({
-      mail: async () => {
-        throw new Error('boom');
-      },
-    });
-    expect(await (await requestCode(broken.d, post({ email: 'a@b.ru' }))).json()).toEqual({
-      error: 'mail_failed',
-    });
-  });
-});
-
-describe('Resend mailer', () => {
-  it('posts the code to the Resend API', async () => {
-    const f = vi.fn(async () => new Response('{}', { status: 200 }));
-    await resendMailer(
-      're_key',
-      'Дневник <a@b.c>',
-      f as unknown as typeof fetch,
-    )('me@mail.ru', '12345678');
-    const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
-    expect(url).toBe('https://api.resend.com/emails');
-    expect((init.headers as Record<string, string>).authorization).toBe('Bearer re_key');
-    expect(JSON.parse(init.body as string)).toMatchObject({
-      to: ['me@mail.ru'],
-      subject: expect.stringContaining('12345678'),
-    });
-    await expect(
-      resendMailer(
-        'k',
-        'f',
-        (async () => new Response('', { status: 403 })) as unknown as typeof fetch,
-      )('a@b.ru', '1'),
-    ).rejects.toThrow('mail_failed_403');
   });
 });

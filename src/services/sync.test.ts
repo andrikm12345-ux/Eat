@@ -3,70 +3,85 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getSync,
+  login as srvLogin,
   putSync,
-  requestCode as srvRequest,
-  verifyCode as srvVerify,
+  register as srvRegister,
 } from '../../server/handlers';
 import type { Deps } from '../../server/types';
 import { repos } from '../db/repos';
 import { ru } from '../i18n/ru';
 import { renderApp } from '../test/renderApp';
-import { ACCOUNT, getSession, requestCode, signOut, verifyCode } from './account';
+import { ACCOUNT, getSession, loginAccount, registerAccount, signOut } from './account';
 import { exportJson } from './backup';
 import { buildSnapshot, startAccountSync, syncNow } from './sync';
 
-const sent: string[] = [];
 const files = new Map<string, string>();
-const deps: Deps = {
+let signupOpen = true;
+const deps = (): Deps => ({
   secret: 's'.repeat(40),
   store: { get: async (p) => files.get(p) ?? null, put: async (p, b) => void files.set(p, b) },
-  mail: async (_to, code) => void sent.push(code),
   now: () => Date.now(),
-  allowed: [],
-  failDelayMs: () => 0,
-};
+  signupOpen,
+});
 
 let offline = false;
 beforeEach(() => {
-  sent.length = 0;
   files.clear();
   offline = false;
+  signupOpen = true;
   vi.stubGlobal('fetch', async (url: string, init?: RequestInit) => {
     if (offline) throw new TypeError('offline');
     const req = new Request(`http://localhost${url}`, init);
-    if (url === '/api/auth/request') return srvRequest(deps, req);
-    if (url === '/api/auth/verify') return srvVerify(deps, req);
-    return req.method === 'PUT' ? putSync(deps, req) : getSync(deps, req);
+    if (url === '/api/auth/register') return srvRegister(deps(), req);
+    if (url === '/api/auth/login') return srvLogin(deps(), req);
+    return req.method === 'PUT' ? putSync(deps(), req) : getSync(deps(), req);
   });
 });
 afterEach(() => vi.unstubAllGlobals());
 
-async function login(email = 'me@mail.ru') {
-  const r = await requestCode(email);
-  if ('error' in r) throw new Error(r.error);
-  return verifyCode(repos, r.challenge, sent.at(-1)!);
+const PW = 'password-1';
+/** Registers (first time) or signs in. */
+async function signIn(name = 'ivan') {
+  const r = await loginAccount(repos, name, PW);
+  if ('error' in r) {
+    const reg = await registerAccount(repos, name, PW);
+    if ('error' in reg) throw new Error(reg.error);
+  }
 }
 
 describe('account', () => {
-  it('signs in with the emailed code and signs out', async () => {
-    expect(await login()).toEqual({ email: 'me@mail.ru' });
-    expect(await getSession(repos)).toMatchObject({ email: 'me@mail.ru' });
+  it('registers, signs out and signs in again', async () => {
+    expect(await registerAccount(repos, ' Ivan ', PW)).toEqual({ login: 'ivan' });
+    expect(await getSession(repos)).toMatchObject({ login: 'ivan' });
     await signOut(repos);
     expect(await getSession(repos)).toBeNull();
+    expect(await loginAccount(repos, 'IVAN', PW)).toEqual({ login: 'ivan' });
   });
 
   it('reports errors', async () => {
-    expect(await requestCode('nope')).toEqual({ error: 'invalid_email' });
-    const r = (await requestCode('a@b.ru')) as { challenge: string };
-    expect(await verifyCode(repos, r.challenge, '00000000')).toEqual({ error: 'bad_code' });
+    expect(await registerAccount(repos, 'a', PW)).toEqual({ error: 'bad_login' });
+    expect(await registerAccount(repos, 'ivan', 'short')).toEqual({ error: 'bad_password' });
+    await registerAccount(repos, 'ivan', PW);
+    expect(await registerAccount(repos, 'ivan', PW)).toEqual({ error: 'taken' });
+    expect(await loginAccount(repos, 'ivan', 'wrong-password')).toEqual({
+      error: 'wrong_credentials',
+    });
+    signupOpen = false;
+    expect(await registerAccount(repos, 'petr', PW)).toEqual({ error: 'signup_closed' });
+    vi.stubGlobal('fetch', async () => new Response('oops', { status: 500 }));
+    expect(await loginAccount(repos, 'ivan', PW)).toEqual({ error: 'unknown' });
     offline = true;
-    expect(await requestCode('a@b.ru')).toEqual({ error: 'network' });
-    offline = false;
-    deps.mail = async () => {
-      throw new Error('x');
-    };
-    expect(await requestCode('a@b.ru')).toEqual({ error: 'mail' });
-    deps.mail = async (_t, c) => void sent.push(c);
+    vi.unstubAllGlobals();
+    vi.stubGlobal('fetch', async () => {
+      throw new TypeError('offline');
+    });
+    expect(await loginAccount(repos, 'ivan', PW)).toEqual({ error: 'network' });
+  });
+
+  it('locks after repeated wrong passwords', async () => {
+    await registerAccount(repos, 'ivan', PW);
+    for (let i = 0; i < 5; i++) await loginAccount(repos, 'ivan', 'wrong-password');
+    expect(await loginAccount(repos, 'ivan', PW)).toMatchObject({ error: 'locked' });
   });
 });
 
@@ -87,7 +102,7 @@ describe('sync', () => {
     });
     await repos.weights.create({ date: '2026-10-30', time: '07:00', kg: 82.5, source: 'manual' });
     await repos.settings.set('aiApiKey', 'sk-secret');
-    await login();
+    await signIn();
     const first = await syncNow(repos);
     expect(first).toMatchObject({ ok: true, pushed: true });
     const stored = [...files.values()].join('');
@@ -99,7 +114,7 @@ describe('sync', () => {
     // "New browser": empty database, same account.
     for (const t of repos.db.tables) await t.clear();
     expect(await repos.weights.list()).toHaveLength(0);
-    await login();
+    await signIn();
     const second = await syncNow(repos);
     expect(second).toMatchObject({ ok: true, pulled: expect.any(Number) });
     expect((await repos.weights.list()).map((w) => w.kg)).toEqual([82.5]);
@@ -107,7 +122,7 @@ describe('sync', () => {
   });
 
   it('merges edits from two devices by updatedAt', async () => {
-    await login();
+    await signIn();
     const w = await repos.weights.create({
       date: '2026-10-30',
       time: '07:00',
@@ -115,7 +130,8 @@ describe('sync', () => {
       source: 'manual',
     });
     await syncNow(repos);
-    const remote = JSON.parse([...files.values()][0]!);
+    const key = [...files.keys()].find((k) => k.startsWith('users/'))!;
+    const remote = JSON.parse(files.get(key)!);
     remote.tables.weights[0].kg = 79;
     remote.tables.weights[0].updatedAt = '2999-01-01T00:00:00.000Z';
     remote.tables.weights.push({
@@ -124,7 +140,7 @@ describe('sync', () => {
       kg: 70,
       updatedAt: '2999-01-01T00:00:00.000Z',
     });
-    files.set([...files.keys()][0]!, JSON.stringify(remote));
+    files.set(key, JSON.stringify(remote));
     const r = await syncNow(repos);
     expect(r).toMatchObject({ ok: true });
     expect((await repos.db.weights.get(w.id))?.kg).toBe(79);
@@ -132,7 +148,7 @@ describe('sync', () => {
   });
 
   it('handles offline, expired sessions and server errors', async () => {
-    await login();
+    await signIn();
     offline = true;
     expect(await syncNow(repos)).toEqual({ ok: false, reason: 'network' });
     offline = false;
@@ -140,7 +156,7 @@ describe('sync', () => {
     expect(await syncNow(repos)).toEqual({ ok: false, reason: 'expired' });
     expect(await getSession(repos)).toBeNull();
 
-    await login();
+    await signIn();
     vi.stubGlobal('fetch', async () => new Response('{}', { status: 500 }));
     expect(await syncNow(repos)).toEqual({ ok: false, reason: 'server' });
     const token = (await getSession(repos))!.token;
@@ -174,7 +190,7 @@ describe('sync', () => {
   });
 
   it('auto-sync pushes a change shortly after it is made', async () => {
-    await login();
+    await signIn();
     const stop = startAccountSync(repos, 20);
     await repos.weights.create({ date: '2026-10-30', time: '07:00', kg: 77.7, source: 'manual' });
     await waitFor(() => expect([...files.values()].join('')).toContain('77.7'), { timeout: 3000 });
@@ -185,47 +201,63 @@ describe('sync', () => {
 });
 
 describe('account page', () => {
-  it('email → code → signed in', async () => {
+  it('create an account: password mismatch, taken login, then success', async () => {
+    await registerAccount(repos, 'busy', PW);
+    await signOut(repos);
     const user = userEvent.setup();
     await renderApp('/account', { seed: false });
-    await user.type(await screen.findByLabelText(ru.account.email), 'me@mail.ru');
-    await user.click(screen.getByRole('button', { name: ru.account.getCode }));
-    await user.type(await screen.findByLabelText(ru.account.code), '00000000');
+    await user.click(await screen.findByRole('radio', { name: ru.account.tabs.signUp }));
+    await user.type(screen.getByLabelText(ru.account.login), 'busy');
+    await user.type(screen.getByLabelText(ru.account.password), PW);
+    await user.type(screen.getByLabelText(ru.account.password2), 'different-1');
+    await user.click(screen.getByRole('button', { name: ru.account.signUp }));
+    expect(await screen.findByText(ru.account.errors.mismatch)).toBeVisible();
+    await user.clear(screen.getByLabelText(ru.account.password2));
+    await user.type(screen.getByLabelText(ru.account.password2), PW);
+    await user.click(screen.getByRole('button', { name: ru.account.signUp }));
+    expect(await screen.findByText(ru.account.errors.taken)).toBeVisible();
+    await user.clear(screen.getByLabelText(ru.account.login));
+    await user.type(screen.getByLabelText(ru.account.login), 'fresh');
+    await user.click(screen.getByRole('button', { name: ru.account.signUp }));
+    await waitFor(async () => expect(await getSession(repos)).toMatchObject({ login: 'fresh' }));
+  });
+
+  it('sign in: wrong password, then right one', async () => {
+    await registerAccount(repos, 'ivan', PW);
+    await signOut(repos);
+    const user = userEvent.setup();
+    await renderApp('/account', { seed: false });
+    await user.type(await screen.findByLabelText(ru.account.login), 'ivan');
+    await user.type(screen.getByLabelText(ru.account.password), 'wrong-password');
     await user.click(screen.getByRole('button', { name: ru.account.signIn }));
-    expect(await screen.findByText(ru.account.errors.bad_code)).toBeVisible();
-    await user.clear(screen.getByLabelText(ru.account.code));
-    await user.type(screen.getByLabelText(ru.account.code), sent.at(-1)!);
+    expect(await screen.findByText(ru.account.errors.wrong_credentials)).toBeVisible();
+    await user.clear(screen.getByLabelText(ru.account.password));
+    await user.type(screen.getByLabelText(ru.account.password), PW);
     await user.click(screen.getByRole('button', { name: ru.account.signIn }));
-    await waitFor(async () =>
-      expect(await getSession(repos)).toMatchObject({ email: 'me@mail.ru' }),
-    );
+    await waitFor(async () => expect(await getSession(repos)).toMatchObject({ login: 'ivan' }));
+  });
+
+  it('shows the lock message', async () => {
+    await registerAccount(repos, 'ivan', PW);
+    await signOut(repos);
+    for (let i = 0; i < 5; i++) await loginAccount(repos, 'ivan', 'wrong-password');
+    const user = userEvent.setup();
+    await renderApp('/account', { seed: false });
+    await user.type(await screen.findByLabelText(ru.account.login), 'ivan');
+    await user.type(screen.getByLabelText(ru.account.password), PW);
+    await user.click(screen.getByRole('button', { name: ru.account.signIn }));
+    expect(await screen.findByText(ru.account.errors.locked(15))).toBeVisible();
   });
 
   it('signed-in view: sync now and sign out', async () => {
-    await login();
+    await signIn();
     const user = userEvent.setup();
     await renderApp('/account');
-    expect(await screen.findByText(ru.account.signedIn('me@mail.ru'))).toBeVisible();
+    expect(await screen.findByText(ru.account.signedIn('ivan'))).toBeVisible();
     await user.click(screen.getByRole('button', { name: ru.account.syncNow }));
-    expect(
-      await screen.findByText(ru.account.lastSync(/.*/.source).slice(0, 20), { exact: false }),
-    ).toBeVisible();
+    expect(await screen.findByText(/Последняя синхронизация/)).toBeVisible();
     await user.click(screen.getByRole('button', { name: ru.account.signOut }));
-    expect(await screen.findByLabelText(ru.account.email)).toBeVisible();
-  });
-
-  it('can switch email, resend, and shows errors', async () => {
-    const user = userEvent.setup();
-    await renderApp('/account', { seed: false });
-    await user.type(await screen.findByLabelText(ru.account.email), 'me@mail.ru');
-    await user.click(screen.getByRole('button', { name: ru.account.getCode }));
-    await screen.findByLabelText(ru.account.code);
-    await user.click(screen.getByRole('button', { name: ru.account.resend }));
-    await waitFor(() => expect(sent).toHaveLength(2));
-    await user.click(screen.getByRole('button', { name: ru.account.otherEmail }));
-    offline = true;
-    await user.click(await screen.findByRole('button', { name: ru.account.getCode }));
-    expect(await screen.findByText(ru.account.errors.network)).toBeVisible();
+    expect(await screen.findByLabelText(ru.account.login)).toBeVisible();
   });
 });
 

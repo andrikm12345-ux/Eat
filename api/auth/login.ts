@@ -1,11 +1,11 @@
-import { requestCode } from '../../server/handlers.js';
 import { envDeps } from '../../server/deps.js';
+import { login } from '../../server/handlers.js';
 
 export async function POST(request: Request): Promise<Response> {
   try {
-    return await requestCode(envDeps(), request);
+    return await login(envDeps(), request);
   } catch (e) {
-    console.error('auth/request failed', e);
+    console.error('auth/login failed', e);
     return Response.json({ error: 'server_error' }, { status: 500 });
   }
 }

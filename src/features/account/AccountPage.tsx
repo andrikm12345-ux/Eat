@@ -5,14 +5,14 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import {
   ACCOUNT,
-  requestCode,
+  loginAccount,
+  registerAccount,
   signOut,
-  verifyCode,
   type AccountError,
 } from '../../services/account';
 import { syncNow } from '../../services/sync';
 import { toast } from '../../state/ui';
-import { Button, Card, Notice, TextField } from '../../ui/kit';
+import { Button, Card, Notice, Segmented, TextField } from '../../ui/kit';
 import styles from '../onboarding/Wizard.module.css';
 
 const t = ru.account;
@@ -20,41 +20,35 @@ const t = ru.account;
 export default function AccountPage() {
   const navigate = useNavigate();
   const session = useLiveQuery(async () => {
-    const [email, token, last] = await Promise.all([
-      repos.settings.get<string>(ACCOUNT.email, ''),
+    const [login, token, last] = await Promise.all([
+      repos.settings.get<string>(ACCOUNT.login, ''),
       repos.settings.get<string>(ACCOUNT.token, ''),
       repos.settings.get<string>(ACCOUNT.lastSync, ''),
     ]);
-    return { email, signedIn: !!token, last };
+    return { login, signedIn: !!token, last };
   }, []);
-  const [email, setEmail] = useState('');
-  const [challenge, setChallenge] = useState<string | null>(null);
-  const [code, setCode] = useState('');
+  const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!session) return <div className={styles.wrap}>{ru.common.loading}</div>;
 
-  const fail = (e: AccountError) => setError(t.errors[e]);
+  const message = (e: AccountError, retryAfterSec?: number) =>
+    e === 'locked'
+      ? t.errors.locked(Math.max(1, Math.ceil((retryAfterSec ?? 60) / 60)))
+      : t.errors[e];
 
-  async function sendCode() {
-    setBusy(true);
+  async function submit() {
     setError(null);
-    const r = await requestCode(email.trim());
-    setBusy(false);
-    if ('error' in r) return fail(r.error);
-    setChallenge(r.challenge);
-    setCode('');
-  }
-
-  async function signIn() {
-    if (!challenge) return;
+    if (mode === 'signUp' && password !== password2) return setError(t.errors.mismatch);
     setBusy(true);
-    setError(null);
-    const r = await verifyCode(repos, challenge, code);
+    const r = await (mode === 'signUp' ? registerAccount : loginAccount)(repos, login, password);
     if ('error' in r) {
       setBusy(false);
-      return fail(r.error);
+      return setError(message(r.error, r.retryAfterSec));
     }
     const s = await syncNow(repos);
     setBusy(false);
@@ -83,7 +77,7 @@ export default function AccountPage() {
         {session.signedIn ? (
           <>
             <Card>
-              <p>{t.signedIn(session.email)}</p>
+              <p>{t.signedIn(session.login)}</p>
               <p>
                 {session.last
                   ? t.lastSync(new Date(session.last).toLocaleString('ru-RU'))
@@ -96,76 +90,64 @@ export default function AccountPage() {
               {busy ? t.syncing : t.syncNow}
             </Button>
             <p>{t.signOutHint}</p>
-            <Button
-              block
-              variant="secondary"
-              onClick={async () => {
-                await signOut(repos);
-              }}
-            >
+            <Button block variant="secondary" onClick={() => void signOut(repos)}>
               {t.signOut}
             </Button>
           </>
         ) : (
           <>
             <Notice tone="info">{t.intro}</Notice>
-            {challenge === null ? (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void sendCode();
-                }}
-              >
+            <Segmented
+              label={t.title}
+              value={mode}
+              onChange={(v: 'signIn' | 'signUp') => {
+                setMode(v);
+                setError(null);
+              }}
+              options={[
+                { value: 'signIn', label: t.tabs.signIn },
+                { value: 'signUp', label: t.tabs.signUp },
+              ]}
+            />
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void submit();
+              }}
+            >
+              <TextField
+                label={t.login}
+                hint={mode === 'signUp' ? t.loginHint : undefined}
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                value={login}
+                onChange={setLogin}
+              />
+              <TextField
+                label={t.password}
+                hint={mode === 'signUp' ? t.passwordHint : undefined}
+                type="password"
+                autoComplete={mode === 'signUp' ? 'new-password' : 'current-password'}
+                value={password}
+                onChange={setPassword}
+              />
+              {mode === 'signUp' && (
                 <TextField
-                  label={t.email}
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={setEmail}
+                  label={t.password2}
+                  type="password"
+                  autoComplete="new-password"
+                  value={password2}
+                  onChange={setPassword2}
                 />
-                {error && <Notice>{error}</Notice>}
-                <Button block type="submit" disabled={busy || !email.includes('@')}>
-                  {busy ? t.sending : t.getCode}
-                </Button>
-              </form>
-            ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void signIn();
-                }}
-              >
-                <p>{t.sent(email.trim())}</p>
-                <TextField
-                  label={t.code}
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  value={code}
-                  onChange={(v) => setCode(v.replace(/[^\d ]/g, ''))}
-                  autoFocus
-                />
-                {error && <Notice>{error}</Notice>}
-                <Button block type="submit" disabled={busy || code.replace(/\s/g, '').length < 8}>
-                  {busy ? t.checking : t.signIn}
-                </Button>
-                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                  <Button variant="secondary" disabled={busy} onClick={() => void sendCode()}>
-                    {t.resend}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    disabled={busy}
-                    onClick={() => {
-                      setChallenge(null);
-                      setError(null);
-                    }}
-                  >
-                    {t.otherEmail}
-                  </Button>
-                </div>
-              </form>
-            )}
+              )}
+              {error && <Notice>{error}</Notice>}
+              {mode === 'signUp' && <p>{t.noReset}</p>}
+              <Button block type="submit" disabled={busy || !login || !password}>
+                {busy ? t.working : mode === 'signUp' ? t.signUp : t.signIn}
+              </Button>
+            </form>
           </>
         )}
       </div>

@@ -1,6 +1,5 @@
 import { randomDelayMs } from './auth.js';
 import { blobStore } from './blobStore.js';
-import { resendMailer } from './mail.js';
 import type { Deps } from './types.js';
 
 /** Production wiring from environment variables. */
@@ -10,15 +9,8 @@ export function envDeps(): Deps {
   return {
     secret,
     store: blobStore,
-    mail: resendMailer(
-      process.env.RESEND_API_KEY,
-      process.env.MAIL_FROM ?? 'Дневник <onboarding@resend.dev>',
-    ),
     now: () => Date.now(),
-    allowed: (process.env.ALLOWED_EMAILS ?? '')
-      .split(',')
-      .map((s) => s.trim().toLowerCase())
-      .filter(Boolean),
+    signupOpen: process.env.SIGNUP_DISABLED !== '1',
     failDelayMs: randomDelayMs,
   };
 }
