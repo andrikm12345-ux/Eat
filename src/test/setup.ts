@@ -9,7 +9,7 @@ import { useToasts, useUi } from '../state/ui';
 
 beforeEach(async () => {
   await Promise.all(db.tables.map((t) => t.clear()));
-  useUi.setState({ date: toLocalDate(new Date()), addSheet: { open: false } });
+  useUi.setState({ date: toLocalDate(new Date()), addSheet: { open: false }, weighOpen: false });
   useToasts.setState({ toasts: [] });
   useReview.setState({ draft: null });
 });

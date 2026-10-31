@@ -207,6 +207,14 @@ export type AiRun = BaseRecord & {
   error?: string;
 };
 
-export type BlobRecord = BaseRecord & { id: string; blob: Blob; mime: string };
+export type BlobRecord = BaseRecord & {
+  id: string;
+  blob: Blob;
+  mime: string;
+  /** What the blob is for (non-indexed). */
+  kind?: 'progress' | 'recipe' | 'step';
+  /** Day the photo belongs to (progress photos). */
+  date?: LocalDate;
+};
 
 export type Setting = BaseRecord & { key: string; value: unknown };

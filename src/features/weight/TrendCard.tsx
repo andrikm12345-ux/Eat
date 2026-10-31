@@ -1,0 +1,53 @@
+import { daysBetween, toLocalDate } from '../../domain/dates';
+import { formatKg } from '../../domain/format';
+import { direction } from '../../domain/progress';
+import { trendChange, trendOn } from '../../domain/weightTrend';
+import { ru } from '../../i18n/ru';
+import { useUi } from '../../state/ui';
+import { Button, Card } from '../../ui/kit';
+import { useTrend } from '../progress/useTrend';
+import styles from './weigh.module.css';
+
+const t = ru.weight;
+const ARROWS = { down: '↓', up: '↑', flat: '→' } as const;
+
+export function TrendCard() {
+  const data = useTrend();
+  const setOpen = useUi((s) => s.setWeighOpen);
+  const today = toLocalDate(new Date());
+  if (!data) return null;
+  const last = data.weights[data.weights.length - 1];
+  const trend = trendOn(data.points, today);
+  const delta = trendChange(data.points, today, 7);
+  const dir = direction(delta);
+  return (
+    <Card title={t.title}>
+      {last ? (
+        <div className={styles.trend}>
+          <div>
+            <div className={styles.small}>{t.raw}</div>
+            <div className={styles.big}>{formatKg(last.kg)}</div>
+            <div className={styles.small}>{t.daysAgo(daysBetween(last.date, today))}</div>
+          </div>
+          <div>
+            <div className={styles.small}>{t.trend}</div>
+            <div className={styles.big}>{trend !== undefined ? formatKg(trend) : '—'}</div>
+            <div className={styles.small}>
+              <span className={styles.arrow} aria-label={t.arrow[dir]}>
+                {ARROWS[dir]}
+              </span>{' '}
+              {delta !== undefined
+                ? `${delta > 0 ? '+' : delta < 0 ? '−' : ''}${formatKg(Math.abs(delta))} кг ${t.change7}`
+                : ''}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <p className={styles.small}>{t.none}</p>
+      )}
+      <Button block variant="secondary" onClick={() => setOpen(true)}>
+        {t.weigh}
+      </Button>
+    </Card>
+  );
+}

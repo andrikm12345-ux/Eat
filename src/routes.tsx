@@ -17,6 +17,11 @@ export const routes: RouteObject[] = [
       { index: true, Component: TodayPage },
       { path: 'diary', lazy: lazyPage(() => import('./features/diary/DiaryPage')) },
       { path: 'progress', lazy: lazyPage(() => import('./features/progress/ProgressPage')) },
+      {
+        path: 'progress/measurements',
+        lazy: lazyPage(() => import('./features/progress/MeasurementsPage')),
+      },
+      { path: 'progress/photos', lazy: lazyPage(() => import('./features/progress/PhotosPage')) },
       { path: 'reports', lazy: lazyPage(() => import('./features/reports/ReportsPage')) },
       { path: 'more', lazy: lazyPage(() => import('./features/more/MorePage')) },
       { path: 'add/search', lazy: lazyPage(() => import('./features/add/SearchPage')) },

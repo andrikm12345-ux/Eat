@@ -64,6 +64,17 @@ describe('computeTrend', () => {
     expect(computeTrend([{ date: '2026-01-01', kg: 80 }])[0]!.trend).toBe(80);
   });
 
+  it('matches a hand-computed reference series', () => {
+    const t = computeTrend([
+      { date: '2026-01-01', kg: 80 },
+      { date: '2026-01-02', kg: 80.6 },
+      { date: '2026-01-04', kg: 79.4 },
+      { date: '2026-01-05', kg: 80.2 },
+    ]);
+    // 80 → 80 + 0.1·0.6 = 80.06 → +0.19·(79.4 − 80.06) = 79.9346 → +0.1·(80.2 − 79.9346) = 79.96114
+    expect(t.map((p) => Number(p.trend.toFixed(5)))).toEqual([80, 80.06, 79.9346, 79.96114]);
+  });
+
   it('applies α_eff = 1 − (1 − α)^Δ for gaps', () => {
     const t = computeTrend([
       { date: '2026-01-01', kg: 80 },

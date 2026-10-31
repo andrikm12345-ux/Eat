@@ -3,6 +3,8 @@ import { ru } from '../../i18n/ru';
 import { useUi } from '../../state/ui';
 import { Card } from '../../ui/kit';
 import pageStyles from '../../ui/Page.module.css';
+import { TrendCard } from '../weight/TrendCard';
+import { Banners } from './Banners';
 import { DayFlow } from './DayFlow';
 import { DayHeader } from './DayHeader';
 import { SummaryCard } from './SummaryCard';
@@ -21,7 +23,9 @@ export default function TodayPage() {
       <DayHeader />
       {day && (
         <>
+          <Banners />
           <SummaryCard totals={dayTotals(day.entries)} goal={day.goal} meta={day.meta} />
+          <TrendCard />
           <Card title={ru.today.flowTitle}>
             <DayFlow entries={day.entries} />
           </Card>

@@ -10,6 +10,8 @@ type UiState = {
   addSheet: { open: boolean; time?: string };
   openAdd: (time?: string) => void;
   closeAdd: () => void;
+  weighOpen: boolean;
+  setWeighOpen: (v: boolean) => void;
 };
 
 export const useUi = create<UiState>((set) => ({
@@ -18,6 +20,8 @@ export const useUi = create<UiState>((set) => ({
   addSheet: { open: false },
   openAdd: (time) => set({ addSheet: time ? { open: true, time } : { open: true } }),
   closeAdd: () => set({ addSheet: { open: false } }),
+  weighOpen: false,
+  setWeighOpen: (weighOpen) => set({ weighOpen }),
 }));
 
 export type Toast = {

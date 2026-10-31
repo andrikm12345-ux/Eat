@@ -2,6 +2,7 @@ import { Suspense, useCallback, useEffect } from 'react';
 import { Navigate, Outlet, useNavigate, useSearchParams } from 'react-router';
 import { useProfile } from '../db/hooks';
 import { AddSheet } from '../features/add/AddSheet';
+import { WeighSheet } from '../features/weight/WeighSheet';
 import { ru } from '../i18n/ru';
 import { UpdateBanner } from '../pwa/UpdateBanner';
 import { useUi } from '../state/ui';
@@ -19,6 +20,7 @@ export function AppShell() {
   const action = params.get('action');
   const addOpen = useUi((s) => s.addSheet.open);
   const openAdd = useUi((s) => s.openAdd);
+  const setWeighOpen = useUi((s) => s.setWeighOpen);
 
   const clearAction = useCallback(() => {
     setParams(
@@ -33,11 +35,11 @@ export function AppShell() {
 
   useEffect(() => {
     if (action === null) return;
-    // TODO(stage 5): route `weigh` to the weight sheet.
     if (ADD_ACTIONS.has(action)) openAdd();
+    if (action === 'weigh') setWeighOpen(true);
     if (action === 'scan') navigate('/add/barcode', { replace: true });
     else clearAction();
-  }, [action, clearAction, openAdd, navigate]);
+  }, [action, clearAction, openAdd, navigate, setWeighOpen]);
 
   const profile = useProfile();
   if (profile === null) return <Navigate to="/wizard" replace />;
@@ -53,6 +55,7 @@ export function AppShell() {
       <Fab onClick={() => openAdd()} expanded={addOpen} />
       <BottomNav />
       <AddSheet />
+      <WeighSheet />
       <ToastHost />
     </>
   );
