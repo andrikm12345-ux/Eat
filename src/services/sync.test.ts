@@ -6,12 +6,20 @@ import {
   login as srvLogin,
   putSync,
   register as srvRegister,
+  resetPassword as srvReset,
 } from '../../server/handlers';
 import type { Deps } from '../../server/types';
 import { repos } from '../db/repos';
 import { ru } from '../i18n/ru';
 import { renderApp } from '../test/renderApp';
-import { ACCOUNT, getSession, loginAccount, registerAccount, signOut } from './account';
+import {
+  ACCOUNT,
+  getSession,
+  loginAccount,
+  registerAccount,
+  resetAccount,
+  signOut,
+} from './account';
 import { exportJson } from './backup';
 import { buildSnapshot, startAccountSync, syncNow } from './sync';
 
@@ -34,6 +42,7 @@ beforeEach(() => {
     const req = new Request(`http://localhost${url}`, init);
     if (url === '/api/auth/register') return srvRegister(deps(), req);
     if (url === '/api/auth/login') return srvLogin(deps(), req);
+    if (url === '/api/auth/reset') return srvReset(deps(), req);
     return req.method === 'PUT' ? putSync(deps(), req) : getSync(deps(), req);
   });
 });
@@ -51,7 +60,7 @@ async function signIn(name = 'ivan') {
 
 describe('account', () => {
   it('registers, signs out and signs in again', async () => {
-    expect(await registerAccount(repos, ' Ivan ', PW)).toEqual({ login: 'ivan' });
+    expect(await registerAccount(repos, ' Ivan ', PW)).toMatchObject({ login: 'ivan' });
     expect(await getSession(repos)).toMatchObject({ login: 'ivan' });
     await signOut(repos);
     expect(await getSession(repos)).toBeNull();
@@ -200,6 +209,23 @@ describe('sync', () => {
   });
 });
 
+describe('recovery', () => {
+  it('a recovery code resets the password and rotates', async () => {
+    const reg = await registerAccount(repos, 'ivan', PW);
+    const code = (reg as { recoveryCode: string }).recoveryCode;
+    expect(code).toMatch(/^\w{5}(-\w{5}){3}$/);
+    await signOut(repos);
+    expect(await resetAccount(repos, 'ivan', 'WRONG', 'new-password')).toEqual({
+      error: 'wrong_credentials',
+    });
+    const out = await resetAccount(repos, 'ivan', code, 'new-password');
+    expect(out).toMatchObject({ login: 'ivan', recoveryCode: expect.any(String) });
+    expect((out as { recoveryCode: string }).recoveryCode).not.toBe(code);
+    expect(await loginAccount(repos, 'ivan', PW)).toEqual({ error: 'wrong_credentials' });
+    expect(await loginAccount(repos, 'ivan', 'new-password')).toEqual({ login: 'ivan' });
+  });
+});
+
 describe('account page', () => {
   it('create an account: password mismatch, taken login, then success', async () => {
     await registerAccount(repos, 'busy', PW);
@@ -219,7 +245,11 @@ describe('account page', () => {
     await user.clear(screen.getByLabelText(ru.account.login));
     await user.type(screen.getByLabelText(ru.account.login), 'fresh');
     await user.click(screen.getByRole('button', { name: ru.account.signUp }));
+    expect(await screen.findByText(ru.account.saveCodeTitle)).toBeVisible();
     await waitFor(async () => expect(await getSession(repos)).toMatchObject({ login: 'fresh' }));
+    await user.click(screen.getByRole('button', { name: ru.account.copy }));
+    await user.click(screen.getByRole('button', { name: ru.account.saved }));
+    await waitFor(() => expect(screen.queryByText(ru.account.saveCodeTitle)).toBeNull());
   });
 
   it('sign in: wrong password, then right one', async () => {
@@ -235,6 +265,31 @@ describe('account page', () => {
     await user.type(screen.getByLabelText(ru.account.password), PW);
     await user.click(screen.getByRole('button', { name: ru.account.signIn }));
     await waitFor(async () => expect(await getSession(repos)).toMatchObject({ login: 'ivan' }));
+  });
+
+  it('forgot password: recovery code → new password → new code', async () => {
+    const reg = (await registerAccount(repos, 'ivan', PW)) as { recoveryCode: string };
+    await signOut(repos);
+    const user = userEvent.setup();
+    await renderApp('/account', { seed: false });
+    await user.click(await screen.findByRole('button', { name: ru.account.forgot }));
+    await user.type(screen.getByLabelText(ru.account.login), 'ivan');
+    await user.type(screen.getByLabelText(ru.account.recoveryCode), reg.recoveryCode);
+    await user.type(screen.getByLabelText(ru.account.newPassword), 'brand-new-pass');
+    await user.click(screen.getByRole('switch', { name: ru.account.showPassword }));
+    expect(screen.getByLabelText(ru.account.newPassword)).toHaveAttribute('type', 'text');
+    await user.click(screen.getByRole('button', { name: ru.account.resetGo }));
+    expect(await screen.findByText(ru.account.saveCodeTitle)).toBeVisible();
+    expect(await loginAccount(repos, 'ivan', 'brand-new-pass')).toEqual({ login: 'ivan' });
+  });
+
+  it('can go back from the reset form', async () => {
+    const user = userEvent.setup();
+    await renderApp('/account', { seed: false });
+    await user.click(await screen.findByRole('button', { name: ru.account.forgot }));
+    expect(await screen.findByLabelText(ru.account.recoveryCode)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: ru.account.backToSignIn }));
+    expect(await screen.findByRole('button', { name: ru.account.forgot })).toBeVisible();
   });
 
   it('shows the lock message', async () => {

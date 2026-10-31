@@ -7,12 +7,13 @@ import {
   ACCOUNT,
   loginAccount,
   registerAccount,
+  resetAccount,
   signOut,
   type AccountError,
 } from '../../services/account';
 import { syncNow } from '../../services/sync';
 import { toast } from '../../state/ui';
-import { Button, Card, Notice, Segmented, TextField } from '../../ui/kit';
+import { Button, Card, Notice, Segmented, Switch, TextField } from '../../ui/kit';
 import styles from '../onboarding/Wizard.module.css';
 
 const t = ru.account;
@@ -27,7 +28,10 @@ export default function AccountPage() {
     ]);
     return { login, signedIn: !!token, last };
   }, []);
-  const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
+  const [mode, setMode] = useState<'signIn' | 'signUp' | 'reset'>('signIn');
+  const [show, setShow] = useState(false);
+  const [code, setCode] = useState('');
+  const [newCode, setNewCode] = useState<string | null>(null);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
@@ -41,19 +45,33 @@ export default function AccountPage() {
       ? t.errors.locked(Math.max(1, Math.ceil((retryAfterSec ?? 60) / 60)))
       : t.errors[e];
 
-  async function submit() {
-    setError(null);
-    if (mode === 'signUp' && password !== password2) return setError(t.errors.mismatch);
-    setBusy(true);
-    const r = await (mode === 'signUp' ? registerAccount : loginAccount)(repos, login, password);
-    if ('error' in r) {
-      setBusy(false);
-      return setError(message(r.error, r.retryAfterSec));
-    }
+  async function finish() {
     const s = await syncNow(repos);
     setBusy(false);
     if (!s.ok) toast({ text: t.syncErrors[s.reason] });
     navigate('/', { replace: true });
+  }
+
+  async function submit() {
+    setError(null);
+    if (mode === 'signUp' && password !== password2) return setError(t.errors.mismatch);
+    setBusy(true);
+    const r =
+      mode === 'signUp'
+        ? await registerAccount(repos, login, password)
+        : mode === 'reset'
+          ? await resetAccount(repos, login, code, password)
+          : await loginAccount(repos, login, password);
+    if ('error' in r) {
+      setBusy(false);
+      return setError(message(r.error, r.retryAfterSec));
+    }
+    // New accounts and resets show the recovery code once before going on.
+    if (r.recoveryCode) {
+      setBusy(false);
+      return setNewCode(r.recoveryCode);
+    }
+    await finish();
   }
 
   async function sync() {
@@ -74,7 +92,38 @@ export default function AccountPage() {
       </p>
       <h1 className={styles.title}>{t.title}</h1>
       <div className={styles.body}>
-        {session.signedIn ? (
+        {newCode ? (
+          <>
+            <Notice tone="info">{t.saveCodeText}</Notice>
+            <Card title={t.saveCodeTitle}>
+              <p
+                style={{ fontSize: 22, fontWeight: 700, letterSpacing: 1, wordBreak: 'break-all' }}
+              >
+                {newCode}
+              </p>
+              <Button
+                block
+                variant="secondary"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(newCode);
+                  toast({ text: t.copied });
+                }}
+              >
+                {t.copy}
+              </Button>
+            </Card>
+            <Button
+              block
+              disabled={busy}
+              onClick={() => {
+                setBusy(true);
+                void finish();
+              }}
+            >
+              {t.saved}
+            </Button>
+          </>
+        ) : session.signedIn ? (
           <>
             <Card>
               <p>{t.signedIn(session.login)}</p>
@@ -96,19 +145,21 @@ export default function AccountPage() {
           </>
         ) : (
           <>
-            <Notice tone="info">{t.intro}</Notice>
-            <Segmented
-              label={t.title}
-              value={mode}
-              onChange={(v: 'signIn' | 'signUp') => {
-                setMode(v);
-                setError(null);
-              }}
-              options={[
-                { value: 'signIn', label: t.tabs.signIn },
-                { value: 'signUp', label: t.tabs.signUp },
-              ]}
-            />
+            <Notice tone="info">{mode === 'reset' ? t.resetHint : t.intro}</Notice>
+            {mode !== 'reset' && (
+              <Segmented
+                label={t.title}
+                value={mode}
+                onChange={(v: 'signIn' | 'signUp') => {
+                  setMode(v);
+                  setError(null);
+                }}
+                options={[
+                  { value: 'signIn', label: t.tabs.signIn },
+                  { value: 'signUp', label: t.tabs.signUp },
+                ]}
+              />
+            )}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -125,28 +176,59 @@ export default function AccountPage() {
                 value={login}
                 onChange={setLogin}
               />
+              {mode === 'reset' && (
+                <TextField
+                  label={t.recoveryCode}
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                  value={code}
+                  onChange={setCode}
+                />
+              )}
               <TextField
-                label={t.password}
-                hint={mode === 'signUp' ? t.passwordHint : undefined}
-                type="password"
-                autoComplete={mode === 'signUp' ? 'new-password' : 'current-password'}
+                label={mode === 'reset' ? t.newPassword : t.password}
+                hint={mode !== 'signIn' ? t.passwordHint : undefined}
+                type={show ? 'text' : 'password'}
+                autoComplete={mode === 'signIn' ? 'current-password' : 'new-password'}
                 value={password}
                 onChange={setPassword}
               />
               {mode === 'signUp' && (
                 <TextField
                   label={t.password2}
-                  type="password"
+                  type={show ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={password2}
                   onChange={setPassword2}
                 />
               )}
+              <Switch label={t.showPassword} checked={show} onChange={setShow} />
               {error && <Notice>{error}</Notice>}
               {mode === 'signUp' && <p>{t.noReset}</p>}
               <Button block type="submit" disabled={busy || !login || !password}>
-                {busy ? t.working : mode === 'signUp' ? t.signUp : t.signIn}
+                {busy
+                  ? t.working
+                  : mode === 'signUp'
+                    ? t.signUp
+                    : mode === 'reset'
+                      ? t.resetGo
+                      : t.signIn}
               </Button>
+              {mode !== 'signUp' && (
+                <p>
+                  <button
+                    type="button"
+                    className={styles.linkBtn}
+                    onClick={() => {
+                      setMode(mode === 'reset' ? 'signIn' : 'reset');
+                      setError(null);
+                    }}
+                  >
+                    {mode === 'reset' ? t.backToSignIn : t.forgot}
+                  </button>
+                </p>
+              )}
             </form>
           </>
         )}

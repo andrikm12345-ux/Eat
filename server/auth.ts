@@ -41,23 +41,41 @@ export function userIdFor(secret: string, login: string): string {
     .slice(0, 40);
 }
 
-export type Credentials = { salt: string; hash: string; fails: number; lockedUntil: number };
+export type Secret = { salt: string; hash: string };
+export type Credentials = Secret & {
+  fails: number;
+  lockedUntil: number;
+  /** Hash of the one-time recovery code (accounts created before recovery existed lack it). */
+  recovery?: Secret;
+};
 
-const derive = (password: string, salt: string) =>
+const derive = (value: string, salt: string) =>
   new Promise<string>((resolve, reject) =>
-    scrypt(password, Buffer.from(salt, 'hex'), 64, (err, key) =>
+    scrypt(value, Buffer.from(salt, 'hex'), 64, (err, key) =>
       err ? reject(err) : resolve(key.toString('hex')),
     ),
   );
 
-export async function hashPassword(password: string): Promise<Credentials> {
+export async function hashSecret(value: string): Promise<Secret> {
   const salt = randomBytes(16).toString('hex');
-  return { salt, hash: await derive(password, salt), fails: 0, lockedUntil: 0 };
+  return { salt, hash: await derive(value, salt) };
 }
 
-export async function checkPassword(c: Credentials, password: string): Promise<boolean> {
-  return safeEqual(await derive(password, c.salt), c.hash);
+export async function checkSecret(secret: Secret, value: string): Promise<boolean> {
+  return safeEqual(await derive(value, secret.salt), secret.hash);
 }
+
+/** 32 symbols without look-alikes (no 0/O/1/I): 20 of them ≈ 100 bits. */
+const RECOVERY_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+
+export function generateRecoveryCode(): string {
+  const bytes = randomBytes(20);
+  const chars = Array.from(bytes, (b) => RECOVERY_ALPHABET[b % 32]).join('');
+  return [0, 5, 10, 15].map((i) => chars.slice(i, i + 5)).join('-');
+}
+
+/** Accepts the code in any case, with or without dashes and spaces. */
+export const normalizeRecovery = (raw: string) => raw.toUpperCase().replace(/[^A-Z2-9]/g, '');
 
 export function createSession(secret: string, userId: string, now: number): string {
   const payload = `${userId}|${now + SESSION_TTL_MS}`;

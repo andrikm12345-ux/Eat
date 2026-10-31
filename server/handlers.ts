@@ -1,12 +1,14 @@
 import {
-  checkPassword,
+  checkSecret,
   createSession,
-  hashPassword,
+  generateRecoveryCode,
+  hashSecret,
   isValidLogin,
   isValidPassword,
   LOCK_MS,
   MAX_FAILS,
   normalizeLogin,
+  normalizeRecovery,
   userIdFor,
   verifySession,
   type Credentials,
@@ -60,16 +62,49 @@ async function credentials(
   return { login, password };
 }
 
-/** POST {login, password} → creates the account and signs in. */
+const newAccount = async (password: string) => {
+  const recoveryCode = generateRecoveryCode();
+  const creds: Credentials = {
+    ...(await hashSecret(password)),
+    fails: 0,
+    lockedUntil: 0,
+    recovery: await hashSecret(normalizeRecovery(recoveryCode)),
+  };
+  return { creds, recoveryCode };
+};
+
+/** POST {login, password} → creates the account, signs in, returns the one-time recovery code. */
 export async function register(d: Deps, req: Request): Promise<Response> {
   if (!d.signupOpen) return json({ error: 'signup_closed' }, 403);
   const c = await credentials(req);
   if ('fail' in c) return c.fail;
   const userId = userIdFor(d.secret, c.login);
   if (await readCreds(d, userId)) return json({ error: 'taken' }, 409);
-  await d.store.put(credPath(userId), JSON.stringify(await hashPassword(c.password)));
-  return json({ token: createSession(d.secret, userId, d.now()), login: c.login });
+  const { creds, recoveryCode } = await newAccount(c.password);
+  await d.store.put(credPath(userId), JSON.stringify(creds));
+  return json({ token: createSession(d.secret, userId, d.now()), login: c.login, recoveryCode });
 }
+
+/** Counts a failed attempt; locks the account after MAX_FAILS. */
+async function failed(d: Deps, userId: string, creds: Credentials | null): Promise<Response> {
+  if (creds) {
+    const fails = creds.fails + 1;
+    const locked = fails >= MAX_FAILS;
+    await d.store.put(
+      credPath(userId),
+      JSON.stringify({
+        ...creds,
+        fails: locked ? 0 : fails,
+        lockedUntil: locked ? d.now() + LOCK_MS : 0,
+      }),
+    );
+  }
+  await delay(d);
+  return json({ error: 'wrong_credentials' }, 401);
+}
+
+const lockedResponse = (d: Deps, creds: Credentials) =>
+  json({ error: 'locked', retryAfterSec: Math.ceil((creds.lockedUntil - d.now()) / 1000) }, 429);
 
 /** POST {login, password} → {token, login}. Locks the account after repeated failures. */
 export async function login(d: Deps, req: Request): Promise<Response> {
@@ -77,34 +112,39 @@ export async function login(d: Deps, req: Request): Promise<Response> {
   if ('fail' in c) return c.fail;
   const userId = userIdFor(d.secret, c.login);
   const creds = await readCreds(d, userId);
-  if (creds && creds.lockedUntil > d.now()) {
-    return json(
-      { error: 'locked', retryAfterSec: Math.ceil((creds.lockedUntil - d.now()) / 1000) },
-      429,
-    );
-  }
+  if (creds && creds.lockedUntil > d.now()) return lockedResponse(d, creds);
   // Unknown users cost the same hashing time, so timing does not reveal them.
-  const ok = creds
-    ? await checkPassword(creds, c.password)
-    : (await hashPassword(c.password), false);
-  if (!creds || !ok) {
-    if (creds) {
-      const fails = creds.fails + 1;
-      const locked = fails >= MAX_FAILS;
-      await d.store.put(
-        credPath(userId),
-        JSON.stringify({
-          ...creds,
-          fails: locked ? 0 : fails,
-          lockedUntil: locked ? d.now() + LOCK_MS : 0,
-        }),
-      );
-    }
-    await delay(d);
-    return json({ error: 'wrong_credentials' }, 401);
-  }
+  const ok = creds ? await checkSecret(creds, c.password) : (await hashSecret(c.password), false);
+  if (!creds || !ok) return failed(d, userId, creds);
   if (creds.fails > 0) await d.store.put(credPath(userId), JSON.stringify({ ...creds, fails: 0 }));
   return json({ token: createSession(d.secret, userId, d.now()), login: c.login });
+}
+
+/** POST {login, recoveryCode, password} → sets a new password; returns a fresh recovery code. */
+export async function resetPassword(d: Deps, req: Request): Promise<Response> {
+  const body = await readJson(req);
+  const c = await credentials(
+    new Request('http://x', {
+      method: 'POST',
+      body: JSON.stringify({ login: body?.login, password: body?.password }),
+    }),
+  );
+  if ('fail' in c) return c.fail;
+  const code = normalizeRecovery(String(body?.recoveryCode ?? ''));
+  const userId = userIdFor(d.secret, c.login);
+  const creds = await readCreds(d, userId);
+  if (creds && creds.lockedUntil > d.now()) return lockedResponse(d, creds);
+  const ok = creds?.recovery
+    ? await checkSecret(creds.recovery, code)
+    : (await hashSecret(code), false);
+  if (!creds || !ok) return failed(d, userId, creds);
+  const fresh = await newAccount(c.password);
+  await d.store.put(credPath(userId), JSON.stringify(fresh.creds));
+  return json({
+    token: createSession(d.secret, userId, d.now()),
+    login: c.login,
+    recoveryCode: fresh.recoveryCode,
+  });
 }
 
 const dataPath = (userId: string) => `users/${userId}.json`;

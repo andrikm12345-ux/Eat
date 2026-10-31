@@ -2,15 +2,17 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   createSession,
   isValidLogin,
+  generateRecoveryCode,
   isValidPassword,
   LOCK_MS,
   MAX_FAILS,
   normalizeLogin,
+  normalizeRecovery,
   SESSION_TTL_MS,
   userIdFor,
   verifySession,
 } from './auth.js';
-import { getSync, login, putSync, register } from './handlers.js';
+import { getSync, login, putSync, register, resetPassword } from './handlers.js';
 import type { Deps, Store } from './types.js';
 
 const SECRET = 'x'.repeat(40);
@@ -212,5 +214,116 @@ describe('register and login', () => {
     expect((await put('not json')).status).toBe(400);
     expect((await put('{"format":"other","tables":{}}')).status).toBe(400);
     expect((await put('x'.repeat(4 * 1024 * 1024 + 1))).status).toBe(413);
+  });
+});
+
+describe('password recovery', () => {
+  const reset = (l: string, code: string, pw: string) =>
+    post({ login: l, recoveryCode: code, password: pw });
+
+  it('recovery codes: format and normalization', () => {
+    const code = generateRecoveryCode();
+    expect(code).toMatch(/^([2-9A-HJ-NP-Z]{5}-){3}[2-9A-HJ-NP-Z]{5}$/);
+    expect(generateRecoveryCode()).not.toBe(code);
+    expect(normalizeRecovery(` ${code.toLowerCase().replaceAll('-', ' ')} `)).toBe(
+      code.replaceAll('-', ''),
+    );
+  });
+
+  it('register returns a code; it sets a new password once and rotates', async () => {
+    const { d } = deps();
+    const reg = (await (await register(d, creds('ivan', 'old-password'))).json()) as {
+      recoveryCode: string;
+    };
+    expect(reg.recoveryCode).toMatch(/^\w{5}(-\w{5}){3}$/);
+
+    // Lower case and no dashes still work.
+    const typed = reg.recoveryCode.toLowerCase().replaceAll('-', '');
+    const res = await resetPassword(d, reset('IVAN', typed, 'new-password'));
+    expect(res.status).toBe(200);
+    const out = (await res.json()) as { token: string; recoveryCode: string };
+    expect(out.recoveryCode).not.toBe(reg.recoveryCode);
+
+    expect((await login(d, creds('ivan', 'old-password'))).status).toBe(401);
+    expect((await login(d, creds('ivan', 'new-password'))).status).toBe(200);
+    // The used code is dead, the fresh one works.
+    expect((await resetPassword(d, reset('ivan', reg.recoveryCode, 'third-password'))).status).toBe(
+      401,
+    );
+    expect((await resetPassword(d, reset('ivan', out.recoveryCode, 'third-password'))).status).toBe(
+      200,
+    );
+    expect(JSON.stringify([...(d.store as ReturnType<typeof memoryStore>).data])).not.toContain(
+      out.recoveryCode,
+    );
+  });
+
+  it('data stays after a reset', async () => {
+    const { d } = deps();
+    const reg = (await (await register(d, creds('ivan', 'old-password'))).json()) as {
+      token: string;
+      recoveryCode: string;
+    };
+    const snapshot = JSON.stringify({ format: 'dnevnik-backup', tables: { w: [1] } });
+    await putSync(
+      d,
+      new Request('http://x', {
+        method: 'PUT',
+        headers: { authorization: `Bearer ${reg.token}` },
+        body: snapshot,
+      }),
+    );
+    const out = (await (
+      await resetPassword(d, reset('ivan', reg.recoveryCode, 'new-password'))
+    ).json()) as { token: string };
+    const got = await getSync(
+      d,
+      new Request('http://x', { headers: { authorization: `Bearer ${out.token}` } }),
+    );
+    expect(await got.text()).toBe(snapshot);
+  });
+
+  it('wrong code, unknown login, bad input, lockout and accounts without a code', async () => {
+    const { d, advance } = deps();
+    const reg = (await (await register(d, creds('ivan', 'old-password'))).json()) as {
+      recoveryCode: string;
+    };
+    expect(
+      (await resetPassword(d, reset('ivan', 'AAAAA-AAAAA-AAAAA-AAAAA', 'new-password'))).status,
+    ).toBe(401);
+    expect((await resetPassword(d, reset('nobody', reg.recoveryCode, 'new-password'))).status).toBe(
+      401,
+    );
+    expect((await resetPassword(d, reset('ivan', reg.recoveryCode, 'short'))).status).toBe(400);
+    expect((await resetPassword(d, reset('x', reg.recoveryCode, 'new-password'))).status).toBe(400);
+    for (let i = 0; i < MAX_FAILS; i++)
+      await resetPassword(d, reset('ivan', 'WRONG', 'new-password'));
+    expect((await resetPassword(d, reset('ivan', reg.recoveryCode, 'new-password'))).status).toBe(
+      429,
+    );
+    advance(LOCK_MS + 1);
+    expect((await resetPassword(d, reset('ivan', reg.recoveryCode, 'new-password'))).status).toBe(
+      200,
+    );
+
+    // An account created before recovery existed has no code.
+    const store = d.store as ReturnType<typeof memoryStore>;
+    const key = [...store.data.keys()].find((k) => k.startsWith('creds/'))!;
+    const { recovery: _drop, ...legacy } = JSON.parse(store.data.get(key)!);
+    store.data.set(key, JSON.stringify(legacy));
+    expect((await resetPassword(d, reset('ivan', reg.recoveryCode, 'x-password-1'))).status).toBe(
+      401,
+    );
+  });
+
+  it('works while signup is closed', async () => {
+    const open = deps();
+    const reg = (await (await register(open.d, creds('ivan', 'old-password'))).json()) as {
+      recoveryCode: string;
+    };
+    const closed = { ...open.d, signupOpen: false };
+    expect(
+      (await resetPassword(closed, reset('ivan', reg.recoveryCode, 'new-password'))).status,
+    ).toBe(200);
   });
 });
