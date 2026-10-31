@@ -465,4 +465,23 @@ describe('custom API address', () => {
       message: expect.stringContaining('не понимает фото'),
     });
   });
+
+  it('explains an empty balance (402)', async () => {
+    const f = vi.fn(
+      async () => new Response('{"error":{"type":"insufficient_balance"}}', { status: 402 }),
+    );
+    await expect(
+      callClaude({
+        apiKey: 'k',
+        model: 'm',
+        system: 's',
+        messages: [{ role: 'user', content: 'x' }],
+        fetchImpl: f as unknown as typeof fetch,
+      }),
+    ).rejects.toMatchObject({
+      status: 402,
+      message: expect.stringContaining('недостаточно средств'),
+    });
+    expect(f).toHaveBeenCalledTimes(1);
+  });
 });

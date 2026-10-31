@@ -80,6 +80,12 @@ export function headers(apiKey: string, baseUrl?: string): Record<string, string
 
 function errorFor(status: number, body: string): AiError {
   if (status === 401 || status === 403) return new AiError('auth', 'Ключ API не принят', status);
+  if (status === 402)
+    return new AiError(
+      'badRequest',
+      'на балансе ИИ-сервиса недостаточно средств — пополните его или выберите бесплатную модель в «ИИ-настройках»',
+      status,
+    );
   if (status === 429)
     return new AiError('rate', 'Слишком много запросов к ИИ, попробуйте позже', status);
   if (status === 529 || status >= 500)
