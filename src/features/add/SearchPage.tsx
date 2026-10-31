@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { addDays } from '../../domain/dates';
 import { frequentAround, timeToMinutes } from '../../domain/day';
@@ -9,7 +9,7 @@ import { formatKcal } from '../../domain/format';
 import { cacheOffDraft, searchOff } from '../../services/off';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
-import { Button, LinkButton } from '../../ui/kit';
+import { LinkButton } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { useAddTarget } from './addTarget';
 import { useCatalog } from './catalog';
@@ -17,6 +17,10 @@ import { FoodRow } from './FoodRow';
 import styles from './add.module.css';
 
 const t = ru.search;
+const MIN_ONLINE_CHARS = 3;
+const ONLINE_DEBOUNCE_MS = 600;
+/** Online results per query for this session (no repeated requests). */
+const OFF_CACHE = new Map<string, FoodDraft[]>();
 
 /** Food picker. With `onPick` it works as an embedded chooser (e.g. "заменить на продукт"). */
 export function FoodSearch({
@@ -55,12 +59,32 @@ export function FoodSearch({
   } | null>(null);
   const navigate = useNavigate();
 
-  async function searchOnline() {
-    const query = q.trim();
-    setOff({ q: query, state: 'busy', drafts: [] });
-    const res = await searchOff(query);
-    setOff({ q: query, state: res.kind, drafts: res.kind === 'ok' ? res.drafts : [] });
-  }
+  // Online search runs by itself while typing (debounced); results are kept per query.
+  const query = q.trim();
+  useEffect(() => {
+    if (query.length < MIN_ONLINE_CHARS) return;
+    const cached = OFF_CACHE.get(query);
+    let cancelled = false;
+    const timer = setTimeout(
+      async () => {
+        if (cached) {
+          if (!cancelled) setOff({ q: query, state: 'ok', drafts: cached });
+          return;
+        }
+        setOff({ q: query, state: 'busy', drafts: [] });
+        const res = await searchOff(query);
+        if (cancelled) return;
+        if (res.kind === 'ok') OFF_CACHE.set(query, res.drafts);
+        setOff({ q: query, state: res.kind, drafts: res.kind === 'ok' ? res.drafts : [] });
+      },
+      cached ? 0 : ONLINE_DEBOUNCE_MS,
+    );
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [query]);
+  const offNow = off && off.q === query && query.length >= MIN_ONLINE_CHARS ? off : null;
 
   async function pickOff(d: FoodDraft) {
     const food = await cacheOffDraft(repos, d);
@@ -103,38 +127,27 @@ export function FoodSearch({
       )}
       {q.trim() ? (
         <>
-          {results.length ? (
+          {results.length > 0 && (
             <>
               <h2 className={styles.sectionTitle}>{t.results}</h2>
               {list(results)}
             </>
-          ) : (
-            <p className={styles.muted}>{t.nothing}</p>
           )}
-          <p className={styles.muted}>{t.notFoundHint}</p>
-          <Button
-            block
-            variant="secondary"
-            disabled={off?.state === 'busy'}
-            onClick={() => void searchOnline()}
-          >
-            {off?.state === 'busy' ? t.searchingOff : t.searchOff}
-          </Button>
-          {off && off.q === q.trim() && off.state === 'offline' && (
-            <p className={styles.muted}>{t.offOffline}</p>
-          )}
-          {off && off.q === q.trim() && off.state === 'error' && (
-            <p className={styles.muted}>{t.offError}</p>
-          )}
-          {off && off.q === q.trim() && off.state === 'ok' && (
+          {results.length === 0 &&
+            offNow?.state !== 'busy' &&
+            !(offNow?.state === 'ok' && offNow.drafts.length > 0) && (
+              <p className={styles.muted}>{t.nothing}</p>
+            )}
+          {offNow?.state === 'busy' && <p className={styles.muted}>{t.searchingOff}</p>}
+          {offNow?.state === 'offline' && <p className={styles.muted}>{t.offOffline}</p>}
+          {offNow?.state === 'error' && <p className={styles.muted}>{t.offError}</p>}
+          {offNow?.state === 'ok' && offNow.drafts.length > 0 && (
             <>
               <h2 className={styles.sectionTitle}>{t.offResults}</h2>
-              {off.drafts.length === 0 ? (
-                <p className={styles.muted}>{t.offNothing}</p>
-              ) : (
+              {
                 <>
                   <ul className={styles.list}>
-                    {off.drafts.map((d, i) => (
+                    {offNow.drafts.map((d, i) => (
                       <li key={`${d.barcode ?? ''}-${i}`} className={styles.row}>
                         <button
                           type="button"
@@ -156,7 +169,7 @@ export function FoodSearch({
                   </ul>
                   <p className={styles.muted}>{t.offUnverified}</p>
                 </>
-              )}
+              }
             </>
           )}
         </>
