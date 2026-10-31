@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router';
 import type { Food } from '../../domain/types';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
-import { lookupBarcode } from '../../services/off';
+import { attachBarcode, lookupBarcode } from '../../services/off';
+import { toast } from '../../state/ui';
+import { BottomSheet } from '../../ui/BottomSheet';
+import { FoodSearch } from '../add/SearchPage';
 import { reviewKey, useReview } from '../../state/review';
 import { Button, Card, LinkButton, Notice, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
@@ -27,6 +30,7 @@ export default function BarcodePage() {
   const [camError, setCamError] = useState<ScanError | null>(null);
   const [manual, setManual] = useState('');
   const [attempt, setAttempt] = useState(0);
+  const [finding, setFinding] = useState(false);
 
   async function handleCode(code: string) {
     handle.current?.stop();
@@ -117,8 +121,12 @@ export default function BarcodePage() {
                 ? t.offline
                 : t.error}
           </p>
+          {status.s === 'notFound' && <p className={styles.hint}>{t.notInOpenBase}</p>}
           <div className={styles.actions}>
-            <LinkButton to={createUrl(status.code)}>{t.createManual}</LinkButton>
+            <Button onClick={() => setFinding(true)}>{t.findByName}</Button>
+            <LinkButton to={createUrl(status.code)} variant="secondary">
+              {t.createManual}
+            </LinkButton>
             <LinkButton
               to={`/add/ai-label${addQs(target.date, target.time)}&log=1&barcode=${encodeURIComponent(status.code)}`}
               variant="secondary"
@@ -138,6 +146,19 @@ export default function BarcodePage() {
           </div>
         </Card>
       )}
+      <BottomSheet open={finding} title={t.findTitle} onClose={() => setFinding(false)}>
+        <p className={styles.hint}>{t.findHint}</p>
+        <FoodSearch
+          autoFocus={false}
+          onPick={async (f) => {
+            if (status.s !== 'notFound') return;
+            const bound = await attachBarcode(repos, f, status.code);
+            toast({ text: t.bound });
+            setFinding(false);
+            openReview(bound, 'catalog');
+          }}
+        />
+      </BottomSheet>
     </Page>
   );
 }

@@ -133,3 +133,23 @@ export async function cacheOffDraft(r: Repos, d: FoodDraft): Promise<Food> {
   }
   return r.foods.add({ ...d, source: 'off', verified: false });
 }
+
+/**
+ * Binds a scanned barcode to a food chosen by name, so the next scan finds it locally.
+ * A food that already has another barcode is copied (different packages, same data).
+ */
+export async function attachBarcode(r: Repos, food: Food, code: string): Promise<Food> {
+  if (food.barcode === code) return food;
+  if (!food.barcode) return r.foods.edit(food.id, { barcode: code });
+  const {
+    id: _id,
+    createdAt: _c,
+    updatedAt: _u,
+    deletedAt: _d,
+    searchKey: _s,
+    useCount: _n,
+    lastUsedAt: _l,
+    ...rest
+  } = food;
+  return r.foods.add({ ...rest, barcode: code });
+}

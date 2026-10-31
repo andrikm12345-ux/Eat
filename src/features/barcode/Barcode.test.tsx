@@ -66,6 +66,30 @@ describe('barcode flow', () => {
     expect(await screen.findByText(ru.barcode.notFound('1234567'))).toBeVisible();
   });
 
+  it('not found → find by name → barcode is bound and found locally next time', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(JSON.stringify({ status: 0 }), { status: 200 })),
+    );
+    const food = await repos.foods.add({
+      name: 'Творожок Чудо',
+      per100g: { kcal: 150, protein: 5, fat: 8, carbs: 14 },
+      servings: [],
+      source: 'user',
+      verified: true,
+    });
+    const user = userEvent.setup();
+    await renderApp('/add/barcode?date=2026-03-01&time=09:00');
+    await enterCode(user, '4610282720266');
+    expect(await screen.findByText(ru.barcode.notInOpenBase)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: ru.barcode.findByName }));
+    const sheet = screen.getByRole('dialog', { name: ru.barcode.findTitle });
+    await user.type(within(sheet).getByLabelText(ru.search.placeholder), 'творожок');
+    await user.click(await within(sheet).findByRole('button', { name: /Творожок Чудо/ }));
+    expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
+    expect((await repos.foods.byBarcode('4610282720266'))?.id).toBe(food.id);
+  });
+
   it('uses the local cache without network', async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);

@@ -1,7 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 import { crackers, kefir, missing } from '../domain/__fixtures__/off';
 import { repos } from '../db/repos';
-import { cacheOffDraft, fetchOff, lookupBarcode, offSearchUrl, offUrl, searchOff } from './off';
+import {
+  attachBarcode,
+  cacheOffDraft,
+  fetchOff,
+  lookupBarcode,
+  offSearchUrl,
+  offUrl,
+  searchOff,
+} from './off';
 
 const json = (body: unknown, status = 200) =>
   vi.fn(
@@ -176,5 +184,29 @@ describe('OFF text search', () => {
       servings: [],
     });
     expect(noCode.barcode).toBeUndefined();
+  });
+});
+
+describe('attachBarcode', () => {
+  it('binds to a food without a barcode, keeps one that matches, copies one with another code', async () => {
+    const f = await repos.foods.add({
+      name: 'Чудо',
+      per100g: { kcal: 72, protein: 3, fat: 2, carbs: 10 },
+      servings: [{ label: 'пачка', grams: 200 }],
+      source: 'off',
+      verified: false,
+    });
+    const bound = await attachBarcode(repos, f, '4610282720266');
+    expect(bound).toMatchObject({ id: f.id, barcode: '4610282720266' });
+    expect((await repos.foods.byBarcode('4610282720266'))?.id).toBe(f.id);
+    expect((await attachBarcode(repos, bound, '4610282720266')).id).toBe(f.id);
+    const copy = await attachBarcode(repos, bound, '4600000000001');
+    expect(copy.id).not.toBe(f.id);
+    expect(copy).toMatchObject({
+      name: 'Чудо',
+      barcode: '4600000000001',
+      servings: [{ label: 'пачка', grams: 200 }],
+      useCount: 0,
+    });
   });
 });
