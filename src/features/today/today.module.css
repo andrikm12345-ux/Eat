@@ -365,3 +365,50 @@
 .activityRow > :last-child {
   margin-bottom: 12px;
 }
+
+/* ---- polish ---- */
+.hero {
+  background:
+    radial-gradient(
+      120% 90% at 0% 0%,
+      color-mix(in srgb, var(--accent-2) 16%, transparent),
+      transparent 60%
+    ),
+    var(--surface);
+}
+.ringValue {
+  font-size: 30px;
+  letter-spacing: -0.03em;
+}
+.bar {
+  height: 9px;
+  border-radius: 5px;
+}
+.barFill {
+  border-radius: 5px;
+  transition: width 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.dayBtnActive {
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+.dayBtnActive .dow {
+  color: var(--accent);
+  font-weight: 700;
+}
+.row {
+  background: var(--surface-2);
+  border: none;
+}
+.dot {
+  box-shadow: 0 0 0 3px var(--surface);
+}
+.stackTime {
+  font-weight: 500;
+}
+.flow::before {
+  background: color-mix(in srgb, var(--border) 80%, transparent);
+}
+.count {
+  background: var(--accent-soft);
+}

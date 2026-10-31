@@ -16,14 +16,20 @@ function Ring({ eaten, goal }: { eaten: number; goal: number | null }) {
   return (
     <div className={styles.ring}>
       <svg width="136" height="136" viewBox="0 0 136 136" aria-hidden="true">
-        <circle cx="68" cy="68" r={R} fill="none" stroke="var(--surface-2)" strokeWidth="12" />
+        <defs>
+          <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" style={{ stopColor: 'var(--accent-2)' }} />
+            <stop offset="100%" style={{ stopColor: 'var(--accent)' }} />
+          </linearGradient>
+        </defs>
+        <circle cx="68" cy="68" r={R} fill="none" stroke="var(--surface-2)" strokeWidth="11" />
         <circle
           cx="68"
           cy="68"
           r={R}
           fill="none"
-          stroke={over ? 'var(--over)' : 'var(--accent)'}
-          strokeWidth="12"
+          stroke={over ? 'var(--over)' : 'url(#ring-grad)'}
+          strokeWidth="11"
           strokeLinecap="round"
           strokeDasharray={`${Math.min(1, ratio) * C} ${C}`}
           transform="rotate(-90 68 68)"
@@ -53,7 +59,17 @@ function Ring({ eaten, goal }: { eaten: number; goal: number | null }) {
   );
 }
 
-function Bar({ label, value, goal }: { label: string; value: number; goal: number | undefined }) {
+function Bar({
+  label,
+  value,
+  goal,
+  color,
+}: {
+  label: string;
+  value: number;
+  goal: number | undefined;
+  color: string;
+}) {
   const ratio = goal ? value / goal : 0;
   return (
     <div>
@@ -73,7 +89,10 @@ function Bar({ label, value, goal }: { label: string; value: number; goal: numbe
       >
         <div
           className={`${styles.barFill} ${ratio > 1 ? styles.barOver : ''}`}
-          style={{ width: `${Math.min(1, ratio) * 100}%` }}
+          style={{
+            width: `${Math.min(1, ratio) * 100}%`,
+            ...(ratio > 1 ? {} : { background: color }),
+          }}
         />
       </div>
     </div>
@@ -90,7 +109,7 @@ export function SummaryCard({
   meta: DayMeta;
 }) {
   return (
-    <Card>
+    <Card className={styles.hero}>
       <div className={styles.summary}>
         <div>
           <Ring eaten={totals.kcal} goal={goal?.kcal ?? null} />
@@ -104,10 +123,25 @@ export function SummaryCard({
           </div>
         </div>
         <div className={styles.bars}>
-          <Bar label={ru.foods.protein} value={totals.protein} goal={goal?.protein} />
-          <Bar label={ru.foods.fat} value={totals.fat} goal={goal?.fat} />
-          <Bar label={ru.foods.carbs} value={totals.carbs} goal={goal?.carbs} />
-          <Bar label={ru.foods.fiber} value={totals.fiber ?? 0} goal={goal?.fiber} />
+          <Bar
+            label={ru.foods.protein}
+            value={totals.protein}
+            goal={goal?.protein}
+            color="var(--macro-protein)"
+          />
+          <Bar label={ru.foods.fat} value={totals.fat} goal={goal?.fat} color="var(--macro-fat)" />
+          <Bar
+            label={ru.foods.carbs}
+            value={totals.carbs}
+            goal={goal?.carbs}
+            color="var(--macro-carbs)"
+          />
+          <Bar
+            label={ru.foods.fiber}
+            value={totals.fiber ?? 0}
+            goal={goal?.fiber}
+            color="var(--macro-fiber)"
+          />
         </div>
       </div>
       <Switch

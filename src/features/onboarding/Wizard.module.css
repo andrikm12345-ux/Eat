@@ -60,3 +60,18 @@
   height: 100%;
   background: var(--accent);
 }
+
+.stepHint {
+  margin: -8px 0 18px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+.progress {
+  height: 6px;
+  border-radius: 3px;
+}
+.progressBar {
+  background: linear-gradient(90deg, var(--accent-2), var(--accent));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}

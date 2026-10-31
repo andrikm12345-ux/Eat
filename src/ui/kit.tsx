@@ -40,9 +40,17 @@ export function LinkButton({
   );
 }
 
-export function Card({ title, children }: { title?: ReactNode; children: ReactNode }) {
+export function Card({
+  title,
+  children,
+  className,
+}: {
+  title?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <section className={styles.card}>
+    <section className={className ? `${styles.card} ${className}` : styles.card}>
       {title ? <h2 className={styles.cardTitle}>{title}</h2> : null}
       {children}
     </section>

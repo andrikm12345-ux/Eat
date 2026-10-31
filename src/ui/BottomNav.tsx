@@ -13,7 +13,9 @@ export function BottomNav() {
           end={end}
           className={({ isActive }) => (isActive ? `${styles.link} ${styles.active}` : styles.link)}
         >
-          <Icon />
+          <span className={styles.icon}>
+            <Icon />
+          </span>
           <span>{label}</span>
         </NavLink>
       ))}

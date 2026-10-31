@@ -8,8 +8,10 @@
   grid-template-columns: repeat(5, 1fr);
   height: calc(var(--nav-height) + var(--safe-bottom));
   padding: 0 var(--safe-right) var(--safe-bottom) var(--safe-left);
-  background: var(--surface);
-  border-top: 1px solid var(--border);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  backdrop-filter: blur(22px) saturate(1.6);
+  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
 
 .link {
@@ -17,7 +19,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   min-height: var(--tap);
   min-width: var(--tap);
   color: var(--text-muted);
@@ -26,6 +28,22 @@
   font-weight: 500;
 }
 
+.icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 30px;
+  border-radius: 15px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
 .active {
   color: var(--accent);
+  font-weight: 600;
+}
+
+.active .icon {
+  background: var(--accent-soft);
 }

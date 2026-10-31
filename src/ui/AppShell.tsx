@@ -59,7 +59,9 @@ export function AppShell() {
       <main className={styles.main}>
         {!MAIN_TABS.has(pathname) && <BackBar />}
         <Suspense fallback={<div className={styles.loading}>{ru.common.loading}</div>}>
-          <Outlet />
+          <div key={pathname} className="page-enter">
+            <Outlet />
+          </div>
         </Suspense>
       </main>
       {ADD_TABS.has(pathname) && <Fab onClick={() => openAdd()} expanded={addOpen} />}

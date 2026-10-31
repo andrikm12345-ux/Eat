@@ -2,7 +2,9 @@
   position: fixed;
   inset: 0;
   z-index: 40;
-  background: rgb(0 0 0 / 0.35);
+  background: rgb(10 20 18 / 0.4);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -15,7 +17,7 @@
   max-height: 90dvh;
   overflow-y: auto;
   background: var(--surface);
-  border-radius: var(--radius) var(--radius) 0 0;
+  border-radius: 28px 28px 0 0;
   padding: 8px calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom))
     calc(16px + var(--safe-left));
   box-shadow: var(--shadow);

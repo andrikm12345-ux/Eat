@@ -163,6 +163,7 @@ function Wizard({ initial, editing, today }: { initial: Draft; editing: boolean;
         />
       </div>
       <h1 className={styles.title}>{t.steps[name]}</h1>
+      <p className={styles.stepHint}>{t.stepHints[name]}</p>
 
       <div className={styles.body}>
         {name === 'about' && (

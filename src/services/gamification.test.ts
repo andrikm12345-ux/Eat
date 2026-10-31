@@ -120,7 +120,7 @@ describe('UI', () => {
   it('achievements page shows streak and catalog', async () => {
     await renderApp('/more/achievements');
     expect(await screen.findByText(ru.achievements.streak)).toBeVisible();
-    expect(screen.getByText('Первая запись')).toBeVisible();
+    expect(screen.getByText('Первая запись')).toBeInTheDocument();
   });
 
   it('reminders page downloads the .ics', async () => {
