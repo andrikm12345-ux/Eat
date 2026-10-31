@@ -17,3 +17,25 @@ export function measurementDue(
   if (age >= 8) return true;
   return parseLocalDate(today).getDay() === weekday;
 }
+
+/** After 11:00 with nothing logged before 11:00 today → "Сегодня ещё нет завтрака". */
+export function breakfastMissing(nowMin: number, todayTimes: readonly string[]): boolean {
+  return nowMin >= 11 * 60 && !todayTimes.some((t) => t < '11:00');
+}
+
+/** Days since the last weigh-in when ≥ 3 (else null; null without any weigh-ins). */
+export function weighOverdue(last: LocalDate | null, today: LocalDate): number | null {
+  if (!last) return null;
+  const d = daysBetween(last, today);
+  return d >= 3 ? d : null;
+}
+
+/** Backup reminder every 7 days (first one 7 days after the start of use). */
+export function backupDue(
+  lastBackup: LocalDate | null,
+  firstUse: LocalDate | null,
+  today: LocalDate,
+): boolean {
+  const ref = lastBackup ?? firstUse;
+  return ref !== null && daysBetween(ref, today) >= 7;
+}

@@ -140,6 +140,8 @@ export type DayMeta = BaseRecord & {
   note?: string;
   /** "Не учитывать эту неделю": excluded from the adaptive TDEE window. */
   excludeFromTdee?: boolean;
+  /** "День без записи — осознанно": keeps the logging streak. */
+  intentionalSkip?: boolean;
 };
 
 export type Weight = BaseRecord & {

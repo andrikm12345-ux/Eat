@@ -90,7 +90,9 @@ describe('measurements', () => {
     const user = userEvent.setup();
     await renderApp('/');
     expect(await screen.findByText(ru.banners.measure)).toBeVisible();
-    await user.click(screen.getByRole('button', { name: ru.banners.close }));
+    await user.click(
+      screen.getByRole('button', { name: `${ru.banners.close}: ${ru.banners.measure}` }),
+    );
     await waitFor(() => expect(screen.queryByText(ru.banners.measure)).not.toBeInTheDocument());
   });
 });

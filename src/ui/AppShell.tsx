@@ -8,6 +8,8 @@ import { UpdateBanner } from '../pwa/UpdateBanner';
 import { useUi } from '../state/ui';
 import { BottomNav } from './BottomNav';
 import { ToastHost } from './ToastHost';
+import { Confetti } from './Confetti';
+import { useOpenNotifications } from '../pwa/useOpenNotifications';
 import { Fab } from './Fab';
 import styles from './AppShell.module.css';
 
@@ -41,6 +43,7 @@ export function AppShell() {
     else clearAction();
   }, [action, clearAction, openAdd, navigate, setWeighOpen]);
 
+  useOpenNotifications();
   const profile = useProfile();
   if (profile === null) return <Navigate to="/wizard" replace />;
 
@@ -57,6 +60,7 @@ export function AppShell() {
       <AddSheet />
       <WeighSheet />
       <ToastHost />
+      <Confetti />
     </>
   );
 }

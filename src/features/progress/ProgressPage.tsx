@@ -5,7 +5,8 @@ import { formatKg, formatRate } from '../../domain/format';
 import { forecastDate, goalProgress, trendRatePerWeek } from '../../domain/progress';
 import { trendOn, type TrendPoint } from '../../domain/weightTrend';
 import type { Goal, Weight } from '../../domain/types';
-import { useGoalFor } from '../../db/hooks';
+import { useGoalFor, useGoals } from '../../db/hooks';
+import { pathStart } from '../../services/gamification';
 import { repos } from '../../db/repos';
 import { SETTINGS } from '../../db/settingsKeys';
 import { ru } from '../../i18n/ru';
@@ -81,6 +82,7 @@ function GoalScale({
   goal: Goal | null;
   today: string;
 }) {
+  const goals = useGoals();
   const now = trendOn(points, today);
   const target = goal?.targetWeightKg;
   if (!goal || target === undefined) {
@@ -91,7 +93,8 @@ function GoalScale({
     );
   }
   if (now === undefined) return null;
-  const start = trendOn(points, goal.validFrom) ?? (points[0] as TrendPoint).trend;
+  // Start of the path: trend when this target weight was first set (stable across check-ins).
+  const start = pathStart(goals ?? [goal], target, points) ?? (points[0] as TrendPoint).trend;
   const progress = goalProgress(start, now, target);
   const pct = Math.max(0, Math.min(1, progress ?? 1));
   const rate = trendRatePerWeek(points, today);

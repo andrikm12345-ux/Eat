@@ -61,7 +61,14 @@ export function EnergyCard() {
         {data.paused ? t.unpause : t.pause}
       </Button>
       <p className={listStyles.muted}>{t.pauseHint}</p>
-      <Button variant="ghost" onClick={() => setShowHow(!showHow)} aria-expanded={showHow}>
+      <Button
+        variant="ghost"
+        onClick={() => {
+          setShowHow(!showHow);
+          void repos.settings.set(SETTINGS.tdeeExplained.key, true);
+        }}
+        aria-expanded={showHow}
+      >
         {t.howItWorks}
       </Button>
       {showHow && <p className={listStyles.muted}>{t.explain}</p>}

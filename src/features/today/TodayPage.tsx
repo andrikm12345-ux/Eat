@@ -5,6 +5,7 @@ import { Card } from '../../ui/kit';
 import pageStyles from '../../ui/Page.module.css';
 import { TrendCard } from '../weight/TrendCard';
 import { Banners } from './Banners';
+import { StreakRow } from './StreakRow';
 import { exerciseBonus } from '../../domain/met';
 import { ActivityCard } from './ActivityCard';
 import { DayFlow } from './DayFlow';
@@ -34,6 +35,7 @@ export default function TodayPage() {
       {day && (
         <>
           <Banners />
+          <StreakRow meta={day.meta} empty={day.entries.length === 0} />
           <SummaryCard totals={dayTotals(day.entries)} goal={goal} meta={day.meta} />
           <TrendCard />
           <Card title={ru.today.flowTitle}>

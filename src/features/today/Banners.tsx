@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Link } from 'react-router';
 import { toLocalDate } from '../../domain/dates';
-import { measurementDue } from '../../domain/reminders';
+import { backupDue, breakfastMissing, measurementDue, weighOverdue } from '../../domain/reminders';
 import { repos } from '../../db/repos';
 import { bannerDismissKey, SETTINGS } from '../../db/settingsKeys';
 import { ru } from '../../i18n/ru';
@@ -32,6 +32,46 @@ export function Banners() {
         action: { label: ru.banners.measureAction, to: '/progress/measurements' },
       });
     }
+    {
+      const todayEntries = await repos.entries.byDate(today);
+      const now = new Date();
+      if (
+        breakfastMissing(
+          now.getHours() * 60 + now.getMinutes(),
+          todayEntries.map((e) => e.time),
+        ) &&
+        !(await dismissed('breakfast'))
+      ) {
+        out.push({
+          id: 'breakfast',
+          text: ru.banners.breakfast,
+          action: { label: ru.banners.breakfastAction, to: '/add/search' },
+        });
+      }
+      const lastW = (await repos.weights.latest())?.date ?? null;
+      const overdue = weighOverdue(lastW, today);
+      if (overdue !== null && !(await dismissed('weigh'))) {
+        out.push({
+          id: 'weigh',
+          text: ru.banners.weigh(overdue),
+          action: { label: ru.banners.weighAction, to: '/?action=weigh' },
+        });
+      }
+      const lastBackup =
+        (await repos.settings.get(SETTINGS.lastBackupAt.key, SETTINGS.lastBackupAt.def)).slice(
+          0,
+          10,
+        ) || null;
+      const firstUse =
+        (await repos.goals.list()).map((g) => g.createdAt.slice(0, 10)).sort()[0] ?? null;
+      if (backupDue(lastBackup, firstUse, today) && !(await dismissed('backup'))) {
+        out.push({
+          id: 'backup',
+          text: ru.banners.backup,
+          action: { label: ru.banners.backupAction, to: '/data' },
+        });
+      }
+    }
     const pending = await repos.checkins.where('status', 'pending');
     if (pending.length && !(await dismissed('checkin'))) {
       out.unshift({
@@ -57,7 +97,7 @@ export function Banners() {
           <button
             type="button"
             className={styles.close}
-            aria-label={ru.banners.close}
+            aria-label={`${ru.banners.close}: ${b.text}`}
             onClick={() => void repos.settings.set(bannerDismissKey(b.id, today), true)}
           >
             ×

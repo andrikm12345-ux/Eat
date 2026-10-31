@@ -70,6 +70,14 @@ export const routes: RouteObject[] = [
       { path: 'add/ai-photo', lazy: lazyPage(() => import('./features/ai/AiPhotoPage')) },
       { path: 'add/ai-label', lazy: lazyPage(() => import('./features/ai/AiLabelPage')) },
       { path: 'more/ai', lazy: lazyPage(() => import('./features/ai/AiSettingsPage')) },
+      {
+        path: 'more/achievements',
+        lazy: lazyPage(() => import('./features/gamification/AchievementsPage')),
+      },
+      {
+        path: 'more/reminders',
+        lazy: lazyPage(() => import('./features/gamification/RemindersPage')),
+      },
       { path: 'more/profile', lazy: lazyPage(() => import('./features/profile/ProfilePage')) },
       { path: '*', lazy: lazyPage(() => import('./features/NotFoundPage')) },
     ],
