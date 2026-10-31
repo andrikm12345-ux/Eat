@@ -9,6 +9,7 @@ import { BottomSheet } from '../../ui/BottomSheet';
 import { FoodSearch } from '../add/SearchPage';
 import { reviewKey, useReview } from '../../state/review';
 import { Button, Card, LinkButton, Notice, TextField } from '../../ui/kit';
+import { VISION_AI_ENABLED } from '../flags';
 import { Page } from '../../ui/Page';
 import { addQs, useAddTarget } from '../add/addTarget';
 import { startScanner, type ScanError, type ScanHandle } from './scanner';
@@ -127,12 +128,14 @@ export default function BarcodePage() {
             <LinkButton to={createUrl(status.code)} variant="secondary">
               {t.createManual}
             </LinkButton>
-            <LinkButton
-              to={`/add/ai-label${addQs(target.date, target.time)}&log=1&barcode=${encodeURIComponent(status.code)}`}
-              variant="secondary"
-            >
-              {t.createLabel}
-            </LinkButton>
+            {VISION_AI_ENABLED && (
+              <LinkButton
+                to={`/add/ai-label${addQs(target.date, target.time)}&log=1&barcode=${encodeURIComponent(status.code)}`}
+                variant="secondary"
+              >
+                {t.createLabel}
+              </LinkButton>
+            )}
             <Button
               variant="ghost"
               onClick={() => {

@@ -1,4 +1,5 @@
 import type { ComponentType, SVGProps } from 'react';
+import { VISION_AI_ENABLED } from '../flags';
 import {
   IconBarcode,
   IconBolt,
@@ -21,10 +22,29 @@ export const ADD_TILES = [
   { key: 'search', path: '/add/search', Icon: IconSearch },
   { key: 'barcode', path: '/add/barcode', Icon: IconBarcode },
   { key: 'textAi', path: '/add/ai-text', Icon: IconText },
-  { key: 'photoAi', path: '/add/ai-photo', manual: '/add/search', Icon: IconCamera },
-  { key: 'labelAi', path: '/add/ai-label', manual: '/foods/new', Icon: IconTag },
+  {
+    key: 'photoAi',
+    path: '/add/ai-photo',
+    manual: '/add/search',
+    Icon: IconCamera,
+    off: !VISION_AI_ENABLED,
+  },
+  {
+    key: 'labelAi',
+    path: '/add/ai-label',
+    manual: '/foods/new',
+    Icon: IconTag,
+    off: !VISION_AI_ENABLED,
+  },
   { key: 'quickKcal', path: '/add/quick', Icon: IconBolt },
   { key: 'repeat', path: '/add/repeat', Icon: IconRepeat },
   { key: 'template', path: '/add/template', Icon: IconCopy },
   { key: 'recipe', path: '/add/recipe', Icon: IconBook },
-] as const satisfies readonly { key: string; path: string | null; manual?: string; Icon: Icon }[];
+] as const satisfies readonly {
+  key: string;
+  path: string | null;
+  manual?: string;
+  Icon: Icon;
+  /** Temporarily unavailable. */
+  off?: boolean;
+}[];

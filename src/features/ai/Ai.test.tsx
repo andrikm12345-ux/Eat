@@ -24,13 +24,42 @@ const meal = {
 };
 
 describe('AI without a key', () => {
-  it('AI tiles lead to manual input', async () => {
+  it('photo and label tiles are temporarily unavailable; text AI stays', async () => {
     const user = userEvent.setup();
-    const { router } = await renderApp('/');
+    await renderApp('/');
     await user.click(await screen.findByRole('button', { name: ru.add.fab }));
     const sheet = screen.getByRole('dialog');
-    await user.click(within(sheet).getByRole('button', { name: /Этикетка \(ИИ\)/ }));
-    await waitFor(() => expect(router.state.location.pathname).toBe('/foods/new'));
+    expect(
+      within(sheet).getByRole('button', { name: (n) => n.startsWith(ru.add.tiles.photoAi) }),
+    ).toBeDisabled();
+    expect(
+      within(sheet).getByRole('button', { name: (n) => n.startsWith(ru.add.tiles.labelAi) }),
+    ).toBeDisabled();
+    expect(within(sheet).getAllByText(ru.add.unavailable)).toHaveLength(2);
+    expect(within(sheet).getByRole('button', { name: ru.add.tiles.textAi })).toBeEnabled();
+  });
+
+  it('direct links to the disabled screens show a notice', async () => {
+    await renderApp('/add/ai-photo');
+    expect(await screen.findByText(ru.add.unavailablePage)).toBeVisible();
+  });
+
+  it('the label screen is also switched off', async () => {
+    await renderApp('/add/ai-label');
+    expect(await screen.findByText(ru.add.unavailablePage)).toBeVisible();
+  });
+
+  it('the barcode "not found" screen does not offer the label shortcut', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(JSON.stringify({ status: 0 }), { status: 200 })),
+    );
+    const user = userEvent.setup();
+    await renderApp('/add/barcode');
+    await user.type(await screen.findByLabelText(ru.barcode.code), '4610282720266');
+    await user.click(screen.getByRole('button', { name: ru.barcode.find }));
+    expect(await screen.findByText(ru.barcode.notInOpenBase)).toBeVisible();
+    expect(screen.queryByRole('link', { name: ru.barcode.createLabel })).not.toBeInTheDocument();
   });
 
   it('the text screen works without a key and explains how AI helps', async () => {

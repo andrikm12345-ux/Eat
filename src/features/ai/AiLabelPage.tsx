@@ -12,13 +12,15 @@ import { Button, LinkButton, Notice } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { addQs, useAddTarget } from '../add/addTarget';
 import { FoodForm } from '../foods/FoodForm';
+import { VISION_AI_ENABLED } from '../flags';
+import { Unavailable } from './Unavailable';
 import { AiGate } from './AiGate';
 import { toImageBlocks } from './images';
 import { PhotoPicker } from './PhotoPicker';
 
 const t = ru.ai;
 
-export default function AiLabelPage() {
+function AiLabelPageInner() {
   const [params] = useSearchParams();
   const barcode = params.get('barcode') ?? undefined;
   const manualTo = `/foods/new${barcode ? `?barcode=${encodeURIComponent(barcode)}` : ''}`;
@@ -112,4 +114,8 @@ function AiLabel({
       </Button>
     </>
   );
+}
+
+export default function AiLabelPage() {
+  return VISION_AI_ENABLED ? <AiLabelPageInner /> : <Unavailable title={t.label.title} />;
 }

@@ -10,13 +10,15 @@ import { useReview } from '../../state/review';
 import { Button, LinkButton, Notice, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { useAddTarget } from '../add/addTarget';
+import { VISION_AI_ENABLED } from '../flags';
+import { Unavailable } from './Unavailable';
 import { AiGate } from './AiGate';
 import { toImageBlocks } from './images';
 import { PhotoPicker } from './PhotoPicker';
 
 const t = ru.ai;
 
-export default function AiPhotoPage() {
+function AiPhotoPageInner() {
   const target = useAddTarget();
   const manualTo = `/add/search${target.qs}`;
   return (
@@ -88,4 +90,8 @@ function AiPhoto({ manualTo }: { manualTo: string }) {
       </Button>
     </>
   );
+}
+
+export default function AiPhotoPage() {
+  return VISION_AI_ENABLED ? <AiPhotoPageInner /> : <Unavailable title={t.photo.title} />;
 }

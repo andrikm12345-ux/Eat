@@ -42,17 +42,20 @@ export function AddSheet() {
           const { key, path, Icon } = tile;
           // Without AI set up, AI tiles lead to the manual equivalent.
           const manual = 'manual' in tile && !ai?.ready ? tile.manual : null;
+          const off = 'off' in tile && tile.off;
           return (
             <button
               key={key}
               type="button"
               className={styles.tile}
+              disabled={off}
               onClick={() => go(`${manual ?? path}${qs}`)}
             >
               <span className={styles.tileIcon}>
                 <Icon width={22} height={22} />
               </span>
               <span>{ru.add.tiles[key]}</span>
+              {off && <span className={styles.soon}>{ru.add.unavailable}</span>}
             </button>
           );
         })}
