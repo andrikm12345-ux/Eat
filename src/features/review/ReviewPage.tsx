@@ -92,6 +92,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
                 label={`${ru.portion.grams}: ${i.name}`}
                 suffix="г"
                 value={i.grams}
+                emptyAs={0}
                 onChange={(v) => update(i.key, { grams: v ?? 0 })}
               />
               <button

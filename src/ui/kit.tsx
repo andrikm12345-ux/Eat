@@ -125,6 +125,8 @@ type NumberFieldProps = {
   max?: number;
   autoFocus?: boolean;
   placeholder?: string;
+  /** The parent stores an empty field as this number (e.g. 0): don't write it back into the input. */
+  emptyAs?: number;
 };
 
 const toText = (v: number | null) => (v === null ? '' : String(v).replace('.', ','));
@@ -137,6 +139,7 @@ export function NumberField({
   suffix,
   hint,
   error,
+  emptyAs,
   ...rest
 }: NumberFieldProps) {
   const id = useId();
@@ -145,7 +148,8 @@ export function NumberField({
   const [lastValue, setLastValue] = useState(value);
   if (value !== lastValue) {
     setLastValue(value);
-    if (parseDecimal(text) !== value) setText(toText(value));
+    const emptyStays = emptyAs !== undefined && value === emptyAs && text.trim() === '';
+    if (parseDecimal(text) !== value && !emptyStays) setText(toText(value));
   }
   return (
     <FieldShell label={label} hint={hint} error={error} suffix={suffix} id={id}>
