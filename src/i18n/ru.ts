@@ -629,6 +629,13 @@ export const ru = {
     checkKey: 'Проверить ключ',
     keyOk: 'Ключ работает',
     keyBad: 'Ключ не принят или нет сети',
+    format: 'Формат API',
+    formatAnthropic: 'Anthropic',
+    formatOpenai: 'OpenAI-совместимый',
+    formatHint:
+      'Большинство сервисов (OpenRouter, Google Gemini, DeepSeek, Groq) работают в формате OpenAI. Выберите его и укажите адрес сервиса.',
+    presets: 'Подставить адрес:',
+    needAddress: 'Для формата OpenAI укажите адрес API.',
     baseUrl: 'Адрес API (необязательно)',
     baseUrlHint:
       'Оставьте пустым — будет Anthropic. Для другого сервиса, совместимого с API Anthropic, укажите адрес вида https://…, и модели ниже — из его списка. Ваши запросы и ключ уходят на этот адрес: используйте только сервисы, которым доверяете.',

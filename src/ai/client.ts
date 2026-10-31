@@ -4,14 +4,28 @@ export const DEFAULT_BASE = 'https://api.anthropic.com';
 export const API_URL = `${DEFAULT_BASE}/v1/messages`;
 export const MODELS_URL = `${DEFAULT_BASE}/v1/models?limit=1`;
 
-/** Accepts `https://host`, `https://host/` or `https://host/v1`; empty = Anthropic. */
-export function normalizeBase(raw?: string): string {
-  const b = (raw ?? '').trim().replace(/\/+$/, '').replace(/\/v1$/, '');
-  return b || DEFAULT_BASE;
+/** `anthropic` = Messages API; `openai` = Chat Completions (OpenRouter, Gemini, DeepSeek…). */
+export type ApiFormat = 'anthropic' | 'openai';
+
+/**
+ * Anthropic: accepts `https://host`, `https://host/` or `https://host/v1`; empty = Anthropic.
+ * OpenAI-compatible: the address as given (e.g. `https://openrouter.ai/api/v1`), no trailing slash.
+ */
+export function normalizeBase(raw?: string, format: ApiFormat = 'anthropic'): string {
+  const b = (raw ?? '').trim().replace(/\/+$/, '');
+  if (format === 'openai') return b;
+  return b.replace(/\/v1$/, '') || DEFAULT_BASE;
 }
-export const isCustomBase = (raw?: string) => normalizeBase(raw) !== DEFAULT_BASE;
-export const messagesUrl = (raw?: string) => `${normalizeBase(raw)}/v1/messages`;
-export const modelsUrl = (raw?: string) => `${normalizeBase(raw)}/v1/models?limit=1`;
+export const isCustomBase = (raw?: string, format: ApiFormat = 'anthropic') =>
+  format === 'openai' || normalizeBase(raw) !== DEFAULT_BASE;
+export const messagesUrl = (raw?: string, format: ApiFormat = 'anthropic') =>
+  format === 'openai'
+    ? `${normalizeBase(raw, format)}/chat/completions`
+    : `${normalizeBase(raw)}/v1/messages`;
+export const modelsUrl = (raw?: string, format: ApiFormat = 'anthropic', limit = 1) =>
+  format === 'openai'
+    ? `${normalizeBase(raw, format)}/models`
+    : `${normalizeBase(raw)}/v1/models?limit=${limit}`;
 export const AI_TIMEOUT_MS = 45_000;
 
 export type AiErrorKind =
@@ -53,6 +67,7 @@ export type CallOptions = {
   maxTokens?: number;
   /** Address of an Anthropic-compatible API; empty = Anthropic. */
   baseUrl?: string;
+  format?: ApiFormat;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
   /** Delay before the single retry (ms); doubled for each attempt. */
@@ -67,7 +82,14 @@ const RETRYABLE = (s: number) => s === 429 || s === 408 || s >= 500;
 export const supportsEffort = (model: string) =>
   /^claude-(haiku|sonnet|opus|fable|mythos)-5/.test(model);
 
-export function headers(apiKey: string, baseUrl?: string): Record<string, string> {
+export function headers(
+  apiKey: string,
+  baseUrl?: string,
+  format: ApiFormat = 'anthropic',
+): Record<string, string> {
+  if (format === 'openai') {
+    return { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' };
+  }
   return {
     'x-api-key': apiKey,
     // Other services often expect a bearer token instead of (or besides) x-api-key.
@@ -76,6 +98,30 @@ export function headers(apiKey: string, baseUrl?: string): Record<string, string
     'anthropic-dangerous-direct-browser-access': 'true',
     'content-type': 'application/json',
   };
+}
+
+type OpenAiPart =
+  { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } };
+
+/** Our Anthropic-shaped messages → Chat Completions messages (system first, images as data URLs). */
+export function toOpenAiMessages(system: string, messages: Message[]) {
+  return [
+    { role: 'system', content: system },
+    ...messages.map((m) => ({
+      role: m.role,
+      content:
+        typeof m.content === 'string'
+          ? m.content
+          : m.content.map((b): OpenAiPart =>
+              b.type === 'text'
+                ? { type: 'text', text: b.text }
+                : {
+                    type: 'image_url',
+                    image_url: { url: `data:${b.source.media_type};base64,${b.source.data}` },
+                  },
+            ),
+    })),
+  ];
 }
 
 function errorFor(status: number, body: string): AiError {
@@ -108,18 +154,26 @@ async function once(o: CallOptions): Promise<CallResult> {
   const timer = setTimeout(() => ctrl.abort(), o.timeoutMs ?? AI_TIMEOUT_MS);
   const t0 = performance.now();
   try {
-    const body = {
-      model: o.model,
-      max_tokens: o.maxTokens ?? 8000,
-      system: o.system,
-      messages: o.messages,
-      ...(supportsEffort(o.model) ? { output_config: { effort: 'low' } } : {}),
-    };
+    const format = o.format ?? 'anthropic';
+    const body =
+      format === 'openai'
+        ? {
+            model: o.model,
+            max_tokens: o.maxTokens ?? 8000,
+            messages: toOpenAiMessages(o.system, o.messages),
+          }
+        : {
+            model: o.model,
+            max_tokens: o.maxTokens ?? 8000,
+            system: o.system,
+            messages: o.messages,
+            ...(supportsEffort(o.model) ? { output_config: { effort: 'low' } } : {}),
+          };
     let res: Response;
     try {
-      res = await (o.fetchImpl ?? fetch)(messagesUrl(o.baseUrl), {
+      res = await (o.fetchImpl ?? fetch)(messagesUrl(o.baseUrl, format), {
         method: 'POST',
-        headers: headers(o.apiKey, o.baseUrl),
+        headers: headers(o.apiKey, o.baseUrl, format),
         body: JSON.stringify(body),
         signal: ctrl.signal,
       });
@@ -128,23 +182,54 @@ async function once(o: CallOptions): Promise<CallResult> {
       throw new AiError('offline', 'Нет связи с сервисом ИИ');
     }
     if (!res.ok) throw errorFor(res.status, await res.text().catch(() => ''));
-    const raw = (await res.json()) as {
-      content?: { type: string; text?: string }[];
-      stop_reason?: string;
-    };
-    if (raw.stop_reason === 'refusal')
-      throw new AiError('refusal', 'ИИ отказался обрабатывать этот запрос');
-    // Thinking blocks (adaptive thinking on 5.x models) are skipped; only text is used.
-    const text = (raw.content ?? [])
-      .filter((b) => b.type === 'text' && typeof b.text === 'string')
-      .map((b) => b.text)
-      .join('\n')
-      .trim();
-    if (!text) throw new AiError('empty', 'ИИ вернул пустой ответ');
+    const raw = (await res.json()) as unknown;
+    const text = format === 'openai' ? openAiText(raw) : anthropicText(raw);
     return { text, raw, latencyMs: Math.round(performance.now() - t0) };
   } finally {
     clearTimeout(timer);
   }
+}
+
+type AnthropicReply = { content?: { type: string; text?: string }[]; stop_reason?: string };
+
+function anthropicText(raw: unknown): string {
+  const r = raw as AnthropicReply;
+  if (r.stop_reason === 'refusal')
+    throw new AiError('refusal', 'ИИ отказался обрабатывать этот запрос');
+  // Thinking blocks (adaptive thinking on 5.x models) are skipped; only text is used.
+  const text = (r.content ?? [])
+    .filter((b) => b.type === 'text' && typeof b.text === 'string')
+    .map((b) => b.text)
+    .join('\n')
+    .trim();
+  if (!text) throw new AiError('empty', 'ИИ вернул пустой ответ');
+  return text;
+}
+
+type OpenAiReply = {
+  choices?: { finish_reason?: string; message?: { content?: unknown } }[];
+};
+
+function openAiText(raw: unknown): string {
+  const choice = (raw as OpenAiReply).choices?.[0];
+  if (choice?.finish_reason === 'content_filter')
+    throw new AiError('refusal', 'ИИ отказался обрабатывать этот запрос');
+  const c = choice?.message?.content;
+  const text = (
+    typeof c === 'string'
+      ? c
+      : Array.isArray(c)
+        ? c
+            .map((p) =>
+              typeof (p as { text?: unknown }).text === 'string'
+                ? (p as { text: string }).text
+                : '',
+            )
+            .join('\n')
+        : ''
+  ).trim();
+  if (!text) throw new AiError('empty', 'ИИ вернул пустой ответ');
+  return text;
 }
 
 /** One request with a single retry on 429/5xx/network errors (exponential delay). */
@@ -169,9 +254,12 @@ export async function checkKey(
   apiKey: string,
   fetchImpl: typeof fetch = fetch,
   baseUrl?: string,
+  format: ApiFormat = 'anthropic',
 ): Promise<boolean> {
   try {
-    const res = await fetchImpl(modelsUrl(baseUrl), { headers: headers(apiKey, baseUrl) });
+    const res = await fetchImpl(modelsUrl(baseUrl, format), {
+      headers: headers(apiKey, baseUrl, format),
+    });
     return res.ok;
   } catch {
     return false;
@@ -183,10 +271,11 @@ export async function listModels(
   apiKey: string,
   fetchImpl: typeof fetch = fetch,
   baseUrl?: string,
+  format: ApiFormat = 'anthropic',
 ): Promise<string[] | null> {
   try {
-    const res = await fetchImpl(`${normalizeBase(baseUrl)}/v1/models?limit=200`, {
-      headers: headers(apiKey, baseUrl),
+    const res = await fetchImpl(modelsUrl(baseUrl, format, 200), {
+      headers: headers(apiKey, baseUrl, format),
     });
     if (!res.ok) return null;
     const body = (await res.json()) as { data?: { id?: unknown }[] };

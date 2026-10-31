@@ -2,15 +2,21 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import { checkKey, listModels } from '../../ai/client';
 import { AI_DEFAULTS, AI_KEYS, maskKey } from '../../ai/settings';
+import type { ApiFormat } from '../../ai/client';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { toast } from '../../state/ui';
-import { Button, Card, Notice, Row, Switch, TextField } from '../../ui/kit';
+import { Button, Card, Notice, Row, Segmented, Switch, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
 import { useAiConfig } from './useAi';
 
 const t = ru.ai;
+
+const PRESETS = [
+  { name: 'OpenRouter', url: 'https://openrouter.ai/api/v1' },
+  { name: 'Google Gemini', url: 'https://generativelanguage.googleapis.com/v1beta/openai' },
+];
 
 export default function AiSettingsPage() {
   const cfg = useAiConfig();
@@ -63,7 +69,7 @@ export default function AiSettingsPage() {
             disabled={!cfg.apiKey || checking}
             onClick={async () => {
               setChecking(true);
-              const ok = await checkKey(cfg.apiKey, fetch, cfg.baseUrl);
+              const ok = await checkKey(cfg.apiKey, fetch, cfg.baseUrl, cfg.format);
               setChecking(false);
               toast({ text: ok ? t.keyOk : t.keyBad });
             }}
@@ -78,6 +84,36 @@ export default function AiSettingsPage() {
         )}
       </Card>
       <Card>
+        <Segmented
+          label={t.format}
+          value={cfg.format}
+          onChange={(v: ApiFormat) => void repos.settings.set(AI_KEYS.format, v)}
+          options={[
+            { value: 'anthropic', label: t.formatAnthropic },
+            { value: 'openai', label: t.formatOpenai },
+          ]}
+        />
+        <p className={styles.muted}>{t.formatHint}</p>
+        {cfg.format === 'openai' && (
+          <>
+            <p className={styles.muted}>{t.presets}</p>
+            <Row>
+              {PRESETS.map((p) => (
+                <Button
+                  key={p.url}
+                  variant="secondary"
+                  onClick={() => {
+                    setBase(p.url);
+                    void repos.settings.set(AI_KEYS.baseUrl, p.url);
+                  }}
+                >
+                  {p.name}
+                </Button>
+              ))}
+            </Row>
+            {!cfg.baseUrl && <Notice>{t.needAddress}</Notice>}
+          </>
+        )}
         <TextField
           label={t.baseUrl}
           type="url"
@@ -119,7 +155,7 @@ export default function AiSettingsPage() {
           disabled={!cfg.apiKey || models === 'loading'}
           onClick={async () => {
             setModels('loading');
-            setModels((await listModels(cfg.apiKey, fetch, cfg.baseUrl)) ?? 'fail');
+            setModels((await listModels(cfg.apiKey, fetch, cfg.baseUrl, cfg.format)) ?? 'fail');
           }}
         >
           {models === 'loading' ? t.modelsLoading : t.modelsShow}

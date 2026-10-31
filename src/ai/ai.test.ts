@@ -8,6 +8,7 @@ import {
   checkKey,
   headers,
   isCustomBase,
+  toOpenAiMessages,
   listModels,
   messagesUrl,
   modelsUrl,
@@ -483,5 +484,84 @@ describe('custom API address', () => {
       message: expect.stringContaining('недостаточно средств'),
     });
     expect(f).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('OpenAI-compatible format', () => {
+  const base = 'https://openrouter.ai/api/v1/';
+  it('builds addresses and headers', () => {
+    expect(normalizeBase(base, 'openai')).toBe('https://openrouter.ai/api/v1');
+    expect(messagesUrl(base, 'openai')).toBe('https://openrouter.ai/api/v1/chat/completions');
+    expect(modelsUrl(base, 'openai')).toBe('https://openrouter.ai/api/v1/models');
+    expect(isCustomBase('', 'openai')).toBe(true);
+    expect(headers('k', base, 'openai')).toEqual({
+      authorization: 'Bearer k',
+      'content-type': 'application/json',
+    });
+  });
+
+  it('maps messages: system first, images as data URLs', () => {
+    const out = toOpenAiMessages('SYS', [
+      { role: 'user', content: 'hi' },
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: 't' },
+          { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: 'AAA' } },
+        ],
+      },
+    ]);
+    expect(out[0]).toEqual({ role: 'system', content: 'SYS' });
+    expect(out[1]).toEqual({ role: 'user', content: 'hi' });
+    expect(out[2]!.content).toEqual([
+      { type: 'text', text: 't' },
+      { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AAA' } },
+    ]);
+  });
+
+  const call = (f: unknown) =>
+    callClaude({
+      apiKey: 'k',
+      model: 'm',
+      system: 's',
+      messages: [{ role: 'user', content: 'x' }],
+      baseUrl: base,
+      format: 'openai',
+      fetchImpl: f as typeof fetch,
+    });
+  const ok = (content: unknown, finish = 'stop') =>
+    new Response(JSON.stringify({ choices: [{ finish_reason: finish, message: { content } }] }));
+
+  it('calls chat/completions and reads the reply (string or parts)', async () => {
+    const f = vi.fn(async (_u: string, _i?: RequestInit) => ok(' {"a":1} '));
+    expect((await call(f)).text).toBe('{"a":1}');
+    expect(f.mock.calls[0]![0]).toBe('https://openrouter.ai/api/v1/chat/completions');
+    const body = JSON.parse(f.mock.calls[0]![1]!.body as string);
+    expect(body.messages[0]).toEqual({ role: 'system', content: 's' });
+    expect(body).not.toHaveProperty('system');
+    expect((await call(async () => ok([{ text: 'a' }, { text: 'b' }, { x: 1 }]))).text).toBe(
+      'a\nb',
+    );
+  });
+
+  it('reports refusals, empty replies and errors', async () => {
+    await expect(call(async () => ok('x', 'content_filter'))).rejects.toMatchObject({
+      kind: 'refusal',
+    });
+    await expect(call(async () => ok(''))).rejects.toMatchObject({ kind: 'empty' });
+    await expect(call(async () => ok(null))).rejects.toMatchObject({ kind: 'empty' });
+    await expect(call(async () => new Response('{}', { status: 401 }))).rejects.toMatchObject({
+      kind: 'auth',
+    });
+  });
+
+  it('checks the key and lists models via /models', async () => {
+    const f = vi.fn(async (_u: string) => new Response('{"data":[{"id":"m1"}]}'));
+    expect(await checkKey('k', f as unknown as typeof fetch, base, 'openai')).toBe(true);
+    expect(await listModels('k', f as unknown as typeof fetch, base, 'openai')).toEqual(['m1']);
+    expect(f.mock.calls.map((c) => c[0])).toEqual([
+      'https://openrouter.ai/api/v1/models',
+      'https://openrouter.ai/api/v1/models',
+    ]);
   });
 });

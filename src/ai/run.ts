@@ -56,6 +56,7 @@ export async function runAi<T>(r: Repos, o: RunOptions<T>): Promise<{ value: T; 
       const res = await callClaude({
         apiKey: cfg.apiKey.trim(),
         baseUrl: cfg.baseUrl,
+        format: cfg.format,
         model,
         system: o.system,
         messages,

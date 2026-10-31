@@ -165,4 +165,19 @@ describe('AI settings', () => {
     await user.click(await screen.findByRole('button', { name: ru.ai.modelsShow }));
     expect(await screen.findByText(ru.ai.modelsFail)).toBeVisible();
   });
+
+  it('OpenAI format: presets fill the address and AI needs it to be ready', async () => {
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-or-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.enabled, true);
+    const user = userEvent.setup();
+    await renderApp('/more/ai');
+    await user.click(await screen.findByRole('radio', { name: ru.ai.formatOpenai }));
+    expect(await screen.findByText(ru.ai.needAddress)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'OpenRouter' }));
+    await waitFor(async () =>
+      expect(await repos.settings.get(AI_KEYS.baseUrl, '')).toBe('https://openrouter.ai/api/v1'),
+    );
+    expect(await repos.settings.get(AI_KEYS.format, '')).toBe('openai');
+    await waitFor(() => expect(screen.queryByText(ru.ai.needAddress)).not.toBeInTheDocument());
+  });
 });
