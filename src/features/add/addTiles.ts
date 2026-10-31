@@ -6,7 +6,7 @@ export const ADD_TILES = [
   { key: 'textAi', path: null },
   { key: 'labelAi', path: null },
   { key: 'quickKcal', path: '/add/quick' },
-  { key: 'recipe', path: null },
-  { key: 'template', path: null },
+  { key: 'recipe', path: '/add/recipe' },
+  { key: 'template', path: '/add/template' },
   { key: 'repeat', path: '/add/repeat' },
 ] as const satisfies readonly { key: string; path: string | null }[];

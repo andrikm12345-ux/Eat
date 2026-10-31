@@ -5,6 +5,8 @@ import { Card } from '../../ui/kit';
 import pageStyles from '../../ui/Page.module.css';
 import { TrendCard } from '../weight/TrendCard';
 import { Banners } from './Banners';
+import { exerciseBonus } from '../../domain/met';
+import { ActivityCard } from './ActivityCard';
 import { DayFlow } from './DayFlow';
 import { DayHeader } from './DayHeader';
 import { SummaryCard } from './SummaryCard';
@@ -14,6 +16,14 @@ import { WaterCard } from './WaterCard';
 export default function TodayPage() {
   const date = useUi((s) => s.date);
   const day = useDay(date);
+  const bonus = day
+    ? exerciseBonus(
+        day.mode,
+        day.workouts.reduce((s, w) => s + (w.kcal ?? 0), 0),
+      )
+    : 0;
+  // In 'half'/'full' modes workout calories are added to that day's goal.
+  const goal = day?.goal ? { ...day.goal, kcal: day.goal.kcal + bonus } : null;
   return (
     <section
       className={pageStyles.page}
@@ -24,11 +34,12 @@ export default function TodayPage() {
       {day && (
         <>
           <Banners />
-          <SummaryCard totals={dayTotals(day.entries)} goal={day.goal} meta={day.meta} />
+          <SummaryCard totals={dayTotals(day.entries)} goal={goal} meta={day.meta} />
           <TrendCard />
           <Card title={ru.today.flowTitle}>
             <DayFlow entries={day.entries} />
           </Card>
+          <ActivityCard meta={day.meta} workouts={day.workouts} mode={day.mode} />
           <WaterCard meta={day.meta} goalMl={day.goal?.waterMl} />
         </>
       )}

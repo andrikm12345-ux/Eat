@@ -35,6 +35,37 @@ export const routes: RouteObject[] = [
       { path: 'foods/:id/edit', lazy: lazyPage(() => import('./features/foods/FoodEditPage')) },
       { path: 'entry/:id', lazy: lazyPage(() => import('./features/entry/EntryPage')) },
       { path: 'checkin', lazy: lazyPage(() => import('./features/checkin/CheckinPage')) },
+      { path: 'recipes', lazy: lazyPage(() => import('./features/recipes/RecipesPage')) },
+      { path: 'recipes/new', lazy: lazyPage(() => import('./features/recipes/RecipeEditPage')) },
+      {
+        path: 'recipes/:id/edit',
+        lazy: lazyPage(() => import('./features/recipes/RecipeEditPage')),
+      },
+      {
+        path: 'add/recipe',
+        lazy: async () => ({
+          Component: (await import('./features/recipes/RecipesPage')).PickRecipePage,
+        }),
+      },
+      {
+        path: 'add/recipe/:id',
+        lazy: lazyPage(() => import('./features/recipes/RecipePortionPage')),
+      },
+      { path: 'templates', lazy: lazyPage(() => import('./features/templates/TemplatesPage')) },
+      {
+        path: 'add/template',
+        lazy: async () => ({
+          Component: (await import('./features/templates/TemplatesPage')).PickTemplatePage,
+        }),
+      },
+      { path: 'workouts', lazy: lazyPage(() => import('./features/workouts/WorkoutsPage')) },
+      {
+        path: 'workouts/new',
+        lazy: async () => ({
+          Component: (await import('./features/workouts/WorkoutsPage')).WorkoutNewPage,
+        }),
+      },
+      { path: 'data/csv', lazy: lazyPage(() => import('./features/data/CsvImportPage')) },
       { path: 'more/profile', lazy: lazyPage(() => import('./features/profile/ProfilePage')) },
       { path: '*', lazy: lazyPage(() => import('./features/NotFoundPage')) },
     ],
