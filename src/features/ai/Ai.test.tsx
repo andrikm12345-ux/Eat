@@ -29,7 +29,6 @@ describe('AI without a key', () => {
     const { router } = await renderApp('/');
     await user.click(await screen.findByRole('button', { name: ru.add.fab }));
     const sheet = screen.getByRole('dialog');
-    expect(within(sheet).getAllByText(ru.add.manualHint)).toHaveLength(2);
     await user.click(within(sheet).getByRole('button', { name: /Этикетка \(ИИ\)/ }));
     await waitFor(() => expect(router.state.location.pathname).toBe('/foods/new'));
   });

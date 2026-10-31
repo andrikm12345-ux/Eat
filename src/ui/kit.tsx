@@ -303,3 +303,13 @@ export function Switch({
     </div>
   );
 }
+
+/** Collapsible section (native details/summary: accessible, no JS state). */
+export function Collapsible({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <details className={styles.collapsible}>
+      <summary className={styles.collapsibleSummary}>{title}</summary>
+      <div className={styles.collapsibleBody}>{children}</div>
+    </details>
+  );
+}

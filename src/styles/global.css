@@ -1,11 +1,11 @@
 :root {
   color-scheme: light dark;
-  --bg: #f6f5f2;
+  --bg: #f5f4f0;
   --surface: #ffffff;
-  --surface-2: #eeece7;
+  --surface-2: #efede8;
   --text: #1c1d1f;
   --text-muted: #5b5f63;
-  --border: #dcd9d2;
+  --border: #e6e3dc;
   --accent: #2f6f6a;
   --accent-contrast: #ffffff;
   --accent-soft: #d8e8e5;
@@ -13,8 +13,10 @@
   --over: #6b5ca5;
   --attention: #f3e3a6;
   --attention-text: #4a3d0a;
-  --shadow: 0 4px 16px rgb(0 0 0 / 0.12);
-  --radius: 16px;
+  --shadow: 0 6px 20px rgb(0 0 0 / 0.14);
+  --shadow-card: 0 1px 2px rgb(30 30 20 / 0.05), 0 6px 18px rgb(30 30 20 / 0.05);
+  --radius: 20px;
+  --radius-sm: 14px;
   --tap: 44px;
   --nav-height: 64px;
   --safe-top: env(safe-area-inset-top, 0px);
@@ -32,14 +34,15 @@
     --surface-2: #2a2e31;
     --text: #eceae6;
     --text-muted: #a5aaae;
-    --border: #363b3f;
+    --border: #30353a;
     --accent: #6fb8b0;
     --accent-contrast: #0e1a19;
     --accent-soft: #23403d;
     --over: #b4a7e6;
     --attention: #4a4020;
     --attention-text: #f3e3a6;
-    --shadow: 0 4px 16px rgb(0 0 0 / 0.45);
+    --shadow: 0 6px 20px rgb(0 0 0 / 0.5);
+    --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.03);
   }
 }
 

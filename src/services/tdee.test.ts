@@ -139,7 +139,8 @@ describe('check-in UI', () => {
   it('pausing the week marks its days as excluded', async () => {
     await seedHistory();
     const user = userEvent.setup();
-    await renderApp('/progress', { seed: false });
+    await renderApp('/reports', { seed: false });
+    await user.click(await screen.findByRole('radio', { name: ru.reports.tabs.energy }));
     await user.click(await screen.findByRole('button', { name: ru.energy.pause }));
     await waitFor(async () => expect((await repos.dayMeta.get(today)).excludeFromTdee).toBe(true));
     expect(await screen.findByRole('button', { name: ru.energy.unpause })).toBeVisible();

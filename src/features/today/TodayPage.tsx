@@ -13,6 +13,7 @@ import { DayHeader } from './DayHeader';
 import { SummaryCard } from './SummaryCard';
 import { useDay } from './useDay';
 import { WaterCard } from './WaterCard';
+import styles from './today.module.css';
 
 export default function TodayPage() {
   const date = useUi((s) => s.date);
@@ -37,12 +38,14 @@ export default function TodayPage() {
           <Banners />
           <StreakRow meta={day.meta} empty={day.entries.length === 0} />
           <SummaryCard totals={dayTotals(day.entries)} goal={goal} meta={day.meta} />
-          <TrendCard />
           <Card title={ru.today.flowTitle}>
             <DayFlow entries={day.entries} />
           </Card>
+          <div className={styles.pair}>
+            <TrendCard />
+            <WaterCard meta={day.meta} goalMl={day.goal?.waterMl} />
+          </div>
           <ActivityCard meta={day.meta} workouts={day.workouts} mode={day.mode} />
-          <WaterCard meta={day.meta} goalMl={day.goal?.waterMl} />
         </>
       )}
     </section>

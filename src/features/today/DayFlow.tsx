@@ -31,7 +31,7 @@ export function DayFlow({ entries }: { entries: Entry[] }) {
   );
   const gap = (from: number, to: number, key: string) => {
     if (to - from < 5) return;
-    const height = Math.max(14, Math.min(80, (to - from) * 0.4));
+    const height = Math.max(10, Math.min(26, (to - from) * 0.1));
     const onClick = (ev: MouseEvent<HTMLButtonElement>) => {
       const rect = ev.currentTarget.getBoundingClientRect();
       const ratio = rect.height ? (ev.clientY - rect.top) / rect.height : 0.5;

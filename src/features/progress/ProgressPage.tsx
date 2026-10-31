@@ -11,10 +11,9 @@ import { repos } from '../../db/repos';
 import { SETTINGS } from '../../db/settingsKeys';
 import { ru } from '../../i18n/ru';
 import { toast, useUi } from '../../state/ui';
-import { Button, Card, LinkButton, Row, Segmented } from '../../ui/kit';
+import { Button, Card, Collapsible, LinkButton, Row, Segmented } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import listStyles from '../add/add.module.css';
-import { EnergyCard } from './EnergyCard';
 import { useTrend } from './useTrend';
 import { WeightChart } from './WeightChart';
 import styles from './progress.module.css';
@@ -57,7 +56,6 @@ export default function ProgressPage() {
         </div>
       </Card>
       <GoalScale points={data.points} goal={goal} today={today} />
-      <EnergyCard />
       <Row>
         <LinkButton to="/progress/measurements" variant="secondary">
           {t.measurements}
@@ -136,8 +134,7 @@ function WeightHistory({ weights }: { weights: Weight[] }) {
   const recent = [...weights].reverse().slice(0, 30);
   if (!recent.length) return null;
   return (
-    <>
-      <h2 className={listStyles.sectionTitle}>{t.history}</h2>
+    <Collapsible title={t.history}>
       <ul className={listStyles.list}>
         {recent.map((w) => (
           <li key={w.id} className={listStyles.row}>
@@ -165,7 +162,7 @@ function WeightHistory({ weights }: { weights: Weight[] }) {
           </li>
         ))}
       </ul>
-    </>
+    </Collapsible>
   );
 }
 
@@ -175,7 +172,7 @@ function TrendSettings({ alpha, pick }: { alpha: number; pick: 'first' | 'min' }
     [],
   );
   return (
-    <Card title={t.trendSettings}>
+    <Collapsible title={t.trendSettings}>
       <label className={listStyles.muted} htmlFor="alpha">
         {t.alpha}: {String(alpha).replace('.', ',')}
       </label>
@@ -217,6 +214,6 @@ function TrendSettings({ alpha, pick }: { alpha: number; pick: 'first' | 'min' }
           </option>
         ))}
       </select>
-    </Card>
+    </Collapsible>
   );
 }

@@ -39,23 +39,20 @@ export function AddSheet() {
     <BottomSheet open={open} title={atTime ? ru.today.addAt(atTime) : ru.add.title} onClose={close}>
       <div className={styles.grid}>
         {ADD_TILES.map((tile) => {
-          const { key, path } = tile;
+          const { key, path, Icon } = tile;
           // Without AI set up, AI tiles lead to the manual equivalent.
           const manual = 'manual' in tile && !ai?.ready ? tile.manual : null;
-          return path ? (
+          return (
             <button
               key={key}
               type="button"
               className={styles.tile}
               onClick={() => go(`${manual ?? path}${qs}`)}
             >
+              <span className={styles.tileIcon}>
+                <Icon width={22} height={22} />
+              </span>
               <span>{ru.add.tiles[key]}</span>
-              {manual && <span className={styles.soon}>{ru.add.manualHint}</span>}
-            </button>
-          ) : (
-            <button key={key} type="button" className={styles.tile} disabled>
-              <span>{ru.add.tiles[key]}</span>
-              <span className={styles.soon}>{ru.add.soon}</span>
             </button>
           );
         })}

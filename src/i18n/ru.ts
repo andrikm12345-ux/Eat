@@ -14,7 +14,6 @@ export const ru = {
     title: 'Добавить',
     close: 'Закрыть',
     soon: 'Скоро',
-    manualHint: 'вручную',
     tiles: {
       search: 'Поиск',
       barcode: 'Штрихкод',
@@ -167,6 +166,7 @@ export const ru = {
   },
   more: {
     title: 'Ещё',
+    groups: { food: 'Питание', body: 'Тело и цели', app: 'Приложение' },
     items: {
       profile: 'Профиль и цели',
       wizard: 'Мастер цели',
@@ -579,7 +579,7 @@ export const ru = {
     steps: 'Шаги',
     noGoalChange: 'Не меняет цель питания',
     goalBonus: (n: string) => `+${n} ккал к цели дня (может завышать)`,
-    addWorkout: 'Добавить тренировку',
+    addWorkout: '+ Тренировка',
     workouts: 'Тренировки',
   },
   csv: {

@@ -98,8 +98,6 @@ export function SummaryCard({
             <span>
               {t.eaten} <b>{formatKcal(totals.kcal)}</b>
             </span>
-          </div>
-          <div className={styles.eatenRow}>
             <span>
               {t.goal} <b>{goal ? formatKcal(goal.kcal) : '—'}</b>
             </span>
@@ -114,7 +112,6 @@ export function SummaryCard({
       </div>
       <Switch
         label={t.complete}
-        hint={t.completeHint}
         checked={meta.complete}
         onChange={(v) => void repos.dayMeta.upsert(meta.date, { complete: v })}
       />

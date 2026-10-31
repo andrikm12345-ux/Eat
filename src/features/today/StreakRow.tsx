@@ -27,7 +27,15 @@ export function StreakRow({ meta, empty }: { meta: DayMeta; empty: boolean }) {
       {streaks && streaks.log.current > 0 ? (
         <Link
           to="/more/achievements"
-          style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none', fontSize: 14 }}
+          style={{
+            color: 'var(--accent)',
+            background: 'var(--accent-soft)',
+            fontWeight: 600,
+            textDecoration: 'none',
+            fontSize: 13,
+            padding: '5px 12px',
+            borderRadius: 999,
+          }}
         >
           {t.chip(streaks.log.current)}
         </Link>

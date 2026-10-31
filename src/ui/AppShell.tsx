@@ -17,6 +17,8 @@ import styles from './AppShell.module.css';
 /** Manifest shortcut actions (`/?action=…`) that open the add sheet. */
 /** The floating "+" only lives on the main tabs; form screens keep their own buttons clear. */
 const MAIN_TABS = new Set(['/', '/diary', '/progress', '/reports', '/more']);
+/** The floating "+" lives on Today and Diary only: elsewhere it only covers content. */
+const ADD_TABS = new Set(['/', '/diary']);
 const ADD_ACTIONS = new Set(['add']);
 
 export function AppShell() {
@@ -60,7 +62,7 @@ export function AppShell() {
           <Outlet />
         </Suspense>
       </main>
-      {MAIN_TABS.has(pathname) && <Fab onClick={() => openAdd()} expanded={addOpen} />}
+      {ADD_TABS.has(pathname) && <Fab onClick={() => openAdd()} expanded={addOpen} />}
       <BottomNav />
       <AddSheet />
       <WeighSheet />

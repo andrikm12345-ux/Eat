@@ -314,3 +314,54 @@
   min-height: 32px;
   cursor: pointer;
 }
+
+/* ---- redesign: compact pair of cards (weight | water) ---- */
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.pair > * {
+  margin-bottom: 0;
+}
+.miniBig {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.miniSub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.waterBtns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.waterBtns > button {
+  padding: 0;
+  min-height: 44px;
+}
+.undoWater {
+  display: block;
+  margin: 8px auto 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.activityRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  white-space: nowrap;
+}
+.activityRow > :last-child {
+  margin-bottom: 12px;
+}

@@ -12,35 +12,36 @@ export function WaterCard({ meta, goalMl }: { meta: DayMeta; goalMl: number | un
     repos.dayMeta.upsert(meta.date, { waterMl: Math.max(0, meta.waterMl + ml) });
   return (
     <Card title={t.title}>
-      <p className={styles.waterValue}>
-        {goalMl
-          ? t.of(formatKcal(meta.waterMl), formatKcal(goalMl))
-          : `${formatKcal(meta.waterMl)} мл`}
-      </p>
-      <div className={styles.waterRow}>
-        <Button
-          variant="secondary"
-          onClick={() => void add(-250)}
-          disabled={meta.waterMl <= 0}
-          aria-label={t.remove}
-        >
-          −
-        </Button>
-        <Button variant="secondary" onClick={() => void add(250)}>
-          {t.add(250)}
-        </Button>
-        <Button variant="secondary" onClick={() => void add(500)}>
-          {t.add(500)}
-        </Button>
+      <div className={styles.miniBig}>{formatKcal(meta.waterMl)}</div>
+      <div className={styles.miniSub} style={{ marginBottom: 8 }}>
+        {goalMl ? `из ${formatKcal(goalMl)} мл` : 'мл'}
       </div>
       {goalMl ? (
-        <div className={styles.bar} style={{ marginTop: 10 }} aria-hidden="true">
+        <div className={styles.bar} style={{ marginBottom: 12 }} aria-hidden="true">
           <div
             className={styles.barFill}
             style={{ width: `${Math.min(1, meta.waterMl / goalMl) * 100}%` }}
           />
         </div>
       ) : null}
+      <div className={styles.waterBtns}>
+        <Button variant="secondary" aria-label={t.add(250)} onClick={() => void add(250)}>
+          +250
+        </Button>
+        <Button variant="secondary" aria-label={t.add(500)} onClick={() => void add(500)}>
+          +500
+        </Button>
+      </div>
+      {meta.waterMl > 0 && (
+        <button
+          type="button"
+          className={styles.undoWater}
+          aria-label={t.remove}
+          onClick={() => void add(-250)}
+        >
+          {t.remove}
+        </button>
+      )}
     </Card>
   );
 }

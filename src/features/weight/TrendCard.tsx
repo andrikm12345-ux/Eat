@@ -23,25 +23,26 @@ export function TrendCard() {
   return (
     <Card title={t.title}>
       {last ? (
-        <div className={styles.trend}>
-          <div>
-            <div className={styles.small}>{t.raw}</div>
-            <div className={styles.big}>{formatKg(last.kg)}</div>
-            <div className={styles.small}>{t.daysAgo(daysBetween(last.date, today))}</div>
+        <>
+          <div className={styles.big}>
+            {trend !== undefined ? formatKg(trend) : formatKg(last.kg)}
           </div>
-          <div>
-            <div className={styles.small}>{t.trend}</div>
-            <div className={styles.big}>{trend !== undefined ? formatKg(trend) : '—'}</div>
-            <div className={styles.small}>
-              <span className={styles.arrow} aria-label={t.arrow[dir]}>
-                {ARROWS[dir]}
-              </span>{' '}
-              {delta !== undefined
-                ? `${delta > 0 ? '+' : delta < 0 ? '−' : ''}${formatKg(Math.abs(delta))} кг ${t.change7}`
-                : ''}
-            </div>
+          <div className={styles.small}>
+            {t.trend}
+            {delta !== undefined && (
+              <>
+                {' · '}
+                <span className={styles.arrow} aria-label={t.arrow[dir]}>
+                  {ARROWS[dir]}
+                </span>{' '}
+                {`${delta > 0 ? '+' : delta < 0 ? '−' : ''}${formatKg(Math.abs(delta))} кг`}
+              </>
+            )}
           </div>
-        </div>
+          <div className={styles.small} style={{ marginBottom: 12 }}>
+            {t.raw} {formatKg(last.kg)} · {t.daysAgo(daysBetween(last.date, today))}
+          </div>
+        </>
       ) : (
         <p className={styles.small}>{t.none}</p>
       )}
