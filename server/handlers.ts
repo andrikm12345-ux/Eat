@@ -147,6 +147,26 @@ export async function resetPassword(d: Deps, req: Request): Promise<Response> {
   });
 }
 
+/** POST {password} (signed in) → issues a new recovery code, replacing any previous one. */
+export async function newRecovery(d: Deps, req: Request): Promise<Response> {
+  const token = bearer(req);
+  const userId = token ? verifySession(d.secret, token, d.now()) : null;
+  if (!userId) return json({ error: 'unauthorized' }, 401);
+  const body = await readJson(req);
+  const creds = await readCreds(d, userId);
+  if (!creds) return json({ error: 'unauthorized' }, 401);
+  if (creds.lockedUntil > d.now()) return lockedResponse(d, creds);
+  if (!(await checkSecret(creds, String(body?.password ?? '')))) return failed(d, userId, creds);
+  const recoveryCode = generateRecoveryCode();
+  const updated: Credentials = {
+    ...creds,
+    fails: 0,
+    recovery: await hashSecret(normalizeRecovery(recoveryCode)),
+  };
+  await d.store.put(credPath(userId), JSON.stringify(updated));
+  return json({ recoveryCode });
+}
+
 const dataPath = (userId: string) => `users/${userId}.json`;
 
 /** GET → the stored snapshot (or {empty:true}). */

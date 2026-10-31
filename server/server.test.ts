@@ -12,7 +12,7 @@ import {
   userIdFor,
   verifySession,
 } from './auth.js';
-import { getSync, login, putSync, register, resetPassword } from './handlers.js';
+import { getSync, login, newRecovery, putSync, register, resetPassword } from './handlers.js';
 import type { Deps, Store } from './types.js';
 
 const SECRET = 'x'.repeat(40);
@@ -325,5 +325,48 @@ describe('password recovery', () => {
     expect(
       (await resetPassword(closed, reset('ivan', reg.recoveryCode, 'new-password'))).status,
     ).toBe(200);
+  });
+});
+
+describe('recovery code for existing accounts', () => {
+  it('a signed-in user can issue a code after confirming the password', async () => {
+    const { d, advance } = deps();
+    const { token } = (await (await register(d, creds('ivan', 'old-password'))).json()) as {
+      token: string;
+    };
+    // Simulate an account made before codes existed.
+    const store = d.store as ReturnType<typeof memoryStore>;
+    const key = [...store.data.keys()].find((k) => k.startsWith('creds/'))!;
+    const { recovery: _drop, ...legacy } = JSON.parse(store.data.get(key)!);
+    store.data.set(key, JSON.stringify(legacy));
+
+    const ask = (tok: string | null, pw: string) =>
+      newRecovery(
+        d,
+        new Request('http://x', {
+          method: 'POST',
+          headers: tok ? { authorization: `Bearer ${tok}` } : {},
+          body: JSON.stringify({ password: pw }),
+        }),
+      );
+    expect((await ask(null, 'old-password')).status).toBe(401);
+    expect((await ask('bad.token', 'old-password')).status).toBe(401);
+    expect((await ask(token, 'wrong-password')).status).toBe(401);
+    const ok = await ask(token, 'old-password');
+    expect(ok.status).toBe(200);
+    const { recoveryCode } = (await ok.json()) as { recoveryCode: string };
+    expect(
+      (await resetPassword(d, post({ login: 'ivan', recoveryCode, password: 'new-password' })))
+        .status,
+    ).toBe(200);
+
+    // Wrong passwords lock it like login does.
+    for (let i = 0; i < MAX_FAILS; i++) await ask(token, 'wrong-password');
+    expect((await ask(token, 'new-password')).status).toBe(429);
+    advance(LOCK_MS + 1);
+    expect((await ask(token, 'new-password')).status).toBe(200);
+    // A session whose account record is gone is rejected.
+    store.data.delete(key);
+    expect((await ask(token, 'new-password')).status).toBe(401);
   });
 });

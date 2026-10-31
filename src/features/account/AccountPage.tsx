@@ -5,6 +5,7 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import {
   ACCOUNT,
+  createRecoveryCode,
   loginAccount,
   registerAccount,
   resetAccount,
@@ -139,6 +140,33 @@ export default function AccountPage() {
               {busy ? t.syncing : t.syncNow}
             </Button>
             <p>{t.signOutHint}</p>
+            <Card title={t.newCodeTitle}>
+              <p>{t.newCodeHint}</p>
+              <TextField
+                label={t.password}
+                type={show ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={password}
+                onChange={setPassword}
+              />
+              <Switch label={t.showPassword} checked={show} onChange={setShow} />
+              <Button
+                block
+                variant="secondary"
+                disabled={busy || !password}
+                onClick={async () => {
+                  setBusy(true);
+                  setError(null);
+                  const r = await createRecoveryCode(repos, password);
+                  setBusy(false);
+                  if ('error' in r) return setError(message(r.error, r.retryAfterSec));
+                  setPassword('');
+                  setNewCode(r.recoveryCode);
+                }}
+              >
+                {t.newCodeGo}
+              </Button>
+            </Card>
             <Button block variant="secondary" onClick={() => void signOut(repos)}>
               {t.signOut}
             </Button>

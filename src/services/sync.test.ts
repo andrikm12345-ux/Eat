@@ -6,6 +6,7 @@ import {
   login as srvLogin,
   putSync,
   register as srvRegister,
+  newRecovery as srvRecovery,
   resetPassword as srvReset,
 } from '../../server/handlers';
 import type { Deps } from '../../server/types';
@@ -14,6 +15,7 @@ import { ru } from '../i18n/ru';
 import { renderApp } from '../test/renderApp';
 import {
   ACCOUNT,
+  createRecoveryCode,
   getSession,
   loginAccount,
   registerAccount,
@@ -43,6 +45,7 @@ beforeEach(() => {
     if (url === '/api/auth/register') return srvRegister(deps(), req);
     if (url === '/api/auth/login') return srvLogin(deps(), req);
     if (url === '/api/auth/reset') return srvReset(deps(), req);
+    if (url === '/api/auth/recovery') return srvRecovery(deps(), req);
     return req.method === 'PUT' ? putSync(deps(), req) : getSync(deps(), req);
   });
 });
@@ -223,6 +226,47 @@ describe('recovery', () => {
     expect((out as { recoveryCode: string }).recoveryCode).not.toBe(code);
     expect(await loginAccount(repos, 'ivan', PW)).toEqual({ error: 'wrong_credentials' });
     expect(await loginAccount(repos, 'ivan', 'new-password')).toEqual({ login: 'ivan' });
+  });
+});
+
+describe('recovery code for the signed-in account', () => {
+  it('needs the password; the new code works', async () => {
+    await registerAccount(repos, 'ivan', PW);
+    expect(await createRecoveryCode(repos, 'wrong-password')).toEqual({
+      error: 'wrong_credentials',
+    });
+    const r = (await createRecoveryCode(repos, PW)) as { recoveryCode: string };
+    expect(r.recoveryCode).toMatch(/^\w{5}(-\w{5}){3}$/);
+    expect(await resetAccount(repos, 'ivan', r.recoveryCode, 'new-password')).toMatchObject({
+      login: 'ivan',
+    });
+    await signOut(repos);
+    expect(await createRecoveryCode(repos, PW)).toEqual({ error: 'wrong_credentials' });
+  });
+
+  it('reports lock and network errors', async () => {
+    await registerAccount(repos, 'ivan', PW);
+    for (let i = 0; i < 5; i++) await createRecoveryCode(repos, 'wrong-password');
+    expect(await createRecoveryCode(repos, PW)).toMatchObject({ error: 'locked' });
+    vi.stubGlobal('fetch', async () => new Response('x', { status: 500 }));
+    expect(await createRecoveryCode(repos, PW)).toEqual({ error: 'unknown' });
+    vi.stubGlobal('fetch', async () => {
+      throw new TypeError('offline');
+    });
+    expect(await createRecoveryCode(repos, PW)).toEqual({ error: 'network' });
+  });
+
+  it('account page: button shows a new code', async () => {
+    await registerAccount(repos, 'ivan', PW);
+    const user = userEvent.setup();
+    await renderApp('/account');
+    await user.type(await screen.findByLabelText(ru.account.password), 'wrong-password');
+    await user.click(screen.getByRole('button', { name: ru.account.newCodeGo }));
+    expect(await screen.findByText(ru.account.errors.wrong_credentials)).toBeVisible();
+    await user.clear(screen.getByLabelText(ru.account.password));
+    await user.type(screen.getByLabelText(ru.account.password), PW);
+    await user.click(screen.getByRole('button', { name: ru.account.newCodeGo }));
+    expect(await screen.findByText(ru.account.saveCodeTitle)).toBeVisible();
   });
 });
 

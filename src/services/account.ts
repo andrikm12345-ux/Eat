@@ -83,3 +83,26 @@ export async function getSession(r: Repos): Promise<{ token: string; login: stri
 export async function signOut(r: Repos) {
   for (const k of Object.values(ACCOUNT)) await r.db.settings.delete(k);
 }
+
+/** Issues a new recovery code for the signed-in account (needs the current password). */
+export async function createRecoveryCode(
+  r: Repos,
+  password: string,
+): Promise<{ recoveryCode: string } | { error: AccountError; retryAfterSec?: number }> {
+  const session = await getSession(r);
+  if (!session) return { error: 'wrong_credentials' };
+  let res: Response;
+  try {
+    res = await fetch('/api/auth/recovery', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${session.token}` },
+      body: JSON.stringify({ password }),
+    });
+  } catch {
+    return { error: 'network' };
+  }
+  const data = (await res.json().catch(() => ({}))) as Reply;
+  if (res.ok && data.recoveryCode) return { recoveryCode: data.recoveryCode };
+  if (res.status === 429) return { error: 'locked', retryAfterSec: data.retryAfterSec };
+  return { error: res.status === 401 ? 'wrong_credentials' : 'unknown' };
+}
