@@ -186,6 +186,10 @@ describe('AI settings', () => {
     );
     expect(await repos.settings.get(AI_KEYS.format, '')).toBe('openai');
     await waitFor(() => expect(screen.queryByText(ru.ai.needAddress)).not.toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'TokenHarbor' }));
+    await waitFor(async () =>
+      expect(await repos.settings.get(AI_KEYS.baseUrl, '')).toBe('https://tokenharbor.ai/v1'),
+    );
     await user.click(screen.getByRole('button', { name: 'TeamoRouter' }));
     await waitFor(async () =>
       expect(await repos.settings.get(AI_KEYS.baseUrl, '')).toBe('https://api.teamorouter.com/v1'),

@@ -592,4 +592,11 @@ describe('OpenAI-compatible format', () => {
       { id: 'gemini-2.5-flash', free: false, vision: null },
     ]);
   });
+
+  it('OpenAI format without an address does not call anything', async () => {
+    const f = vi.fn();
+    expect(await checkKey('k', f as unknown as typeof fetch, '', 'openai')).toBe(false);
+    expect(await listModels('k', f as unknown as typeof fetch, '  ', 'openai')).toBeNull();
+    expect(f).not.toHaveBeenCalled();
+  });
 });

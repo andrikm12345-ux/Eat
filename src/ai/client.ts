@@ -256,6 +256,7 @@ export async function checkKey(
   baseUrl?: string,
   format: ApiFormat = 'anthropic',
 ): Promise<boolean> {
+  if (format === 'openai' && !normalizeBase(baseUrl, format)) return false;
   try {
     const res = await fetchImpl(modelsUrl(baseUrl, format), {
       headers: headers(apiKey, baseUrl, format),
@@ -289,6 +290,7 @@ export async function listModels(
   baseUrl?: string,
   format: ApiFormat = 'anthropic',
 ): Promise<ModelInfo[] | null> {
+  if (format === 'openai' && !normalizeBase(baseUrl, format)) return null;
   try {
     const res = await fetchImpl(modelsUrl(baseUrl, format, 200), {
       headers: headers(apiKey, baseUrl, format),
