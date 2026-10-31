@@ -13,7 +13,7 @@ export const MORE_MENU: { key: Key; to: string | null }[] = [
   { key: 'achievements', to: '/more/achievements' },
   { key: 'reminders', to: '/more/reminders' },
   { key: 'ai', to: '/more/ai' },
-  { key: 'data', to: '/data/csv' },
-  { key: 'storage', to: null },
-  { key: 'about', to: null },
+  { key: 'data', to: '/data' },
+  { key: 'storage', to: '/more/storage' },
+  { key: 'about', to: '/more/about' },
 ];

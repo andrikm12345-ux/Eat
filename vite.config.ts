@@ -7,6 +7,11 @@ import { fileURLToPath } from 'node:url';
 const THEME_LIGHT = '#f6f5f2';
 
 export default defineConfig(({ mode }) => ({
+  define: {
+    __APP_VERSION__: JSON.stringify(
+      `${process.env.npm_package_version ?? '0.0.0'}+${new Date().toISOString().slice(0, 10)}`,
+    ),
+  },
   plugins: [
     react(),
     VitePWA({
@@ -81,7 +86,7 @@ export default defineConfig(({ mode }) => ({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: ['./test-setup/node-blob.js', './src/test/setup.ts'],
     css: { modules: { classNameStrategy: 'non-scoped' } },
     include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.{ts,mjs}'],
     coverage: {

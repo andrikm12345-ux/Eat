@@ -110,7 +110,10 @@ function GoalScale({
         aria-label={t.goalScale}
       >
         <div className={styles.scaleFill} style={{ width: `${pct * 100}%` }} />
-        <span className={styles.scaleNow} style={{ left: `${pct * 100}%` }}>
+        <span
+          className={styles.scaleNow}
+          style={{ left: `${Math.min(90, Math.max(10, pct * 100))}%` }}
+        >
           {formatKg(now)}
         </span>
       </div>

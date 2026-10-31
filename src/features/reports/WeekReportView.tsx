@@ -120,15 +120,22 @@ function Week({ w }: { w: WeekReport }) {
         </Card>
       )}
       <Card title={t.microDeficits}>
-        {flagged.length === 0 ? (
+        {w.loggedDays < 3 ? (
+          <p className={listStyles.muted}>{t.microFewDays}</p>
+        ) : flagged.length === 0 ? (
           <p className={listStyles.muted}>{t.microNone}</p>
         ) : (
           flagged.map((m) => (
-            <Stat
+            <div
               key={m.def.key}
-              label={m.def.name}
-              value={`${m.above ? t.microAbove : t.microBelow}: ${t.microNorm(Math.round(m.ratio * 100))}, ${t.microCoverage(Math.round(m.coverage * 100))}`}
-            />
+              style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}
+            >
+              <strong>{m.def.name}</strong>
+              <div className={listStyles.muted} style={{ fontSize: 13 }}>
+                {m.above ? t.microAbove : t.microBelow}: {t.microNorm(Math.round(m.ratio * 100))},{' '}
+                {t.microCoverage(Math.round(m.coverage * 100))}
+              </div>
+            </div>
           ))
         )}
       </Card>
