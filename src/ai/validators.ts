@@ -158,6 +158,27 @@ export function validateLabel(data: unknown): Valid<LabelResult> {
   };
 }
 
+export type PhotoResult =
+  { kind: 'meal'; meal: MealResult } | { kind: 'label'; label: LabelResult };
+
+/** Answer to the combined photo prompt: {kind:"meal",meal} or {kind:"label",label}. */
+export function validatePhoto(data: unknown): Valid<PhotoResult> {
+  if (!isObj(data)) return { ok: false, errors: ['корень: нужен объект'] };
+  if (data.kind === 'label') {
+    const v = validateLabel(data.label);
+    return v.ok
+      ? { ok: true, value: { kind: 'label', label: v.value } }
+      : { ok: false, errors: v.errors.map((e) => `label.${e}`) };
+  }
+  if (data.kind === 'meal') {
+    const v = validateMeal(data.meal);
+    return v.ok
+      ? { ok: true, value: { kind: 'meal', meal: v.value } }
+      : { ok: false, errors: v.errors.map((e) => `meal.${e}`) };
+  }
+  return { ok: false, errors: ['kind: нужно "meal" или "label"'] };
+}
+
 export type WeeklyResult = {
   observations: { title: string; text: string; evidence: string }[];
   suggestions: { text: string; type: string }[];

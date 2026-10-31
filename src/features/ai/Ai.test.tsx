@@ -24,7 +24,7 @@ const meal = {
 };
 
 describe('AI without a key', () => {
-  it('photo and label tiles are temporarily unavailable; text AI stays', async () => {
+  it('the photo tile is temporarily unavailable; text AI stays', async () => {
     const user = userEvent.setup();
     await renderApp('/');
     await user.click(await screen.findByRole('button', { name: ru.add.fab }));
@@ -32,20 +32,13 @@ describe('AI without a key', () => {
     expect(
       within(sheet).getByRole('button', { name: (n) => n.startsWith(ru.add.tiles.photoAi) }),
     ).toBeDisabled();
-    expect(
-      within(sheet).getByRole('button', { name: (n) => n.startsWith(ru.add.tiles.labelAi) }),
-    ).toBeDisabled();
-    expect(within(sheet).getAllByText(ru.add.unavailable)).toHaveLength(2);
+    expect(within(sheet).queryByText(/Этикетка/)).not.toBeInTheDocument();
+    expect(within(sheet).getAllByText(ru.add.unavailable)).toHaveLength(1);
     expect(within(sheet).getByRole('button', { name: ru.add.tiles.textAi })).toBeEnabled();
   });
 
   it('direct links to the disabled screens show a notice', async () => {
     await renderApp('/add/ai-photo');
-    expect(await screen.findByText(ru.add.unavailablePage)).toBeVisible();
-  });
-
-  it('the label screen is also switched off', async () => {
-    await renderApp('/add/ai-label');
     expect(await screen.findByText(ru.add.unavailablePage)).toBeVisible();
   });
 

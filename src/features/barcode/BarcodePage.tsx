@@ -130,7 +130,7 @@ export default function BarcodePage() {
             </LinkButton>
             {VISION_AI_ENABLED && (
               <LinkButton
-                to={`/add/ai-label${addQs(target.date, target.time)}&log=1&barcode=${encodeURIComponent(status.code)}`}
+                to={`/add/ai-photo${addQs(target.date, target.time)}&log=1&barcode=${encodeURIComponent(status.code)}`}
                 variant="secondary"
               >
                 {t.createLabel}

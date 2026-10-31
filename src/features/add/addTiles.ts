@@ -8,7 +8,6 @@ import {
   IconCopy,
   IconRepeat,
   IconSearch,
-  IconTag,
   IconText,
 } from '../../ui/icons';
 
@@ -27,13 +26,6 @@ export const ADD_TILES = [
     path: '/add/ai-photo',
     manual: '/add/search',
     Icon: IconCamera,
-    off: !VISION_AI_ENABLED,
-  },
-  {
-    key: 'labelAi',
-    path: '/add/ai-label',
-    manual: '/foods/new',
-    Icon: IconTag,
     off: !VISION_AI_ENABLED,
   },
   { key: 'quickKcal', path: '/add/quick', Icon: IconBolt },
