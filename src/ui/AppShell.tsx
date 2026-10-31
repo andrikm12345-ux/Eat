@@ -6,6 +6,7 @@ import { WeighSheet } from '../features/weight/WeighSheet';
 import { ru } from '../i18n/ru';
 import { UpdateBanner } from '../pwa/UpdateBanner';
 import { useUi } from '../state/ui';
+import { BackBar } from './BackBar';
 import { BottomNav } from './BottomNav';
 import { ToastHost } from './ToastHost';
 import { Confetti } from './Confetti';
@@ -54,6 +55,7 @@ export function AppShell() {
     <>
       <UpdateBanner />
       <main className={styles.main}>
+        {!MAIN_TABS.has(pathname) && <BackBar />}
         <Suspense fallback={<div className={styles.loading}>{ru.common.loading}</div>}>
           <Outlet />
         </Suspense>

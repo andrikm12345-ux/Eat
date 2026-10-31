@@ -29,15 +29,15 @@ describe('AI without a key', () => {
     const { router } = await renderApp('/');
     await user.click(await screen.findByRole('button', { name: ru.add.fab }));
     const sheet = screen.getByRole('dialog');
-    expect(within(sheet).getAllByText(ru.add.manualHint)).toHaveLength(3);
+    expect(within(sheet).getAllByText(ru.add.manualHint)).toHaveLength(2);
     await user.click(within(sheet).getByRole('button', { name: /Этикетка \(ИИ\)/ }));
     await waitFor(() => expect(router.state.location.pathname).toBe('/foods/new'));
   });
 
-  it('AI page explains and offers manual input', async () => {
+  it('the text screen works without a key and explains how AI helps', async () => {
     await renderApp('/add/ai-text');
-    expect(await screen.findByText(ru.ai.notReady)).toBeVisible();
-    expect(screen.getByRole('link', { name: ru.ai.manual })).toBeVisible();
+    expect(await screen.findByText(ru.ai.text.localNote)).toBeVisible();
+    expect(screen.getByRole('button', { name: ru.ai.text.go })).toBeDisabled();
   });
 });
 
@@ -59,6 +59,7 @@ describe('AI text flow', () => {
     const user = userEvent.setup();
     const { router } = await renderApp('/add/ai-text?date=2026-03-01&time=08:00');
     await user.click(await screen.findByRole('button', { name: ru.ai.consentAccept }));
+    await waitFor(() => expect(screen.queryByText(ru.ai.text.consentNote)).not.toBeInTheDocument());
     await user.type(await screen.findByLabelText(ru.ai.text.label), 'овсянка 250 г');
     await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
@@ -72,21 +73,28 @@ describe('AI text flow', () => {
     expect(e!.items[0]).toMatchObject({ confidence: 'medium', grams: 250 });
   });
 
-  it('on error offers manual input carrying the typed text', async () => {
+  it('falls back to the local analysis when the AI call fails', async () => {
     await repos.settings.set(AI_KEYS.enabled, true);
     await repos.settings.set(AI_KEYS.apiKey, 'sk-ant-xxxxxxxxxxxx');
     await repos.settings.set(AI_KEYS.consent, true);
+    await repos.foods.add({
+      name: 'Суп',
+      per100g: { kcal: 50, protein: 2, fat: 2, carbs: 5 },
+      servings: [],
+      source: 'base',
+      verified: true,
+    });
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => new Response('no', { status: 401 })),
     );
     const user = userEvent.setup();
     await renderApp('/add/ai-text?date=2026-03-01&time=08:00');
-    await user.type(await screen.findByLabelText(ru.ai.text.label), 'суп');
+    await user.type(await screen.findByLabelText(ru.ai.text.label), 'суп 300 г');
     await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
-    expect(await screen.findByText(/Ключ API не принят/)).toBeVisible();
-    await user.click(screen.getAllByRole('link', { name: ru.ai.manual })[0]!);
-    expect(await screen.findByLabelText(ru.quick.name)).toHaveValue('суп');
+    expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
+    expect(screen.getByText(/ИИ недоступен/)).toBeVisible();
+    expect(screen.getByLabelText(/^Количество: Суп/)).toHaveValue('300');
   });
 });
 

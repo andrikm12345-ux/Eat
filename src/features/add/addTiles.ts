@@ -6,7 +6,7 @@ export const ADD_TILES = [
   { key: 'search', path: '/add/search' },
   { key: 'barcode', path: '/add/barcode' },
   { key: 'photoAi', path: '/add/ai-photo', manual: '/add/search' },
-  { key: 'textAi', path: '/add/ai-text', manual: '/add/quick' },
+  { key: 'textAi', path: '/add/ai-text' },
   { key: 'labelAi', path: '/add/ai-label', manual: '/foods/new' },
   { key: 'quickKcal', path: '/add/quick' },
   { key: 'recipe', path: '/add/recipe' },

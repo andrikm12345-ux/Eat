@@ -1,9 +1,9 @@
 .searchBox {
   position: sticky;
-  top: 0;
+  top: calc(var(--tap) + var(--safe-top));
   z-index: 5;
   background: var(--bg);
-  padding: calc(8px + var(--safe-top)) 0 8px;
+  padding: 8px 0;
 }
 .input {
   width: 100%;

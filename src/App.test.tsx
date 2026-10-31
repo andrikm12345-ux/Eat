@@ -95,6 +95,26 @@ describe('add sheet', () => {
   });
 });
 
+describe('back arrow', () => {
+  it('is shown on secondary screens, not on tabs, and goes back', async () => {
+    const user = userEvent.setup();
+    const { router } = await renderApp('/more');
+    await screen.findByRole('heading', { name: ru.more.title });
+    expect(screen.queryByRole('button', { name: ru.common.back })).not.toBeInTheDocument();
+    await user.click(await screen.findByRole('link', { name: /Профиль и цели/ }));
+    await screen.findByRole('heading', { name: ru.goals.title });
+    await user.click(screen.getByRole('button', { name: ru.common.back }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/more'));
+  });
+
+  it('falls back to Today when opened directly', async () => {
+    const user = userEvent.setup();
+    const { router } = await renderApp('/foods');
+    await user.click(await screen.findByRole('button', { name: ru.common.back }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+  });
+});
+
 describe('floating add button', () => {
   it('shows on main tabs only', async () => {
     const user = userEvent.setup();
