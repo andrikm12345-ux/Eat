@@ -24,25 +24,21 @@ const meal = {
 };
 
 describe('AI without a key', () => {
-  it('the photo tile is temporarily unavailable; text AI stays', async () => {
+  it('the photo tile is available; without a key it leads to the manual search', async () => {
     const user = userEvent.setup();
-    await renderApp('/');
+    const { router } = await renderApp('/');
     await user.click(await screen.findByRole('button', { name: ru.add.fab }));
     const sheet = screen.getByRole('dialog');
-    expect(
-      within(sheet).getByRole('button', { name: (n) => n.startsWith(ru.add.tiles.photoAi) }),
-    ).toBeDisabled();
-    expect(within(sheet).queryByText(/Этикетка/)).not.toBeInTheDocument();
-    expect(within(sheet).getAllByText(ru.add.unavailable)).toHaveLength(1);
-    expect(within(sheet).getByRole('button', { name: ru.add.tiles.textAi })).toBeEnabled();
+    const photo = within(sheet).getByRole('button', {
+      name: (n) => n.startsWith(ru.add.tiles.photoAi),
+    });
+    expect(photo).toBeEnabled();
+    expect(within(sheet).queryByText(ru.add.unavailable)).not.toBeInTheDocument();
+    await user.click(photo);
+    await waitFor(() => expect(router.state.location.pathname).toBe('/add/search'));
   });
 
-  it('direct links to the disabled screens show a notice', async () => {
-    await renderApp('/add/ai-photo');
-    expect(await screen.findByText(ru.add.unavailablePage)).toBeVisible();
-  });
-
-  it('the barcode "not found" screen does not offer the label shortcut', async () => {
+  it('the barcode "not found" screen offers the label shortcut', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => new Response(JSON.stringify({ status: 0 }), { status: 200 })),
@@ -52,7 +48,7 @@ describe('AI without a key', () => {
     await user.type(await screen.findByLabelText(ru.barcode.code), '4610282720266');
     await user.click(screen.getByRole('button', { name: ru.barcode.find }));
     expect(await screen.findByText(ru.barcode.notInOpenBase)).toBeVisible();
-    expect(screen.queryByRole('link', { name: ru.barcode.createLabel })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: ru.barcode.createLabel })).toBeVisible();
   });
 
   it('the text screen works without a key and shows no AI setup hint', async () => {

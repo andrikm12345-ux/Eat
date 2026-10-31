@@ -1,8 +1,8 @@
 /**
- * Temporarily switched off: AI recognition from photos and from nutrition labels.
- * Set to true to bring the tiles, the barcode shortcut and the pages back.
+ * Switch for AI recognition from photos and nutrition labels (one "Фото" screen).
+ * Set to false to grey the tiles out and hide the barcode shortcut again.
  */
-export const VISION_AI_ENABLED = false;
+export const VISION_AI_ENABLED = true;
 
 /**
  * Temporarily hidden: the "Без ИИ… Настроить ИИ" hint under the text analysis button.
