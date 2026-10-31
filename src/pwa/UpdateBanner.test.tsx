@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { ru } from '../i18n/ru';
@@ -41,5 +41,37 @@ describe('UpdateBanner', () => {
     expect(screen.getByText(ru.pwa.offlineReady)).toBeVisible();
     await user.click(screen.getByRole('button', { name: ru.pwa.ok }));
     expect(screen.queryByText(ru.pwa.offlineReady)).not.toBeInTheDocument();
+  });
+
+  it('offers a reload when a new service worker takes control', async () => {
+    const target = new EventTarget();
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: Object.assign(target, { controller: {} }),
+    });
+    const user = userEvent.setup();
+    render(<UpdateBanner />);
+    expect(screen.queryByText(ru.pwa.updateAvailable)).not.toBeInTheDocument();
+    act(() => {
+      target.dispatchEvent(new Event('controllerchange'));
+    });
+    expect(screen.getByText(ru.pwa.updateAvailable)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: ru.pwa.later }));
+    expect(screen.queryByText(ru.pwa.updateAvailable)).not.toBeInTheDocument();
+    Reflect.deleteProperty(navigator, 'serviceWorker');
+  });
+
+  it('stays silent on the first install (no previous controller)', () => {
+    const target = new EventTarget();
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: Object.assign(target, { controller: null }),
+    });
+    render(<UpdateBanner />);
+    act(() => {
+      target.dispatchEvent(new Event('controllerchange'));
+    });
+    expect(screen.queryByText(ru.pwa.updateAvailable)).not.toBeInTheDocument();
+    Reflect.deleteProperty(navigator, 'serviceWorker');
   });
 });

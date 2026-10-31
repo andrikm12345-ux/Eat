@@ -66,8 +66,10 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,json}'],
         navigateFallback: '/index.html',
         cleanupOutdatedCaches: true,
-        clientsClaim: false,
-        skipWaiting: false,
+        // A new version activates immediately (an old cached shell must never linger);
+        // the page then offers a reload via the update banner (see UpdateBanner).
+        clientsClaim: true,
+        skipWaiting: true,
       },
       devOptions: { enabled: false },
     }),
