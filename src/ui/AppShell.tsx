@@ -1,5 +1,5 @@
 import { Suspense, useCallback, useEffect } from 'react';
-import { Navigate, Outlet, useNavigate, useSearchParams } from 'react-router';
+import { Navigate, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { useProfile } from '../db/hooks';
 import { AddSheet } from '../features/add/AddSheet';
 import { WeighSheet } from '../features/weight/WeighSheet';
@@ -14,11 +14,14 @@ import { Fab } from './Fab';
 import styles from './AppShell.module.css';
 
 /** Manifest shortcut actions (`/?action=…`) that open the add sheet. */
+/** The floating "+" only lives on the main tabs; form screens keep their own buttons clear. */
+const MAIN_TABS = new Set(['/', '/diary', '/progress', '/reports', '/more']);
 const ADD_ACTIONS = new Set(['add']);
 
 export function AppShell() {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const action = params.get('action');
   const addOpen = useUi((s) => s.addSheet.open);
   const openAdd = useUi((s) => s.openAdd);
@@ -55,7 +58,7 @@ export function AppShell() {
           <Outlet />
         </Suspense>
       </main>
-      <Fab onClick={() => openAdd()} expanded={addOpen} />
+      {MAIN_TABS.has(pathname) && <Fab onClick={() => openAdd()} expanded={addOpen} />}
       <BottomNav />
       <AddSheet />
       <WeighSheet />

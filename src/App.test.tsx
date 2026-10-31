@@ -94,3 +94,17 @@ describe('add sheet', () => {
     await waitFor(() => expect(router.state.location.search).toBe(''));
   });
 });
+
+describe('floating add button', () => {
+  it('shows on main tabs only', async () => {
+    const user = userEvent.setup();
+    const { router } = await renderApp('/');
+    expect(await screen.findByRole('button', { name: ru.add.fab })).toBeVisible();
+    await router.navigate('/add/quick');
+    await screen.findByRole('heading', { name: ru.quick.title });
+    expect(screen.queryByRole('button', { name: ru.add.fab })).not.toBeInTheDocument();
+    await router.navigate('/diary');
+    expect(await screen.findByRole('button', { name: ru.add.fab })).toBeVisible();
+    void user;
+  });
+});

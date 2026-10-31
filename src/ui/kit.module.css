@@ -65,6 +65,11 @@
   padding: 0 12px;
   min-height: var(--tap);
 }
+.input:focus,
+.input:focus-visible {
+  /* The wrapper already shows the focus state; avoid a second outline on the bare input. */
+  outline: none;
+}
 .inputWrap:focus-within {
   border-color: var(--accent);
 }

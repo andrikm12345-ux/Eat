@@ -16,7 +16,8 @@
   font-size: 17px;
   color: var(--text);
 }
-.input:focus {
+.input:focus,
+.input:focus-visible {
   outline: none;
   border-color: var(--accent);
 }
