@@ -1,3 +1,4 @@
+import { MEALS } from './meal';
 import type { Entry, EntryItem, LocalTime, Nutrients } from './types';
 import { scaleNutrients, sumNutrients } from './nutrients';
 
@@ -35,11 +36,14 @@ export function groupStacks<E extends Pick<Entry, 'time'>>(
   return stacks;
 }
 
-/** Display title of an entry: meal label or item names. */
+/** Display title of an entry: a custom label, or "Meal · item names", or just item names. */
 export function entryTitle(e: Pick<Entry, 'mealLabel' | 'items'>, maxLen = 60): string {
+  const names = e.items.map((i) => i.name).join(', ');
+  const cut = (v: string) => (v.length > maxLen ? `${v.slice(0, maxLen - 1)}…` : v);
+  if (e.mealLabel && (MEALS as readonly string[]).includes(e.mealLabel))
+    return names ? cut(`${e.mealLabel} · ${names}`) : e.mealLabel;
   if (e.mealLabel) return e.mealLabel;
-  const s = e.items.map((i) => i.name).join(', ');
-  return s.length > maxLen ? `${s.slice(0, maxLen - 1)}…` : s;
+  return cut(names);
 }
 
 /** Item with new grams; nutrients scale proportionally from the snapshot. */

@@ -48,6 +48,16 @@ describe('entries', () => {
       'xxxxxxxxx…',
     );
   });
+  it('titles with a meal: meal and item names, cut to the limit', () => {
+    const items = [
+      { name: 'Овсянка', grams: 1, nutrients: nut },
+      { name: 'Банан', grams: 1, nutrients: nut },
+    ];
+    expect(entryTitle({ mealLabel: 'Завтрак', items })).toBe('Завтрак · Овсянка, Банан');
+    expect(entryTitle({ mealLabel: 'Завтрак', items }, 12)).toBe('Завтрак · О…');
+    // A custom label (e.g. a recipe name) is shown as it is.
+    expect(entryTitle({ mealLabel: 'Мой борщ', items })).toBe('Мой борщ');
+  });
   it('rescales items proportionally', () => {
     const it2 = rescaleItem({ name: 'a', grams: 100, nutrients: { ...nut, fiber: 2 } }, 150);
     expect(it2.nutrients).toEqual({ kcal: 300, protein: 15, fat: 7.5, carbs: 30, fiber: 3 });
