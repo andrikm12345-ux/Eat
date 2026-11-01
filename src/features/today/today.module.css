@@ -507,7 +507,7 @@
   font-size: var(--fs-5);
   font-weight: var(--fw-semibold);
   min-height: var(--tap);
-  padding: 0 var(--sp-2);
-  margin-left: calc(-1 * var(--sp-2));
+  /* The timeline runs along the left edge: keep the text clear of it. */
+  padding: 0 var(--sp-2) 0 var(--sp-6);
   cursor: pointer;
 }
