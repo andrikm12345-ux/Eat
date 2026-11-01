@@ -205,6 +205,17 @@ export function Segmented<T extends string>({
 }) {
   return (
     <div className={styles.segmented} role="radiogroup" aria-label={label}>
+      <span
+        className={styles.thumb}
+        aria-hidden="true"
+        style={{
+          width: `calc((100% - ${2 * 4 + (options.length - 1) * 4}px) / ${options.length})`,
+          transform: `translateX(calc(${Math.max(
+            0,
+            options.findIndex((o) => o.value === value),
+          )} * (100% + var(--sp-1))))`,
+        }}
+      />
       {options.map((o) => (
         <button
           key={o.value}

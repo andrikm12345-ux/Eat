@@ -1,3 +1,4 @@
+import { buzz } from '../ui/haptics';
 import { create } from 'zustand';
 import { toLocalDate } from '../domain/dates';
 import type { LocalDate } from '../domain/types';
@@ -48,6 +49,7 @@ export const useToasts = create<ToastState>((set, get) => ({
   push: (t) => {
     const id = nextId++;
     const toast: Toast = { durationMs: 5000, ...t, id };
+    if (t.action) buzz(12);
     // At most two at a time: a pile of messages hides the screen.
     set({ toasts: [...get().toasts.slice(-1), toast] });
     setTimeout(() => get().dismiss(id), toast.durationMs);

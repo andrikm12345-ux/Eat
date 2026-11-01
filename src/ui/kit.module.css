@@ -139,6 +139,7 @@
 }
 
 .segmented {
+  position: relative;
   display: flex;
   gap: var(--sp-1);
   padding: var(--sp-1);
@@ -154,16 +155,24 @@
   background: transparent;
   font-weight: var(--fw-semibold);
   cursor: pointer;
+  position: relative;
+  z-index: 1;
   transition:
-    background-color 0.25s var(--ease-out),
-    box-shadow 0.25s var(--ease-out),
     color 0.2s ease,
     transform 0.12s ease;
 }
-.segmentActive {
-  animation: pop 0.3s var(--ease-spring);
+.thumb {
+  position: absolute;
+  top: var(--sp-1);
+  bottom: var(--sp-1);
+  left: var(--sp-1);
+  border-radius: var(--r-field);
   background: var(--surface);
   box-shadow: var(--shadow-1);
+  transition: transform var(--dur-3) var(--ease-spring);
+  pointer-events: none;
+}
+.segmentActive {
   color: var(--accent);
   font-weight: var(--fw-semibold);
 }

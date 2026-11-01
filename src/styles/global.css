@@ -56,15 +56,6 @@ button {
   white-space: nowrap;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
 /* Page entrance: short fade + lift (skipped for reduced motion). */
 @keyframes page-in {
   from {
@@ -76,8 +67,46 @@ button {
     transform: none;
   }
 }
+/* Screens: forward slides in from the right, back from the left, tabs only fade. */
+@keyframes page-fwd {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes page-back {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 .page-enter {
   animation: page-in 0.28s var(--ease-out) both;
+}
+.page-fwd {
+  animation: page-fwd var(--dur-2) var(--ease-out) both;
+}
+.page-back {
+  animation: page-back var(--dur-2) var(--ease-out) both;
+}
+.page-tab {
+  animation: fade-in var(--dur-2) ease-out both;
 }
 
 /* Cards of a page rise one after another. */
@@ -144,15 +173,42 @@ button {
 }
 
 button,
-a {
+a[class],
+[data-press] {
   transition:
-    background-color 0.15s ease,
-    transform 0.12s ease,
-    box-shadow 0.2s ease,
-    opacity 0.15s ease;
+    background-color var(--dur-1) ease,
+    transform var(--dur-1) var(--ease-spring),
+    box-shadow var(--dur-2) ease,
+    opacity var(--dur-1) ease;
 }
-button:active:not(:disabled) {
-  transform: scale(0.98);
+button:active:not(:disabled),
+a[class]:active,
+[data-press]:active {
+  transform: scale(0.97);
+}
+
+/* Reduced motion: no movement at all, only soft fades. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-property: opacity, background-color, color, border-color !important;
+    transition-duration: var(--dur-1) !important;
+    scroll-behavior: auto !important;
+  }
+  .page-enter,
+  .page-fwd,
+  .page-back,
+  .page-tab,
+  .stagger > * {
+    animation: fade-in var(--dur-1) ease-out both !important;
+  }
+  button:active:not(:disabled),
+  a[class]:active,
+  [data-press]:active {
+    transform: none;
+  }
 }
 
 /* One size and one line weight for every icon. */

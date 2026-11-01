@@ -99,6 +99,16 @@ export function DayHeader() {
         onAnimationEnd={() => setEnter(null)}
         {...weekSwipe.handlers}
       >
+        <span
+          className={styles.frame}
+          aria-hidden="true"
+          style={{
+            transform: `translateX(calc(${Math.max(
+              0,
+              (week ?? []).findIndex((d) => d.date === date),
+            )} * (100% + var(--sp-1))))`,
+          }}
+        />
         {(week ?? []).map((d) => {
           const ratio = d.goal ? Math.min(1, d.kcal / d.goal) : d.kcal > 0 ? 1 : 0;
           const over = !!d.goal && d.kcal > d.goal * 1.1;

@@ -4,7 +4,6 @@ import type { Repos } from '../db/repos';
 import { SETTINGS } from '../db/settingsKeys';
 import { ru } from '../i18n/ru';
 import { useCelebrate } from '../state/celebrate';
-import { toast } from '../state/ui';
 import { applyBadge, badgeValue, evaluateAchievements } from './gamification';
 
 /** Re-evaluates achievements and the icon badge after data changes (debounced). */
@@ -23,13 +22,13 @@ export function startGamificationSync(r: Repos, delayMs = 800): () => void {
         r.settings.get(SETTINGS.vibrate.key, SETTINGS.vibrate.def),
       ]);
       for (const u of unlocks) {
-        toast({
-          text:
+        useCelebrate
+          .getState()
+          .showCard(
             u.level !== undefined && u.def.id === 'path'
               ? ru.achievements.level(u.def.title, String(u.level * 2.5).replace('.', ','))
-              : ru.achievements.unlocked(u.def.title),
-          durationMs: 4000,
-        });
+              : u.def.title,
+          );
       }
       if (confetti) useCelebrate.getState().fire();
       if (vibrate) navigator.vibrate?.([30, 40, 30]);

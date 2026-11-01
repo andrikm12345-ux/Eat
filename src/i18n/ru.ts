@@ -805,6 +805,7 @@ export const ru = {
   },
   achievements: {
     title: 'Достижения',
+    cardKicker: 'Новое достижение',
     unlocked: (title: string) => `Достижение: ${title}`,
     level: (title: string, pct: string) => `${title}: пройдено ${pct} %`,
     locked: 'ещё впереди',

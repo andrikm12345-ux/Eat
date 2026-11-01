@@ -32,6 +32,7 @@
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+  position: relative;
   transition: transform 0.25s var(--ease-out);
 }
 .dragging {
@@ -67,9 +68,21 @@
   cursor: pointer;
   min-height: var(--tap);
 }
-.dayBtnActive {
+.frame {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc((100% - 6 * var(--sp-1)) / 7);
+  border-radius: var(--r-field);
   background: var(--surface);
   box-shadow: 0 0 0 1px var(--border);
+  transition: transform var(--dur-3) var(--ease-spring);
+  pointer-events: none;
+}
+.dayBtn {
+  position: relative;
+  z-index: 1;
 }
 .dow {
   font-size: var(--fs-6);
@@ -416,10 +429,6 @@
 .ringArc {
   transition: stroke-dasharray 0.9s var(--ease-out);
 }
-.dayBtnActive {
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
-}
 .dayBtnActive .dow {
   color: var(--accent);
   font-weight: var(--fw-bold);
@@ -439,4 +448,37 @@
 }
 .count {
   background: var(--accent-soft);
+}
+
+/* A changed number bounces once (water +250 / +500). */
+.bump {
+  animation: pop var(--dur-3) var(--ease-spring);
+  transform-origin: left center;
+}
+
+/* New entries slide in; deleted ones collapse and the neighbours close the gap. */
+.fresh {
+  animation: row-in var(--dur-3) var(--ease-spring) both;
+}
+.leaving {
+  pointer-events: none;
+  animation: row-out 280ms var(--ease-out) both;
+}
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@keyframes row-out {
+  from {
+    max-height: 90px;
+    opacity: 1;
+  }
+  to {
+    max-height: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    transform: translateX(-32px);
+  }
 }

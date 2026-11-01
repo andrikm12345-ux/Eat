@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ru } from '../i18n/ru';
 import { IconClose } from './icons';
@@ -42,6 +42,39 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
     };
   }, [open, onClose]);
 
+  // Swipe down on the top part (grabber + title) to dismiss; the sheet follows the finger.
+  const drag = useRef({ y: 0, active: false, last: 0, t: 0, v: 0 });
+  const onDown = (e: PointerEvent) => {
+    if (e.button !== 0 || (e.target as HTMLElement).closest('button')) return;
+    drag.current = { y: e.clientY, active: true, last: e.clientY, t: e.timeStamp, v: 0 };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    if (sheetRef.current) sheetRef.current.style.transition = 'none';
+  };
+  const onMove = (e: PointerEvent) => {
+    const d = drag.current;
+    if (!d.active || !sheetRef.current) return;
+    const dy = Math.max(0, e.clientY - d.y);
+    d.v = (e.clientY - d.last) / Math.max(1, e.timeStamp - d.t);
+    d.last = e.clientY;
+    d.t = e.timeStamp;
+    sheetRef.current.style.transform = `translateY(${dy}px)`;
+  };
+  const onUp = (e: PointerEvent) => {
+    const d = drag.current;
+    if (!d.active) return;
+    d.active = false;
+    const el = sheetRef.current;
+    if (!el) return;
+    const dy = e.clientY - d.y;
+    el.style.transition = '';
+    if (dy > 110 || d.v > 0.6) {
+      el.style.transform = '';
+      onClose();
+    } else {
+      el.style.transform = '';
+    }
+  };
+
   if (!shown) return null;
   const closing = !open;
 
@@ -62,8 +95,22 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
         aria-labelledby={titleId}
         tabIndex={-1}
       >
-        <div className={styles.grabber} aria-hidden="true" />
-        <div className={styles.header}>
+        <div
+          className={styles.dragZone}
+          onPointerDown={onDown}
+          onPointerMove={onMove}
+          onPointerUp={onUp}
+          onPointerCancel={onUp}
+        >
+          <div className={styles.grabber} aria-hidden="true" />
+        </div>
+        <div
+          className={styles.header}
+          onPointerDown={onDown}
+          onPointerMove={onMove}
+          onPointerUp={onUp}
+          onPointerCancel={onUp}
+        >
           <h2 id={titleId} className={styles.title}>
             {title}
           </h2>

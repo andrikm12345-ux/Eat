@@ -21,6 +21,14 @@
     calc(16px + var(--safe-left));
   box-shadow: var(--shadow);
   animation: slide 0.38s var(--ease-spring);
+  transition: transform var(--dur-2) var(--ease-spring);
+}
+.dragZone,
+.header {
+  touch-action: none;
+}
+.dragZone {
+  padding-bottom: 0;
 }
 
 .grabber {

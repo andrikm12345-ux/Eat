@@ -9,6 +9,7 @@ import { useUi } from '../../state/ui';
 import { useSwipe } from '../../ui/useSwipe';
 import { EntryActions } from './EntryActions';
 import { deleteWithUndo, repeatWithUndo } from './entryOps';
+import { useLeaving } from './useLeaving';
 import styles from './today.module.css';
 
 const t = ru.today;
@@ -22,7 +23,8 @@ export function DayFlow({ entries }: { entries: Entry[] }) {
   const [menu, setMenu] = useState<Entry | null>(null);
   const [open, setOpen] = useState<Set<string>>(new Set());
   const openAdd = useUi((s) => s.openAdd);
-  const stacks = groupStacks(entries);
+  const { list, leaving, isFresh } = useLeaving(entries);
+  const stacks = groupStacks(list);
 
   const parts: React.ReactNode[] = [];
   let cursor = Math.min(
@@ -63,7 +65,13 @@ export function DayFlow({ entries }: { entries: Entry[] }) {
         {expanded ? (
           <>
             {stack.map((e) => (
-              <EntryRow key={e.id} entry={e} onMenu={() => setMenu(e)} />
+              <EntryRow
+                key={e.id}
+                entry={e}
+                onMenu={() => setMenu(e)}
+                leaving={leaving.has(e.id)}
+                fresh={isFresh(e.id)}
+              />
             ))}
             {stack.length > 1 && (
               <button
@@ -127,7 +135,17 @@ function StackRow({ stack, onOpen }: { stack: Entry[]; onOpen: () => void }) {
   );
 }
 
-function EntryRow({ entry, onMenu }: { entry: Entry; onMenu: () => void }) {
+function EntryRow({
+  entry,
+  onMenu,
+  leaving = false,
+  fresh = false,
+}: {
+  entry: Entry;
+  onMenu: () => void;
+  leaving?: boolean;
+  fresh?: boolean;
+}) {
   const navigate = useNavigate();
   const sw = useSwipe({
     onLeft: () => void deleteWithUndo(entry),
@@ -135,7 +153,9 @@ function EntryRow({ entry, onMenu }: { entry: Entry; onMenu: () => void }) {
     onLongPress: onMenu,
   });
   return (
-    <div className={styles.rowWrap}>
+    <div
+      className={`${styles.rowWrap} ${leaving ? styles.leaving : ''} ${fresh ? styles.fresh : ''}`}
+    >
       {sw.dx !== 0 && (
         <div className={styles.swipeBg} aria-hidden="true">
           <span>{t.repeatNow}</span>

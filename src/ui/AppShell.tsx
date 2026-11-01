@@ -1,6 +1,13 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Suspense, useCallback, useEffect } from 'react';
-import { Navigate, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router';
+import {
+  Navigate,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useNavigationType,
+  useSearchParams,
+} from 'react-router';
 import { useProfile } from '../db/hooks';
 import { repos } from '../db/repos';
 import { ACCOUNT } from '../services/account';
@@ -13,6 +20,7 @@ import { ADD_TABS, MAIN_TABS } from './nav';
 import { Loading } from './states';
 import { BottomNav } from './BottomNav';
 import { ToastHost } from './ToastHost';
+import { AchievementCard } from './AchievementCard';
 import { Confetti } from './Confetti';
 import { useOpenNotifications } from '../pwa/useOpenNotifications';
 import { Fab } from './Fab';
@@ -23,10 +31,16 @@ import styles from './AppShell.module.css';
 /** The floating "+" lives on Today and Diary only: elsewhere it only covers content. */
 const ADD_ACTIONS = new Set(['add']);
 
+function pageClass(pathname: string, navType: string) {
+  if (MAIN_TABS.has(pathname)) return 'page-tab';
+  return navType === 'POP' ? 'page-back' : 'page-fwd';
+}
+
 export function AppShell() {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const navType = useNavigationType();
   const action = params.get('action');
   const addOpen = useUi((s) => s.addSheet.open);
   const openAdd = useUi((s) => s.openAdd);
@@ -79,7 +93,7 @@ export function AppShell() {
             </div>
           }
         >
-          <div key={pathname} className="page-enter">
+          <div key={pathname} className={pageClass(pathname, navType)}>
             <Outlet />
           </div>
         </Suspense>
@@ -90,6 +104,7 @@ export function AppShell() {
       <WeighSheet />
       <ToastHost />
       <Confetti />
+      <AchievementCard />
     </>
   );
 }

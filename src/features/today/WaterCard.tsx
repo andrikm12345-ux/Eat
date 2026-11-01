@@ -12,7 +12,9 @@ export function WaterCard({ meta, goalMl }: { meta: DayMeta; goalMl: number | un
     repos.dayMeta.upsert(meta.date, { waterMl: Math.max(0, meta.waterMl + ml) });
   return (
     <Card title={t.title}>
-      <div className={styles.miniBig}>{formatKcal(meta.waterMl)}</div>
+      <div key={meta.waterMl} className={`${styles.miniBig} ${styles.bump}`}>
+        {formatKcal(meta.waterMl)}
+      </div>
       <div className={styles.miniSub} style={{ marginBottom: 'var(--sp-2)' }}>
         {goalMl ? `из ${formatKcal(goalMl)} мл` : 'мл'}
       </div>
