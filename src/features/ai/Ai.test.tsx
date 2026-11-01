@@ -79,8 +79,7 @@ describe('AI text flow', () => {
     const { router } = await renderApp('/add/ai-text?date=2026-03-01&time=08:00');
     await user.click(await screen.findByRole('button', { name: ru.ai.consentAccept }));
     await waitFor(() => expect(screen.queryByText(ru.ai.text.consentNote)).not.toBeInTheDocument());
-    // With AI switched on the screen shows which model will be used.
-    expect(await screen.findByText(ru.ai.statusOn('claude-haiku-5-5'))).toBeVisible();
+    // The screen no longer names the model: only the result screen does.
     await user.type(await screen.findByLabelText(ru.ai.text.label), 'овсянка 250 г');
     await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();

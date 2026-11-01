@@ -225,13 +225,37 @@ describe('administrator settings', () => {
 });
 
 describe('screens', () => {
-  it('a regular user sees the shared AI notice and a collapsed personal key; no admin card', async () => {
+  it('a regular user sees only "AI on" and the consent switch', async () => {
     await signUp('ivan');
     await renderApp('/more/ai');
-    expect(await screen.findByText(ru.ai.shared.text)).toBeVisible();
-    expect(screen.getByText(ru.ai.shared.own)).toBeVisible();
+    expect(await screen.findByRole('switch', { name: ru.ai.enabled })).toBeChecked();
+    expect(screen.getByRole('switch', { name: ru.ai.consentSwitch })).not.toBeChecked();
+    expect(screen.queryByText(ru.ai.enabledHint)).not.toBeInTheDocument();
+    expect(screen.queryByText(ru.ai.consentText)).not.toBeInTheDocument();
+    expect(screen.queryByText(ru.ai.shared.own)).not.toBeInTheDocument();
     expect(screen.queryByText(ru.ai.admin.title)).not.toBeInTheDocument();
-    expect(screen.getByRole('switch', { name: ru.ai.enabled })).toBeChecked();
+    expect(screen.queryByText(ru.ai.format)).not.toBeInTheDocument();
+    expect(screen.queryByText(ru.ai.logs)).not.toBeInTheDocument();
+  });
+
+  it('the consent switch gives and withdraws the consent', async () => {
+    await signUp('ivan');
+    const user = userEvent.setup();
+    await renderApp('/more/ai');
+    const sw = await screen.findByRole('switch', { name: ru.ai.consentSwitch });
+    await user.click(sw);
+    await waitFor(async () => expect(await repos.settings.get(AI_KEYS.consent, false)).toBe(true));
+    await waitFor(() => expect(sw).toBeChecked());
+    await user.click(sw);
+    await waitFor(async () => expect(await repos.settings.get(AI_KEYS.consent, true)).toBe(false));
+  });
+
+  it('the administrator also gets the collapsed personal connection', async () => {
+    await signUp('blackjack');
+    await renderApp('/more/ai');
+    expect(await screen.findByText(ru.ai.shared.own)).toBeVisible();
+    expect(await screen.findByText(ru.ai.admin.title)).toBeVisible();
+    expect(screen.getByText(ru.ai.enabledHint)).toBeVisible();
   });
 
   it('the request log is for the administrator only', async () => {
@@ -244,7 +268,7 @@ describe('screens', () => {
     });
     await signUp('ivan');
     await renderApp('/more/ai');
-    await screen.findByText(ru.ai.shared.text);
+    await screen.findByRole('switch', { name: ru.ai.enabled });
     expect(screen.queryByText(ru.ai.logs)).not.toBeInTheDocument();
     expect(screen.queryByText(/some-model/)).not.toBeInTheDocument();
     cleanup();
@@ -291,7 +315,6 @@ describe('screens', () => {
     const user = userEvent.setup();
     const { router } = await renderApp('/add/ai-text?date=2026-03-01&time=08:00');
     await user.click(await screen.findByRole('button', { name: ru.ai.consentAccept }));
-    expect(await screen.findByText(ru.ai.statusShared)).toBeVisible();
     await user.type(await screen.findByLabelText(ru.ai.text.label), 'овсянка 250 г');
     await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
