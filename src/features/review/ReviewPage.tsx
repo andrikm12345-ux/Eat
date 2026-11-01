@@ -6,6 +6,7 @@ import { scaleNutrients, sumNutrients } from '../../domain/nutrients';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { saveAsTemplate } from '../../services/entries';
+import { ACCOUNT } from '../../services/account';
 import { saveReview } from '../../services/review';
 import { swapAlt, useReview, type ReviewDraft, type ReviewItem } from '../../state/review';
 import { toast, useUi } from '../../state/ui';
@@ -38,6 +39,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
     async () => (initial.aiRunId ? await repos.db.aiRuns.get(initial.aiRunId) : undefined),
     [initial.aiRunId],
   );
+  const isAdmin = useLiveQuery(() => repos.settings.get<boolean>(ACCOUNT.aiAdmin, false), []);
   const totals = sumNutrients(items.map(nutrientsOf));
   const valid = items.length > 0 && items.every((i) => i.grams > 0);
   const update = (key: string, patch: Partial<ReviewItem>) =>
@@ -61,7 +63,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
   return (
     <Page title={t.title}>
       {initial.analysis === 'ai' && (
-        <Notice tone="info">{run?.model ? t.byAi(run.model) : t.byAiNoModel}</Notice>
+        <Notice tone="info">{isAdmin && run?.model ? t.byAi(run.model) : t.byAiNoModel}</Notice>
       )}
       {initial.analysis === 'local' && <Notice tone="info">{t.byCatalog}</Notice>}
       {items.some((i) => i.source === 'off') && <Notice tone="info">{t.unverified}</Notice>}

@@ -318,7 +318,8 @@ describe('screens', () => {
     await user.type(await screen.findByLabelText(ru.ai.text.label), 'овсянка 250 г');
     await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
-    expect(await screen.findByText(ru.review.byAi('text-model'))).toBeVisible();
+    expect(await screen.findByText(ru.review.byAiNoModel)).toBeVisible();
+    expect(screen.queryByText(/text-model/)).not.toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/review');
   });
 });
