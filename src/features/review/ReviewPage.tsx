@@ -44,6 +44,8 @@ function Review({ initial }: { initial: ReviewDraft }) {
   // The AI estimate the user started from; corrections are measured against it.
   const [baseline, setBaseline] = useState(initial.items);
   const [runId, setRunId] = useState(initial.aiRunId);
+  // The AI's remarks under the total; a recalculation brings new ones.
+  const [notes, setNotes] = useState(initial.notes);
   const [note, setNote] = useState('');
   const [clarifying, setClarifying] = useState(false);
   const [clarifyError, setClarifyError] = useState<string | null>(null);
@@ -70,7 +72,14 @@ function Review({ initial }: { initial: ReviewDraft }) {
     if (!valid) return;
     const fixed = correctedKeys(baseline, items);
     const e = await saveReview(
-      { ...initial, items, date, time, ...(runId ? { aiRunId: runId } : {}) },
+      {
+        ...initial,
+        items,
+        date,
+        time,
+        ...(notes ? { notes } : {}),
+        ...(runId ? { aiRunId: runId } : {}),
+      },
       remember ? { remember: new Set(fixed) } : {},
     );
     if (template) await saveAsTemplate(repos, e, template);
@@ -90,6 +99,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
       const draft = await clarifyMeal(repos, items, note, { date, time }, src);
       setItems(draft.items);
       setBaseline(draft.items);
+      setNotes(draft.notes);
       if (draft.aiRunId) setRunId(draft.aiRunId);
       setNote('');
       toast({ text: t.clarifyDone });
@@ -245,7 +255,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
           <DateField label={ru.today.date} value={date} onChange={setD} />
           <TimeField label={ru.today.time} value={time} onChange={setTime} />
         </div>
-        {initial.notes && <p className={styles.notes}>{initial.notes}</p>}
+        {notes && <p className={styles.notes}>{notes}</p>}
         {fixedNow.length > 0 && (
           <Switch
             label={t.remember}

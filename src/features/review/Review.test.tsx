@@ -18,13 +18,14 @@ const shake = (over: Partial<ReviewItem> = {}): ReviewItem => ({
   ...over,
 });
 
-function draft(items: ReviewItem[]) {
+function draft(items: ReviewItem[], notes?: string) {
   useReview.getState().setDraft({
     items,
     entrySource: 'ai_text',
     date: '2026-03-01',
     time: '08:00',
     analysis: 'ai',
+    ...(notes ? { notes } : {}),
   });
 }
 
@@ -130,7 +131,7 @@ describe('review screen: clarify with the AI and remember corrections', () => {
         },
       ],
       mealGuess: 'обед',
-      notes: '',
+      notes: 'Без сыра, как вы сказали',
     };
     const f = vi.fn(
       async () =>
@@ -143,14 +144,18 @@ describe('review screen: clarify with the AI and remember corrections', () => {
         ),
     );
     vi.stubGlobal('fetch', f);
-    draft([shake()]);
+    draft([shake()], 'Старое описание блюда');
     const user = userEvent.setup();
     await renderApp('/review');
+    expect(await screen.findByText('Старое описание блюда')).toBeVisible();
     expect(await screen.findByRole('button', { name: t.clarifyGo })).toBeDisabled();
     await user.type(screen.getByLabelText(t.clarifyLabel), 'сыра внутри нет');
     await user.click(screen.getByRole('button', { name: t.clarifyGo }));
     expect(await screen.findByText('Треугольник без сыра')).toBeVisible();
     expect(screen.queryByText('Коктейль')).not.toBeInTheDocument();
+    // The description under the total follows the new estimate.
+    expect(screen.getByText('Без сыра, как вы сказали')).toBeVisible();
+    expect(screen.queryByText('Старое описание блюда')).not.toBeInTheDocument();
     const body = JSON.stringify(f.mock.calls[0]);
     expect(body).toContain('сыра внутри нет');
     expect(body).toContain('Коктейль');
