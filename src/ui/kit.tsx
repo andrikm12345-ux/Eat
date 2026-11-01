@@ -164,11 +164,14 @@ export function NumberField({
 }: NumberFieldProps) {
   const id = useId();
   const [text, setText] = useState(() => toText(value));
-  // Sync from outside only when the numeric value really changed.
-  const [lastValue, setLastValue] = useState(value);
-  if (value !== lastValue) {
-    setLastValue(value);
-    const emptyStays = emptyAs !== undefined && value === emptyAs && text.trim() === '';
+  // Follow the parent only when the value it passes really changes. An emptied field stays
+  // empty while the parent stands in "nothing" with 0 / null / `emptyAs`, so a number can
+  // always be erased and typed anew; a parent that ignores an empty value is handled on blur.
+  const [seen, setSeen] = useState(value);
+  if (value !== seen) {
+    setSeen(value);
+    const standIn = value === null || value === 0 || value === emptyAs;
+    const emptyStays = standIn && text.trim() === '';
     if (parseDecimal(text) !== value && !emptyStays) setText(toText(value));
   }
   return (
@@ -182,9 +185,15 @@ export function NumberField({
         {...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
         onChange={(e) => {
           setText(e.target.value);
-          const v = parseDecimal(e.target.value);
-          setLastValue(v);
-          onChange(v);
+          onChange(parseDecimal(e.target.value));
+        }}
+        onBlur={() => {
+          // Leaving the field shows what is really stored (e.g. an ignored empty value).
+          if (
+            parseDecimal(text) !== value &&
+            !(text.trim() === '' && (value === null || value === 0 || value === emptyAs))
+          )
+            setText(toText(value));
         }}
         {...rest}
       />
