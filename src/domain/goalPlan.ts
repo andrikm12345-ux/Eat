@@ -6,7 +6,6 @@ import type { ActivityLevel, GoalType, LocalDate, Sex } from './types';
 
 export const KCAL_PER_KG = 7700;
 export const KCAL_FLOOR: Record<Sex, number> = { female: 1200, male: 1500 };
-export const GAIN_MAX_SURPLUS = 500;
 export const UNDERWEIGHT_BMI = 18.5;
 
 /** Weekly rate as % of body weight. */
@@ -26,7 +25,7 @@ export type RateWarning =
   | 'underweightLose';
 
 export type PlanWarning =
-  RateWarning | 'floorApplied' | 'gainCapped' | 'targetDirection' | MacroResult['warnings'][number];
+  RateWarning | 'floorApplied' | 'targetDirection' | MacroResult['warnings'][number];
 
 export const round10 = (v: number) => Math.round(v / 10) * 10;
 
@@ -82,18 +81,13 @@ export function targetKcal(p: {
   goalType: GoalType;
   sex: Sex;
   bmr: number;
-}): { kcal: number; floorApplied: boolean; gainCapped: boolean } {
+}): { kcal: number; floorApplied: boolean } {
   const rate = p.goalType === 'maintain' ? 0 : p.rateKgPerWeek;
   let kcal = round10(p.tdee + (rate * KCAL_PER_KG) / 7);
-  let gainCapped = false;
-  if (p.goalType === 'gain' && kcal > p.tdee + GAIN_MAX_SURPLUS) {
-    kcal = round10(p.tdee + GAIN_MAX_SURPLUS);
-    gainCapped = true;
-  }
   const floor = Math.ceil(kcalFloor(p.sex, p.bmr) / 10) * 10;
   const floorApplied = kcal < floor;
   if (floorApplied) kcal = floor;
-  return { kcal, floorApplied, gainCapped };
+  return { kcal, floorApplied };
 }
 
 export type PlanInput = {
@@ -148,13 +142,11 @@ export function planGoal(p: PlanInput): Plan {
 
   const warnings: PlanWarning[] = [...rateCheck.warnings];
   if (t.floorApplied) warnings.push('floorApplied');
-  if (t.gainCapped) warnings.push('gainCapped');
   warnings.push(...macros.warnings);
 
-  // When the surplus cap or the calorie floor kicked in, the pace the target really gives
-  // differs from the requested one: report (and store) the real one.
-  const effectiveRate =
-    t.gainCapped || t.floorApplied ? round2(((t.kcal - tdee) * 7) / KCAL_PER_KG) : rate;
+  // When the calorie floor kicked in, the pace the target really gives differs from the
+  // requested one: report (and store) the real one. A fast gain is the user's choice: only a warning.
+  const effectiveRate = t.floorApplied ? round2(((t.kcal - tdee) * 7) / KCAL_PER_KG) : rate;
 
   let weeksToTarget: number | null = null;
   const target = p.targetWeightKg;

@@ -45,7 +45,7 @@ describe('proposeCheckin', () => {
     ).toBe(1500);
   });
 
-  it('gain capped at TDEE + 500; maintain ignores rate', () => {
+  it('a gain follows the chosen pace within the weekly change limit; maintain ignores rate', () => {
     const g = proposeCheckin({
       ...base,
       goalType: 'gain',
@@ -53,8 +53,9 @@ describe('proposeCheckin', () => {
       rateKgPerWeek: 1,
       currentKcal: 2900,
     });
-    expect(g.proposedKcal).toBe(3000);
-    expect(g.limits).toEqual(['weeklyCap', 'gainCap']);
+    // raw = 2500 + 1100 = 3600, limited to the current 2900 + 200
+    expect(g.proposedKcal).toBe(3100);
+    expect(g.limits).toEqual(['weeklyCap']);
     expect(
       proposeCheckin({
         ...base,

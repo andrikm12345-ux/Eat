@@ -62,7 +62,7 @@ describe('targetKcal', () => {
     expect(round10(2184)).toBe(2180);
     expect(
       targetKcal({ tdee: 2735, rateKgPerWeek: -0.5, goalType: 'lose', sex: 'male', bmr: 1700 }),
-    ).toEqual({ kcal: 2190, floorApplied: false, gainCapped: false });
+    ).toEqual({ kcal: 2190, floorApplied: false });
   });
 
   it('floors at max(BMR, 1200/1500)', () => {
@@ -70,16 +70,16 @@ describe('targetKcal', () => {
     expect(kcalFloor('male', 1600)).toBe(1600);
     expect(
       targetKcal({ tdee: 1600, rateKgPerWeek: -1, goalType: 'lose', sex: 'female', bmr: 1150 }),
-    ).toEqual({ kcal: 1200, floorApplied: true, gainCapped: false });
+    ).toEqual({ kcal: 1200, floorApplied: true });
     expect(
       targetKcal({ tdee: 2000, rateKgPerWeek: -1, goalType: 'lose', sex: 'male', bmr: 1555 }).kcal,
     ).toBe(1560);
   });
 
-  it('caps a gain at TDEE + 500 and ignores rate for maintain', () => {
+  it("does not cap a gain (the pace is the user's choice) and ignores rate for maintain", () => {
     expect(
       targetKcal({ tdee: 2500, rateKgPerWeek: 1, goalType: 'gain', sex: 'male', bmr: 1700 }),
-    ).toEqual({ kcal: 3000, floorApplied: false, gainCapped: true });
+    ).toEqual({ kcal: 3600, floorApplied: false });
     expect(
       targetKcal({ tdee: 2504, rateKgPerWeek: -1, goalType: 'maintain', sex: 'male', bmr: 1700 })
         .kcal,
@@ -130,7 +130,7 @@ describe('planGoal', () => {
     });
     expect(f.warnings).toEqual(expect.arrayContaining(['fastLoss', 'floorApplied']));
     expect(planGoal({ ...base, goalType: 'gain', rateKgPerWeek: 1 }).warnings).toEqual(
-      expect.arrayContaining(['fastGain', 'gainCapped']),
+      expect.arrayContaining(['fastGain']),
     );
     const u = planGoal({ ...base, weightKg: 55 });
     expect(u.blocked).toBe(true);
@@ -147,26 +147,26 @@ describe('planGoal', () => {
   });
 });
 
-describe('the reported pace when a cap or the floor applies', () => {
+describe('fast gains and the floor', () => {
   const gain: PlanInput = {
     ...base,
     birthDate: '1999-08-01',
     today: '2026-11-01',
-    weightKg: 62.7,
+    weightKg: 66,
     activityLevel: 'light',
     goalType: 'gain',
     rateKgPerWeek: 0.99,
     targetWeightKg: 70,
   };
 
-  it('a capped gain reports what +500 kcal really gives, not the requested pace', () => {
+  it('a +0.99 kg/week gain is honoured: the surplus follows the pace, with a warning only', () => {
     const plan = planGoal(gain);
-    expect(plan.warnings).toContain('gainCapped');
-    expect(plan.kcal).toBe(round10(plan.tdee + 500));
-    // 500 kcal/day · 7 / 7700 ≈ 0.45 kg/week
-    expect(plan.rateKgPerWeek).toBe(0.45);
-    // …and the time to the target follows the real pace.
-    expect(plan.weeksToTarget).toBe(Math.ceil((70 - 62.7) / 0.45));
+    expect(plan.warnings).toContain('fastGain');
+    expect(plan.warnings).not.toContain('gainCapped' as never);
+    expect(plan.kcal).toBe(round10(plan.tdee + (0.99 * 7700) / 7));
+    expect(plan.kcal).toBeGreaterThan(plan.tdee + 1000);
+    expect(plan.rateKgPerWeek).toBe(0.99);
+    expect(plan.weeksToTarget).toBe(Math.ceil((70 - 66) / 0.99));
   });
 
   it('a floored loss reports the pace the floor allows', () => {
@@ -184,7 +184,7 @@ describe('the reported pace when a cap or the floor applies', () => {
     expect(plan.rateKgPerWeek).toBeLessThanOrEqual(0);
   });
 
-  it('without a cap the requested pace is kept', () => {
+  it('without a floor the requested pace is kept', () => {
     expect(planGoal(base).rateKgPerWeek).toBe(-0.4);
   });
 });

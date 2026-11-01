@@ -1,13 +1,13 @@
-import { GAIN_MAX_SURPLUS, KCAL_PER_KG, kcalFloor, round10 } from './goalPlan';
+import { KCAL_PER_KG, kcalFloor, round10 } from './goalPlan';
 import type { GoalType, Sex } from './types';
 
 export const CHECKIN_MAX_WEEKLY_CHANGE = 200;
 
-export type CheckinLimit = 'weeklyCap' | 'floor' | 'gainCap';
+export type CheckinLimit = 'weeklyCap' | 'floor';
 
 /**
  * Weekly proposal: round10(TDEE + rate·7700/7), changed by at most ±200 kcal vs the current
- * goal, not above TDEE + 500 when gaining and never below max(BMR, 1200/1500).
+ * goal and never below max(BMR, 1200/1500). The pace itself is the user's choice.
  * Independent of whether past targets were met.
  */
 export function proposeCheckin(p: {
@@ -27,10 +27,6 @@ export function proposeCheckin(p: {
   if (kcal < lo || kcal > hi) {
     kcal = Math.min(hi, Math.max(lo, kcal));
     limits.push('weeklyCap');
-  }
-  if (p.goalType === 'gain' && kcal > p.tdee + GAIN_MAX_SURPLUS) {
-    kcal = p.tdee + GAIN_MAX_SURPLUS;
-    limits.push('gainCap');
   }
   const floor = kcalFloor(p.sex, p.bmr);
   if (kcal < floor) {
