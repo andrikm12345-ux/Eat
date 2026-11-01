@@ -130,8 +130,12 @@ export async function changeAccountPassword(
   } catch {
     return { error: 'network' };
   }
-  if (res.ok) return { ok: true };
   const data = (await res.json().catch(() => ({}))) as Reply;
+  if (res.ok) {
+    // The server signed every other device out and issued a new token for this one.
+    if (data.token) await r.settings.set(ACCOUNT.token, data.token);
+    return { ok: true };
+  }
   if (data.error === 'bad_password') return { error: 'bad_password' };
   return { error: failure(res.status) };
 }

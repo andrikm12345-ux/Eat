@@ -1,5 +1,6 @@
-import { userIdFor, verifySession } from './auth.js';
-import { bearer, json, readJson } from './http.js';
+import { userIdFor } from './auth.js';
+import { userOf } from './handlers.js';
+import { json, readJson } from './http.js';
 import type { Deps, SharedAiEnv } from './types.js';
 
 export const MAX_AI_BYTES = 4 * 1024 * 1024;
@@ -36,9 +37,11 @@ async function effective(d: Deps): Promise<EffectiveAi | null> {
 const available = (e: EffectiveAi | null): e is EffectiveAi & { apiKey: string } =>
   !!e && e.enabled && !!e.apiKey;
 
-export function session(d: Deps, req: Request): { userId: string; admin: boolean } | null {
-  const token = bearer(req);
-  const userId = token ? verifySession(d.secret, token, d.now()) : null;
+export async function session(
+  d: Deps,
+  req: Request,
+): Promise<{ userId: string; admin: boolean } | null> {
+  const userId = await userOf(d, req);
   if (!userId) return null;
   const admin = (d.adminLogins ?? []).some((l) => userIdFor(d.secret, l) === userId);
   return { userId, admin };
@@ -46,7 +49,7 @@ export function session(d: Deps, req: Request): { userId: string; admin: boolean
 
 /** GET → whether the shared AI can be used by this user, and whether they administer it. */
 export async function aiStatus(d: Deps, req: Request): Promise<Response> {
-  const s = session(d, req);
+  const s = await session(d, req);
   if (!s) return json({ error: 'unauthorized' }, 401);
   return json({ available: available(await effective(d)), admin: s.admin });
 }
@@ -67,7 +70,7 @@ async function takeQuota(d: Deps, userId: string, limit: number): Promise<boolea
  * The key and the model come from the server; the caller only needs to be signed in.
  */
 export async function aiChat(d: Deps, req: Request): Promise<Response> {
-  const s = session(d, req);
+  const s = await session(d, req);
   if (!s) return json({ error: 'unauthorized' }, 401);
   const cfg = await effective(d);
   if (!available(cfg)) return json({ error: 'ai_unavailable' }, 503);
@@ -110,7 +113,7 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
 
 /** GET (administrator) → the current shared settings; the key itself is never returned. */
 export async function aiConfigGet(d: Deps, req: Request): Promise<Response> {
-  const s = session(d, req);
+  const s = await session(d, req);
   if (!s) return json({ error: 'unauthorized' }, 401);
   if (!s.admin) return json({ error: 'forbidden' }, 403);
   const e = await effective(d);
@@ -127,7 +130,7 @@ export async function aiConfigGet(d: Deps, req: Request): Promise<Response> {
 
 /** PUT (administrator) {enabled?, baseUrl?, modelText?, modelVision?} → saves the overrides. */
 export async function aiConfigPut(d: Deps, req: Request): Promise<Response> {
-  const s = session(d, req);
+  const s = await session(d, req);
   if (!s) return json({ error: 'unauthorized' }, 401);
   if (!s.admin) return json({ error: 'forbidden' }, 403);
   const body = await readJson(req);

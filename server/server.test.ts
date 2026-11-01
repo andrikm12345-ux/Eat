@@ -465,3 +465,84 @@ describe('too many wrong guesses', () => {
     expect([...store.keys()].filter((k) => k.startsWith('attempts/'))).toHaveLength(0);
   });
 });
+
+describe('changing the password signs the other devices out', () => {
+  const bearerReq = (token: string, body?: unknown) =>
+    new Request('http://x', {
+      method: body ? 'POST' : 'GET',
+      headers: { authorization: `Bearer ${token}` },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    });
+
+  it('old tokens stop working, the device that changed the password keeps working with a new one', async () => {
+    const { d, advance } = deps();
+    const reg = await register(d, creds('ivan', 'password1'));
+    const phone = ((await reg.json()) as { token: string }).token;
+    advance(60_000);
+    const laptop = (
+      (await (await login(d, creds('ivan', 'password1'))).json()) as { token: string }
+    ).token;
+    expect((await getSync(d, bearerReq(phone))).status).toBe(200);
+    expect((await getSync(d, bearerReq(laptop))).status).toBe(200);
+
+    advance(60_000);
+    const res = await changePassword(
+      d,
+      bearerReq(laptop, { password: 'password1', newPassword: 'password2' }),
+    );
+    expect(res.status).toBe(200);
+    const fresh = ((await res.json()) as { token: string }).token;
+
+    expect((await getSync(d, bearerReq(phone))).status).toBe(401);
+    expect((await getSync(d, bearerReq(laptop))).status).toBe(401);
+    expect((await getSync(d, bearerReq(fresh))).status).toBe(200);
+
+    // A later sign-in works as usual.
+    advance(1000);
+    const again = (
+      (await (await login(d, creds('ivan', 'password2'))).json()) as {
+        token: string;
+      }
+    ).token;
+    expect((await getSync(d, bearerReq(again))).status).toBe(200);
+  });
+
+  it('a password reset with the recovery code also ends every older session', async () => {
+    const { d, advance } = deps();
+    const reg = await register(d, creds('ivan', 'password1'));
+    const { token: old, recoveryCode } = (await reg.json()) as {
+      token: string;
+      recoveryCode: string;
+    };
+    advance(60_000);
+    const res = await resetPassword(
+      d,
+      post({ login: 'ivan', recoveryCode, password: 'password3' }),
+    );
+    const { token: fresh } = (await res.json()) as { token: string };
+    expect((await getSync(d, bearerReq(old))).status).toBe(401);
+    expect((await getSync(d, bearerReq(fresh))).status).toBe(200);
+  });
+
+  it('tokens of the old shape (without a time) keep working until a password change', async () => {
+    const { d } = deps();
+    await register(d, creds('ivan', 'password1'));
+    const uid = userIdFor(SECRET, 'ivan');
+    // The old shape: user|expiry, signed the same way.
+    const { createHmac } = await import('node:crypto');
+    const payload = `${uid}|${T0 + SESSION_TTL_MS}`;
+    const sig = createHmac('sha256', SECRET).update(`s|${payload}`).digest('hex');
+    const legacy = `${Buffer.from(payload).toString('base64url')}.${sig}`;
+    expect((await getSync(d, bearerReq(legacy))).status).toBe(200);
+  });
+
+  it('a deleted account cannot be reached with an old token', async () => {
+    const { d } = deps();
+    const reg = await register(d, creds('ivan', 'password1'));
+    const { token } = (await reg.json()) as { token: string };
+    (d.store as ReturnType<typeof memoryStore>).data.delete(
+      `creds/${userIdFor(SECRET, 'ivan')}.json`,
+    );
+    expect((await getSync(d, bearerReq(token))).status).toBe(401);
+  });
+});

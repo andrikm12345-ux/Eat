@@ -9,7 +9,7 @@ import {
   normalizeLogin,
   normalizeRecovery,
   userIdFor,
-  verifySession,
+  sessionInfo,
   type Credentials,
 } from './auth.js';
 import { bearer, json, readJson } from './http.js';
@@ -19,7 +19,7 @@ export const MAX_SYNC_BYTES = 4 * 1024 * 1024;
 
 const credPath = (userId: string) => `creds/${userId}.json`;
 
-async function readCreds(d: Deps, userId: string): Promise<Credentials | null> {
+export async function readCreds(d: Deps, userId: string): Promise<Credentials | null> {
   const text = await d.store.get(credPath(userId));
   if (!text) return null;
   try {
@@ -27,6 +27,19 @@ async function readCreds(d: Deps, userId: string): Promise<Credentials | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * The user a request belongs to: a valid token of an existing account that was issued after
+ * the last password change (a password change signs every older device out).
+ */
+export async function userOf(d: Deps, req: Request): Promise<string | null> {
+  const token = bearer(req);
+  const info = token ? sessionInfo(d.secret, token, d.now()) : null;
+  if (!info) return null;
+  const creds = await readCreds(d, info.userId);
+  if (!creds || info.issuedAt < (creds.sessionsFrom ?? 0)) return null;
+  return info.userId;
 }
 
 const delay = (d: Deps) =>
@@ -157,7 +170,8 @@ export async function resetPassword(d: Deps, req: Request): Promise<Response> {
   if (!creds || !ok) return failed(d, req, creds ? userId : undefined);
   await clearFailures(d, req, userId);
   const fresh = await newAccount(c.password);
-  await d.store.put(credPath(userId), JSON.stringify(fresh.creds));
+  // A reset is the "I lost control" case: all older sessions end.
+  await d.store.put(credPath(userId), JSON.stringify({ ...fresh.creds, sessionsFrom: d.now() }));
   return json({
     token: createSession(d.secret, userId, d.now()),
     login: c.login,
@@ -167,8 +181,7 @@ export async function resetPassword(d: Deps, req: Request): Promise<Response> {
 
 /** POST {password} (signed in) → issues a new recovery code, replacing any previous one. */
 export async function newRecovery(d: Deps, req: Request): Promise<Response> {
-  const token = bearer(req);
-  const userId = token ? verifySession(d.secret, token, d.now()) : null;
+  const userId = await userOf(d, req);
   if (!userId) return json({ error: 'unauthorized' }, 401);
   const body = await readJson(req);
   const locked = await lockedReply(d, req, userId);
@@ -188,8 +201,7 @@ export async function newRecovery(d: Deps, req: Request): Promise<Response> {
 
 /** POST {password, newPassword} (signed in) → changes the password; data and recovery code stay. */
 export async function changePassword(d: Deps, req: Request): Promise<Response> {
-  const token = bearer(req);
-  const userId = token ? verifySession(d.secret, token, d.now()) : null;
+  const userId = await userOf(d, req);
   if (!userId) return json({ error: 'unauthorized' }, 401);
   const body = await readJson(req);
   const creds = await readCreds(d, userId);
@@ -200,16 +212,20 @@ export async function changePassword(d: Deps, req: Request): Promise<Response> {
   if (locked) return locked;
   if (!(await checkSecret(creds, String(body?.password ?? '')))) return failed(d, req, userId);
   await clearFailures(d, req, userId);
-  await d.store.put(credPath(userId), JSON.stringify({ ...creds, ...(await hashSecret(next)) }));
-  return json({ ok: true });
+  // Every device that signed in before this moment is signed out; this one gets a fresh token.
+  const now = d.now();
+  await d.store.put(
+    credPath(userId),
+    JSON.stringify({ ...creds, ...(await hashSecret(next)), sessionsFrom: now }),
+  );
+  return json({ ok: true, token: createSession(d.secret, userId, now) });
 }
 
 const dataPath = (userId: string) => `users/${userId}.json`;
 
 /** GET → the stored snapshot (or {empty:true}). */
 export async function getSync(d: Deps, req: Request): Promise<Response> {
-  const token = bearer(req);
-  const userId = token ? verifySession(d.secret, token, d.now()) : null;
+  const userId = await userOf(d, req);
   if (!userId) return json({ error: 'unauthorized' }, 401);
   const text = await d.store.get(dataPath(userId));
   return text
@@ -222,8 +238,7 @@ export async function getSync(d: Deps, req: Request): Promise<Response> {
 
 /** PUT <snapshot json> → stores it for the signed-in user. */
 export async function putSync(d: Deps, req: Request): Promise<Response> {
-  const token = bearer(req);
-  const userId = token ? verifySession(d.secret, token, d.now()) : null;
+  const userId = await userOf(d, req);
   if (!userId) return json({ error: 'unauthorized' }, 401);
   const text = await req.text();
   if (text.length > MAX_SYNC_BYTES) return json({ error: 'too_large' }, 413);

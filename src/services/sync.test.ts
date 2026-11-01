@@ -272,7 +272,10 @@ describe('change password', () => {
       error: 'wrong_credentials',
     });
     expect(await changeAccountPassword(repos, PW, 'short')).toEqual({ error: 'bad_password' });
+    const before = await getSession(repos);
     expect(await changeAccountPassword(repos, PW, 'new-password')).toEqual({ ok: true });
+    // The server issued a new token for this device: it is stored in place of the old one.
+    expect((await getSession(repos))?.token).not.toBe(before?.token);
     expect(await loginAccount(repos, 'ivan', PW)).toEqual({ error: 'wrong_credentials' });
     expect(await loginAccount(repos, 'ivan', 'new-password')).toMatchObject({ login: 'ivan' });
     vi.stubGlobal('fetch', async () => new Response('x', { status: 500 }));

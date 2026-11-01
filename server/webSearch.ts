@@ -1,4 +1,4 @@
-import { bearer, json, readJson } from './http.js';
+import { json, readJson } from './http.js';
 import { session } from './sharedAi.js';
 import type { Deps } from './types.js';
 
@@ -22,7 +22,7 @@ async function takeQuota(d: Deps, userId: string, limit: number): Promise<boolea
 
 /** GET → whether web search is configured (the key itself is never returned). */
 export async function searchStatus(d: Deps, req: Request): Promise<Response> {
-  if (!session(d, req)) return json({ error: 'unauthorized' }, 401);
+  if (!(await session(d, req))) return json({ error: 'unauthorized' }, 401);
   return json({ available: !!d.search });
 }
 
@@ -31,7 +31,7 @@ export async function searchStatus(d: Deps, req: Request): Promise<Response> {
  * The key stays on the server; the caller must be signed in and has a daily limit.
  */
 export async function webSearch(d: Deps, req: Request): Promise<Response> {
-  const s = bearer(req) ? session(d, req) : null;
+  const s = await session(d, req);
   if (!s) return json({ error: 'unauthorized' }, 401);
   if (!d.search) return json({ error: 'search_unavailable' }, 503);
   const body = await readJson(req);

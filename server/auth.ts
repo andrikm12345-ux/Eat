@@ -41,6 +41,8 @@ export function userIdFor(secret: string, login: string): string {
 
 export type Secret = { salt: string; hash: string };
 export type Credentials = Secret & {
+  /** Sessions issued before this moment (ms) are no longer valid: set when the password changes. */
+  sessionsFrom?: number;
   /** Hash of the one-time recovery code (accounts created before recovery existed lack it). */
   recovery?: Secret;
 };
@@ -74,12 +76,16 @@ export function generateRecoveryCode(): string {
 export const normalizeRecovery = (raw: string) => raw.toUpperCase().replace(/[^A-Z2-9]/g, '');
 
 export function createSession(secret: string, userId: string, now: number): string {
-  const payload = `${userId}|${now + SESSION_TTL_MS}`;
+  const payload = `${userId}|${now + SESSION_TTL_MS}|${now}`;
   return `${b64(payload)}.${hmac(secret, `s|${payload}`)}`;
 }
 
-/** Returns the user id of a valid, unexpired session token. */
-export function verifySession(secret: string, token: string, now: number): string | null {
+/** Who a valid, unexpired token belongs to and when it was issued (0 for tokens of the old shape). */
+export function sessionInfo(
+  secret: string,
+  token: string,
+  now: number,
+): { userId: string; issuedAt: number } | null {
   const [p, sig] = token.split('.');
   if (!p || !sig) return null;
   let payload: string;
@@ -89,8 +95,13 @@ export function verifySession(secret: string, token: string, now: number): strin
     return null;
   }
   if (!safeEqual(sig, hmac(secret, `s|${payload}`))) return null;
-  const [userId, exp] = payload.split('|');
-  return userId && Number(exp) >= now ? userId : null;
+  const [userId, exp, iat] = payload.split('|');
+  return userId && Number(exp) >= now ? { userId, issuedAt: Number(iat) || 0 } : null;
+}
+
+/** Returns the user id of a valid, unexpired session token. */
+export function verifySession(secret: string, token: string, now: number): string | null {
+  return sessionInfo(secret, token, now)?.userId ?? null;
 }
 
 export const randomDelayMs = () => randomInt(150, 350);
