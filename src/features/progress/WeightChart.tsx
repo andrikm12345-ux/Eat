@@ -9,7 +9,7 @@ import styles from './progress.module.css';
 
 const W = 340;
 const H = 200;
-const PAD = { l: 34, r: 8, t: 10, b: 22 };
+const PAD = { l: 46, r: 8, t: 10, b: 22 };
 
 /** Lightweight SVG chart: raw weigh-ins as dots, EMA trend as a line. */
 export function WeightChart({

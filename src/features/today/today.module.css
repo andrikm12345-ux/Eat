@@ -356,8 +356,9 @@
 /* ---- redesign: compact pair of cards (weight | water) ---- */
 .pair {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
 }
 .pair > * {
   margin-bottom: 0;

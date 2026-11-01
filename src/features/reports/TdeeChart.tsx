@@ -10,7 +10,7 @@ import styles from '../progress/progress.module.css';
 
 const W = 340;
 const H = 200;
-const PAD = { l: 38, r: 8, t: 10, b: 22 };
+const PAD = { l: 50, r: 8, t: 10, b: 22 };
 /** Half-width of the uncertainty band at zero confidence (kcal). */
 const BAND = 300;
 

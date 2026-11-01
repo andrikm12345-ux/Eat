@@ -260,7 +260,8 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: var(--sp-3);
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
   padding: var(--sp-1) 0;
   border-bottom: 1px solid var(--border);
 }
@@ -268,16 +269,17 @@
   border-bottom: none;
 }
 .statLabel {
+  flex: 1 1 auto;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 .statValue {
-  flex: none;
+  flex: 0 1 auto;
+  margin-left: auto;
+  max-width: 100%;
+  text-align: right;
   font-weight: var(--fw-semibold);
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 .switchRow {
   display: flex;
