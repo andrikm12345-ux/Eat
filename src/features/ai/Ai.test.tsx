@@ -7,6 +7,13 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { renderApp } from '../../test/renderApp';
 
+// jsdom cannot draw on a canvas: the compressed photo is replaced by a stub.
+vi.mock('./images', () => ({
+  toImageBlocks: async () => [
+    { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: 'QUJD' } },
+  ],
+}));
+
 afterEach(() => vi.unstubAllGlobals());
 
 const meal = {
@@ -83,6 +90,57 @@ describe('AI without a key', () => {
     await user.click(screen.getByRole('button', { name: ru.barcode.find }));
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
     expect(await screen.findByRole('link', { name: 'shop.example' })).toBeVisible();
+  });
+
+  it('a barcode photo: the AI reads the digits and the product lookup starts', async () => {
+    await repos.settings.set(AI_KEYS.enabled, true);
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-ant-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.consent, true);
+    const f = vi.fn(async (url: string) =>
+      String(url).includes('openfoodfacts')
+        ? new Response(JSON.stringify({ status: 0 }), { status: 200 })
+        : new Response(
+            JSON.stringify({
+              content: [{ type: 'text', text: '{"code":"4810268055577"}' }],
+              stop_reason: 'end_turn',
+            }),
+            { status: 200 },
+          ),
+    );
+    vi.stubGlobal('fetch', f);
+    const user = userEvent.setup();
+    await renderApp('/add/barcode');
+    await screen.findByRole('button', { name: ru.barcode.photoButton });
+    const file = new File(['x'], 'code.jpg', { type: 'image/jpeg' });
+    await user.upload(screen.getByTestId('barcode-photo'), file);
+    expect(await screen.findByText(ru.barcode.notFound('4810268055577'))).toBeVisible();
+    expect(f.mock.calls.some(([u]) => String(u).includes('4810268055577'))).toBe(true);
+  });
+
+  it('a barcode photo that cannot be read says so', async () => {
+    await repos.settings.set(AI_KEYS.enabled, true);
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-ant-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.consent, true);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              content: [{ type: 'text', text: '{"code":null}' }],
+              stop_reason: 'end_turn',
+            }),
+            { status: 200 },
+          ),
+      ),
+    );
+    const user = userEvent.setup();
+    await renderApp('/add/barcode');
+    await user.upload(
+      await screen.findByTestId('barcode-photo'),
+      new File(['x'], 'code.jpg', { type: 'image/jpeg' }),
+    );
+    expect(await screen.findByText(ru.barcode.photoFailed)).toBeVisible();
   });
 
   it('the text screen works without a key and shows no AI setup hint', async () => {

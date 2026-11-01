@@ -13,7 +13,10 @@ import { Button, Card, LinkButton, Notice, TextField } from '../../ui/kit';
 import { VISION_AI_ENABLED } from '../flags';
 import { Page } from '../../ui/Page';
 import { addQs, useAddTarget } from '../add/addTarget';
-import { startScanner, type ScanError, type ScanHandle } from './scanner';
+import { isValidEan } from '../../domain/ean';
+import { readBarcodeDigits } from '../../services/barcodeDigits';
+import { toImageBlocks } from '../ai/images';
+import { decodePhoto, startScanner, type ScanError, type ScanHandle } from './scanner';
 import styles from './barcode.module.css';
 
 const t = ru.barcode;
@@ -33,6 +36,9 @@ export default function BarcodePage() {
   const [manual, setManual] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [finding, setFinding] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const photoInput = useRef<HTMLInputElement>(null);
 
   async function handleCode(code: string) {
     handle.current?.stop();
@@ -54,6 +60,23 @@ export default function BarcodePage() {
       }
     }
     setStatus({ s: r.kind, code });
+  }
+
+  /** A photo is sharper than a video frame: read the bars, else let the AI read the digits. */
+  async function handlePhoto(file: File | undefined) {
+    if (!file) return;
+    setPhotoBusy(true);
+    setPhotoFailed(false);
+    const bars = await decodePhoto(file).catch(() => null);
+    const code =
+      bars && isValidEan(bars)
+        ? bars
+        : await toImageBlocks([file])
+            .then((images) => readBarcodeDigits(repos, images))
+            .catch(() => null);
+    setPhotoBusy(false);
+    if (code) void handleCode(code);
+    else setPhotoFailed(true);
   }
 
   function openReview(food: Food, source: 'off' | 'catalog') {
@@ -110,6 +133,27 @@ export default function BarcodePage() {
           ) : (
             <p className={styles.hint}>{t.hint}</p>
           )}
+          {photoFailed && <Notice>{t.photoFailed}</Notice>}
+          <Button
+            variant="secondary"
+            block
+            disabled={photoBusy}
+            onClick={() => photoInput.current?.click()}
+          >
+            {photoBusy ? t.photoReading : t.photoButton}
+          </Button>
+          <input
+            ref={photoInput}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            hidden
+            data-testid="barcode-photo"
+            onChange={(e) => {
+              void handlePhoto(e.target.files?.[0]);
+              e.target.value = '';
+            }}
+          />
           <Card title={t.manual}>
             <TextField
               label={t.code}
