@@ -101,7 +101,7 @@ export default function AiSettingsPage() {
         {cfg.format === 'openai' && (
           <>
             <p className={styles.muted}>{t.presets}</p>
-            <Row>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
               {PRESETS.map((p) => (
                 <Button
                   key={p.url}
@@ -114,7 +114,7 @@ export default function AiSettingsPage() {
                   {p.name}
                 </Button>
               ))}
-            </Row>
+            </div>
             {!cfg.baseUrl && <Notice>{t.needAddress}</Notice>}
           </>
         )}
