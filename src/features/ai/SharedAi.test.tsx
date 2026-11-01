@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { login as srvLogin, register as srvRegister } from '../../../server/handlers';
@@ -234,6 +234,27 @@ describe('screens', () => {
     expect(screen.getByRole('switch', { name: ru.ai.enabled })).toBeChecked();
   });
 
+  it('the request log is for the administrator only', async () => {
+    await repos.aiRuns.create({
+      kind: 'text',
+      model: 'some-model',
+      request: {},
+      response: {},
+      latencyMs: 1500,
+    });
+    await signUp('ivan');
+    await renderApp('/more/ai');
+    await screen.findByText(ru.ai.shared.text);
+    expect(screen.queryByText(ru.ai.logs)).not.toBeInTheDocument();
+    expect(screen.queryByText(/some-model/)).not.toBeInTheDocument();
+    cleanup();
+    await signOut(repos);
+    await signUp('blackjack');
+    await renderApp('/more/ai');
+    expect(await screen.findByText(ru.ai.logs)).toBeVisible();
+    expect(await screen.findByText(/some-model/)).toBeVisible();
+  });
+
   it('the administrator edits the settings for everyone', async () => {
     await signUp('blackjack');
     const user = userEvent.setup();
@@ -274,7 +295,7 @@ describe('screens', () => {
     await user.type(await screen.findByLabelText(ru.ai.text.label), 'овсянка 250 г');
     await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
-    expect(screen.getByText(ru.review.byAi('text-model'))).toBeVisible();
+    expect(await screen.findByText(ru.review.byAi('text-model'))).toBeVisible();
     expect(router.state.location.pathname).toBe('/review');
   });
 });

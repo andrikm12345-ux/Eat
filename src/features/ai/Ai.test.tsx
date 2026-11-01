@@ -86,7 +86,7 @@ describe('AI text flow', () => {
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
     expect(screen.getByText(/уверенность средняя/)).toBeVisible();
     // The review screen says the AI did the recognition, and with which model.
-    expect(screen.getByText(ru.review.byAi('claude-haiku-5-5'))).toBeVisible();
+    expect(await screen.findByText(ru.review.byAi('claude-haiku-5-5'))).toBeVisible();
     expect(screen.queryByText(ru.review.byCatalog)).not.toBeInTheDocument();
     expect(await repos.entries.byDate('2026-03-01')).toHaveLength(0);
     await user.click(screen.getByRole('button', { name: ru.review.save }));
