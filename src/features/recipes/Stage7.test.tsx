@@ -158,3 +158,28 @@ describe('CSV import', () => {
     expect(await importRows(repos, rows)).toEqual({ weights: 0, days: 0, workouts: 0 });
   });
 });
+
+describe('templates written by older versions', () => {
+  it('a template without a snapshot does not crash the list or the review', async () => {
+    const now = new Date().toISOString();
+    await repos.db.templates.put({
+      id: 'old',
+      name: 'Старый шаблон',
+      items: [{ name: 'Банан', grams: 100 }, undefined].filter(Boolean) as never,
+      createdAt: now,
+      updatedAt: now,
+    });
+    await repos.db.templates.put({
+      id: 'bare',
+      name: 'Без позиций',
+      createdAt: now,
+      updatedAt: now,
+    } as never);
+    const user = userEvent.setup();
+    await renderApp('/add/template');
+    expect(await screen.findByText('Старый шаблон')).toBeVisible();
+    expect(screen.getByText('Без позиций')).toBeVisible();
+    await user.click(screen.getByText('Старый шаблон'));
+    expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
+  });
+});

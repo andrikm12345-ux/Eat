@@ -10,6 +10,7 @@ import { toast } from '../../state/ui';
 import { BottomSheet } from '../../ui/BottomSheet';
 import { Button, Row, TextField } from '../../ui/kit';
 import styles from './today.module.css';
+import { DateField, TimeField } from '../../ui/DateTimeFields';
 
 const t = ru.today;
 type Mode = 'menu' | 'time' | 'day' | 'template' | 'copy';
@@ -75,7 +76,7 @@ export function EntryActions({ entry, onClose }: { entry: Entry | null; onClose:
       )}
       {mode === 'time' && (
         <>
-          <TextField label={t.time} type="time" value={time} onChange={setTime} autoFocus />
+          <TimeField label={t.time} value={time} onChange={setTime} autoFocus />
           <Row>
             <Button variant="secondary" onClick={() => setMode('menu')}>
               {ru.common.back}
@@ -94,8 +95,8 @@ export function EntryActions({ entry, onClose }: { entry: Entry | null; onClose:
       )}
       {(mode === 'day' || mode === 'copy') && (
         <>
-          <TextField label={t.date} type="date" value={date} onChange={setDate} autoFocus />
-          <TextField label={t.time} type="time" value={time} onChange={setTime} />
+          <DateField label={t.date} value={date} onChange={setDate} autoFocus />
+          <TimeField label={t.time} value={time} onChange={setTime} />
           <Row>
             <Button variant="secondary" onClick={() => setMode('menu')}>
               {ru.common.back}

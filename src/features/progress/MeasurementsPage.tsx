@@ -9,9 +9,10 @@ import { useProfile } from '../../db/hooks';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { toast } from '../../state/ui';
-import { Button, Card, Notice, NumberField, Row, Stat, TextField } from '../../ui/kit';
+import { Button, Card, Notice, NumberField, Row, Stat } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import listStyles from '../add/add.module.css';
+import { DateField } from '../../ui/DateTimeFields';
 
 const t = ru.measure;
 const FIELDS = ['neckCm', 'chestCm', 'waistCm', 'abdomenCm', 'hipsCm', 'thighCm', 'armCm'] as const;
@@ -144,7 +145,7 @@ function MeasurementForm({
 
   return (
     <Card title={initial ? t.edit : t.new}>
-      <TextField label={t.date} type="date" value={date} onChange={setDate} />
+      <DateField label={t.date} value={date} onChange={setDate} />
       {FIELDS.map((f) =>
         f === 'hipsCm' || f === 'chestCm' ? null : (
           <NumberField

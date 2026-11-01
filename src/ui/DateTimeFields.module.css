@@ -1,0 +1,89 @@
+.iconBtn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.head {
+  display: grid;
+  grid-template-columns: 44px 44px 1fr 44px 44px;
+  align-items: center;
+  text-align: center;
+}
+.head button {
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 22px;
+  cursor: pointer;
+}
+.title {
+  font-size: 17px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.dow {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 4px 0;
+  text-transform: uppercase;
+}
+.day,
+.cell {
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.day:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.today {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.on {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 700;
+}
+.timeSheet {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.caption {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.timeGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+.cell {
+  background: var(--surface-2);
+}

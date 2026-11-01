@@ -9,6 +9,7 @@ import { toast, useUi } from '../../state/ui';
 import { Button, NumberField, Row, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { useAddTarget } from './addTarget';
+import { DateField, TimeField } from '../../ui/DateTimeFields';
 
 const t = ru.quick;
 
@@ -58,8 +59,8 @@ export default function QuickPage() {
         <NumberField label={ru.foods.carbs} suffix="г" value={c} onChange={setC} />
       </Row>
       <Row>
-        <TextField label={ru.today.date} type="date" value={date} onChange={setD} />
-        <TextField label={ru.today.time} type="time" value={time} onChange={setTime} />
+        <DateField label={ru.today.date} value={date} onChange={setD} />
+        <TimeField label={ru.today.time} value={time} onChange={setTime} />
       </Row>
       <Button block onClick={() => void save()} disabled={!valid}>
         {t.save}

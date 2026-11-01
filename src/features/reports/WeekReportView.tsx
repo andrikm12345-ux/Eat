@@ -79,21 +79,29 @@ function Week({ w }: { w: WeekReport }) {
         {w.trendStart !== null && w.trendEnd !== null && (
           <Stat
             label={t.trend}
-            value={t.trendChange(
-              formatKg(w.trendStart),
-              formatKg(w.trendEnd),
-              signed(w.trendEnd - w.trendStart, formatKg),
-            )}
+            value={
+              Math.abs(w.trendEnd - w.trendStart) < 0.05
+                ? t.trendSame(formatKg(w.trendEnd))
+                : t.trendChange(
+                    formatKg(w.trendStart),
+                    formatKg(w.trendEnd),
+                    signed(w.trendEnd - w.trendStart, formatKg),
+                  )
+            }
           />
         )}
         {w.tdeeStart !== null && w.tdeeEnd !== null && (
           <Stat
             label={t.energy}
-            value={t.energyChange(
-              formatKcal(w.tdeeStart),
-              formatKcal(w.tdeeEnd),
-              signed(Math.round(w.tdeeEnd - w.tdeeStart), formatKcal),
-            )}
+            value={
+              Math.round(w.tdeeEnd - w.tdeeStart) === 0
+                ? t.energySame(formatKcal(w.tdeeEnd))
+                : t.energyChange(
+                    formatKcal(w.tdeeStart),
+                    formatKcal(w.tdeeEnd),
+                    signed(Math.round(w.tdeeEnd - w.tdeeStart), formatKcal),
+                  )
+            }
           />
         )}
       </Card>

@@ -1,11 +1,25 @@
 .main {
   min-height: 100%;
-  /* Leave room for bottom nav + FAB. */
-  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 48px);
+  /* Room for the bottom bar and the round "+" (58 + 14) with some air above it. */
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 104px);
 }
 
 .loading {
   padding: calc(20px + var(--safe-top)) 16px 16px;
   max-width: 640px;
   margin: 0 auto;
+}
+
+/* Content never shows through the status bar / notch area. */
+.scrim {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--safe-top);
+  z-index: 30;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
 }

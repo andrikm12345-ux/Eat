@@ -26,10 +26,10 @@ import {
   OptionList,
   Segmented,
   Stat,
-  TextField,
 } from '../../ui/kit';
 import { saveWizard, type WizardData } from './saveWizard';
 import styles from './Wizard.module.css';
+import { DateField } from '../../ui/DateTimeFields';
 
 const t = ru.wizard;
 const STEPS = ['about', 'weight', 'goal', 'body', 'summary'] as const;
@@ -182,13 +182,12 @@ function Wizard({ initial, editing, today }: { initial: Draft; editing: boolean;
                 { value: 'female', label: ru.sex.female },
               ]}
             />
-            <TextField
+            <DateField
               label={t.birthDate}
-              type="date"
               value={d.birthDate}
               onChange={(v) => set('birthDate', v)}
               max={today}
-              error={d.birthDate ? errors.birthDate : null}
+              allowEmpty
             />
             <NumberField
               label={t.height}

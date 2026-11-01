@@ -49,7 +49,7 @@ describe('onboarding wizard', () => {
 
     const next = () => screen.getByRole('button', { name: t.next });
     expect(next()).toBeDisabled();
-    await user.type(screen.getByLabelText(t.birthDate), '1996-01-01');
+    await user.type(screen.getByLabelText(t.birthDate), '01011996');
     await user.type(screen.getByLabelText(t.height), '180');
     await user.click(next());
 
@@ -95,7 +95,7 @@ describe('onboarding wizard', () => {
     const user = userEvent.setup();
     await renderApp('/wizard', { seed: false });
     await screen.findByRole('heading', { name: t.steps.about });
-    await user.type(screen.getByLabelText(t.birthDate), '1996-01-01');
+    await user.type(screen.getByLabelText(t.birthDate), '01011996');
     await user.type(screen.getByLabelText(t.height), '180');
     await user.click(screen.getByRole('button', { name: t.next }));
     await user.type(screen.getByLabelText(t.weight), '55');

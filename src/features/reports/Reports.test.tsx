@@ -114,3 +114,16 @@ describe('AI observations (prompt C)', () => {
     );
   });
 });
+
+describe('micronutrients without enough data', () => {
+  it('shows one message and tucks the empty rows under "Показать все"', async () => {
+    const user = userEvent.setup();
+    await renderApp('/reports');
+    await user.click(await screen.findByRole('radio', { name: ru.reports.tabs.micro }));
+    expect(await screen.findByText(ru.reports.microNoData)).toBeVisible();
+    const toggle = screen.getByText(/^Показать все \(\d+\)$/);
+    expect(screen.queryByRole('meter', { name: 'Железо' })).not.toBeVisible();
+    await user.click(toggle);
+    expect(screen.getByRole('meter', { name: 'Железо' })).toBeVisible();
+  });
+});

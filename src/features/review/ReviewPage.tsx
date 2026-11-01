@@ -22,6 +22,7 @@ import { Button, Card, Notice, NumberField, Row, Segmented, TextField } from '..
 import { Page } from '../../ui/Page';
 import { FoodSearch } from '../add/SearchPage';
 import styles from './review.module.css';
+import { DateField, TimeField } from '../../ui/DateTimeFields';
 
 const t = ru.review;
 
@@ -113,7 +114,8 @@ function Review({ initial }: { initial: ReviewDraft }) {
                     −
                   </button>
                   <NumberField
-                    label={`${ru.portion.grams}: ${i.name}`}
+                    label={ru.portion.grams}
+                    ariaLabel={`${ru.portion.grams}: ${i.name}`}
                     suffix="г"
                     value={i.grams}
                     emptyAs={0}
@@ -185,8 +187,8 @@ function Review({ initial }: { initial: ReviewDraft }) {
           {formatGrams(totals.fat)} · У {formatGrams(totals.carbs)}
         </p>
         <Row>
-          <TextField label={ru.today.date} type="date" value={date} onChange={setD} />
-          <TextField label={ru.today.time} type="time" value={time} onChange={setTime} />
+          <DateField label={ru.today.date} value={date} onChange={setD} />
+          <TimeField label={ru.today.time} value={time} onChange={setTime} />
         </Row>
         {initial.notes && <p className={styles.notes}>{initial.notes}</p>}
       </Card>

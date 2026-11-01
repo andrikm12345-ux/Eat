@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useNavigate } from 'react-router';
 import { formatKcal } from '../../domain/format';
-import { sumNutrients } from '../../domain/nutrients';
+import { emptyNutrients, sumNutrients } from '../../domain/nutrients';
 import type { Template } from '../../domain/types';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
@@ -36,7 +36,8 @@ export default function TemplatesPage({ pick = false }: { pick?: boolean }) {
       {list && list.length > 0 && (
         <ul className={styles.list}>
           {list.map((tpl) => {
-            const kcal = sumNutrients(tpl.items.map((i) => i.snapshot)).kcal;
+            const items = tpl.items ?? [];
+            const kcal = sumNutrients(items.map((i) => i.snapshot ?? emptyNutrients())).kcal;
             return (
               <li key={tpl.id} className={styles.row}>
                 <div className={styles.rowLink}>
@@ -49,7 +50,7 @@ export default function TemplatesPage({ pick = false }: { pick?: boolean }) {
                     <span className={styles.rowMain}>
                       <span className={styles.rowName}>{tpl.name}</span>
                       <span className={styles.rowSub}>
-                        {t.items(tpl.items.length)} · {formatKcal(kcal)} ккал
+                        {t.items(items.length)} · {formatKcal(kcal)} ккал
                       </span>
                     </span>
                   </button>

@@ -29,6 +29,7 @@ import { Button, Card, Collapsible, NumberField, Row, Segmented, TextField } fro
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
 import w from './workout.module.css';
+import { DateField, TimeField } from '../../ui/DateTimeFields';
 
 const t = ru.workouts;
 
@@ -217,8 +218,8 @@ export function WorkoutNewPage() {
 
       <Card>
         <Row>
-          <TextField label={ru.today.date} type="date" value={date} onChange={setDate} />
-          <TextField label={t.start} type="time" value={start} onChange={setStart} />
+          <DateField label={ru.today.date} value={date} onChange={setDate} />
+          <TimeField label={t.start} value={start} onChange={setStart} />
         </Row>
         <p className={w.label}>{t.duration}</p>
         <div className={w.durations} role="group" aria-label={t.duration}>

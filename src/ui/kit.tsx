@@ -280,7 +280,7 @@ export function Notice({
 export function Stat({ label, value }: { label: ReactNode; value: ReactNode }) {
   return (
     <div className={styles.stat}>
-      <span>{label}</span>
+      <span className={styles.statLabel}>{label}</span>
       <span className={styles.statValue}>{value}</span>
     </div>
   );

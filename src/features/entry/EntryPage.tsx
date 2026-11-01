@@ -12,6 +12,7 @@ import { toast } from '../../state/ui';
 import { Button, Card, NumberField, Row, Stat, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
+import { DateField, TimeField } from '../../ui/DateTimeFields';
 
 const t = ru.entry;
 
@@ -91,8 +92,8 @@ function EntryEditor({ entry }: { entry: Entry }) {
       <Card>
         <TextField label={t.mealLabel} value={label} onChange={setLabel} />
         <Row>
-          <TextField label={ru.today.date} type="date" value={date} onChange={setDate} />
-          <TextField label={ru.today.time} type="time" value={time} onChange={setTime} />
+          <DateField label={ru.today.date} value={date} onChange={setDate} />
+          <TimeField label={ru.today.time} value={time} onChange={setTime} />
         </Row>
         <TextField label={t.note} value={note} onChange={setNote} />
       </Card>

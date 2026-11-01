@@ -1,12 +1,34 @@
+import type React from 'react';
 import { formatGrams, formatKcal, formatSignedKcal } from '../../domain/format';
 import type { DayMeta, Goal, Nutrients } from '../../domain/types';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { Card, Switch } from '../../ui/kit';
 import { useAppeared, useCountUp } from '../../ui/motion';
+import { ringFont } from './ringFont';
 import styles from './today.module.css';
 
 const t = ru.today;
+
+/** The size follows the FINAL text, so the number does not change size while it counts up. */
+function RingValue({
+  text,
+  over = false,
+  children,
+}: {
+  text: string;
+  over?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <span
+      className={`${styles.ringValue} ${over ? styles.ringOver : ''}`}
+      style={{ fontSize: ringFont(text) }}
+    >
+      {children}
+    </span>
+  );
+}
 
 function CountUp({ value }: { value: number }) {
   return <>{formatKcal(Math.round(useCountUp(value)))}</>;
@@ -44,27 +66,21 @@ function Ring({ eaten, goal }: { eaten: number; goal: number | null }) {
       </svg>
       <div className={styles.ringCenter}>
         {left === null ? (
-          <>
-            <span className={styles.ringValue}>
-              <CountUp value={eaten} />
-            </span>
-            <span className={styles.ringLabel}>{ru.units.kcal}</span>
-          </>
+          <RingValue text={formatKcal(Math.round(eaten))}>
+            <CountUp value={eaten} />
+          </RingValue>
         ) : over ? (
-          <>
-            <span className={`${styles.ringValue} ${styles.ringOver}`}>
-              {formatSignedKcal(-left)}
-            </span>
-            <span className={styles.ringLabel}>{t.over('').trim()}</span>
-          </>
+          <RingValue text={formatSignedKcal(-left)} over>
+            {formatSignedKcal(-left)}
+          </RingValue>
         ) : (
-          <>
-            <span className={styles.ringValue}>
-              <CountUp value={left} />
-            </span>
-            <span className={styles.ringLabel}>{t.left}</span>
-          </>
+          <RingValue text={formatKcal(Math.round(left))}>
+            <CountUp value={left} />
+          </RingValue>
         )}
+        <span className={styles.ringLabel}>
+          {left === null ? ru.units.kcal : over ? t.over('').trim() : t.left}
+        </span>
       </div>
     </div>
   );

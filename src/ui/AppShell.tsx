@@ -10,6 +10,7 @@ import { ru } from '../i18n/ru';
 import { UpdateBanner } from '../pwa/UpdateBanner';
 import { useUi } from '../state/ui';
 import { BackBar } from './BackBar';
+import { ADD_TABS, MAIN_TABS } from './nav';
 import { BottomNav } from './BottomNav';
 import { ToastHost } from './ToastHost';
 import { Confetti } from './Confetti';
@@ -19,9 +20,7 @@ import styles from './AppShell.module.css';
 
 /** Manifest shortcut actions (`/?action=…`) that open the add sheet. */
 /** The floating "+" only lives on the main tabs; form screens keep their own buttons clear. */
-const MAIN_TABS = new Set(['/', '/diary', '/progress', '/reports', '/more']);
 /** The floating "+" lives on Today and Diary only: elsewhere it only covers content. */
-const ADD_TABS = new Set(['/', '/diary']);
 const ADD_ACTIONS = new Set(['add']);
 
 export function AppShell() {
@@ -69,6 +68,7 @@ export function AppShell() {
 
   return (
     <>
+      <div className={styles.scrim} aria-hidden="true" />
       <UpdateBanner />
       <main className={styles.main}>
         {!MAIN_TABS.has(pathname) && <BackBar />}

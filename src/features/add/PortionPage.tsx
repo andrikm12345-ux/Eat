@@ -8,10 +8,11 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { logFood } from '../../services/entries';
 import { toast, useUi } from '../../state/ui';
-import { Button, Card, Chips, Notice, NumberField, Row, Stat, TextField } from '../../ui/kit';
+import { Button, Card, Chips, Notice, NumberField, Row, Stat } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { useAddTarget } from './addTarget';
 import styles from './add.module.css';
+import { DateField, TimeField } from '../../ui/DateTimeFields';
 
 const t = ru.portion;
 
@@ -106,8 +107,8 @@ function Portion({ food }: { food: Food }) {
         )}
       </Card>
       <Row>
-        <TextField label={ru.today.date} type="date" value={date} onChange={setD} />
-        <TextField label={ru.today.time} type="time" value={time} onChange={setTime} />
+        <DateField label={ru.today.date} value={date} onChange={setD} />
+        <TimeField label={ru.today.time} value={time} onChange={setTime} />
       </Row>
       <Button block onClick={() => void add()} disabled={!valid}>
         {t.add}

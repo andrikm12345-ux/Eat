@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import type { RouteObject } from 'react-router';
 import { AppShell } from './ui/AppShell';
+import { ErrorPage } from './ui/ErrorPage';
 import TodayPage from './features/today/TodayPage';
 
 // "Today" is eager so the home screen paints instantly; other tabs are lazy chunks.
@@ -9,12 +10,25 @@ const lazyPage = (load: () => Promise<{ default: ComponentType }>) => async () =
 });
 
 export const routes: RouteObject[] = [
-  { path: '/wizard', lazy: lazyPage(() => import('./features/onboarding/WizardPage')) },
-  { path: '/welcome', lazy: lazyPage(() => import('./features/account/WelcomePage')) },
-  { path: '/account', lazy: lazyPage(() => import('./features/account/AccountPage')) },
+  {
+    path: '/wizard',
+    errorElement: <ErrorPage />,
+    lazy: lazyPage(() => import('./features/onboarding/WizardPage')),
+  },
+  {
+    path: '/welcome',
+    errorElement: <ErrorPage />,
+    lazy: lazyPage(() => import('./features/account/WelcomePage')),
+  },
+  {
+    path: '/account',
+    errorElement: <ErrorPage />,
+    lazy: lazyPage(() => import('./features/account/AccountPage')),
+  },
   {
     path: '/',
     Component: AppShell,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, Component: TodayPage },
       { path: 'diary', lazy: lazyPage(() => import('./features/diary/DiaryPage')) },

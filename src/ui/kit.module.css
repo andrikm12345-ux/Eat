@@ -218,15 +218,24 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  gap: 12px;
   padding: 6px 0;
   border-bottom: 1px solid var(--border);
 }
 .stat:last-child {
   border-bottom: none;
 }
+.statLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .statValue {
+  flex: none;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .switchRow {
   display: flex;

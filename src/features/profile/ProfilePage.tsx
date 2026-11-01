@@ -6,18 +6,9 @@ import type { ActivityLevel, ExerciseCaloriesMode, Goal, Profile } from '../../d
 import { useGoalFor, useGoals, useProfile } from '../../db/hooks';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
-import {
-  Button,
-  Card,
-  LinkButton,
-  Notice,
-  NumberField,
-  OptionList,
-  Row,
-  Stat,
-  TextField,
-} from '../../ui/kit';
+import { Button, Card, LinkButton, Notice, NumberField, OptionList, Row, Stat } from '../../ui/kit';
 import { Page } from '../../ui/Page';
+import { DateField } from '../../ui/DateTimeFields';
 
 const t = ru.goals;
 
@@ -139,9 +130,8 @@ function ManualGoal({
 
   return (
     <Card title={t.manualTitle}>
-      <TextField
+      <DateField
         label={t.manualValidFrom}
-        type="date"
         value={validFrom}
         onChange={setValidFrom}
         hint={t.manualHint}
@@ -226,10 +216,10 @@ function ProfileForm({ profile }: { profile: Profile }) {
   return (
     <Card title={t.profileTitle}>
       <Stat label={ru.wizard.sexLabel} value={ru.sex[profile.sex]} />
-      <TextField
+      <DateField
         label={ru.wizard.birthDate}
-        type="date"
         value={birthDate}
+        max={toLocalDate(new Date())}
         onChange={touch(setBirthDate)}
       />
       <NumberField

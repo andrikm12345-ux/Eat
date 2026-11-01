@@ -5,9 +5,10 @@ import { SETTINGS } from '../../db/settingsKeys';
 import { ru } from '../../i18n/ru';
 import { buildRemindersIcs, shareOrDownload } from '../../services/ics';
 import { toast } from '../../state/ui';
-import { Button, Card, Notice, OptionList, Switch, TextField } from '../../ui/kit';
+import { Button, Card, Notice, OptionList, Switch } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
+import { TimeField } from '../../ui/DateTimeFields';
 
 const t = ru.reminders;
 
@@ -71,19 +72,13 @@ export default function RemindersPage() {
     <Page title={t.title}>
       <Card title={t.calendarTitle}>
         <p className={styles.muted}>{t.calendarHint}</p>
-        <TextField
-          label={t.weighTime}
-          type="time"
-          value={s.weighTime}
-          onChange={(v) => v && set('weighTime', v)}
-        />
+        <TimeField label={t.weighTime} value={s.weighTime} onChange={(v) => set('weighTime', v)} />
         {weekdaySelect('m-day', t.measureDay, s.measureWeekday, 'measureWeekday')}
         {weekdaySelect('r-day', t.reviewDay, s.reviewWeekday, 'reviewWeekday')}
-        <TextField
+        <TimeField
           label={t.reviewTime}
-          type="time"
           value={s.reviewTime}
-          onChange={(v) => v && set('reviewTime', v)}
+          onChange={(v) => set('reviewTime', v)}
         />
         <Button
           block

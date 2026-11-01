@@ -6,6 +6,11 @@
 }
 
 .title {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
   margin: 4px 0 18px;
   font-size: 30px;
   font-weight: 700;
@@ -25,4 +30,25 @@
   display: block;
   margin-top: 8px;
   font-size: 13px;
+}
+
+.head {
+  display: contents;
+}
+.pinnedPage {
+  padding-top: 0;
+}
+.pinned {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  margin: 0 calc(-16px - var(--safe-right)) 12px calc(-16px - var(--safe-left));
+  padding: calc(12px + var(--safe-top)) calc(16px + var(--safe-right)) 8px
+    calc(16px + var(--safe-left));
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
+.pinned .title {
+  margin: 0;
 }

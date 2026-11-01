@@ -1,4 +1,4 @@
-import { scaleNutrients } from '../domain/nutrients';
+import { emptyNutrients, scaleNutrients } from '../domain/nutrients';
 import { recipePer100g } from '../domain/recipe';
 import type { Entry, Food, LocalDate, LocalTime, Recipe, Template } from '../domain/types';
 import type { Repos } from '../db/repos';
@@ -49,11 +49,14 @@ export async function logRecipe(
 /** Review draft from a template (grams editable; per-100 g derived from the snapshot). */
 export function templateToDraft(t: Template, date: LocalDate, time: LocalTime): ReviewDraft {
   return {
-    items: t.items.map((i) => ({
+    items: (t.items ?? []).map((i) => ({
       key: reviewKey(),
       name: i.name,
       grams: i.grams,
-      per100g: i.grams > 0 ? scaleNutrients(i.snapshot, (100 / i.grams) * 100) : i.snapshot,
+      per100g:
+        i.grams > 0
+          ? scaleNutrients(i.snapshot ?? emptyNutrients(), (100 / i.grams) * 100)
+          : (i.snapshot ?? emptyNutrients()),
       source: 'catalog',
       ...(i.foodId ? { foodId: i.foodId } : {}),
       ...(i.recipeId ? { recipeId: i.recipeId } : {}),
