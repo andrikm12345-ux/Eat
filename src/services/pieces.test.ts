@@ -149,3 +149,30 @@ describe('tidyName', () => {
     expect(tidyName('  Хлеб  ')).toBe('Хлеб');
   });
 });
+
+describe('label serving "100 г"', () => {
+  it('is dropped, a real serving stays', async () => {
+    const { labelToDraft } = await import('./aiFood');
+    const base = {
+      name: 'Пицца',
+      brand: null,
+      barcode: null,
+      per100g: { kcal: 297, protein: 10, fat: 12, carbs: 37 },
+      confidence: 'high' as const,
+      warnings: [],
+    };
+    expect(
+      labelToDraft({ ...base, serving: { label: '100 г', grams: 100 } }).draft.servings,
+    ).toEqual([]);
+    expect(
+      labelToDraft({ ...base, serving: { label: '100г', grams: 100 } }).draft.servings,
+    ).toEqual([]);
+    expect(
+      labelToDraft({ ...base, serving: { label: '1 кусок', grams: 125 } }).draft.servings,
+    ).toEqual([{ label: '1 кусок', grams: 125 }]);
+    expect(
+      labelToDraft({ ...base, serving: { label: '100 г печенья', grams: 40 } }).draft.servings,
+    ).toHaveLength(1);
+    expect(labelToDraft({ ...base, serving: null }).draft.servings).toEqual([]);
+  });
+});

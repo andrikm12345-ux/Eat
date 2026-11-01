@@ -84,6 +84,10 @@ export async function mealToDraft(
   };
 }
 
+/** The AI fills "100 г = 100" when a label only gives values per 100 g: that is no serving. */
+const isHundredGrams = (s: { label: string; grams: number }) =>
+  s.grams === 100 && /^\s*100\s*г/i.test(s.label);
+
 /** "Пицца No2" → "Пицца №2": a Latin "No" before a number is the numero sign. */
 export const tidyName = (s: string): string => s.replace(/\bNo\.?\s?(?=\d)/g, '№').trim();
 
@@ -104,7 +108,7 @@ export function labelToDraft(
       ...(res.brand ? { brand: res.brand } : {}),
       ...((barcode ?? res.barcode) ? { barcode: (barcode ?? res.barcode) as string } : {}),
       per100g,
-      servings: res.serving ? [res.serving] : [],
+      servings: res.serving && !isHundredGrams(res.serving) ? [res.serving] : [],
     },
     warnings,
   };
