@@ -1,14 +1,17 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { checkKey, listModels, type ModelInfo } from '../../ai/client';
 import { AI_DEFAULTS, AI_KEYS, maskKey } from '../../ai/settings';
 import type { ApiFormat } from '../../ai/client';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { toast } from '../../state/ui';
-import { Button, Card, Notice, Row, Segmented, Switch, TextField } from '../../ui/kit';
+import { ACCOUNT } from '../../services/account';
+import { refreshSharedAi } from '../../services/sharedAi';
+import { Button, Card, Collapsible, Notice, Row, Segmented, Switch, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
+import { SharedAdminCard } from './SharedAdminCard';
 import { useAiConfig } from './useAi';
 
 const t = ru.ai;
@@ -30,18 +33,14 @@ export default function AiSettingsPage() {
         .slice(0, 30),
     [],
   );
+  const isAdmin = useLiveQuery(() => repos.settings.get<boolean>(ACCOUNT.aiAdmin, false), []);
+  useEffect(() => {
+    void refreshSharedAi(repos);
+  }, []);
   if (!cfg) return <Page title={t.settingsTitle}>{ru.common.loading}</Page>;
 
-  return (
-    <Page title={t.settingsTitle}>
-      <Card>
-        <Switch
-          label={t.enabled}
-          checked={cfg.enabled}
-          onChange={(v) => void repos.settings.set(AI_KEYS.enabled, v)}
-          hint={t.enabledHint}
-        />
-      </Card>
+  const own = (
+    <>
       <Card title={t.key}>
         {cfg.apiKey && <p className={styles.muted}>{t.keySaved(maskKey(cfg.apiKey))}</p>}
         <TextField
@@ -214,6 +213,29 @@ export default function AiSettingsPage() {
           </>
         )}
       </Card>
+    </>
+  );
+
+  return (
+    <Page title={t.settingsTitle}>
+      {cfg.shared && <Notice tone="info">{t.shared.text}</Notice>}
+      {isAdmin && <SharedAdminCard />}
+      <Card>
+        <Switch
+          label={t.enabled}
+          checked={cfg.enabled}
+          onChange={(v) => void repos.settings.set(AI_KEYS.enabled, v)}
+          hint={t.enabledHint}
+        />
+      </Card>
+      {cfg.shared ? (
+        <Collapsible title={t.shared.own}>
+          <p className={styles.muted}>{t.shared.ownHint}</p>
+          {own}
+        </Collapsible>
+      ) : (
+        own
+      )}
       <Card title={t.consentTitle}>
         <p className={styles.muted}>{t.consentText}</p>
         {cfg.consent ? (

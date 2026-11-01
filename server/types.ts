@@ -12,4 +12,20 @@ export type Deps = {
   signupOpen: boolean;
   /** Milliseconds to wait before answering a failed login (slows guessing). */
   failDelayMs?: () => number;
+  /** Shared AI (server-side key). Absent = the feature is off. */
+  ai?: SharedAiEnv;
+  /** Logins of administrators (they edit the shared AI settings). */
+  adminLogins?: string[];
+  /** For tests: replaces fetch when calling the AI service. */
+  fetchImpl?: typeof fetch;
+};
+
+export type SharedAiEnv = {
+  /** Never leaves the server. */
+  apiKey?: string;
+  baseUrl: string;
+  modelText: string;
+  modelVision: string;
+  /** Requests per user per day (administrators are not limited). */
+  dailyLimit: number;
 };

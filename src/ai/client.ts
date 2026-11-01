@@ -68,6 +68,10 @@ export type CallOptions = {
   /** Address of an Anthropic-compatible API; empty = Anthropic. */
   baseUrl?: string;
   format?: ApiFormat;
+  /** Send through our server (shared AI) with this session token instead of using `apiKey`. */
+  proxyToken?: string;
+  /** Picks the vision model on the server in proxy mode. */
+  vision?: boolean;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
   /** Delay before the single retry (ms); doubled for each attempt. */
@@ -124,7 +128,15 @@ export function toOpenAiMessages(system: string, messages: Message[]) {
   ];
 }
 
-function errorFor(status: number, body: string): AiError {
+function errorFor(status: number, body: string, proxy = false): AiError {
+  if (proxy) {
+    if (status === 401)
+      return new AiError('auth', 'войдите в аккаунт заново — вход устарел', status);
+    if (status === 429 && body.includes('ai_daily_limit'))
+      return new AiError('rate', 'суточный лимит общего ИИ исчерпан, попробуйте завтра', status);
+    if (status === 503 && body.includes('ai_unavailable'))
+      return new AiError('server', 'общий ИИ сейчас выключен администратором', status);
+  }
   if (status === 401 || status === 403) return new AiError('auth', 'Ключ API не принят', status);
   if (status === 402)
     return new AiError(
@@ -154,9 +166,15 @@ async function once(o: CallOptions): Promise<CallResult> {
   const timer = setTimeout(() => ctrl.abort(), o.timeoutMs ?? AI_TIMEOUT_MS);
   const t0 = performance.now();
   try {
-    const format = o.format ?? 'anthropic';
-    const body =
-      format === 'openai'
+    const proxy = !!o.proxyToken;
+    const format = proxy ? 'openai' : (o.format ?? 'anthropic');
+    const body = proxy
+      ? {
+          vision: !!o.vision,
+          max_tokens: o.maxTokens ?? 4000,
+          messages: toOpenAiMessages(o.system, o.messages),
+        }
+      : format === 'openai'
         ? {
             model: o.model,
             max_tokens: o.maxTokens ?? 8000,
@@ -171,9 +189,11 @@ async function once(o: CallOptions): Promise<CallResult> {
           };
     let res: Response;
     try {
-      res = await (o.fetchImpl ?? fetch)(messagesUrl(o.baseUrl, format), {
+      res = await (o.fetchImpl ?? fetch)(proxy ? '/api/ai/chat' : messagesUrl(o.baseUrl, format), {
         method: 'POST',
-        headers: headers(o.apiKey, o.baseUrl, format),
+        headers: proxy
+          ? { authorization: `Bearer ${o.proxyToken}`, 'content-type': 'application/json' }
+          : headers(o.apiKey, o.baseUrl, format),
         body: JSON.stringify(body),
         signal: ctrl.signal,
       });
@@ -181,7 +201,7 @@ async function once(o: CallOptions): Promise<CallResult> {
       if (ctrl.signal.aborted) throw new AiError('timeout', 'ИИ не ответил за 45 секунд');
       throw new AiError('offline', 'Нет связи с сервисом ИИ');
     }
-    if (!res.ok) throw errorFor(res.status, await res.text().catch(() => ''));
+    if (!res.ok) throw errorFor(res.status, await res.text().catch(() => ''), proxy);
     const raw = (await res.json()) as unknown;
     const text = format === 'openai' ? openAiText(raw) : anthropicText(raw);
     return { text, raw, latencyMs: Math.round(performance.now() - t0) };

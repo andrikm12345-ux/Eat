@@ -5,6 +5,9 @@ export const ACCOUNT = {
   token: 'accountToken',
   login: 'accountLogin',
   lastSync: 'accountLastSync',
+  /** The server offers a shared AI to this signed-in user / this user administers it. */
+  aiShared: 'accountAiShared',
+  aiAdmin: 'accountAiAdmin',
   /** The visitor chose to start without an account. */
   skipped: 'accountSkipped',
 } as const;

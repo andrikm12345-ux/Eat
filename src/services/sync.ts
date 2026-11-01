@@ -2,6 +2,7 @@ import { SCHEMA_V1, type TableName } from '../db/db';
 import type { Repos } from '../db/repos';
 import { BASE_FOODS_SETTING } from '../db/baseFoods';
 import { ACCOUNT, getSession, signOut } from './account';
+import { refreshSharedAi } from './sharedAi';
 import { exportJson, importJson, isSecretSetting, parseBackup, type Backup } from './backup';
 
 /** Tables that are derived or heavy and are rebuilt on each device. */
@@ -101,7 +102,10 @@ export function startAccountSync(r: Repos, delayMs = 4000): () => void {
     }
     running = true;
     try {
-      if (await getSession(r)) await syncNow(r);
+      if (await getSession(r)) {
+        await syncNow(r);
+        await refreshSharedAi(r);
+      }
     } finally {
       running = false;
       if (again && !stopped) {

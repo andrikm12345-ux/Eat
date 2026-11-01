@@ -12,5 +12,16 @@ export function envDeps(): Deps {
     now: () => Date.now(),
     signupOpen: process.env.SIGNUP_DISABLED !== '1',
     failDelayMs: randomDelayMs,
+    adminLogins: (process.env.ADMIN_LOGINS ?? '')
+      .split(',')
+      .map((l) => l.trim().toLowerCase())
+      .filter(Boolean),
+    ai: {
+      ...(process.env.AI_API_KEY ? { apiKey: process.env.AI_API_KEY.trim() } : {}),
+      baseUrl: process.env.AI_BASE_URL?.trim() || 'https://tokenharbor.ai/v1',
+      modelText: process.env.AI_MODEL_TEXT?.trim() || 'deepseek-v4.1-flash:free',
+      modelVision: process.env.AI_MODEL_VISION?.trim() || 'deepseek-v4.1-flash:free',
+      dailyLimit: Number(process.env.AI_DAILY_LIMIT) || 60,
+    },
   };
 }

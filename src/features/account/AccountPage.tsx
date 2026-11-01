@@ -13,6 +13,7 @@ import {
   signOut,
   type AccountError,
 } from '../../services/account';
+import { refreshSharedAi } from '../../services/sharedAi';
 import { syncNow } from '../../services/sync';
 import { toast } from '../../state/ui';
 import { Button, Card, Notice, Segmented, Switch, TextField } from '../../ui/kit';
@@ -52,6 +53,7 @@ export default function AccountPage() {
 
   async function finish() {
     const s = await syncNow(repos);
+    await refreshSharedAi(repos);
     setBusy(false);
     if (!s.ok) toast({ text: t.syncErrors[s.reason] });
     navigate('/', { replace: true });

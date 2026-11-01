@@ -3,6 +3,7 @@ import type { Repos } from '../db/repos';
 import { AiError, callClaude, type ContentBlock, type Message } from './client';
 import { extractFirstJson } from './json';
 import { retryMessage } from './prompts';
+import { getSession } from '../services/account';
 import { aiReady, getAiConfig } from './settings';
 import type { Valid } from './validators';
 
@@ -43,10 +44,15 @@ function logRequest(model: string, system: string, messages: Message[]) {
  */
 export async function runAi<T>(r: Repos, o: RunOptions<T>): Promise<{ value: T; runId: string }> {
   const cfg = await getAiConfig(r);
-  if (!cfg.apiKey.trim()) throw new AiError('noKey', 'API-ключ не задан');
+  if (!cfg.ownKey && !cfg.shared) throw new AiError('noKey', 'API-ключ не задан');
   if (!aiReady(cfg)) throw new AiError('disabled', 'ИИ выключен в настройках');
   if (!cfg.consent) throw new AiError('noConsent', 'Нужно согласие на отправку данных ИИ-сервису');
-  const model = o.vision ? cfg.modelVision : cfg.modelText;
+  // A personal key wins; otherwise the shared AI is used through our server.
+  const shared = !cfg.ownKey;
+  const proxyToken = shared ? ((await getSession(r))?.token ?? '') : '';
+  if (shared && !proxyToken)
+    throw new AiError('noKey', 'Войдите в аккаунт, чтобы пользоваться общим ИИ');
+  let model = shared ? 'общий ИИ' : o.vision ? cfg.modelVision : cfg.modelText;
   const messages: Message[] = [{ role: 'user', content: o.content }];
   const t0 = performance.now();
   let lastResponse: unknown = null;
@@ -57,6 +63,7 @@ export async function runAi<T>(r: Repos, o: RunOptions<T>): Promise<{ value: T; 
         apiKey: cfg.apiKey.trim(),
         baseUrl: cfg.baseUrl,
         format: cfg.format,
+        ...(shared ? { proxyToken, vision: o.vision } : {}),
         model,
         system: o.system,
         messages,
@@ -65,6 +72,9 @@ export async function runAi<T>(r: Repos, o: RunOptions<T>): Promise<{ value: T; 
         ...(o.timeoutMs !== undefined ? { timeoutMs: o.timeoutMs } : {}),
       });
       lastResponse = res.raw;
+      // In shared mode the service reports which model it actually used.
+      const used = (res.raw as { model?: unknown }).model;
+      if (shared && typeof used === 'string' && used) model = used;
       let errors: string[];
       try {
         const v = o.validate(extractFirstJson(res.text));

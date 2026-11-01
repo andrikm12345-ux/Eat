@@ -11,27 +11,10 @@ import {
   verifySession,
   type Credentials,
 } from './auth.js';
+import { bearer, json, readJson } from './http.js';
 import type { Deps } from './types.js';
 
 export const MAX_SYNC_BYTES = 4 * 1024 * 1024;
-
-const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
-  });
-
-const readJson = async (req: Request): Promise<Record<string, unknown> | null> => {
-  try {
-    const v = (await req.json()) as unknown;
-    return v && typeof v === 'object' ? (v as Record<string, unknown>) : null;
-  } catch {
-    return null;
-  }
-};
-
-const bearer = (req: Request) =>
-  /^Bearer\s+(.+)$/i.exec(req.headers.get('authorization') ?? '')?.[1] ?? null;
 
 const credPath = (userId: string) => `creds/${userId}.json`;
 
