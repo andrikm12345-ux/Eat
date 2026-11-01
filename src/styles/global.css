@@ -11,6 +11,7 @@
   --accent-contrast: #ffffff;
   --accent-soft: #dcefea;
   --glass: rgb(255 255 255 / 0.82);
+  --glass-solid: rgb(255 255 255 / 0.96);
   --macro-protein: #2f9a8c;
   --macro-fat: #e3a52f;
   --macro-carbs: #6b8ee0;
@@ -47,6 +48,7 @@
     --accent-contrast: #0e1a19;
     --accent-soft: #1f3b37;
     --glass: rgb(27 30 32 / 0.8);
+    --glass-solid: rgb(27 30 32 / 0.97);
     --macro-protein: #55c7b6;
     --macro-fat: #efc15a;
     --macro-carbs: #8aa8f0;

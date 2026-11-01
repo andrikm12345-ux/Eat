@@ -8,9 +8,8 @@
   grid-template-columns: repeat(5, 1fr);
   height: calc(var(--nav-height) + var(--safe-bottom));
   padding: 0 var(--safe-right) var(--safe-bottom) var(--safe-left);
-  background: var(--glass);
-  -webkit-backdrop-filter: blur(22px) saturate(1.6);
-  backdrop-filter: blur(22px) saturate(1.6);
+  /* No backdrop-filter: on iOS WebKit it can leave dark rectangles while scrolling. */
+  background: var(--glass-solid);
   border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
 

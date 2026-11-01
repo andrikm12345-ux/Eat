@@ -146,3 +146,45 @@ describe('planGoal', () => {
     expect(lowCarb.warnings).toContain('floorApplied');
   });
 });
+
+describe('the reported pace when a cap or the floor applies', () => {
+  const gain: PlanInput = {
+    ...base,
+    birthDate: '1999-08-01',
+    today: '2026-11-01',
+    weightKg: 62.7,
+    activityLevel: 'light',
+    goalType: 'gain',
+    rateKgPerWeek: 0.99,
+    targetWeightKg: 70,
+  };
+
+  it('a capped gain reports what +500 kcal really gives, not the requested pace', () => {
+    const plan = planGoal(gain);
+    expect(plan.warnings).toContain('gainCapped');
+    expect(plan.kcal).toBe(round10(plan.tdee + 500));
+    // 500 kcal/day · 7 / 7700 ≈ 0.45 kg/week
+    expect(plan.rateKgPerWeek).toBe(0.45);
+    // …and the time to the target follows the real pace.
+    expect(plan.weeksToTarget).toBe(Math.ceil((70 - 62.7) / 0.45));
+  });
+
+  it('a floored loss reports the pace the floor allows', () => {
+    const plan = planGoal({
+      ...base,
+      sex: 'female',
+      weightKg: 55,
+      heightCm: 160,
+      activityLevel: 'sedentary',
+      rateKgPerWeek: -1,
+      targetWeightKg: 50,
+    });
+    expect(plan.warnings).toContain('floorApplied');
+    expect(plan.rateKgPerWeek).toBeGreaterThan(-1);
+    expect(plan.rateKgPerWeek).toBeLessThanOrEqual(0);
+  });
+
+  it('without a cap the requested pace is kept', () => {
+    expect(planGoal(base).rateKgPerWeek).toBe(-0.4);
+  });
+});

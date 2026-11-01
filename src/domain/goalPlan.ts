@@ -151,13 +151,18 @@ export function planGoal(p: PlanInput): Plan {
   if (t.gainCapped) warnings.push('gainCapped');
   warnings.push(...macros.warnings);
 
+  // When the surplus cap or the calorie floor kicked in, the pace the target really gives
+  // differs from the requested one: report (and store) the real one.
+  const effectiveRate =
+    t.gainCapped || t.floorApplied ? round2(((t.kcal - tdee) * 7) / KCAL_PER_KG) : rate;
+
   let weeksToTarget: number | null = null;
   const target = p.targetWeightKg;
   if (target && target > 0 && p.goalType !== 'maintain') {
     const diff = target - p.weightKg;
     const wrongWay = (p.goalType === 'lose' && diff >= 0) || (p.goalType === 'gain' && diff <= 0);
     if (wrongWay) warnings.push('targetDirection');
-    else if (rate !== 0) weeksToTarget = Math.ceil(Math.abs(diff / rate));
+    else if (effectiveRate !== 0) weeksToTarget = Math.ceil(Math.abs(diff / effectiveRate));
   }
 
   return {
@@ -166,7 +171,7 @@ export function planGoal(p: PlanInput): Plan {
     tdee,
     kcal: t.kcal,
     macros,
-    rateKgPerWeek: rate,
+    rateKgPerWeek: effectiveRate,
     weeksToTarget,
     warnings,
     blocked: rateCheck.blocked,
