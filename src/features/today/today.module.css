@@ -214,15 +214,29 @@
   padding: 0;
   position: relative;
 }
-.gap:hover::after,
-.gap:focus-visible::after {
+.gap::after {
   content: '+';
   position: absolute;
-  left: -20px;
+  left: -6px;
   top: 50%;
-  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
   color: var(--accent);
   font-weight: var(--fw-bold);
+  line-height: 1;
+  transition: transform var(--dur-1) var(--ease-spring);
+}
+.gap:hover::after,
+.gap:focus-visible::after,
+.gap:active::after {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  transform: scale(1.12);
 }
 .stack {
   position: relative;
