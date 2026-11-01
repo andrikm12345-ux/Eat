@@ -636,7 +636,7 @@ export const ru = {
     formatAnthropic: 'Anthropic',
     formatOpenai: 'OpenAI-совместимый',
     formatHint:
-      'Большинство сервисов (OpenRouter, Google Gemini, DeepSeek, Groq) работают в формате OpenAI. Выберите его и укажите адрес сервиса.',
+      'Для TokenHarbor выберите формат OpenAI и нажмите кнопку: адрес подставится сам. Другие сервисы в формате OpenAI тоже подойдут, если вписать их адрес вручную.',
     presets: 'Подставить адрес:',
     needAddress: 'Для формата OpenAI укажите адрес API.',
     baseUrl: 'Адрес API (необязательно)',
