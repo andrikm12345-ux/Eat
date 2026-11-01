@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Link } from 'react-router';
 import { toLocalDate } from '../../domain/dates';
-import { backupDue, breakfastMissing, measurementDue, weighOverdue } from '../../domain/reminders';
+import { backupDue, measurementDue, nothingLoggedYet, weighOverdue } from '../../domain/reminders';
 import { repos } from '../../db/repos';
 import { bannerDismissKey, SETTINGS } from '../../db/settingsKeys';
 import { ru } from '../../i18n/ru';
@@ -36,7 +36,7 @@ export function Banners() {
       const todayEntries = await repos.entries.byDate(today);
       const now = new Date();
       if (
-        breakfastMissing(
+        nothingLoggedYet(
           now.getHours() * 60 + now.getMinutes(),
           todayEntries.map((e) => e.time),
         ) &&

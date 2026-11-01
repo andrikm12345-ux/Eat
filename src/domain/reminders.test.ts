@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { backupDue, breakfastMissing, measurementDue, weighOverdue } from './reminders';
+import { backupDue, measurementDue, nothingLoggedYet, weighOverdue } from './reminders';
 
 describe('measurementDue', () => {
   // 2026-03-01 is a Sunday.
@@ -16,11 +16,12 @@ describe('measurementDue', () => {
 });
 
 describe('other reminders', () => {
-  it('breakfast', () => {
-    expect(breakfastMissing(10 * 60, [])).toBe(false);
-    expect(breakfastMissing(11 * 60, [])).toBe(true);
-    expect(breakfastMissing(12 * 60, ['12:30'])).toBe(true);
-    expect(breakfastMissing(12 * 60, ['08:10'])).toBe(false);
+  it('nothing logged yet', () => {
+    expect(nothingLoggedYet(10 * 60, [])).toBe(false);
+    expect(nothingLoggedYet(11 * 60, [])).toBe(true);
+    // Any entry today, at any time, ends the reminder.
+    expect(nothingLoggedYet(12 * 60, ['12:30'])).toBe(false);
+    expect(nothingLoggedYet(12 * 60, ['08:10'])).toBe(false);
   });
   it('weigh overdue', () => {
     expect(weighOverdue(null, '2026-03-10')).toBeNull();

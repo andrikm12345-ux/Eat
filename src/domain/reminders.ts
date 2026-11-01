@@ -18,9 +18,9 @@ export function measurementDue(
   return parseLocalDate(today).getDay() === weekday;
 }
 
-/** After 11:00 with nothing logged before 11:00 today → "Сегодня ещё нет завтрака". */
-export function breakfastMissing(nowMin: number, todayTimes: readonly string[]): boolean {
-  return nowMin >= 11 * 60 && !todayTimes.some((t) => t < '11:00');
+/** After 11:00 with nothing logged at all today → "Сегодня ещё ничего не записано". */
+export function nothingLoggedYet(nowMin: number, todayTimes: readonly string[]): boolean {
+  return nowMin >= 11 * 60 && todayTimes.length === 0;
 }
 
 /** Days since the last weigh-in when ≥ 3 (else null; null without any weigh-ins). */

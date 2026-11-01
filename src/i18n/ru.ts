@@ -511,7 +511,7 @@ export const ru = {
     close: 'Закрыть',
     measure: 'Пора сделать замеры — прошла неделя.',
     measureAction: 'К замерам',
-    breakfast: 'Сегодня ещё нет завтрака.',
+    breakfast: 'Сегодня ещё ничего не записано.',
     breakfastAction: 'Добавить',
     weigh: (n: number) => `Не взвешивались ${n} дн.`,
     weighAction: 'Взвеситься',
