@@ -16,6 +16,11 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       '@typescript-eslint/consistent-type-imports': 'error',
+      // Non-breaking spaces between a number and its unit are intentional in texts.
+      'no-irregular-whitespace': [
+        'error',
+        { skipStrings: true, skipTemplates: true, skipJSXText: true, skipComments: true },
+      ],
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },

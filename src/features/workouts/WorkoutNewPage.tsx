@@ -36,15 +36,15 @@ const t = ru.workouts;
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
 /** Each kind has its own icon and colour, so the screen is not one flat tone. */
 const LOOK: Record<WorkoutKindId, { Icon: Icon; color: string }> = {
-  bars: { Icon: IconBars, color: '#1f8f7e' },
-  strength: { Icon: IconDumbbell, color: '#6b5ca5' },
-  run: { Icon: IconRun, color: '#e0703a' },
-  walk: { Icon: IconWalk, color: '#3f86d6' },
-  bike: { Icon: IconBike, color: '#d49a1f' },
-  swim: { Icon: IconSwim, color: '#1fa3c4' },
-  yoga: { Icon: IconYoga, color: '#c2508f' },
-  stretch: { Icon: IconStretch, color: '#6f9f3c' },
-  other: { Icon: IconBolt, color: '#7d848a' },
+  bars: { Icon: IconBars, color: 'var(--kind-bars)' },
+  strength: { Icon: IconDumbbell, color: 'var(--kind-strength)' },
+  run: { Icon: IconRun, color: 'var(--kind-run)' },
+  walk: { Icon: IconWalk, color: 'var(--kind-walk)' },
+  bike: { Icon: IconBike, color: 'var(--kind-bike)' },
+  swim: { Icon: IconSwim, color: 'var(--kind-swim)' },
+  yoga: { Icon: IconYoga, color: 'var(--kind-yoga)' },
+  stretch: { Icon: IconStretch, color: 'var(--kind-stretch)' },
+  other: { Icon: IconBolt, color: 'var(--kind-other)' },
 };
 
 const DURATIONS = [15, 30, 45, 60, 90];
@@ -207,7 +207,7 @@ export function WorkoutNewPage() {
               onClick={() => setKind(x.id)}
             >
               <span className={w.kindIcon}>
-                <Icon width={24} height={24} />
+                <Icon />
               </span>
               <span>{x.name}</span>
             </button>
@@ -242,7 +242,7 @@ export function WorkoutNewPage() {
           onChange={setMinutes}
         />
         {followsExercises && (
-          <p className={styles.muted} style={{ margin: '0 0 8px' }}>
+          <p className={styles.muted} style={{ margin: '0 0 var(--sp-2)' }}>
             {t.fromExercises(fromExercises)}
           </p>
         )}
@@ -269,7 +269,7 @@ export function WorkoutNewPage() {
             label: t.intensityName[v],
           }))}
         />
-        <p className={styles.muted} style={{ margin: 0 }}>
+        <p className={styles.muted} style={{ margin: '0' }}>
           {t.intensityHint[intensity]}
         </p>
       </Card>
@@ -308,7 +308,7 @@ export function WorkoutNewPage() {
               label: t.modeShort[m],
             }))}
           />
-          <p className={styles.muted} style={{ margin: 0 }}>
+          <p className={styles.muted} style={{ margin: '0' }}>
             {t.modeHint}
           </p>
         </Card>

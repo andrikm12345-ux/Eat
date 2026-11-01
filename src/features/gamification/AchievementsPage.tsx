@@ -37,7 +37,7 @@ export default function AchievementsPage() {
       return (
         <li key={a.id} className={styles.row} style={{ opacity: row ? 1 : 0.65 }}>
           <div className={styles.rowLink}>
-            <span aria-hidden="true" style={{ fontSize: 22 }}>
+            <span aria-hidden="true" style={{ fontSize: 'var(--fs-3)' }}>
               {row ? '★' : '☆'}
             </span>
             <span className={styles.rowMain}>
@@ -48,7 +48,7 @@ export default function AchievementsPage() {
               {!row && (
                 <div
                   className={todayStyles.bar}
-                  style={{ marginTop: 4 }}
+                  style={{ marginTop: 'var(--sp-1)' }}
                   role="meter"
                   aria-label={a.title}
                   aria-valuemin={0}

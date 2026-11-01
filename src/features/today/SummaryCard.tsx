@@ -104,7 +104,7 @@ function Bar({
       <div className={styles.barLabel}>
         <span>{label}</span>
         <span className={styles.barValue}>
-          {goal ? t.macroOf(formatGrams(value), formatGrams(goal)) : `${formatGrams(value)} г`}
+          {goal ? t.macroOf(formatGrams(value), formatGrams(goal)) : `${formatGrams(value)} г`}
         </span>
       </div>
       <div

@@ -4,9 +4,9 @@
   place-items: center;
   width: 44px;
   height: 44px;
-  margin-right: -10px;
+  margin-right: calc(-1 * var(--sp-2));
   border: none;
-  border-radius: 12px;
+  border-radius: var(--r-field);
   background: transparent;
   color: var(--accent);
   cursor: pointer;
@@ -14,7 +14,7 @@
 .calendar {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 .head {
   display: grid;
@@ -25,32 +25,32 @@
 .head button {
   height: 44px;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--r-field);
   background: transparent;
   color: var(--accent);
-  font-size: 22px;
+  font-size: var(--fs-3);
   cursor: pointer;
 }
 .title {
-  font-size: 17px;
+  font-size: var(--fs-4);
 }
 .grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: var(--sp-1);
 }
 .dow {
   text-align: center;
-  font-size: 13px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
-  padding: 4px 0;
+  padding: var(--sp-1) 0;
   text-transform: uppercase;
 }
 .day,
 .cell {
   height: 44px;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--r-field);
   background: transparent;
   color: var(--text);
   font: inherit;
@@ -67,22 +67,22 @@
 .on {
   background: var(--accent);
   color: var(--accent-contrast);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 .timeSheet {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 .caption {
-  margin: 4px 0 0;
-  font-size: 13px;
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-6);
   color: var(--text-muted);
 }
 .timeGrid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 4px;
+  gap: var(--sp-1);
 }
 .cell {
   background: var(--surface-2);

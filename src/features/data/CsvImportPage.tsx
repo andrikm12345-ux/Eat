@@ -59,7 +59,7 @@ export default function CsvImportPage() {
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          marginBottom: 12,
+          marginBottom: 'var(--sp-3)',
         }}
       >
         {t.file}
@@ -76,7 +76,7 @@ export default function CsvImportPage() {
         <>
           <Card title={t.columns}>
             {FIELDS.map((f) => (
-              <div key={f} style={{ marginBottom: 8 }}>
+              <div key={f} style={{ marginBottom: 'var(--sp-2)' }}>
                 <label className={styles.muted} htmlFor={`col-${f}`}>
                   {t.fields[f]}
                 </label>
@@ -112,7 +112,7 @@ export default function CsvImportPage() {
                             r.steps !== undefined && `${ru.csv.fields.steps}: ${r.steps}`,
                             r.activeKcal !== undefined &&
                               `${ru.csv.fields.activeKcal}: ${r.activeKcal}`,
-                            r.workout && `${r.workout.type}, ${r.workout.durationMin} мин`,
+                            r.workout && `${r.workout.type}, ${r.workout.durationMin} мин`,
                           ]
                             .filter(Boolean)
                             .join(' · ')}

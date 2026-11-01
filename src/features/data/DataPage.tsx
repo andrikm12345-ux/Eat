@@ -69,7 +69,7 @@ export default function DataPage() {
       </Card>
       <Card title={t.csvTitle}>
         <p className={styles.muted}>{t.csvHint}</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
           {Object.entries(t.csvFiles).map(([file, label]) => (
             <Button
               key={file}
@@ -92,7 +92,7 @@ export default function DataPage() {
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            marginBottom: 12,
+            marginBottom: 'var(--sp-3)',
           }}
         >
           {t.importFile}
@@ -117,7 +117,7 @@ export default function DataPage() {
         {pending && (
           <>
             <p>{t.importInfo(formatDateRu(pending.exportedAt.slice(0, 10)), count)}</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
               <Button disabled={busy} onClick={() => void doImport('merge')}>
                 {t.merge}
               </Button>

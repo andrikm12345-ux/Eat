@@ -1,7 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useCelebrate } from '../state/celebrate';
 
-const COLORS = ['#2f6f6a', '#6fb8b0', '#b4a7e6', '#f3e3a6', '#d8e8e5'];
+const TOKENS = ['--green-600', '--green-300', '--macro-carbs', '--macro-fat', '--kind-strength'];
+
+/** Concrete colours of the current theme (a canvas cannot use var()). */
+const palette = () => {
+  const css = getComputedStyle(document.documentElement);
+  return TOKENS.map((t) => css.getPropertyValue(t).trim()).filter(Boolean);
+};
 
 /** Lightweight canvas confetti (no dependency); respects reduced motion. */
 export function Confetti() {
@@ -14,13 +20,15 @@ export function Confetti() {
     if (!ctx) return;
     const w = (canvas.width = window.innerWidth);
     const h = (canvas.height = window.innerHeight);
+    const colors = palette();
+    if (colors.length === 0) return;
     const parts = Array.from({ length: 90 }, () => ({
       x: w / 2,
       y: h / 3,
       vx: (Math.random() - 0.5) * 12,
       vy: Math.random() * -10 - 2,
       s: 4 + Math.random() * 5,
-      c: COLORS[Math.floor(Math.random() * COLORS.length)] as string,
+      c: colors[Math.floor(Math.random() * colors.length)] as string,
       r: Math.random() * Math.PI,
     }));
     let frame = 0;

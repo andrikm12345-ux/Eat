@@ -75,7 +75,7 @@ export default function AiTextPage() {
       <textarea
         id="ai-text"
         className={styles.input}
-        style={{ minHeight: 140, padding: 12, marginTop: 4 }}
+        style={{ minHeight: 140, padding: 'var(--sp-3)', marginTop: 'var(--sp-1)' }}
         placeholder={t.text.placeholder}
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -89,7 +89,7 @@ export default function AiTextPage() {
       </Button>
       {cfg && !useAiNow && (cfg.ready || SHOW_AI_SETUP_HINT) && (
         <Card>
-          <p className={styles.muted} style={{ marginTop: 0 }}>
+          <p className={styles.muted} style={{ marginTop: '0' }}>
             {cfg.ready ? t.text.consentNote : t.text.localNote}
           </p>
           {cfg.ready ? (

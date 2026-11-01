@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 40;
-  background: rgb(10 20 18 / 0.45);
+  background: var(--scrim);
   /* No backdrop-filter: on iOS WebKit a removed blurred layer can leave a dark rectangle behind. */
   display: flex;
   align-items: flex-end;
@@ -16,7 +16,7 @@
   max-height: 90dvh;
   overflow-y: auto;
   background: var(--surface);
-  border-radius: 28px 28px 0 0;
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
   padding: 8px calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom))
     calc(16px + var(--safe-left));
   box-shadow: var(--shadow);
@@ -26,22 +26,22 @@
 .grabber {
   width: 40px;
   height: 4px;
-  border-radius: 2px;
+  border-radius: var(--r-pill);
   background: var(--border);
-  margin: 0 auto 8px;
+  margin: 0 auto var(--sp-2);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-3);
 }
 
 .title {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--fs-4);
+  font-weight: var(--fw-semibold);
 }
 
 .close {

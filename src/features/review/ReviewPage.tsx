@@ -154,7 +154,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
               </div>
             )}
             <p className={styles.macros}>
-              <b>{formatKcal(n.kcal)} ккал</b> · Б {formatGrams(n.protein)} · Ж {formatGrams(n.fat)}{' '}
+              <b>{formatKcal(n.kcal)} ккал</b> · Б {formatGrams(n.protein)} · Ж {formatGrams(n.fat)}{' '}
               · У {formatGrams(n.carbs)}
             </p>
             {i.alt && (
@@ -183,7 +183,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
       })}
       <Card>
         <p className={styles.total}>
-          {t.total}: <b>{formatKcal(totals.kcal)} ккал</b> · Б {formatGrams(totals.protein)} · Ж{' '}
+          {t.total}: <b>{formatKcal(totals.kcal)} ккал</b> · Б {formatGrams(totals.protein)} · Ж{' '}
           {formatGrams(totals.fat)} · У {formatGrams(totals.carbs)}
         </p>
         <Row>

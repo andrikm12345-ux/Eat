@@ -6,7 +6,7 @@
   bottom: calc(var(--nav-height) + var(--safe-bottom) + 80px);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--sp-2);
   align-items: center;
   pointer-events: none;
 }
@@ -16,18 +16,16 @@
   max-width: 520px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 6px 6px 14px;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-1) var(--sp-1) var(--sp-3);
   min-height: 50px;
-  border-radius: 16px;
+  border-radius: var(--r-card);
   background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
-  box-shadow:
-    0 12px 32px rgb(20 30 25 / 0.16),
-    0 2px 6px rgb(20 30 25 / 0.08);
-  font-size: 15px;
-  font-weight: 500;
+  box-shadow: var(--shadow-2);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-semibold);
   animation: toast-in 0.4s var(--ease-spring) both;
 }
 .leaving {
@@ -58,11 +56,11 @@
 }
 .action {
   min-height: var(--tap);
-  padding: 0 14px;
+  padding: 0 var(--sp-3);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--r-field);
   background: transparent;
   color: var(--accent);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   cursor: pointer;
 }

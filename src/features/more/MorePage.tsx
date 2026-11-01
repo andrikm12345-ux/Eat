@@ -16,10 +16,10 @@ export default function MorePage() {
               <li key={key} className={styles.item}>
                 <Link to={to} className={styles.link}>
                   <span className={styles.icon}>
-                    <Icon width={20} height={20} />
+                    <Icon />
                   </span>
                   <span className={styles.label}>{ru.more.items[key]}</span>
-                  <IconChevron className={styles.chevron} width={18} height={18} />
+                  <IconChevron className={styles.chevron} />
                 </Link>
               </li>
             ))}

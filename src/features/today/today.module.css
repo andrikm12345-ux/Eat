@@ -2,14 +2,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--sp-2);
   padding: calc(8px + var(--safe-top)) 0 4px;
   touch-action: pan-y;
 }
 .title {
   margin: 0;
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
   text-align: center;
   flex: 1;
 }
@@ -19,15 +19,15 @@
   border: none;
   background: transparent;
   border-radius: 50%;
-  font-size: 22px;
+  font-size: var(--fs-3);
   cursor: pointer;
   color: var(--text-muted);
 }
 .week {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  margin: 4px 0 12px;
+  gap: var(--sp-1);
+  margin: var(--sp-1) 0 var(--sp-3);
   /* Horizontal gestures are ours (swipe between weeks); vertical scrolling stays native. */
   touch-action: pan-y;
   user-select: none;
@@ -59,11 +59,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 0;
   border: none;
   background: transparent;
-  padding: 4px 0;
-  border-radius: 12px;
+  padding: var(--sp-1) 0;
+  border-radius: var(--r-field);
   cursor: pointer;
   min-height: var(--tap);
 }
@@ -72,7 +72,7 @@
   box-shadow: 0 0 0 1px var(--border);
 }
 .dow {
-  font-size: 11px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
   text-transform: uppercase;
 }
@@ -82,8 +82,8 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
   position: relative;
 }
 .dayNum {
@@ -97,7 +97,7 @@
 .summary {
   display: grid;
   grid-template-columns: 136px 1fr;
-  gap: 16px;
+  gap: var(--sp-4);
   align-items: center;
 }
 .ring {
@@ -115,23 +115,23 @@
   text-align: center;
 }
 .ringValue {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
   font-variant-numeric: tabular-nums;
 }
 .ringLabel {
-  font-size: 12px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
 }
 .ringOver {
-  color: var(--over);
+  color: var(--over-text);
 }
 .eatenRow {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
-  margin-top: 8px;
+  margin-top: var(--sp-2);
 }
 .eatenRow b {
   color: var(--text);
@@ -140,13 +140,13 @@
 .bars {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--sp-2);
 }
 .barLabel {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
-  margin-bottom: 3px;
+  font-size: var(--fs-6);
+  margin-bottom: var(--sp-1);
 }
 .barValue {
   color: var(--text-muted);
@@ -154,34 +154,34 @@
 }
 .bar {
   height: 8px;
-  border-radius: 4px;
+  border-radius: var(--r-pill);
   background: var(--surface-2);
   overflow: hidden;
 }
 .barFill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: var(--r-pill);
   background: var(--accent);
 }
 .barOver {
   background: var(--over);
 }
 .waterValue {
-  margin: 0 0 8px;
+  margin: 0 0 var(--sp-2);
   font-variant-numeric: tabular-nums;
 }
 .waterRow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 .waterRow > * {
   flex: 1;
-  padding: 0 8px;
+  padding: 0 var(--sp-2);
 }
 .flow {
   position: relative;
-  padding-left: 64px;
+  padding-left: 48px;
 }
 .flow::before {
   content: '';
@@ -209,11 +209,11 @@
   top: 50%;
   transform: translateY(-50%);
   color: var(--accent);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 .stack {
   position: relative;
-  margin: 2px 0;
+  margin: 0 0;
 }
 .stackTime {
   position: absolute;
@@ -221,7 +221,7 @@
   width: 44px;
   white-space: nowrap;
   top: 14px;
-  font-size: 12px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -239,8 +239,8 @@
 .rowWrap {
   position: relative;
   overflow: hidden;
-  border-radius: 14px;
-  margin-bottom: 4px;
+  border-radius: var(--r-field);
+  margin-bottom: var(--sp-1);
 }
 .swipeBg {
   position: absolute;
@@ -248,9 +248,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 0 var(--sp-4);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
   background: var(--surface-2);
   color: var(--text-muted);
 }
@@ -258,11 +258,11 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 8px 4px 8px 12px;
+  border-radius: var(--r-field);
+  padding: var(--sp-2) var(--sp-1) var(--sp-2) var(--sp-3);
   min-height: 56px;
   touch-action: pan-y;
   user-select: none;
@@ -289,16 +289,16 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-weight: 500;
+  font-weight: var(--fw-semibold);
 }
 .rowSub {
   display: block;
-  font-size: 12px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 .rowKcal {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -308,34 +308,34 @@
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-size: 20px;
+  font-size: var(--fs-3);
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: var(--r-field);
 }
 .count {
   display: inline-block;
-  margin: 0 4px;
+  margin: 0 var(--sp-1);
   white-space: nowrap;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--fs-6);
+  font-weight: var(--fw-bold);
   color: var(--accent);
 }
 .empty {
   color: var(--text-muted);
-  font-size: 14px;
-  margin: 8px 0;
+  font-size: var(--fs-5);
+  margin: var(--sp-2) 0;
 }
 .sheetActions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 .countBtn {
   border: none;
   background: var(--accent-soft);
-  border-radius: 8px;
-  padding: 4px 6px;
+  border-radius: var(--r-field);
+  padding: var(--sp-1) var(--sp-1);
   min-height: 32px;
   cursor: pointer;
 }
@@ -344,26 +344,26 @@
 .pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: var(--sp-3);
 }
 .pair > * {
   margin-bottom: 0;
 }
 .miniBig {
-  font-size: 30px;
-  font-weight: 700;
+  font-size: var(--fs-1);
+  font-weight: var(--fw-bold);
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
 }
 .miniSub {
-  font-size: 13px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
 }
 .waterBtns {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 .waterBtns > button {
   padding: 0;
@@ -371,24 +371,24 @@
 }
 .undoWater {
   display: block;
-  margin: 8px auto 0;
+  margin: var(--sp-2) auto 0;
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-size: 13px;
-  padding: 6px 8px;
+  font-size: var(--fs-6);
+  padding: var(--sp-1) var(--sp-2);
   cursor: pointer;
 }
 
 .activityRow {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
+  gap: var(--sp-2);
   align-items: end;
   white-space: nowrap;
 }
 .activityRow > :last-child {
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-3);
 }
 
 /* ---- polish ---- */
@@ -402,15 +402,15 @@
     var(--surface);
 }
 .ringValue {
-  font-size: 30px;
+  font-size: var(--fs-1);
   letter-spacing: -0.03em;
 }
 .bar {
   height: 9px;
-  border-radius: 5px;
+  border-radius: var(--r-pill);
 }
 .barFill {
-  border-radius: 5px;
+  border-radius: var(--r-pill);
   transition: width 0.8s var(--ease-out);
 }
 .ringArc {
@@ -422,7 +422,7 @@
 }
 .dayBtnActive .dow {
   color: var(--accent);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 .row {
   background: var(--surface-2);
@@ -432,7 +432,7 @@
   box-shadow: 0 0 0 3px var(--surface);
 }
 .stackTime {
-  font-weight: 500;
+  font-weight: var(--fw-semibold);
 }
 .flow::before {
   background: color-mix(in srgb, var(--border) 80%, transparent);

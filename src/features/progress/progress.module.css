@@ -12,7 +12,7 @@
 }
 .axis {
   fill: var(--text-muted);
-  font-size: 9px;
+  font-size: var(--fs-6);
   font-family: var(--font);
 }
 .dot {
@@ -42,10 +42,10 @@
 }
 .legend {
   display: flex;
-  gap: 16px;
-  font-size: 12px;
+  gap: var(--sp-4);
+  font-size: var(--fs-6);
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: var(--sp-1);
 }
 .legendDot {
   display: inline-block;
@@ -59,52 +59,52 @@
   display: inline-block;
   width: 16px;
   height: 3px;
-  border-radius: 2px;
+  border-radius: var(--r-pill);
   background: var(--accent);
   vertical-align: middle;
 }
 .muted {
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: var(--fs-5);
 }
 .scale {
   position: relative;
   height: 10px;
-  border-radius: 5px;
+  border-radius: var(--r-pill);
   background: var(--surface-2);
-  margin: 28px 0 8px;
+  margin: var(--sp-6) 0 var(--sp-2);
 }
 .scaleFill {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  border-radius: 5px;
+  border-radius: var(--r-pill);
   background: var(--accent);
 }
 .scaleNow {
   position: absolute;
   top: -24px;
   transform: translateX(-50%);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
   white-space: nowrap;
 }
 .scaleLabels {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
 }
 .photos {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: var(--sp-1);
 }
 .photo {
   position: relative;
   aspect-ratio: 3 / 4;
-  border-radius: 10px;
+  border-radius: var(--r-field);
   overflow: hidden;
   background: var(--surface-2);
   border: none;
@@ -120,14 +120,14 @@
   position: absolute;
   left: 4px;
   bottom: 4px;
-  font-size: 11px;
-  background: rgb(0 0 0 / 0.55);
-  color: #fff;
-  padding: 1px 5px;
-  border-radius: 5px;
+  font-size: var(--fs-6);
+  background: var(--media-scrim);
+  color: var(--white);
+  padding: 0 var(--sp-1);
+  border-radius: var(--r-pill);
 }
 .full {
   width: 100%;
-  border-radius: 12px;
-  margin-bottom: 12px;
+  border-radius: var(--r-field);
+  margin-bottom: var(--sp-3);
 }

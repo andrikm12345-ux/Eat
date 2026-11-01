@@ -19,8 +19,8 @@ export function StreakRow({ meta, empty }: { meta: DayMeta; empty: boolean }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 8,
-        marginBottom: 8,
+        gap: 'var(--sp-2)',
+        marginBottom: 'var(--sp-2)',
         flexWrap: 'wrap',
       }}
     >
@@ -30,11 +30,11 @@ export function StreakRow({ meta, empty }: { meta: DayMeta; empty: boolean }) {
           style={{
             color: 'var(--accent)',
             background: 'var(--accent-soft)',
-            fontWeight: 600,
+            fontWeight: 'var(--fw-semibold)',
             textDecoration: 'none',
-            fontSize: 13,
-            padding: '5px 12px',
-            borderRadius: 999,
+            fontSize: 'var(--fs-6)',
+            padding: 'var(--sp-1) var(--sp-3)',
+            borderRadius: 'var(--r-sheet)',
           }}
         >
           {t.chip(streaks.log.current)}

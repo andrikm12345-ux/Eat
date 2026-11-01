@@ -49,7 +49,7 @@ export default function ProgressPage() {
           from={from < first && period === 'all' ? first : from}
           to={today}
         />
-        <div style={{ marginTop: 12 }}>
+        <div style={{ marginTop: 'var(--sp-3)' }}>
           <Button block variant="secondary" onClick={() => setWeighOpen(true)}>
             {ru.weight.weigh}
           </Button>
@@ -140,14 +140,14 @@ function WeightHistory({ weights }: { weights: Weight[] }) {
           <li key={w.id} className={listStyles.row}>
             <div className={listStyles.rowLink}>
               <span className={listStyles.rowMain}>
-                <span className={listStyles.rowName}>{formatKg(w.kg)} кг</span>
+                <span className={listStyles.rowName}>{formatKg(w.kg)} кг</span>
                 <span className={listStyles.rowSub}>
                   {formatDateRu(w.date, 'd MMMM')} · {w.time}
                 </span>
               </span>
               <Button
                 variant="ghost"
-                aria-label={`${ru.common.delete}: ${formatKg(w.kg)} кг, ${formatDateRu(w.date)}`}
+                aria-label={`${ru.common.delete}: ${formatKg(w.kg)} кг, ${formatDateRu(w.date)}`}
                 onClick={async () => {
                   await repos.weights.softDelete(w.id);
                   toast({

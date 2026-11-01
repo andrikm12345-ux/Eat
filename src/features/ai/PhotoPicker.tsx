@@ -17,14 +17,14 @@ export function PhotoPicker({
   const urls = useMemo(() => files.map((f) => URL.createObjectURL(f)), [files]);
   useEffect(() => () => urls.forEach((u) => URL.revokeObjectURL(u)), [urls]);
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 'var(--sp-3)' }}>
       {files.length > 0 && (
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 6,
-            marginBottom: 8,
+            gap: 'var(--sp-1)',
+            marginBottom: 'var(--sp-2)',
           }}
         >
           {urls.map((u, i) => (
@@ -34,9 +34,9 @@ export function PhotoPicker({
               aria-label={`${ru.ai.photo.remove} ${i + 1}`}
               onClick={() => onChange(files.filter((_, j) => j !== i))}
               style={{
-                padding: 0,
+                padding: '0',
                 border: 'none',
-                borderRadius: 8,
+                borderRadius: 'var(--r-field)',
                 overflow: 'hidden',
                 aspectRatio: '1',
                 background: 'var(--surface-2)',

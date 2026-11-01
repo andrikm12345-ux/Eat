@@ -36,7 +36,14 @@ export function OwnConnection({ cfg }: { cfg: AiConfig }) {
         {cfg.format === 'openai' && (
           <>
             <p className={styles.muted}>{t.presets}</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 'var(--sp-2)',
+                marginBottom: 'var(--sp-3)',
+              }}
+            >
               {PRESETS.map((p) => (
                 <Button
                   key={p.url}
@@ -150,7 +157,13 @@ export function OwnConnection({ cfg }: { cfg: AiConfig }) {
               <Switch label={t.onlyVision} checked={onlyVision} onChange={setOnlyVision} />
             )}
             <ul
-              style={{ maxHeight: 320, overflow: 'auto', padding: 0, margin: 0, listStyle: 'none' }}
+              style={{
+                maxHeight: 320,
+                overflow: 'auto',
+                padding: '0',
+                margin: '0',
+                listStyle: 'none',
+              }}
             >
               {models
                 .filter((m) => (!onlyFree || m.free) && (!onlyVision || m.vision))
@@ -163,9 +176,9 @@ export function OwnConnection({ cfg }: { cfg: AiConfig }) {
                     key={m.id}
                     style={{
                       display: 'flex',
-                      gap: 8,
+                      gap: 'var(--sp-2)',
                       alignItems: 'center',
-                      padding: '6px 0',
+                      padding: 'var(--sp-1) 0',
                       flexWrap: 'wrap',
                     }}
                   >

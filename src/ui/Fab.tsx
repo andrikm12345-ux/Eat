@@ -14,7 +14,7 @@ export function Fab({ onClick, expanded }: Props) {
       aria-haspopup="dialog"
       aria-expanded={expanded}
     >
-      <IconPlus width={28} height={28} />
+      <IconPlus />
     </button>
   );
 }

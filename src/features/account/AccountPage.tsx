@@ -104,7 +104,12 @@ export default function AccountPage() {
             <Notice tone="info">{t.saveCodeText}</Notice>
             <Card title={t.saveCodeTitle}>
               <p
-                style={{ fontSize: 22, fontWeight: 700, letterSpacing: 1, wordBreak: 'break-all' }}
+                style={{
+                  fontSize: 'var(--fs-3)',
+                  fontWeight: 'var(--fw-bold)',
+                  letterSpacing: 1,
+                  wordBreak: 'break-all',
+                }}
               >
                 {newCode}
               </p>

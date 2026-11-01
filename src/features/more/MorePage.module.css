@@ -1,10 +1,10 @@
 .group {
-  margin-bottom: 22px;
+  margin-bottom: var(--sp-5);
 }
 .groupTitle {
-  margin: 0 4px 8px;
-  font-size: 13px;
-  font-weight: 600;
+  margin: 0 var(--sp-1) var(--sp-2);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -24,9 +24,9 @@
 .link {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--sp-3);
   min-height: 56px;
-  padding: 0 16px;
+  padding: 0 var(--sp-4);
   color: var(--text);
   text-decoration: none;
 }
@@ -37,7 +37,7 @@
   flex: none;
   width: 36px;
   height: 36px;
-  border-radius: 11px;
+  border-radius: var(--r-field);
   display: grid;
   place-items: center;
   background: var(--accent-soft);

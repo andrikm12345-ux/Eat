@@ -45,7 +45,7 @@ export function WeightChart({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label={`${ru.progress.chart}: ${formatKg((visible[0] as TrendPoint).trend)} → ${formatKg((visible[visible.length - 1] as TrendPoint).trend)} кг`}
+        aria-label={`${ru.progress.chart}: ${formatKg((visible[0] as TrendPoint).trend)} → ${formatKg((visible[visible.length - 1] as TrendPoint).trend)} кг`}
       >
         {ticks.map((v) => (
           <g key={v}>

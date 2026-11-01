@@ -31,7 +31,7 @@ export function WeekReportView() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: 8,
+          marginBottom: 'var(--sp-2)',
         }}
       >
         <Button variant="ghost" aria-label={t.prevWeek} onClick={() => setWs(addDays(ws, -7))}>
@@ -111,7 +111,7 @@ function Week({ w }: { w: WeekReport }) {
             <Stat
               key={s.name}
               label={s.name}
-              value={`${formatKcal(s.value)} ккал · ${Math.round(s.share * 100)} %`}
+              value={`${formatKcal(s.value)} ккал · ${Math.round(s.share * 100)} %`}
             />
           ))}
         </Card>
@@ -122,7 +122,7 @@ function Week({ w }: { w: WeekReport }) {
             <Stat
               key={s.name}
               label={s.name}
-              value={`${formatGrams(s.value)} г · ${Math.round(s.share * 100)} %`}
+              value={`${formatGrams(s.value)} г · ${Math.round(s.share * 100)} %`}
             />
           ))}
         </Card>
@@ -136,10 +136,10 @@ function Week({ w }: { w: WeekReport }) {
           flagged.map((m) => (
             <div
               key={m.def.key}
-              style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}
+              style={{ padding: 'var(--sp-1) 0', borderBottom: '1px solid var(--border)' }}
             >
               <strong>{m.def.name}</strong>
-              <div className={listStyles.muted} style={{ fontSize: 13 }}>
+              <div className={listStyles.muted} style={{ fontSize: 'var(--fs-6)' }}>
                 {m.above ? t.microAbove : t.microBelow}: {t.microNorm(Math.round(m.ratio * 100))},{' '}
                 {t.microCoverage(Math.round(m.coverage * 100))}
               </div>
@@ -148,11 +148,13 @@ function Week({ w }: { w: WeekReport }) {
         )}
       </Card>
       <Card title={t.activity}>
-        <p style={{ margin: '4px 0' }}>{t.water(formatKcal(w.waterAvg))}</p>
+        <p style={{ margin: 'var(--sp-1) 0' }}>{t.water(formatKcal(w.waterAvg))}</p>
         {w.stepsAvg !== null && (
-          <p style={{ margin: '4px 0' }}>{t.steps(formatKcal(w.stepsAvg))}</p>
+          <p style={{ margin: 'var(--sp-1) 0' }}>{t.steps(formatKcal(w.stepsAvg))}</p>
         )}
-        <p style={{ margin: '4px 0' }}>{t.workouts(w.workouts.count, w.workouts.minutes)}</p>
+        <p style={{ margin: 'var(--sp-1) 0' }}>
+          {t.workouts(w.workouts.count, w.workouts.minutes)}
+        </p>
       </Card>
       <Insights w={w} />
     </>
@@ -195,9 +197,9 @@ function Insights({ w }: { w: WeekReport }) {
         <>
           <p className={listStyles.muted}>{t.aiQuality[saved.dataQuality]}</p>
           {saved.observations.map((o, i) => (
-            <div key={i} style={{ marginBottom: 10 }}>
+            <div key={i} style={{ marginBottom: 'var(--sp-2)' }}>
               <strong>{o.title}</strong>
-              <p style={{ margin: '2px 0' }}>{o.text}</p>
+              <p style={{ margin: '0 0' }}>{o.text}</p>
               {o.evidence && <p className={listStyles.muted}>{o.evidence}</p>}
             </div>
           ))}

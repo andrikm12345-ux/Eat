@@ -38,7 +38,7 @@ export function ActivityCard({
         </LinkButton>
       </div>
       {workouts.length > 0 && (
-        <ul className={addStyles.list} style={{ marginBottom: 8 }}>
+        <ul className={addStyles.list} style={{ marginBottom: 'var(--sp-2)' }}>
           {workouts.map((w) => (
             <li key={w.id} className={addStyles.row}>
               <div className={addStyles.rowLink}>
@@ -52,14 +52,14 @@ export function ActivityCard({
                   ) : null}
                 </span>
                 {w.kcal ? (
-                  <span className={addStyles.rowRight}>{formatKcal(w.kcal)} ккал</span>
+                  <span className={addStyles.rowRight}>{formatKcal(w.kcal)} ккал</span>
                 ) : null}
               </div>
             </li>
           ))}
         </ul>
       )}
-      <p className={addStyles.muted} style={{ margin: 0, fontSize: 13 }}>
+      <p className={addStyles.muted} style={{ margin: '0', fontSize: 'var(--fs-6)' }}>
         {mode === 'none' || bonus === 0 ? t.noGoalChange : t.goalBonus(formatKcal(bonus))}
       </p>
     </Card>

@@ -159,10 +159,10 @@ function Editor({ recipe }: { recipe: Recipe | null }) {
         <NumberField label={t.servings} value={servings} onChange={setServings} />
         <p className={styles.muted}>{t.perServing(formatGrams(serving))}</p>
         <h3 className={styles.sectionTitle}>{t.per100}</h3>
-        <Stat label={ru.foods.kcal} value={`${formatKcal(per100g.kcal)} ккал`} />
+        <Stat label={ru.foods.kcal} value={`${formatKcal(per100g.kcal)} ккал`} />
         <Stat
           label={`${ru.foods.protein} / ${ru.foods.fat} / ${ru.foods.carbs}`}
-          value={`${formatGrams(per100g.protein)} / ${formatGrams(per100g.fat)} / ${formatGrams(per100g.carbs)} г`}
+          value={`${formatGrams(per100g.protein)} / ${formatGrams(per100g.fat)} / ${formatGrams(per100g.carbs)} г`}
         />
       </Card>
       <Card title={t.steps}>
@@ -219,7 +219,7 @@ function Editor({ recipe }: { recipe: Recipe | null }) {
         <textarea
           aria-label={t.importAi}
           className={styles.input}
-          style={{ minHeight: 140, padding: 12 }}
+          style={{ minHeight: 140, padding: 'var(--sp-3)' }}
           value={importText}
           onChange={(e) => setImportText(e.target.value)}
         />
@@ -270,8 +270,8 @@ function PhotoInput({
             width: '100%',
             maxHeight: 200,
             objectFit: 'cover',
-            borderRadius: 12,
-            marginBottom: 8,
+            borderRadius: 'var(--r-field)',
+            marginBottom: 'var(--sp-2)',
           }}
         />
       )}
@@ -282,7 +282,7 @@ function PhotoInput({
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          marginBottom: 12,
+          marginBottom: 'var(--sp-3)',
         }}
       >
         {label}

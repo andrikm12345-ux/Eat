@@ -1,27 +1,27 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
 }
 .banner {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   background: var(--accent-soft);
   border-radius: var(--radius);
-  padding: 4px 4px 4px 14px;
+  padding: var(--sp-1) var(--sp-1) var(--sp-1) var(--sp-3);
   min-height: 52px;
 }
 .text {
   flex: 1;
-  font-size: 14px;
+  font-size: var(--fs-5);
 }
 .action {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--accent);
   text-decoration: none;
-  padding: 0 8px;
+  padding: 0 var(--sp-2);
   min-height: var(--tap);
   display: inline-flex;
   align-items: center;
@@ -31,7 +31,7 @@
   height: var(--tap);
   border: none;
   background: transparent;
-  font-size: 20px;
+  font-size: var(--fs-3);
   color: var(--text-muted);
   cursor: pointer;
 }

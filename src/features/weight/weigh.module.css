@@ -2,25 +2,25 @@
   margin: 0;
   text-align: center;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: var(--fs-5);
 }
 .display {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 8px 0 12px;
+  margin: var(--sp-2) 0 var(--sp-3);
 }
 .value {
-  font-size: 44px;
-  font-weight: 700;
+  font-size: var(--fs-1);
+  font-weight: var(--fw-bold);
   font-variant-numeric: tabular-nums;
 }
 .fresh {
   color: var(--text-muted);
 }
 .unit {
-  font-size: 20px;
-  font-weight: 500;
+  font-size: var(--fs-3);
+  font-weight: var(--fw-semibold);
 }
 .stepBtn {
   width: 56px;
@@ -28,28 +28,28 @@
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface-2);
-  font-size: 24px;
+  font-size: var(--fs-2);
   cursor: pointer;
 }
 .invalid {
   text-align: center;
   color: var(--attention-text);
-  margin: 0 0 8px;
-  font-size: 13px;
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-6);
 }
 .keypad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
 }
 .key {
   min-height: 52px;
-  border-radius: 12px;
+  border-radius: var(--r-field);
   border: none;
   background: var(--surface-2);
-  font-size: 22px;
-  font-weight: 600;
+  font-size: var(--fs-3);
+  font-weight: var(--fw-semibold);
   cursor: pointer;
 }
 .key:active {
@@ -58,18 +58,18 @@
 .trend {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
 }
 .big {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
   font-variant-numeric: tabular-nums;
 }
 .small {
-  font-size: 13px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
 }
 .arrow {
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }

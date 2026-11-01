@@ -37,7 +37,7 @@ export default function AiSettingsPage() {
   return (
     <Page title={t.settingsTitle}>
       <Card>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
           <Switch
             label={t.enabled}
             checked={cfg.enabled}
@@ -71,7 +71,7 @@ export default function AiSettingsPage() {
             <ul className={styles.list}>
               {logs.map((l) => (
                 <li key={l.id} className={styles.row}>
-                  <details style={{ padding: '10px 14px', width: '100%' }}>
+                  <details style={{ padding: 'var(--sp-2) var(--sp-3)', width: '100%' }}>
                     <summary>
                       {t.logItem(t.kinds[l.kind], l.model, l.latencyMs)}
                       {l.error ? ` · ${l.error}` : ''}
@@ -79,7 +79,7 @@ export default function AiSettingsPage() {
                     <pre
                       style={{
                         whiteSpace: 'pre-wrap',
-                        fontSize: 11,
+                        fontSize: 'var(--fs-6)',
                         maxHeight: 240,
                         overflow: 'auto',
                       }}

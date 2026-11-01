@@ -47,7 +47,7 @@ export default function RemindersPage() {
   const [denied, setDenied] = useState(false);
   if (!s) return <Page title={t.title}>{ru.common.loading}</Page>;
   const weekdaySelect = (id: string, label: string, value: number, key: keyof typeof SETTINGS) => (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 'var(--sp-3)' }}>
       <label className={styles.muted} htmlFor={id}>
         {label}
       </label>

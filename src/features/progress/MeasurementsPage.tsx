@@ -47,12 +47,12 @@ export default function MeasurementsPage() {
         <Card>
           <Stat
             label={`${t.bodyFat} (${formatDateRu(latest.date, 'd MMM')})`}
-            value={`${formatGrams(latest.bodyFatPct)} %`}
+            value={`${formatGrams(latest.bodyFatPct)} %`}
           />
           {weightNear(latest.date) !== undefined && (
             <Stat
               label={t.lbm}
-              value={`${formatKg(leanMass(weightNear(latest.date) as number, latest.bodyFatPct))} кг`}
+              value={`${formatKg(leanMass(weightNear(latest.date) as number, latest.bodyFatPct))} кг`}
             />
           )}
           <p className={listStyles.muted}>{t.bodyFatNote}</p>
@@ -88,7 +88,7 @@ export default function MeasurementsPage() {
                   </span>
                 </span>
                 {m.bodyFatPct !== undefined && (
-                  <span className={listStyles.rowRight}>{formatGrams(m.bodyFatPct)} %</span>
+                  <span className={listStyles.rowRight}>{formatGrams(m.bodyFatPct)} %</span>
                 )}
               </button>
             </li>
@@ -173,7 +173,7 @@ function MeasurementForm({
       </Row>
       {bf !== null ? (
         <Notice tone="info">
-          {t.bodyFat}: {formatGrams(bf)} % — {t.bodyFatNote}
+          {t.bodyFat}: {formatGrams(bf)} % — {t.bodyFatNote}
         </Notice>
       ) : (
         <p className={listStyles.muted}>{t.needFor(sex)}</p>

@@ -35,11 +35,11 @@ export function TrendCard() {
                 <span className={styles.arrow} aria-label={t.arrow[dir]}>
                   {ARROWS[dir]}
                 </span>{' '}
-                {`${delta > 0 ? '+' : delta < 0 ? '−' : ''}${formatKg(Math.abs(delta))} кг`}
+                {`${delta > 0 ? '+' : delta < 0 ? '−' : ''}${formatKg(Math.abs(delta))} кг`}
               </>
             )}
           </div>
-          <div className={styles.small} style={{ marginBottom: 12 }}>
+          <div className={styles.small} style={{ marginBottom: 'var(--sp-3)' }}>
             {t.raw} {formatKg(last.kg)} · {t.daysAgo(daysBetween(last.date, today))}
           </div>
         </>

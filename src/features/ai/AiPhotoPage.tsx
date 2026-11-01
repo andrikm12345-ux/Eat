@@ -74,7 +74,7 @@ function AiPhotoInner() {
   if (product) {
     return (
       <>
-        <h2 style={{ fontSize: 18 }}>{t.photo.productTitle}</h2>
+        <h2 style={{ fontSize: 'var(--fs-4)' }}>{t.photo.productTitle}</h2>
         {product.warnings.map((w) => (
           <Notice key={w}>{w}</Notice>
         ))}

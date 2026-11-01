@@ -4,6 +4,7 @@ import { isoToRu, maskDate, maskTime, parseRuDate, parseRuTime } from './dateTex
 import type { LocalDate, LocalTime } from '../domain/types';
 import { ru } from '../i18n/ru';
 import { BottomSheet } from './BottomSheet';
+import { IconCalendar, IconClock } from './icons';
 import { Button } from './kit';
 import styles from './kit.module.css';
 import pick from './DateTimeFields.module.css';
@@ -67,34 +68,6 @@ function useMasked<V extends string>(p: Parts<V>) {
   };
 }
 
-function Icon({ time }: { time?: boolean }) {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {time ? (
-        <>
-          <circle cx="12" cy="12" r="8.5" />
-          <path d="M12 7.5V12l3 2" />
-        </>
-      ) : (
-        <>
-          <rect x="4" y="5.5" width="16" height="14" rx="3" />
-          <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
-        </>
-      )}
-    </svg>
-  );
-}
-
 /** Date as 01.11.2026: type it or pick it on a calendar. */
 export function DateField({
   label,
@@ -146,7 +119,7 @@ export function DateField({
           aria-label={`${t.pickDate}: ${label}`}
           onClick={() => setOpen(true)}
         >
-          <Icon />
+          <IconCalendar />
         </button>
       </div>
       {f.error ? <span className={styles.error}>{f.error}</span> : null}
@@ -303,7 +276,7 @@ export function TimeField({
           aria-label={`${t.pickTime}: ${label}`}
           onClick={() => setOpen(true)}
         >
-          <Icon time />
+          <IconClock />
         </button>
       </div>
       {f.error ? <span className={styles.error}>{f.error}</span> : null}

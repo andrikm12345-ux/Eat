@@ -7,6 +7,8 @@ import { routes } from './routes';
 import { startAccountSync } from './services/sync';
 import { startTdeeSync } from './services/tdeeSync';
 import { startGamificationSync } from './services/gamificationSync';
+import './styles/fonts.css';
+import './styles/tokens.css';
 import './styles/global.css';
 
 const router = createBrowserRouter(routes);

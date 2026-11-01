@@ -13,11 +13,11 @@ export function WaterCard({ meta, goalMl }: { meta: DayMeta; goalMl: number | un
   return (
     <Card title={t.title}>
       <div className={styles.miniBig}>{formatKcal(meta.waterMl)}</div>
-      <div className={styles.miniSub} style={{ marginBottom: 8 }}>
-        {goalMl ? `из ${formatKcal(goalMl)} мл` : 'мл'}
+      <div className={styles.miniSub} style={{ marginBottom: 'var(--sp-2)' }}>
+        {goalMl ? `из ${formatKcal(goalMl)} мл` : 'мл'}
       </div>
       {goalMl ? (
-        <div className={styles.bar} style={{ marginBottom: 12 }} aria-hidden="true">
+        <div className={styles.bar} style={{ marginBottom: 'var(--sp-3)' }} aria-hidden="true">
           <div
             className={styles.barFill}
             style={{ width: `${Math.min(1, meta.waterMl / goalMl) * 100}%` }}

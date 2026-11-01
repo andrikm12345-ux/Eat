@@ -50,15 +50,15 @@ function CheckinView({ c }: { c: Checkin }) {
   return (
     <Page title={t.title}>
       <Card>
-        <Stat label={t.current} value={goal ? `${formatKcal(goal.kcal)} ккал` : '—'} />
-        <Stat label={t.proposed} value={`${formatKcal(c.proposedKcal)} ккал`} />
+        <Stat label={t.current} value={goal ? `${formatKcal(goal.kcal)} ккал` : '—'} />
+        <Stat label={t.proposed} value={`${formatKcal(c.proposedKcal)} ккал`} />
         <p>{c.explanation}</p>
         <p className={listStyles.muted}>{t.note}</p>
       </Card>
       {manual && (
         <NumberField label={t.manualKcal} suffix="ккал" value={kcal} onChange={setKcal} autoFocus />
       )}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
         {manual ? (
           <Button
             onClick={() => kcal && void accept(kcal)}

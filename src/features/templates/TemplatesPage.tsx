@@ -44,13 +44,13 @@ export default function TemplatesPage({ pick = false }: { pick?: boolean }) {
                   <button
                     type="button"
                     className={styles.rowLink}
-                    style={{ padding: 0 }}
+                    style={{ padding: '0' }}
                     onClick={() => use(tpl)}
                   >
                     <span className={styles.rowMain}>
                       <span className={styles.rowName}>{tpl.name}</span>
                       <span className={styles.rowSub}>
-                        {t.items(items.length)} · {formatKcal(kcal)} ккал
+                        {t.items(items.length)} · {formatKcal(kcal)} ккал
                       </span>
                     </span>
                   </button>

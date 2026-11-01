@@ -29,7 +29,7 @@ export default function TodayPage() {
   return (
     <section
       className={`${pageStyles.page} stagger`}
-      style={{ paddingTop: 0 }}
+      style={{ paddingTop: '0' }}
       aria-label={ru.pages.today.title}
     >
       <DayHeader />

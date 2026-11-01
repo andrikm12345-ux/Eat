@@ -3,17 +3,17 @@
   top: calc(var(--tap) + var(--safe-top));
   z-index: 5;
   background: var(--bg);
-  padding: 8px 0;
+  padding: var(--sp-2) 0;
 }
 .input {
   width: 100%;
   min-height: 48px;
-  border-radius: 14px;
+  border-radius: var(--r-field);
   border: 1px solid var(--border);
   background: var(--surface);
-  padding: 0 14px;
+  padding: 0 var(--sp-3);
   font: inherit;
-  font-size: 17px;
+  font-size: var(--fs-4);
   color: var(--text);
 }
 .input:focus,
@@ -22,12 +22,12 @@
   border-color: var(--accent);
 }
 .sectionTitle {
-  font-size: 13px;
+  font-size: var(--fs-6);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-muted);
-  margin: 16px 4px 6px;
-  font-weight: 600;
+  margin: var(--sp-4) var(--sp-1) var(--sp-1);
+  font-weight: var(--fw-semibold);
 }
 .list {
   list-style: none;
@@ -48,8 +48,8 @@
   transition: background-color 0.15s ease;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
   min-height: 52px;
   color: var(--text);
   text-decoration: none;
@@ -72,28 +72,28 @@
 }
 .rowSub {
   display: block;
-  font-size: 13px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
 }
 .rowRight {
-  font-size: 13px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
   text-align: right;
   white-space: nowrap;
 }
 .badge {
   display: inline-block;
-  font-size: 11px;
-  border-radius: 6px;
-  padding: 1px 6px;
+  font-size: var(--fs-6);
+  border-radius: var(--r-pill);
+  padding: 0 var(--sp-1);
   background: var(--surface-2);
   color: var(--text-muted);
-  margin-left: 6px;
+  margin-left: var(--sp-1);
 }
 .actions {
   display: flex;
-  gap: 8px;
-  margin: 12px 0;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0;
 }
 .actions > * {
   flex: 1;
@@ -101,7 +101,7 @@
 .stepper {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 .stepper > :nth-child(2) {
   flex: 1;
@@ -109,41 +109,41 @@
 .stepBtn {
   width: 52px;
   height: 46px;
-  margin-bottom: 12px;
-  border-radius: 12px;
+  margin-bottom: var(--sp-3);
+  border-radius: var(--r-field);
   border: 1px solid var(--border);
   background: var(--surface-2);
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--fs-4);
+  font-weight: var(--fw-semibold);
   cursor: pointer;
 }
 .big {
-  font-size: 34px;
-  font-weight: 700;
-  margin: 8px 0 0;
+  font-size: var(--fs-1);
+  font-weight: var(--fw-bold);
+  margin: var(--sp-2) 0 0;
   font-variant-numeric: tabular-nums;
 }
 .muted {
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: var(--fs-5);
 }
 
 /* Workout exercises */
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
 }
 .chip {
   border: 1px solid var(--border);
   background: var(--surface-2);
   color: var(--text);
-  border-radius: 999px;
-  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  padding: var(--sp-2) var(--sp-3);
   font: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--fs-5);
+  font-weight: var(--fw-semibold);
   cursor: pointer;
 }
 .chip:active {
@@ -152,13 +152,13 @@
 .exercise {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 10px 12px 0;
-  margin-bottom: 10px;
+  padding: var(--sp-2) var(--sp-3) 0;
+  margin-bottom: var(--sp-2);
   animation: rise 0.3s var(--ease-out) both;
 }
 .exerciseHead {
   display: flex;
-  gap: 8px;
+  gap: var(--sp-2);
   align-items: flex-end;
 }
 .exerciseHead > :first-child {
@@ -168,16 +168,16 @@
 .exerciseRemove {
   width: 44px;
   height: 46px;
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-3);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--r-field);
   background: var(--surface-2);
   color: var(--text-muted);
-  font-size: 22px;
+  font-size: var(--fs-3);
   cursor: pointer;
 }
 .exerciseNums {
   display: grid;
   grid-template-columns: 1fr 1fr 1.2fr;
-  gap: 0 8px;
+  gap: 0 var(--sp-2);
 }

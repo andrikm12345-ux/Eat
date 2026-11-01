@@ -70,7 +70,7 @@ export default function PhotosPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: 12,
+          marginBottom: 'var(--sp-3)',
           cursor: 'pointer',
         }}
       >

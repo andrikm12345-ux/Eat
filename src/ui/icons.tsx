@@ -6,6 +6,7 @@ type IconProps = SVGProps<SVGSVGElement>;
 const base: IconProps = {
   width: 24,
   height: 24,
+  className: 'icon',
   viewBox: '0 0 24 24',
   fill: 'none',
   stroke: 'currentColor',
@@ -172,3 +173,17 @@ export const IconStretch = mk(
     <path d="M4.5 6.5l7.5 3 7.5-3M12 9.5v5.5M12 15l-4 5.5M12 15l4 5.5" />
   </>,
 );
+
+export const IconCalendar = mk(
+  <>
+    <rect x="4" y="5.5" width="16" height="14" rx="3" />
+    <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+  </>,
+);
+export const IconClock = mk(
+  <>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 7.5V12l3 2" />
+  </>,
+);
+export const IconBack = mk(<path d="M15 5l-7 7 7 7" />);

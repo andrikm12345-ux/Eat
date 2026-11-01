@@ -51,7 +51,7 @@ export function TdeeChart() {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           role="img"
-          aria-label={`${ru.reports.tdeeChart}: ${formatKcal(last.tdee)} ккал`}
+          aria-label={`${ru.reports.tdeeChart}: ${formatKcal(last.tdee)} ккал`}
         >
           {niceTicks(lo, hi, 4).map((v) => (
             <g key={v}>

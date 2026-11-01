@@ -52,7 +52,7 @@ export function AddSheet() {
               onClick={() => go(`${manual ?? path}${qs}`)}
             >
               <span className={styles.tileIcon}>
-                <Icon width={22} height={22} />
+                <Icon />
               </span>
               <span>{ru.add.tiles[key]}</span>
               {off && <span className={styles.soon}>{ru.add.unavailable}</span>}
@@ -69,8 +69,8 @@ export function AddSheet() {
                 <Link to={`/add/food/${f.id}${qs}`} className={styles.freqItem} onClick={close}>
                   <span className={styles.freqName}>{f.name}</span>
                   <span className={styles.soon}>
-                    {f.lastGrams ? `${f.lastGrams} г · ` : ''}
-                    {formatKcal(((f.lastGrams ?? 100) * f.per100g.kcal) / 100)} ккал
+                    {f.lastGrams ? `${f.lastGrams} г · ` : ''}
+                    {formatKcal(((f.lastGrams ?? 100) * f.per100g.kcal) / 100)} ккал
                   </span>
                 </Link>
               </li>

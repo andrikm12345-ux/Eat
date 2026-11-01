@@ -36,19 +36,26 @@ export function EnergyCard() {
     <Card title={t.title}>
       {last ? (
         <>
-          <p style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>{formatKcal(last.tdee)} ккал</p>
+          <p style={{ margin: '0', fontSize: 'var(--fs-2)', fontWeight: 'var(--fw-bold)' }}>
+            {formatKcal(last.tdee)} ккал
+          </p>
           <p className={listStyles.muted}>
             {t.tdee} · {t.confidence(Math.round(last.confidence * 100))}
           </p>
           <div
             aria-hidden="true"
-            style={{ height: 6, borderRadius: 3, background: 'var(--surface-2)', marginBottom: 8 }}
+            style={{
+              height: 6,
+              borderRadius: 'var(--r-pill)',
+              background: 'var(--surface-2)',
+              marginBottom: 'var(--sp-2)',
+            }}
           >
             <div
               style={{
                 width: `${Math.round(last.confidence * 100)}%`,
                 height: '100%',
-                borderRadius: 3,
+                borderRadius: 'var(--r-pill)',
                 background: 'var(--accent)',
               }}
             />

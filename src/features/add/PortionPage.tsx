@@ -61,7 +61,7 @@ function Portion({ food }: { food: Food }) {
             { value: 'g', label: t.gramsUnit },
             ...food.servings.map((s) => ({
               value: s.label,
-              label: `${s.label} (${formatGrams(s.grams)} г)`,
+              label: `${s.label} (${formatGrams(s.grams)} г)`,
             })),
           ]}
         />
@@ -99,11 +99,11 @@ function Portion({ food }: { food: Food }) {
         <p className={styles.big}>
           {formatKcal(n.kcal)} {ru.units.kcal}
         </p>
-        <Stat label={ru.foods.protein} value={`${formatGrams(n.protein)} г`} />
-        <Stat label={ru.foods.fat} value={`${formatGrams(n.fat)} г`} />
-        <Stat label={ru.foods.carbs} value={`${formatGrams(n.carbs)} г`} />
+        <Stat label={ru.foods.protein} value={`${formatGrams(n.protein)} г`} />
+        <Stat label={ru.foods.fat} value={`${formatGrams(n.fat)} г`} />
+        <Stat label={ru.foods.carbs} value={`${formatGrams(n.carbs)} г`} />
         {n.fiber !== undefined && (
-          <Stat label={ru.foods.fiber} value={`${formatGrams(n.fiber)} г`} />
+          <Stat label={ru.foods.fiber} value={`${formatGrams(n.fiber)} г`} />
         )}
       </Card>
       <Row>

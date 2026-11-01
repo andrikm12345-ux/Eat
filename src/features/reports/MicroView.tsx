@@ -35,7 +35,7 @@ export function MicroView() {
   const known = (rows ?? []).filter((m) => !m.lowData);
   const unknown = (rows ?? []).filter((m) => m.lowData);
   const row = (m: NonNullable<typeof rows>[number]) => (
-    <div key={m.def.key} style={{ marginBottom: 12 }}>
+    <div key={m.def.key} style={{ marginBottom: 'var(--sp-3)' }}>
       <div className={todayStyles.barLabel}>
         <span>{m.def.name}</span>
         <span className={todayStyles.barValue}>
@@ -56,7 +56,7 @@ export function MicroView() {
           style={{ width: `${Math.min(1, m.ratio) * 100}%`, opacity: m.lowData ? 0.35 : 1 }}
         />
       </div>
-      <span className={listStyles.muted} style={{ fontSize: 13 }}>
+      <span className={listStyles.muted} style={{ fontSize: 'var(--fs-6)' }}>
         {t.microCoverage(Math.round(m.coverage * 100))}
         {m.deficit ? ` · ${t.microBelow}` : ''}
         {m.above ? ` · ${t.microAbove}` : ''}
@@ -78,7 +78,7 @@ export function MicroView() {
       <p className={listStyles.muted}>{t.microIntro}</p>
       {rows && known.length === 0 && (
         <Card>
-          <p className={listStyles.muted} style={{ margin: 0 }}>
+          <p className={listStyles.muted} style={{ margin: '0' }}>
             {t.microNoData}
           </p>
         </Card>

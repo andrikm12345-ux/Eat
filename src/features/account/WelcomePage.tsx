@@ -23,12 +23,12 @@ export default function WelcomePage() {
         className={styles.body}
         style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
       >
-        <h1 className={styles.title} style={{ fontSize: 40 }}>
+        <h1 className={styles.title} style={{ fontSize: 'var(--fs-1)' }}>
           {t.title}
         </h1>
         <p className={styles.stepHint}>{t.tagline}</p>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
         <LinkButton to="/account?mode=signUp" block>
           {t.signUp}
         </LinkButton>

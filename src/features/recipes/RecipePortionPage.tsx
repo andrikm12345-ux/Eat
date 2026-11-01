@@ -49,7 +49,7 @@ function Portion({ recipe }: { recipe: Recipe }) {
           value={unit}
           onChange={setUnit}
           options={[
-            { value: 'serving', label: `${t.serving} (${formatGrams(servingG)} г)` },
+            { value: 'serving', label: `${t.serving} (${formatGrams(servingG)} г)` },
             { value: 'g', label: 'г' },
           ]}
         />
@@ -60,10 +60,10 @@ function Portion({ recipe }: { recipe: Recipe }) {
         <NumberField label={ru.portion.grams} suffix="г" value={grams} onChange={setGrams} />
       )}
       <Card>
-        <Stat label={ru.foods.kcal} value={`${formatKcal(n.kcal)} ккал`} />
+        <Stat label={ru.foods.kcal} value={`${formatKcal(n.kcal)} ккал`} />
         <Stat
           label={`${ru.foods.protein} / ${ru.foods.fat} / ${ru.foods.carbs}`}
-          value={`${formatGrams(n.protein)} / ${formatGrams(n.fat)} / ${formatGrams(n.carbs)} г`}
+          value={`${formatGrams(n.protein)} / ${formatGrams(n.fat)} / ${formatGrams(n.carbs)} г`}
         />
       </Card>
       <Row>

@@ -35,7 +35,7 @@ export default function WorkoutsPage() {
                   <span className={styles.rowName}>{w.type}</span>
                   <span className={styles.rowSub}>
                     {formatDateRu(w.date, 'd MMMM')} · {w.time} · {w.durationMin} {t.minutes}
-                    {w.kcal ? ` · ${formatKcal(w.kcal)} ккал` : ''}
+                    {w.kcal ? ` · ${formatKcal(w.kcal)} ккал` : ''}
                   </span>
                   {w.exercises?.length ? (
                     <span className={styles.rowSub}>{formatExercises(w.exercises)}</span>

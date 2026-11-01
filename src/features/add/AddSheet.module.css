@@ -1,7 +1,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: var(--sp-2);
 }
 
 .tile {
@@ -9,14 +9,14 @@
   border: none;
   border-radius: var(--radius-sm);
   background: var(--surface-2);
-  padding: 12px 6px;
+  padding: var(--sp-3) var(--sp-1);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
+  gap: var(--sp-2);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
   line-height: 1.2;
   text-align: center;
   cursor: pointer;
@@ -57,7 +57,7 @@
 .tileIcon {
   width: 38px;
   height: 38px;
-  border-radius: 12px;
+  border-radius: var(--r-field);
   display: grid;
   place-items: center;
   background: var(--surface);
@@ -65,18 +65,18 @@
 }
 
 .soon {
-  font-size: 12px;
+  font-size: var(--fs-6);
   color: var(--text-muted);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
 }
 
 .subtitle {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
-  margin: 20px 0 8px;
+  margin: var(--sp-5) 0 var(--sp-2);
 }
 .freq {
   list-style: none;
@@ -84,15 +84,15 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--sp-1);
 }
 .freqItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   min-height: 48px;
-  padding: 8px 14px;
+  padding: var(--sp-2) var(--sp-3);
   border-radius: var(--radius-sm);
   background: var(--surface-2);
   color: var(--text);

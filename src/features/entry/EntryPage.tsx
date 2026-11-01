@@ -63,7 +63,7 @@ function EntryEditor({ entry }: { entry: Entry }) {
       <Card title={t.items}>
         {items.map((it, i) => (
           <div key={i}>
-            <p style={{ margin: '4px 0', fontWeight: 600 }}>{it.name}</p>
+            <p style={{ margin: 'var(--sp-1) 0', fontWeight: 'var(--fw-semibold)' }}>{it.name}</p>
             <Row>
               <NumberField
                 label={ru.portion.grams}
@@ -76,7 +76,7 @@ function EntryEditor({ entry }: { entry: Entry }) {
                 }
               />
               <div className={styles.muted} style={{ alignSelf: 'center' }}>
-                {formatKcal(it.nutrients.kcal)} ккал · Б {formatGrams(it.nutrients.protein)} · Ж{' '}
+                {formatKcal(it.nutrients.kcal)} ккал · Б {formatGrams(it.nutrients.protein)} · Ж{' '}
                 {formatGrams(it.nutrients.fat)} · У {formatGrams(it.nutrients.carbs)}
               </div>
             </Row>

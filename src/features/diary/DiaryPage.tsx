@@ -71,7 +71,7 @@ export default function DiaryPage() {
         <button
           type="button"
           className={listStyles.stepBtn}
-          style={{ margin: 0, borderRadius: '50%', width: 44, height: 44, border: 'none' }}
+          style={{ margin: '0', borderRadius: '50%', width: 44, height: 44, border: 'none' }}
           aria-label={t.prevMonth}
           onClick={() => setMonth(shiftMonth(month, -1))}
         >
@@ -81,7 +81,7 @@ export default function DiaryPage() {
         <button
           type="button"
           className={listStyles.stepBtn}
-          style={{ margin: 0, borderRadius: '50%', width: 44, height: 44, border: 'none' }}
+          style={{ margin: '0', borderRadius: '50%', width: 44, height: 44, border: 'none' }}
           aria-label={t.nextMonth}
           onClick={() => setMonth(shiftMonth(month, 1))}
         >
@@ -153,7 +153,7 @@ export default function DiaryPage() {
                     <span className={listStyles.rowSub}>
                       {goal
                         ? t.kcalOfGoal(formatKcal(kcal), formatKcal(goal))
-                        : `${formatKcal(kcal)} ккал`}
+                        : `${formatKcal(kcal)} ккал`}
                     </span>
                   </span>
                 </button>

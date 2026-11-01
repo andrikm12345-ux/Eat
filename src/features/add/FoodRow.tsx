@@ -38,7 +38,7 @@ export function FoodRow({
           )}
         </span>
       </span>
-      {food.lastGrams ? <span className={styles.rowRight}>{food.lastGrams} г</span> : null}
+      {food.lastGrams ? <span className={styles.rowRight}>{food.lastGrams} г</span> : null}
     </>
   );
   return (

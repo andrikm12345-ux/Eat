@@ -11,14 +11,14 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   overflow-wrap: anywhere;
-  margin: 4px 0 18px;
-  font-size: 30px;
-  font-weight: 700;
+  margin: var(--sp-1) 0 var(--sp-4);
+  font-size: var(--fs-1);
+  font-weight: var(--fw-bold);
   letter-spacing: -0.02em;
 }
 
 .empty {
-  padding: 24px 16px;
+  padding: var(--sp-6) var(--sp-4);
   border-radius: var(--radius);
   background: var(--surface);
   border: 1px dashed var(--border);
@@ -28,8 +28,8 @@
 
 .note {
   display: block;
-  margin-top: 8px;
-  font-size: 13px;
+  margin-top: var(--sp-2);
+  font-size: var(--fs-6);
 }
 
 .head {

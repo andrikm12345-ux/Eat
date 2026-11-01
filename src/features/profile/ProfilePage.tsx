@@ -58,7 +58,7 @@ export default function ProfilePage() {
 
 function GoalView({ goal }: { goal: Goal }) {
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 'var(--sp-3)' }}>
       <Stat
         label={ru.goalType[goal.type]}
         value={`${formatRate(goal.rateKgPerWeek)} ${ru.units.kgPerWeek}`}

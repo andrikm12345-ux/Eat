@@ -15,7 +15,7 @@ export function AiGate({ manualTo, children }: { manualTo: string; children: Rea
     return (
       <>
         <Notice>{t.notReady}</Notice>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
           <LinkButton to={manualTo}>{t.manual}</LinkButton>
           <LinkButton to="/more/ai" variant="secondary">
             {t.setup}
@@ -28,7 +28,7 @@ export function AiGate({ manualTo, children }: { manualTo: string; children: Rea
     return (
       <Card title={t.consentTitle}>
         <p>{t.consentText}</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
           <Button onClick={() => void repos.settings.set(AI_KEYS.consent, true)}>
             {t.consentAccept}
           </Button>
