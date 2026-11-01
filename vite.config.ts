@@ -9,7 +9,9 @@ const THEME_LIGHT = '#f6f5f2';
 export default defineConfig(({ mode }) => ({
   define: {
     __APP_VERSION__: JSON.stringify(
-      `${process.env.npm_package_version ?? '0.0.0'}+${new Date().toISOString().slice(0, 10)}`,
+      `${process.env.npm_package_version ?? '0.0.0'}+${new Date().toISOString().slice(0, 10)}${
+        process.env.VERCEL_GIT_COMMIT_SHA ? `.${process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7)}` : ''
+      }`,
     ),
   },
   plugins: [
