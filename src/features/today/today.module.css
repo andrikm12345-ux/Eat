@@ -316,7 +316,7 @@
   white-space: nowrap;
 }
 .more {
-  width: 36px;
+  width: 44px;
   height: var(--tap);
   border: none;
   background: transparent;
@@ -380,7 +380,7 @@
 }
 .waterBtns > button {
   padding: 0;
-  min-height: 44px;
+  min-height: var(--tap);
 }
 .undoWater {
   display: block;

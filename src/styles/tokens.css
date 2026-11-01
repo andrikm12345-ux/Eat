@@ -39,7 +39,12 @@
   --accent-soft: var(--green-100);
   --accent-wash: var(--green-50);
   --accent-contrast: #ffffff;
-  --accent-grad: linear-gradient(145deg, var(--accent-2), var(--accent));
+  /* White text needs >= 4.5:1 on every point of the gradient, so it only gets darker. */
+  --accent-grad: linear-gradient(
+    145deg,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 82%, black)
+  );
   --glow: rgb(31 114 102 / 0.28);
 
   /* ---- status ---- */
