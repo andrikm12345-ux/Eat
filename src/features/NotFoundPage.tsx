@@ -1,11 +1,11 @@
-import { Link } from 'react-router';
 import { ru } from '../i18n/ru';
+import { LinkButton } from '../ui/kit';
 import { Page } from '../ui/Page';
 
 export default function NotFoundPage() {
   return (
     <Page title={ru.pages.notFound.title}>
-      <Link to="/">{ru.pages.notFound.back}</Link>
+      <LinkButton to="/">{ru.pages.notFound.back}</LinkButton>
     </Page>
   );
 }

@@ -29,7 +29,6 @@
 .meta {
   margin: 0 0 var(--sp-1);
   font-size: var(--fs-6);
-  opacity: 0.8;
   min-height: 1em;
 }
 .stepper {

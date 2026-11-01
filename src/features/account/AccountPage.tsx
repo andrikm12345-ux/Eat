@@ -17,6 +17,7 @@ import { refreshSharedAi } from '../../services/sharedAi';
 import { syncNow } from '../../services/sync';
 import { toast } from '../../state/ui';
 import { Button, Card, Notice, Segmented, Switch, TextField } from '../../ui/kit';
+import { BackBar } from '../../ui/BackBar';
 import styles from '../onboarding/Wizard.module.css';
 import { Loading } from '../../ui/states';
 
@@ -98,11 +99,7 @@ export default function AccountPage() {
 
   return (
     <div className={styles.wrap}>
-      <p className={styles.step}>
-        <button type="button" className={styles.linkBtn} onClick={() => navigate(-1)}>
-          ← {t.back}
-        </button>
-      </p>
+      <BackBar />
       <h1 className={styles.title}>{t.title}</h1>
       <div className={styles.body}>
         {newCode ? (

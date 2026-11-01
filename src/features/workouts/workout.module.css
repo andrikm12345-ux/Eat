@@ -45,14 +45,18 @@
     color 0.25s ease;
 }
 .kindOn {
-  background: linear-gradient(150deg, color-mix(in srgb, var(--c) 78%, white), var(--c));
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--c) calc(100% - var(--kind-deepen)), black),
+    color-mix(in srgb, var(--c) calc(90% - var(--kind-deepen)), black)
+  );
   border-color: transparent;
-  color: var(--white);
+  color: var(--on-kind);
   box-shadow: 0 10px 22px color-mix(in srgb, var(--c) 35%, transparent);
 }
 .kindOn .kindIcon {
-  color: var(--white);
-  background: var(--media-line-soft);
+  color: var(--on-kind);
+  background: color-mix(in srgb, var(--on-kind) 18%, transparent);
   animation: pop 0.35s var(--ease-spring);
 }
 

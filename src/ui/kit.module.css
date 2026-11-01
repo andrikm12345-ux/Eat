@@ -34,6 +34,7 @@
   background: transparent;
   color: var(--accent);
   padding: 0 var(--sp-3);
+  min-width: var(--tap);
 }
 .danger {
   background: var(--danger-soft);
@@ -151,6 +152,7 @@
 }
 .segment {
   flex: 1;
+  min-width: var(--tap);
   min-height: var(--tap);
   border: none;
   border-radius: var(--r-field);

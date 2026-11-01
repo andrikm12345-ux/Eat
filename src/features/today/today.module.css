@@ -208,6 +208,7 @@
 .gap {
   display: block;
   width: 100%;
+  min-height: 36px;
   border: none;
   background: transparent;
   cursor: copy;
@@ -303,6 +304,10 @@
 .rowMain {
   flex: 1;
   min-width: 0;
+  min-height: var(--tap);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background: none;
   border: none;
   text-align: left;
@@ -408,7 +413,8 @@
   background: transparent;
   color: var(--text-muted);
   font-size: var(--fs-6);
-  padding: var(--sp-1) var(--sp-2);
+  padding: 0 var(--sp-3);
+  min-height: var(--tap);
   cursor: pointer;
 }
 

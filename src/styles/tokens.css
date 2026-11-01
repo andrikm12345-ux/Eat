@@ -57,7 +57,7 @@
   --danger-contrast: #ffffff;
   /* Over the daily goal: a soft warm tone, never red or violet. */
   --over: #c47a24;
-  --over-text: #9a5a10;
+  --over-text: #854a0a;
   --over-soft: #f8e6cf;
   /* legacy aliases */
   --attention: var(--warning-soft);
@@ -79,6 +79,9 @@
   --kind-yoga: #b94a85;
   --kind-stretch: #5f8f30;
   --kind-other: #6b7378;
+  /* A chosen kind tile: darker fill with white text (light) / the pastel itself with dark text (dark). */
+  --kind-deepen: 30%;
+  --on-kind: #ffffff;
 
   /* ---- shadows: two soft steps ---- */
   --shadow-1: 0 1px 2px rgb(20 40 30 / 0.05), 0 4px 14px rgb(20 40 30 / 0.05);
@@ -195,6 +198,8 @@
     --kind-yoga: #e17db3;
     --kind-stretch: #9ccb62;
     --kind-other: #a3acb1;
+    --kind-deepen: 0%;
+    --on-kind: #0b1a17;
 
     /* No shadows on dark: a thin light edge instead. */
     --shadow-1: 0 0 0 1px rgb(255 255 255 / 0.06);

@@ -33,7 +33,10 @@ export function StreakRow({ meta, empty }: { meta: DayMeta; empty: boolean }) {
             fontWeight: 'var(--fw-semibold)',
             textDecoration: 'none',
             fontSize: 'var(--fs-6)',
-            padding: 'var(--sp-1) var(--sp-3)',
+            padding: '0 var(--sp-3)',
+            minHeight: 'var(--tap)',
+            display: 'inline-flex',
+            alignItems: 'center',
             borderRadius: 'var(--r-sheet)',
           }}
         >

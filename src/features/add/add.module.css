@@ -165,7 +165,8 @@
   background: var(--surface-2);
   color: var(--text);
   border-radius: var(--r-pill);
-  padding: var(--sp-2) var(--sp-3);
+  padding: 0 var(--sp-3);
+  min-height: var(--tap);
   font: inherit;
   font-size: var(--fs-5);
   font-weight: var(--fw-semibold);
@@ -214,4 +215,9 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow-wrap: anywhere;
+}
+
+/* A locked achievement: a plain star and muted name instead of see-through text. */
+.lockedRow .rowName {
+  color: var(--text-muted);
 }

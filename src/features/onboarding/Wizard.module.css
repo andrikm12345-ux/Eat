@@ -76,10 +76,20 @@
   transition: width 0.3s ease;
 }
 .linkBtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
   background: none;
   border: 0;
-  padding: var(--sp-1) 0;
+  padding: 0;
   color: var(--accent);
   font: inherit;
   cursor: pointer;
+}
+
+/* The "already have an account" link under the first step: a full-size touch target. */
+.stepHint a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
 }

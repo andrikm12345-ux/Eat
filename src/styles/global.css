@@ -218,3 +218,9 @@ a[class]:active,
   stroke-width: var(--icon-stroke);
   flex: none;
 }
+
+/* A slider is a full-size touch target: the track stays thin, the hit area is tall. */
+input[type='range'] {
+  min-height: var(--tap);
+  accent-color: var(--accent);
+}

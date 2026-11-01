@@ -41,7 +41,7 @@ export default function AchievementsPage() {
           ? ru.achievements.level(a.title, String((row.progress ?? 0) * 2.5).replace('.', ','))
           : a.title;
       return (
-        <li key={a.id} className={styles.row} style={{ opacity: row ? 1 : 0.65 }}>
+        <li key={a.id} className={`${styles.row} ${row ? '' : styles.lockedRow}`}>
           <div className={styles.rowLink}>
             <span aria-hidden="true" style={{ fontSize: 'var(--fs-3)' }}>
               {row ? '★' : '☆'}
