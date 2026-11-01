@@ -11,7 +11,7 @@
 }
 .grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: var(--sp-1);
   margin-bottom: var(--sp-2);
 }
@@ -22,8 +22,8 @@
   text-transform: uppercase;
 }
 .cell {
-  aspect-ratio: 1;
-  min-height: var(--tap);
+  min-width: 0;
+  height: var(--tap);
   border-radius: var(--r-field);
   border: 2px solid transparent;
   background: var(--surface);
