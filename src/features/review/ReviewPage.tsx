@@ -35,6 +35,10 @@ export default function ReviewPage() {
   return <Review initial={draft} />;
 }
 
+/** One link per site: several pages of the same site would only repeat its name. */
+const uniqueHosts = (list: { title: string; url: string }[]) =>
+  list.filter((s, i) => list.findIndex((x) => hostOf(x.url) === hostOf(s.url)) === i);
+
 const nutrientsOf = (i: ReviewItem) => scaleNutrients(i.per100g, i.grams);
 
 function Review({ initial }: { initial: ReviewDraft }) {
@@ -129,7 +133,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
       {initial.analysis === 'ai' && sources && sources.length > 0 && (
         <Notice tone="info">
           {t.webChecked}{' '}
-          {sources.map((s, i) => (
+          {uniqueHosts(sources).map((s, i) => (
             <span key={s.url}>
               {i > 0 && ', '}
               <a href={s.url} target="_blank" rel="noopener noreferrer">

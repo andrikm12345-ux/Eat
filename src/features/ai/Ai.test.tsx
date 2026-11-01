@@ -114,6 +114,11 @@ describe('AI text flow', () => {
                 url: 'https://www.zhar.example/tri',
                 content: 'Калорийность 231 ккал на 100 г',
               },
+              {
+                title: 'Треугольник 2',
+                url: 'https://zhar.example/tri2',
+                content: 'Ещё страница того же сайта',
+              },
             ],
           })
         : new Response(
@@ -135,6 +140,8 @@ describe('AI text flow', () => {
     const link = await screen.findByRole('link', { name: 'zhar.example' });
     expect(link).toHaveAttribute('href', 'https://www.zhar.example/tri');
     expect(screen.getByText(new RegExp(ru.review.webChecked))).toBeVisible();
+    // Two pages of one site give one link.
+    expect(screen.getAllByRole('link', { name: 'zhar.example' })).toHaveLength(1);
   });
 
   it('falls back to the local analysis when the AI call fails', async () => {
