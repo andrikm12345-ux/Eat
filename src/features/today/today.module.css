@@ -28,7 +28,32 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
   margin: 4px 0 12px;
+  /* Horizontal gestures are ours (swipe between weeks); vertical scrolling stays native. */
   touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.25s var(--ease-out);
+}
+.dragging {
+  transition: none;
+}
+.fromRight {
+  animation: week-from-right 0.35s var(--ease-out);
+}
+.fromLeft {
+  animation: week-from-left 0.35s var(--ease-out);
+}
+@keyframes week-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(40%);
+  }
+}
+@keyframes week-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-40%);
+  }
 }
 .dayBtn {
   display: flex;
