@@ -13,13 +13,19 @@ import { Page } from '../../ui/Page';
 import { useAddTarget } from './addTarget';
 import styles from './add.module.css';
 import { DateField, TimeField } from '../../ui/DateTimeFields';
+import { Loading } from '../../ui/states';
 
 const t = ru.portion;
 
 export default function PortionPage() {
   const { id } = useParams();
   const food = useLiveQuery(async () => (id ? ((await repos.foods.get(id)) ?? null) : null), [id]);
-  if (food === undefined) return <Page title={t.title}>{ru.common.loading}</Page>;
+  if (food === undefined)
+    return (
+      <Page title={t.title}>
+        <Loading />
+      </Page>
+    );
   if (food === null) return <Page title={t.title}>{t.notFound}</Page>;
   return <Portion food={food} />;
 }
@@ -110,7 +116,7 @@ function Portion({ food }: { food: Food }) {
         <DateField label={ru.today.date} value={date} onChange={setD} />
         <TimeField label={ru.today.time} value={time} onChange={setTime} />
       </Row>
-      <Button block onClick={() => void add()} disabled={!valid}>
+      <Button block onClick={() => void add()} disabled={!valid} hint={ru.hints.grams}>
         {t.add}
       </Button>
     </Page>

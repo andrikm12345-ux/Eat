@@ -28,6 +28,15 @@ body {
   overscroll-behavior-y: none;
 }
 
+a:not([class]) {
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+}
+a:not([class]):active {
+  opacity: 0.7;
+}
+
 button {
   font: inherit;
   color: inherit;

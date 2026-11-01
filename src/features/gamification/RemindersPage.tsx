@@ -9,6 +9,7 @@ import { Button, Card, Notice, OptionList, Switch } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
 import { TimeField } from '../../ui/DateTimeFields';
+import { Loading } from '../../ui/states';
 
 const t = ru.reminders;
 
@@ -45,7 +46,12 @@ const set = (k: keyof typeof SETTINGS, v: unknown) => void repos.settings.set(SE
 export default function RemindersPage() {
   const s = useSettings();
   const [denied, setDenied] = useState(false);
-  if (!s) return <Page title={t.title}>{ru.common.loading}</Page>;
+  if (!s)
+    return (
+      <Page title={t.title}>
+        <Loading />
+      </Page>
+    );
   const weekdaySelect = (id: string, label: string, value: number, key: keyof typeof SETTINGS) => (
     <div style={{ marginBottom: 'var(--sp-3)' }}>
       <label className={styles.muted} htmlFor={id}>

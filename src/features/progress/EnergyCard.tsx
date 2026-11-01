@@ -69,7 +69,7 @@ export function EnergyCard() {
       </Button>
       <p className={listStyles.muted}>{t.pauseHint}</p>
       <Button
-        variant="ghost"
+        variant="text"
         onClick={() => {
           setShowHow(!showHow);
           void repos.settings.set(SETTINGS.tdeeExplained.key, true);
@@ -80,7 +80,7 @@ export function EnergyCard() {
       </Button>
       {showHow && <p className={listStyles.muted}>{t.explain}</p>}
       <Button
-        variant="ghost"
+        variant="text"
         onClick={() => setShowSettings(!showSettings)}
         aria-expanded={showSettings}
       >

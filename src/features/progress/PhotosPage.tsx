@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { formatDateRu, toLocalDate } from '../../domain/dates';
 import type { BlobRecord } from '../../domain/types';
 import { repos } from '../../db/repos';
@@ -11,6 +11,7 @@ import { Button } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import listStyles from '../add/add.module.css';
 import styles from './progress.module.css';
+import { EmptyState } from '../../ui/states';
 
 const t = ru.photos;
 
@@ -44,6 +45,7 @@ export default function PhotosPage() {
     [],
   );
   const [open, setOpen] = useState<BlobRecord | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
   const openUrl = useObjectUrl(open?.blob);
 
   async function add(files: FileList | null) {
@@ -76,6 +78,7 @@ export default function PhotosPage() {
       >
         {t.add}
         <input
+          ref={fileInput}
           type="file"
           accept="image/*"
           multiple
@@ -83,7 +86,13 @@ export default function PhotosPage() {
           onChange={(e) => void add(e.target.files)}
         />
       </label>
-      <p className={listStyles.muted}>{t.empty}</p>
+      {photos?.length === 0 && (
+        <EmptyState
+          kind="photos"
+          text={t.empty}
+          action={{ label: t.add, onClick: () => fileInput.current?.click() }}
+        />
+      )}
       <div className={styles.photos}>
         {photos?.map((p) => (
           <Thumb key={p.id} rec={p} onOpen={() => setOpen(p)} />
@@ -98,7 +107,7 @@ export default function PhotosPage() {
         {open && (
           <Button
             block
-            variant="secondary"
+            variant="danger"
             onClick={async () => {
               const id = open.id;
               await repos.blobs.softDelete(id);

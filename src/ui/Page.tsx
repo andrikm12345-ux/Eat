@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router';
-import { ru } from '../i18n/ru';
 import { MAIN_TABS } from './nav';
 import styles from './Page.module.css';
 
@@ -19,14 +18,5 @@ export function Page({ title, children }: { title: string; children?: ReactNode 
       </header>
       {children}
     </section>
-  );
-}
-
-export function EmptyState({ text }: { text: string }) {
-  return (
-    <div className={styles.empty}>
-      {text}
-      <span className={styles.note}>{ru.common.stageNote}</span>
-    </div>
   );
 }

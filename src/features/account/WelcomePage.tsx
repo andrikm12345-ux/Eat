@@ -5,6 +5,7 @@ import { ru } from '../../i18n/ru';
 import { ACCOUNT } from '../../services/account';
 import { LinkButton } from '../../ui/kit';
 import styles from '../onboarding/Wizard.module.css';
+import { Loading } from '../../ui/states';
 
 const t = ru.welcome;
 
@@ -15,7 +16,12 @@ export default function WelcomePage() {
     async () => !!(await repos.settings.get<string>(ACCOUNT.token, '')),
     [],
   );
-  if (signedIn === undefined) return <div className={styles.wrap}>{ru.common.loading}</div>;
+  if (signedIn === undefined)
+    return (
+      <div className={styles.wrap}>
+        <Loading />
+      </div>
+    );
   if (signedIn) return <Navigate to="/" replace />;
   return (
     <div className={styles.wrap}>

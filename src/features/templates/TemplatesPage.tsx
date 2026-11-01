@@ -12,6 +12,7 @@ import { Button } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { useAddTarget } from '../add/addTarget';
 import styles from '../add/add.module.css';
+import { EmptyState, Loading } from '../../ui/states';
 
 const t = ru.templates;
 
@@ -32,7 +33,10 @@ export default function TemplatesPage({ pick = false }: { pick?: boolean }) {
 
   return (
     <Page title={pick ? t.pick : t.title}>
-      {list?.length === 0 && <p className={styles.muted}>{t.empty}</p>}
+      {list === undefined && <Loading />}
+      {list?.length === 0 && (
+        <EmptyState kind="templates" text={t.empty} action={{ label: t.toDiary, to: '/' }} />
+      )}
       {list && list.length > 0 && (
         <ul className={styles.list}>
           {list.map((tpl) => {
@@ -56,7 +60,7 @@ export default function TemplatesPage({ pick = false }: { pick?: boolean }) {
                   </button>
                   {!pick && (
                     <Button
-                      variant="ghost"
+                      variant="text"
                       aria-label={`${ru.common.delete}: ${tpl.name}`}
                       onClick={async () => {
                         await repos.templates.softDelete(tpl.id);

@@ -44,7 +44,7 @@ export function StreakRow({ meta, empty }: { meta: DayMeta; empty: boolean }) {
       )}
       {empty && meta.date <= today && (
         <Button
-          variant="ghost"
+          variant="text"
           aria-pressed={!!meta.intentionalSkip}
           onClick={() =>
             void repos.dayMeta.upsert(meta.date, { intentionalSkip: !meta.intentionalSkip })

@@ -12,6 +12,7 @@ import { toast } from '../../state/ui';
 import { Button, Card, NumberField, Stat } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import listStyles from '../add/add.module.css';
+import { Loading } from '../../ui/states';
 
 const t = ru.checkin;
 
@@ -23,7 +24,12 @@ export default function CheckinPage() {
       )[0] ?? null,
     [],
   );
-  if (pending === undefined) return <Page title={t.title}>{ru.common.loading}</Page>;
+  if (pending === undefined)
+    return (
+      <Page title={t.title}>
+        <Loading />
+      </Page>
+    );
   if (!pending) {
     return (
       <Page title={t.title}>
@@ -73,7 +79,7 @@ function CheckinView({ c }: { c: Checkin }) {
           {t.manual}
         </Button>
         <Button
-          variant="ghost"
+          variant="text"
           onClick={async () => {
             await skipCheckin(repos, c);
             toast({ text: t.skipped });

@@ -1,0 +1,82 @@
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-6) var(--sp-4) var(--sp-4);
+  text-align: center;
+}
+.art {
+  position: relative;
+  width: 160px;
+  height: 120px;
+}
+.bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.blob {
+  fill: var(--accent-wash);
+}
+.ring {
+  fill: none;
+  stroke: var(--green-300);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 7;
+  stroke-linecap: round;
+}
+.dot {
+  fill: var(--green-300);
+}
+.dotSoft {
+  fill: var(--accent-soft);
+}
+.spark {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  fill: none;
+}
+.badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: var(--r-card);
+  background: var(--accent-grad);
+  color: var(--accent-contrast);
+  box-shadow: 0 8px 20px var(--glow);
+  animation: pop var(--dur-3) var(--ease-spring);
+}
+.text {
+  margin: 0;
+  max-width: 280px;
+  color: var(--text-muted);
+}
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-h);
+  padding: 0 var(--sp-6);
+  border: none;
+  border-radius: var(--r-field);
+  background: var(--accent-grad);
+  color: var(--accent-contrast);
+  font: inherit;
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 6px 16px var(--glow);
+}

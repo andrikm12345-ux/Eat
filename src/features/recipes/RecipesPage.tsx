@@ -7,6 +7,7 @@ import { Page } from '../../ui/Page';
 import { useAddTarget } from '../add/addTarget';
 import styles from '../add/add.module.css';
 import { Link } from 'react-router';
+import { EmptyState, Loading } from '../../ui/states';
 
 const t = ru.recipes;
 
@@ -19,10 +20,15 @@ export default function RecipesPage({ pick = false }: { pick?: boolean }) {
   );
   return (
     <Page title={pick ? t.pick : t.title}>
-      <div className={styles.actions}>
-        <LinkButton to="/recipes/new">{t.new}</LinkButton>
-      </div>
-      {list?.length === 0 && <p className={styles.muted}>{t.empty}</p>}
+      {list === undefined && <Loading />}
+      {list && list.length > 0 && (
+        <div className={styles.actions}>
+          <LinkButton to="/recipes/new">{t.new}</LinkButton>
+        </div>
+      )}
+      {list?.length === 0 && (
+        <EmptyState kind="recipes" text={t.empty} action={{ label: t.new, to: '/recipes/new' }} />
+      )}
       {list && list.length > 0 && (
         <ul className={styles.list}>
           {list.map((rc) => (

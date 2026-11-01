@@ -30,6 +30,7 @@ import {
 import { saveWizard, type WizardData } from './saveWizard';
 import styles from './Wizard.module.css';
 import { DateField } from '../../ui/DateTimeFields';
+import { Loading } from '../../ui/states';
 
 const t = ru.wizard;
 const STEPS = ['about', 'weight', 'goal', 'body', 'summary'] as const;
@@ -50,7 +51,11 @@ export default function WizardPage() {
   const today = toLocalDate(new Date());
   const goal = useGoalFor(today);
   if (profile === undefined || latest === undefined || goal === undefined) {
-    return <div className={styles.wrap}>{ru.common.loading}</div>;
+    return (
+      <div className={styles.wrap}>
+        <Loading />
+      </div>
+    );
   }
   const initial: Draft = {
     sex: profile?.sex ?? 'male',
@@ -335,7 +340,11 @@ function Wizard({ initial, editing, today }: { initial: Draft; editing: boolean;
             {editing ? t.saveEdit : t.save}
           </Button>
         ) : (
-          <Button onClick={() => setStep(step + 1)} disabled={!stepValid[step]}>
+          <Button
+            onClick={() => setStep(step + 1)}
+            disabled={!stepValid[step]}
+            hint={ru.hints.step}
+          >
             {t.next}
           </Button>
         )}

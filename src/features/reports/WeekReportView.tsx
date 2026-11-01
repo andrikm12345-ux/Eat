@@ -16,6 +16,7 @@ import {
 import { Button, Card, Notice, Stat } from '../../ui/kit';
 import listStyles from '../add/add.module.css';
 import { useAiConfig } from '../ai/useAi';
+import { Loading } from '../../ui/states';
 
 const t = ru.reports;
 const signed = (v: number, fmt: (x: number) => string) =>
@@ -34,14 +35,14 @@ export function WeekReportView() {
           marginBottom: 'var(--sp-2)',
         }}
       >
-        <Button variant="ghost" aria-label={t.prevWeek} onClick={() => setWs(addDays(ws, -7))}>
+        <Button variant="text" aria-label={t.prevWeek} onClick={() => setWs(addDays(ws, -7))}>
           ‹
         </Button>
         <strong>
           {t.weekRange(formatDateRu(ws, 'd MMM'), formatDateRu(addDays(ws, 6), 'd MMM'))}
         </strong>
         <Button
-          variant="ghost"
+          variant="text"
           aria-label={t.nextWeek}
           onClick={() => setWs(addDays(ws, 7))}
           disabled={addDays(ws, 7) > toLocalDate(new Date())}
@@ -49,7 +50,7 @@ export function WeekReportView() {
           ›
         </Button>
       </div>
-      {data ? <Week w={data} /> : <p>{ru.common.loading}</p>}
+      {data ? <Week w={data} /> : <Loading />}
     </>
   );
 }

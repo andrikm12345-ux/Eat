@@ -8,6 +8,7 @@ import { toast } from '../../state/ui';
 import { Button, LinkButton } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
+import { EmptyState, Loading } from '../../ui/states';
 
 const t = ru.workouts;
 
@@ -22,10 +23,15 @@ export default function WorkoutsPage() {
   );
   return (
     <Page title={t.title}>
-      <div className={styles.actions}>
-        <LinkButton to="/workouts/new">{t.new}</LinkButton>
-      </div>
-      {list?.length === 0 && <p className={styles.muted}>{t.empty}</p>}
+      {list === undefined && <Loading />}
+      {list && list.length > 0 && (
+        <div className={styles.actions}>
+          <LinkButton to="/workouts/new">{t.new}</LinkButton>
+        </div>
+      )}
+      {list?.length === 0 && (
+        <EmptyState kind="workouts" text={t.empty} action={{ label: t.new, to: '/workouts/new' }} />
+      )}
       {list && list.length > 0 && (
         <ul className={styles.list}>
           {list.map((w) => (
@@ -42,7 +48,7 @@ export default function WorkoutsPage() {
                   ) : null}
                 </span>
                 <Button
-                  variant="ghost"
+                  variant="text"
                   aria-label={`${ru.common.delete}: ${w.type}`}
                   onClick={async () => {
                     await repos.workouts.softDelete(w.id);

@@ -35,3 +35,10 @@
   color: var(--text-muted);
   cursor: pointer;
 }
+
+.more {
+  margin: calc(-1 * var(--sp-1)) 0 var(--sp-2);
+  padding: 0 var(--sp-2);
+  font-size: var(--fs-6);
+  color: var(--text-muted);
+}

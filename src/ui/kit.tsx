@@ -9,16 +9,29 @@ import { Link } from 'react-router';
 import { parseDecimal } from '../domain/format';
 import styles from './kit.module.css';
 
+export type ButtonVariant = 'primary' | 'secondary' | 'text' | 'danger';
+
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: ButtonVariant;
   block?: boolean;
+  /** Shown under a disabled button: what is still missing. */
+  hint?: ReactNode;
 };
 
-export function Button({ variant = 'primary', block, className, ...rest }: ButtonProps) {
+export function Button({ variant = 'primary', block, className, hint, ...rest }: ButtonProps) {
   const cls = [styles.button, styles[variant], block ? styles.block : '', className ?? '']
     .filter(Boolean)
     .join(' ');
-  return <button type="button" className={cls} {...rest} />;
+  const button = <button type="button" className={cls} {...rest} />;
+  if (!hint || !rest.disabled) return button;
+  return (
+    <div className={block ? styles.hintWrapBlock : styles.hintWrap}>
+      {button}
+      <p className={styles.btnHint} role="note">
+        {hint}
+      </p>
+    </div>
+  );
 }
 
 export function LinkButton({
@@ -28,7 +41,7 @@ export function LinkButton({
   children,
 }: {
   to: string;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: ButtonVariant;
   block?: boolean;
   children: ReactNode;
 }) {
@@ -72,11 +85,15 @@ function FieldShell({ label, hint, error, suffix, id, children }: FieldShellProp
       <label className={styles.label} htmlFor={id}>
         {label}
       </label>
-      <div className={styles.inputWrap}>
+      <div className={error ? `${styles.inputWrap} ${styles.invalid}` : styles.inputWrap}>
         {children}
         {suffix ? <span className={styles.suffix}>{suffix}</span> : null}
       </div>
-      {error ? <span className={styles.error}>{error}</span> : null}
+      {error ? (
+        <span className={styles.error} role="alert">
+          {error}
+        </span>
+      ) : null}
       {hint ? <span className={styles.hint}>{hint}</span> : null}
     </div>
   );

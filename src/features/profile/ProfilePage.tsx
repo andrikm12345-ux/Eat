@@ -9,6 +9,7 @@ import { ru } from '../../i18n/ru';
 import { Button, Card, LinkButton, Notice, NumberField, OptionList, Row, Stat } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { DateField } from '../../ui/DateTimeFields';
+import { Loading } from '../../ui/states';
 
 const t = ru.goals;
 
@@ -20,7 +21,11 @@ export default function ProfilePage() {
   const [manual, setManual] = useState(false);
 
   if (profile === undefined || goal === undefined || goals === undefined) {
-    return <Page title={t.title}>{ru.common.loading}</Page>;
+    return (
+      <Page title={t.title}>
+        <Loading />
+      </Page>
+    );
   }
 
   return (
@@ -248,7 +253,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
           hint: ru.exerciseMode[m].hint,
         }))}
       />
-      <Button block onClick={() => void save()} disabled={!valid}>
+      <Button block onClick={() => void save()} disabled={!valid} hint={ru.hints.profile}>
         {saved ? t.saved : t.profileSave}
       </Button>
     </Card>

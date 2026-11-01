@@ -64,7 +64,7 @@ export function EntryActions({ entry, onClose }: { entry: Entry | null; onClose:
             {t.repeatNow}
           </Button>
           <Button
-            variant="secondary"
+            variant="danger"
             onClick={async () => {
               close();
               await deleteWithUndo(entry);

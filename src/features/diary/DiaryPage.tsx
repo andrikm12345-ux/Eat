@@ -12,6 +12,7 @@ import { Switch } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import listStyles from '../add/add.module.css';
 import styles from './diary.module.css';
+import { EmptyState } from '../../ui/states';
 
 const t = ru.diary;
 const DOW = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
@@ -25,6 +26,7 @@ const shiftMonth = (first: string, n: number) => {
 export default function DiaryPage() {
   const selected = useUi((s) => s.date);
   const setDate = useUi((s) => s.setDate);
+  const openAdd = useUi((s) => s.openAdd);
   const navigate = useNavigate();
   const [month, setMonth] = useState(monthStart(selected));
   const [onlyComplete, setOnlyComplete] = useState(false);
@@ -139,7 +141,11 @@ export default function DiaryPage() {
       <Switch label={t.onlyWorkouts} checked={onlyWorkouts} onChange={setOnlyWorkouts} />
       <h2 className={listStyles.sectionTitle}>{t.days}</h2>
       {days.length === 0 ? (
-        <p className={listStyles.muted}>{t.empty}</p>
+        <EmptyState
+          kind="diary"
+          text={t.empty}
+          action={{ label: t.addEntry, onClick: () => openAdd() }}
+        />
       ) : (
         <ul className={listStyles.list}>
           {days.map((d) => {

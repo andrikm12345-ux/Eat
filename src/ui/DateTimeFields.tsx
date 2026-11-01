@@ -101,7 +101,7 @@ export function DateField({
       <label className={styles.label} htmlFor={id}>
         {label}
       </label>
-      <div className={styles.inputWrap}>
+      <div className={f.error ? `${styles.inputWrap} ${styles.invalid}` : styles.inputWrap}>
         <input
           id={id}
           className={styles.input}
@@ -122,7 +122,11 @@ export function DateField({
           <IconCalendar />
         </button>
       </div>
-      {f.error ? <span className={styles.error}>{f.error}</span> : null}
+      {f.error ? (
+        <span className={styles.error} role="alert">
+          {f.error}
+        </span>
+      ) : null}
       {hint && !f.error ? <span className={styles.hint}>{hint}</span> : null}
       <BottomSheet open={open} title={label} onClose={() => setOpen(false)}>
         <Calendar
@@ -225,7 +229,7 @@ function Calendar({
         )}
       </div>
       {!max || today <= max ? (
-        <Button variant="ghost" block onClick={() => onPick(today)}>
+        <Button variant="text" block onClick={() => onPick(today)}>
           {t.today}
         </Button>
       ) : null}
@@ -258,7 +262,7 @@ export function TimeField({
       <label className={styles.label} htmlFor={id}>
         {label}
       </label>
-      <div className={styles.inputWrap}>
+      <div className={f.error ? `${styles.inputWrap} ${styles.invalid}` : styles.inputWrap}>
         <input
           id={id}
           className={styles.input}
@@ -279,7 +283,11 @@ export function TimeField({
           <IconClock />
         </button>
       </div>
-      {f.error ? <span className={styles.error}>{f.error}</span> : null}
+      {f.error ? (
+        <span className={styles.error} role="alert">
+          {f.error}
+        </span>
+      ) : null}
       {hint && !f.error ? <span className={styles.hint}>{hint}</span> : null}
       <BottomSheet open={open} title={label} onClose={() => setOpen(false)}>
         <div className={pick.timeSheet}>

@@ -94,6 +94,7 @@ export function OwnConnection({ cfg }: { cfg: AiConfig }) {
         <Row>
           <Button
             disabled={key.trim().length < 10}
+            hint={ru.hints.key}
             onClick={async () => {
               await repos.settings.set(AI_KEYS.apiKey, key.trim());
               setKey('');
@@ -116,7 +117,7 @@ export function OwnConnection({ cfg }: { cfg: AiConfig }) {
           </Button>
         </Row>
         {cfg.apiKey && (
-          <Button variant="ghost" onClick={() => void repos.settings.remove(AI_KEYS.apiKey)}>
+          <Button variant="danger" onClick={() => void repos.settings.remove(AI_KEYS.apiKey)}>
             {t.removeKey}
           </Button>
         )}

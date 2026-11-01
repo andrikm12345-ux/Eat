@@ -159,7 +159,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
             </p>
             {i.alt && (
               <Button
-                variant="ghost"
+                variant="text"
                 onClick={() =>
                   setItems((list) => list.map((x) => (x.key === i.key ? swapAlt(x) : x)))
                 }
@@ -168,13 +168,10 @@ function Review({ initial }: { initial: ReviewDraft }) {
               </Button>
             )}
             <Row>
-              <Button variant="ghost" onClick={() => setReplacing(i.key)}>
+              <Button variant="text" onClick={() => setReplacing(i.key)}>
                 {t.replace}
               </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setItems(items.filter((x) => x.key !== i.key))}
-              >
+              <Button variant="text" onClick={() => setItems(items.filter((x) => x.key !== i.key))}>
                 {t.remove}
               </Button>
             </Row>
@@ -193,7 +190,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
         {initial.notes && <p className={styles.notes}>{initial.notes}</p>}
       </Card>
       <div className={styles.actions}>
-        <Button onClick={() => void save()} disabled={!valid}>
+        <Button onClick={() => void save()} disabled={!valid} hint={ru.hints.review}>
           {t.save}
         </Button>
         <Button
@@ -210,7 +207,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
         >
           {t.saveTemplate}
         </Button>
-        <Button variant="ghost" onClick={cancel}>
+        <Button variant="text" onClick={cancel}>
           {ru.common.cancel}
         </Button>
       </div>

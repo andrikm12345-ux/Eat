@@ -17,21 +17,6 @@
   letter-spacing: -0.02em;
 }
 
-.empty {
-  padding: var(--sp-6) var(--sp-4);
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px dashed var(--border);
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.note {
-  display: block;
-  margin-top: var(--sp-2);
-  font-size: var(--fs-6);
-}
-
 .head {
   display: contents;
 }

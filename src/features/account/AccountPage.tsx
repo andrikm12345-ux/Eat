@@ -18,6 +18,7 @@ import { syncNow } from '../../services/sync';
 import { toast } from '../../state/ui';
 import { Button, Card, Notice, Segmented, Switch, TextField } from '../../ui/kit';
 import styles from '../onboarding/Wizard.module.css';
+import { Loading } from '../../ui/states';
 
 const t = ru.account;
 
@@ -47,7 +48,12 @@ export default function AccountPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
-  if (!session) return <div className={styles.wrap}>{ru.common.loading}</div>;
+  if (!session)
+    return (
+      <div className={styles.wrap}>
+        <Loading />
+      </div>
+    );
 
   const message = (e: AccountError) => t.errors[e];
 
@@ -285,7 +291,12 @@ export default function AccountPage() {
               {error && <Notice>{error}</Notice>}
               {info && <Notice tone="info">{info}</Notice>}
               {mode === 'signUp' && <p>{t.noReset}</p>}
-              <Button block type="submit" disabled={busy || !login || !password}>
+              <Button
+                block
+                type="submit"
+                disabled={busy || !login || !password}
+                hint={busy ? undefined : ru.hints.credentials}
+              >
                 {busy
                   ? t.working
                   : mode === 'signUp'

@@ -11,6 +11,7 @@ import { Button } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { isToday, useAddTarget } from './addTarget';
 import styles from './add.module.css';
+import { Loading } from '../../ui/states';
 
 const t = ru.repeat;
 
@@ -19,7 +20,12 @@ export default function RepeatPage() {
   const from = addDays(target.date, -7);
   const to = addDays(target.date, -1);
   const entries = useLiveQuery(() => repos.entries.inRange(from, to), [from, to]);
-  if (!entries) return <Page title={t.title}>{ru.common.loading}</Page>;
+  if (!entries)
+    return (
+      <Page title={t.title}>
+        <Loading />
+      </Page>
+    );
 
   const days = new Map<string, Entry[]>();
   for (const e of [...entries].sort(

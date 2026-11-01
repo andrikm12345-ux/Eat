@@ -13,6 +13,7 @@ import { Button, Card, Notice, NumberField, Row, Stat } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import listStyles from '../add/add.module.css';
 import { DateField } from '../../ui/DateTimeFields';
+import { Loading } from '../../ui/states';
 
 const t = ru.measure;
 const FIELDS = ['neckCm', 'chestCm', 'waistCm', 'abdomenCm', 'hipsCm', 'thighCm', 'armCm'] as const;
@@ -35,7 +36,12 @@ export default function MeasurementsPage() {
   );
   const weights = useLiveQuery(() => repos.weights.list(), []);
   const [editing, setEditing] = useState<Measurement | 'new' | null>(null);
-  if (!profile || !list || !weights) return <Page title={t.title}>{ru.common.loading}</Page>;
+  if (!profile || !list || !weights)
+    return (
+      <Page title={t.title}>
+        <Loading />
+      </Page>
+    );
   const daily = pickDailyWeights(weights);
   const weightNear = (date: string) =>
     [...daily].reverse().find((w) => w.date <= date)?.kg ?? daily[0]?.kg;
@@ -181,7 +187,7 @@ function MeasurementForm({
       <Row>
         {initial ? (
           <Button
-            variant="secondary"
+            variant="danger"
             onClick={async () => {
               await repos.measurements.softDelete(initial.id);
               toast({
@@ -201,7 +207,7 @@ function MeasurementForm({
             {ru.common.cancel}
           </Button>
         )}
-        <Button onClick={() => void save()} disabled={!any || !date}>
+        <Button onClick={() => void save()} disabled={!any || !date} hint={ru.hints.measure}>
           {t.save}
         </Button>
       </Row>

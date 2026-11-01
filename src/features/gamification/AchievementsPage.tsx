@@ -9,6 +9,7 @@ import { Card, Collapsible, Stat } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
 import todayStyles from '../today/today.module.css';
+import { Loading } from '../../ui/states';
 
 const t = ru.achievements;
 
@@ -22,7 +23,12 @@ export default function AchievementsPage() {
     ]);
     return { got: new Map(rows.map((r) => [r.id, r])), ctx, streaks };
   }, [today]);
-  if (!data) return <Page title={t.title}>{ru.common.loading}</Page>;
+  if (!data)
+    return (
+      <Page title={t.title}>
+        <Loading />
+      </Page>
+    );
   const { streaks } = data;
   const unlocked = ACHIEVEMENTS.filter((a) => data.got.has(a.id));
   const locked = ACHIEVEMENTS.filter((a) => !data.got.has(a.id));

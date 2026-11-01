@@ -17,6 +17,7 @@ import { Button, Card, NumberField, Row, Stat, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { FoodSearch } from '../add/SearchPage';
 import styles from '../add/add.module.css';
+import { Loading } from '../../ui/states';
 
 const t = ru.recipes;
 
@@ -26,7 +27,12 @@ export default function RecipeEditPage() {
     async () => (id ? ((await repos.recipes.get(id)) ?? null) : null),
     [id],
   );
-  if (id && recipe === undefined) return <Page title={t.edit}>{ru.common.loading}</Page>;
+  if (id && recipe === undefined)
+    return (
+      <Page title={t.edit}>
+        <Loading />
+      </Page>
+    );
   return <Editor key={recipe?.id ?? 'new'} recipe={recipe ?? null} />;
 }
 
@@ -132,7 +138,7 @@ function Editor({ recipe }: { recipe: Recipe | null }) {
                 onChange={(v) => setIngs(ings.map((x, j) => (j === idx ? { ...x, grams: v } : x)))}
               />
               <Button
-                variant="ghost"
+                variant="text"
                 onClick={() => setIngs(ings.filter((_, j) => j !== idx))}
                 aria-label={`${t.remove}: ${f?.name ?? ''}`}
               >
@@ -144,7 +150,7 @@ function Editor({ recipe }: { recipe: Recipe | null }) {
         <Button variant="secondary" block onClick={() => setPicking(true)}>
           {t.addIngredient}
         </Button>
-        <Button variant="ghost" block onClick={() => setImporting(true)}>
+        <Button variant="text" block onClick={() => setImporting(true)}>
           {t.importAi}
         </Button>
       </Card>
@@ -184,7 +190,7 @@ function Editor({ recipe }: { recipe: Recipe | null }) {
                   );
                 }}
               />
-              <Button variant="ghost" onClick={() => setSteps(steps.filter((_, j) => j !== idx))}>
+              <Button variant="text" onClick={() => setSteps(steps.filter((_, j) => j !== idx))}>
                 {t.removeStep}
               </Button>
             </Row>
@@ -197,7 +203,7 @@ function Editor({ recipe }: { recipe: Recipe | null }) {
       <Row>
         {recipe && (
           <Button
-            variant="secondary"
+            variant="danger"
             onClick={async () => {
               await repos.recipes.softDelete(recipe.id);
               toast({
@@ -210,7 +216,7 @@ function Editor({ recipe }: { recipe: Recipe | null }) {
             {ru.common.delete}
           </Button>
         )}
-        <Button onClick={() => void save()} disabled={!valid}>
+        <Button onClick={() => void save()} disabled={!valid} hint={ru.hints.recipe}>
           {t.save}
         </Button>
       </Row>

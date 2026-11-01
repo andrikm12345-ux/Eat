@@ -84,9 +84,12 @@ export function Banners() {
   }, [today]);
 
   if (!banners?.length) return null;
+  // One reminder at a time: closing it shows the next one.
+  const shown = banners.slice(0, 1);
+  const waiting = banners.length - shown.length;
   return (
     <div className={styles.list}>
-      {banners.map((b) => (
+      {shown.map((b) => (
         <div key={b.id} className={styles.banner} role="status">
           <span className={styles.text}>{b.text}</span>
           {b.action && (
@@ -104,6 +107,7 @@ export function Banners() {
           </button>
         </div>
       ))}
+      {waiting > 0 && <p className={styles.more}>{ru.banners.more(waiting)}</p>}
     </div>
   );
 }

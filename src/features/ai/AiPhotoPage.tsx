@@ -111,7 +111,7 @@ function AiPhotoInner() {
       {error && (
         <Notice>
           {t.error(error)}{' '}
-          <LinkButton to={manualTo} variant="ghost">
+          <LinkButton to={manualTo} variant="text">
             {t.manual}
           </LinkButton>
         </Notice>

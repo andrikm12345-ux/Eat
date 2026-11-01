@@ -316,7 +316,7 @@ export function WorkoutNewPage() {
 
       <p className={w.footnote}>{t.kcalNet}</p>
       <div className={w.saveBar}>
-        <Button block onClick={() => void save()} disabled={!valid}>
+        <Button block onClick={() => void save()} disabled={!valid} hint={t.hintDuration}>
           {total > 0 ? t.saveWith(formatKcal(total)) : t.save}
         </Button>
       </div>

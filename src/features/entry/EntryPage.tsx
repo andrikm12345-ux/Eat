@@ -13,6 +13,7 @@ import { Button, Card, NumberField, Row, Stat, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
 import { DateField, TimeField } from '../../ui/DateTimeFields';
+import { Loading } from '../../ui/states';
 
 const t = ru.entry;
 
@@ -22,7 +23,12 @@ export default function EntryPage() {
     async () => (id ? ((await repos.entries.get(id)) ?? null) : null),
     [id],
   );
-  if (entry === undefined) return <Page title={t.title}>{ru.common.loading}</Page>;
+  if (entry === undefined)
+    return (
+      <Page title={t.title}>
+        <Loading />
+      </Page>
+    );
   if (entry === null) return <Page title={t.title}>{t.notFound}</Page>;
   return <EntryEditor key={entry.updatedAt} entry={entry} />;
 }
@@ -81,7 +87,7 @@ function EntryEditor({ entry }: { entry: Entry }) {
               </div>
             </Row>
             {items.length > 1 && (
-              <Button variant="ghost" onClick={() => setItems(items.filter((_, j) => j !== i))}>
+              <Button variant="text" onClick={() => setItems(items.filter((_, j) => j !== i))}>
                 {t.removeItem}
               </Button>
             )}
@@ -99,7 +105,7 @@ function EntryEditor({ entry }: { entry: Entry }) {
       </Card>
       {canRecalc && (
         <Button
-          variant="ghost"
+          variant="text"
           block
           onClick={async () => {
             const n = await recalcFromFoods(repos, entry);
@@ -110,10 +116,10 @@ function EntryEditor({ entry }: { entry: Entry }) {
         </Button>
       )}
       <Row>
-        <Button variant="secondary" onClick={() => void remove()}>
+        <Button variant="danger" onClick={() => void remove()}>
           {ru.common.delete}
         </Button>
-        <Button onClick={() => void save()} disabled={items.length === 0}>
+        <Button onClick={() => void save()} disabled={items.length === 0} hint={ru.hints.entry}>
           {ru.common.save}
         </Button>
       </Row>

@@ -17,6 +17,7 @@ import listStyles from '../add/add.module.css';
 import { useTrend } from './useTrend';
 import { WeightChart } from './WeightChart';
 import styles from './progress.module.css';
+import { Loading } from '../../ui/states';
 
 const t = ru.progress;
 type Period = 'm1' | 'm3' | 'm6' | 'all';
@@ -28,7 +29,12 @@ export default function ProgressPage() {
   const goal = useGoalFor(today);
   const setWeighOpen = useUi((s) => s.setWeighOpen);
   const [period, setPeriod] = useState<Period>('m1');
-  if (!data || goal === undefined) return <Page title={t.title}>{ru.common.loading}</Page>;
+  if (!data || goal === undefined)
+    return (
+      <Page title={t.title}>
+        <Loading />
+      </Page>
+    );
   const first = data.points[0]?.date ?? today;
   const from = period === 'all' ? first : addDays(today, -DAYS[period]);
 
@@ -146,7 +152,7 @@ function WeightHistory({ weights }: { weights: Weight[] }) {
                 </span>
               </span>
               <Button
-                variant="ghost"
+                variant="text"
                 aria-label={`${ru.common.delete}: ${formatKg(w.kg)} кг, ${formatDateRu(w.date)}`}
                 onClick={async () => {
                   await repos.weights.softDelete(w.id);

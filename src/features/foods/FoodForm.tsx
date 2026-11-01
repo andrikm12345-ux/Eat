@@ -116,13 +116,13 @@ export function FoodForm({
         ))}
         <Row>
           <Button
-            variant="ghost"
+            variant="text"
             onClick={() => setServings([...servings, { label: '', grams: null }])}
           >
             {t.addServing}
           </Button>
           {servings.length > 0 && (
-            <Button variant="ghost" onClick={() => setServings(servings.slice(0, -1))}>
+            <Button variant="text" onClick={() => setServings(servings.slice(0, -1))}>
               {t.removeServing}
             </Button>
           )}

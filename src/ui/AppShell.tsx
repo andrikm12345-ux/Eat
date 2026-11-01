@@ -6,11 +6,11 @@ import { repos } from '../db/repos';
 import { ACCOUNT } from '../services/account';
 import { AddSheet } from '../features/add/AddSheet';
 import { WeighSheet } from '../features/weight/WeighSheet';
-import { ru } from '../i18n/ru';
 import { UpdateBanner } from '../pwa/UpdateBanner';
 import { useUi } from '../state/ui';
 import { BackBar } from './BackBar';
 import { ADD_TABS, MAIN_TABS } from './nav';
+import { Loading } from './states';
 import { BottomNav } from './BottomNav';
 import { ToastHost } from './ToastHost';
 import { Confetti } from './Confetti';
@@ -74,13 +74,8 @@ export function AppShell() {
         {!MAIN_TABS.has(pathname) && <BackBar />}
         <Suspense
           fallback={
-            <div className={styles.loading} aria-label={ru.common.loading} role="status">
-              <div
-                className="skeleton"
-                style={{ height: 34, width: '55%', marginBottom: 'var(--sp-4)' }}
-              />
-              <div className="skeleton" style={{ height: 180, marginBottom: 'var(--sp-3)' }} />
-              <div className="skeleton" style={{ height: 120 }} />
+            <div className={styles.loading}>
+              <Loading />
             </div>
           }
         >

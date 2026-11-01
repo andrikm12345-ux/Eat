@@ -11,6 +11,7 @@ import styles from '../add/add.module.css';
 import { OwnConnection } from './OwnConnection';
 import { SharedAdminCard } from './SharedAdminCard';
 import { useAiConfig } from './useAi';
+import { Loading } from '../../ui/states';
 
 const t = ru.ai;
 
@@ -27,7 +28,12 @@ export default function AiSettingsPage() {
   useEffect(() => {
     void refreshSharedAi(repos);
   }, []);
-  if (!cfg) return <Page title={t.settingsTitle}>{ru.common.loading}</Page>;
+  if (!cfg)
+    return (
+      <Page title={t.settingsTitle}>
+        <Loading />
+      </Page>
+    );
 
   // Users of the shared AI see only the two switches; the connection settings are for
   // those without the shared AI and for the administrator.

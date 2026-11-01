@@ -1,23 +1,27 @@
 .button {
-  min-height: 48px;
-  padding: 0 var(--sp-4);
-  border-radius: var(--radius-sm);
+  min-height: var(--btn-h);
+  padding: 0 var(--sp-5);
+  border-radius: var(--r-field);
   border: 1px solid transparent;
   font-weight: var(--fw-semibold);
   font-size: var(--fs-4);
+  line-height: var(--lh-tight);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
+  text-align: center;
   text-decoration: none;
 }
+/* Same colour, lower brightness; the reason is given under the button (hint). */
 .button:disabled {
   opacity: 0.5;
-  cursor: default;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 .primary {
-  background: linear-gradient(145deg, var(--accent-2), var(--accent));
+  background: var(--accent-grad);
   color: var(--accent-contrast);
   box-shadow: 0 6px 16px var(--glow);
 }
@@ -26,9 +30,32 @@
   color: var(--text);
   border-color: var(--border);
 }
-.ghost {
+.text {
   background: transparent;
   color: var(--accent);
+  padding: 0 var(--sp-3);
+}
+.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+}
+.hintWrap,
+.hintWrapBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.hintWrap {
+  align-items: flex-start;
+}
+.hintWrapBlock {
+  width: 100%;
+}
+.btnHint {
+  margin: 0;
+  font-size: var(--fs-6);
+  color: var(--text-muted);
 }
 .block {
   width: 100%;
@@ -68,7 +95,14 @@
   border-radius: var(--radius-sm);
   background: var(--surface);
   padding: 0 var(--sp-3);
-  min-height: 48px;
+  min-height: var(--btn-h);
+}
+.invalid {
+  border-color: var(--danger);
+}
+.invalid:focus-within {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 18%, transparent);
 }
 .input:focus,
 .input:focus-visible {
@@ -100,11 +134,8 @@
 }
 .error {
   font-size: var(--fs-6);
-  color: var(--attention-text);
-  background: var(--attention);
-  padding: 0 var(--sp-1);
-  border-radius: var(--r-pill);
-  align-self: flex-start;
+  font-weight: var(--fw-semibold);
+  color: var(--danger);
 }
 
 .segmented {

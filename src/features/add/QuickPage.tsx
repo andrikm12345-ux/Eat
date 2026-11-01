@@ -62,7 +62,7 @@ export default function QuickPage() {
         <DateField label={ru.today.date} value={date} onChange={setD} />
         <TimeField label={ru.today.time} value={time} onChange={setTime} />
       </Row>
-      <Button block onClick={() => void save()} disabled={!valid}>
+      <Button block onClick={() => void save()} disabled={!valid} hint={ru.hints.quick}>
         {t.save}
       </Button>
     </Page>

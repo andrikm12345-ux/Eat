@@ -7,6 +7,7 @@ import { Button } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { addQs, useAddTarget } from '../add/addTarget';
 import { FoodForm, type FoodDraft } from './FoodForm';
+import { Loading } from '../../ui/states';
 
 const t = ru.foods;
 
@@ -19,7 +20,12 @@ export default function FoodEditPage() {
   const food = useLiveQuery(async () => (id ? ((await repos.foods.get(id)) ?? null) : null), [id]);
   const log = params.get('log') === '1';
 
-  if (id && food === undefined) return <Page title={t.edit}>{ru.common.loading}</Page>;
+  if (id && food === undefined)
+    return (
+      <Page title={t.edit}>
+        <Loading />
+      </Page>
+    );
 
   const initial: FoodDraft = food
     ? {
@@ -45,7 +51,7 @@ export default function FoodEditPage() {
         extraActions={
           food ? (
             <Button
-              variant="secondary"
+              variant="danger"
               onClick={async () => {
                 await repos.foods.softDelete(food.id);
                 toast({

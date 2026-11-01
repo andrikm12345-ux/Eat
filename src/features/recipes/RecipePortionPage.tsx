@@ -12,6 +12,7 @@ import { Button, Card, Chips, NumberField, Row, Stat } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { useAddTarget } from '../add/addTarget';
 import { DateField, TimeField } from '../../ui/DateTimeFields';
+import { Loading } from '../../ui/states';
 
 const t = ru.recipes;
 
@@ -21,7 +22,12 @@ export default function RecipePortionPage() {
     async () => (id ? ((await repos.recipes.get(id)) ?? null) : null),
     [id],
   );
-  if (recipe === undefined) return <Page title={t.edit}>{ru.common.loading}</Page>;
+  if (recipe === undefined)
+    return (
+      <Page title={t.edit}>
+        <Loading />
+      </Page>
+    );
   if (!recipe) return <Page title={t.edit}>{ru.portion.notFound}</Page>;
   return <Portion recipe={recipe} />;
 }

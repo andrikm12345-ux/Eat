@@ -106,7 +106,12 @@ export default function BarcodePage() {
               onChange={(v) => setManual(v.replace(/\D/g, ''))}
               inputMode="numeric"
             />
-            <Button block disabled={manual.length < 6} onClick={() => void handleCode(manual)}>
+            <Button
+              block
+              disabled={manual.length < 6}
+              onClick={() => void handleCode(manual)}
+              hint={ru.hints.barcode}
+            >
               {t.find}
             </Button>
           </Card>
@@ -137,7 +142,7 @@ export default function BarcodePage() {
               </LinkButton>
             )}
             <Button
-              variant="ghost"
+              variant="text"
               onClick={() => {
                 setCamError(null);
                 setStatus({ s: 'scanning' });
