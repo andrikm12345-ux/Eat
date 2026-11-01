@@ -264,8 +264,11 @@ function Review({ initial }: { initial: ReviewDraft }) {
       )}
       <Card>
         <p className={styles.total}>
-          {t.total}: <b>{formatKcal(totals.kcal)} ккал</b> · Б {formatGrams(totals.protein)} · Ж{' '}
-          {formatGrams(totals.fat)} · У {formatGrams(totals.carbs)}
+          {t.total}: <b>{formatKcal(totals.kcal)} ккал</b>
+          <span className={styles.totalMacros}>
+            Б {formatGrams(totals.protein)} · Ж {formatGrams(totals.fat)} · У{' '}
+            {formatGrams(totals.carbs)}
+          </span>
         </p>
         <div className={styles.dateRow}>
           <DateField label={ru.today.date} value={date} onChange={setD} />

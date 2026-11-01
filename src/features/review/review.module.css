@@ -99,3 +99,10 @@
   flex: 1;
   min-width: 0;
 }
+
+.totalMacros {
+  display: block;
+  margin-top: var(--sp-1);
+  font-size: var(--fs-5);
+  color: var(--text-muted);
+}
