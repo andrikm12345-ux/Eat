@@ -2,7 +2,6 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import { formatGrams, formatKcal } from '../../domain/format';
-import { initialMeal, MEALS, type Meal } from '../../domain/meal';
 import { scaleNutrients, sumNutrients } from '../../domain/nutrients';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
@@ -52,12 +51,6 @@ function Review({ initial }: { initial: ReviewDraft }) {
   const cfg = useAiConfig();
   const [date, setD] = useState(initial.date);
   const [time, setTime] = useState(initial.time);
-  const [meal, setMeal] = useState<Meal>(initialMeal(initial.mealLabel, initial.time));
-  const [mealPicked, setMealPicked] = useState(false);
-  const changeTime = (v: string) => {
-    setTime(v);
-    if (!mealPicked && !initial.mealLabel) setMeal(initialMeal(undefined, v));
-  };
   const [replacing, setReplacing] = useState<string | null>(null);
   const [modes, setModes] = useState<Record<string, 'portion' | 'per100'>>({});
   const [tplName, setTplName] = useState<string | null>(null);
@@ -77,7 +70,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
     if (!valid) return;
     const fixed = correctedKeys(baseline, items);
     const e = await saveReview(
-      { ...initial, items, date, time, mealLabel: meal, ...(runId ? { aiRunId: runId } : {}) },
+      { ...initial, items, date, time, ...(runId ? { aiRunId: runId } : {}) },
       remember ? { remember: new Set(fixed) } : {},
     );
     if (template) await saveAsTemplate(repos, e, template);
@@ -248,18 +241,9 @@ function Review({ initial }: { initial: ReviewDraft }) {
           {t.total}: <b>{formatKcal(totals.kcal)} ккал</b> · Б {formatGrams(totals.protein)} · Ж{' '}
           {formatGrams(totals.fat)} · У {formatGrams(totals.carbs)}
         </p>
-        <Segmented
-          label={t.mealLabel}
-          value={meal}
-          onChange={(v: Meal) => {
-            setMeal(v);
-            setMealPicked(true);
-          }}
-          options={MEALS.map((m) => ({ value: m, label: m }))}
-        />
         <div className={styles.dateRow}>
           <DateField label={ru.today.date} value={date} onChange={setD} />
-          <TimeField label={ru.today.time} value={time} onChange={changeTime} />
+          <TimeField label={ru.today.time} value={time} onChange={setTime} />
         </div>
         {initial.notes && <p className={styles.notes}>{initial.notes}</p>}
         {fixedNow.length > 0 && (

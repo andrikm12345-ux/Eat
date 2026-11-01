@@ -367,7 +367,6 @@ export const ru = {
     total: 'Итого',
     save: 'Добавить в рацион',
     saveTemplate: 'Добавить и сохранить в моё меню',
-    mealLabel: 'Приём пищи',
     templateName: 'Название шаблона',
     modeLabel: 'Как задать количество',
     modePortion: 'Порция',

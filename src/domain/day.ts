@@ -1,4 +1,4 @@
-import { MEALS } from './meal';
+import { MEALS } from './meals';
 import type { Entry, EntryItem, LocalTime, Nutrients } from './types';
 import { scaleNutrients, sumNutrients } from './nutrients';
 
