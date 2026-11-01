@@ -12,6 +12,8 @@ export type ReviewItem = {
   confidence?: Confidence;
   /** AI assumed a hidden component (oil, sauce…). */
   assumed?: boolean;
+  /** Weight of one piece, for countable products (the count is grams / piece.grams). */
+  piece?: { grams: number };
   foodId?: string;
   recipeId?: string;
   /** Alternative data source for this item (AI estimate ↔ catalog food). */
@@ -60,6 +62,7 @@ export function swapAlt(i: ReviewItem): ReviewItem {
     ...(alt.foodId ? { foodId: alt.foodId } : {}),
     ...((alt.confidence ?? i.confidence) ? { confidence: alt.confidence ?? i.confidence } : {}),
     ...((alt.assumed ?? i.assumed) ? { assumed: true } : {}),
+    ...(i.piece ? { piece: i.piece } : {}),
     alt: {
       name: i.name,
       per100g: i.per100g,

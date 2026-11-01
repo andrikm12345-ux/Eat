@@ -8,6 +8,11 @@ import type { FoodDraft } from '../domain/off';
 
 export const MATCH_THRESHOLD = 0.8;
 
+/** Label of the one-piece serving a food keeps (saved from the review screen). */
+export const PIECE_LABEL = '1 шт';
+const pieceServing = (f: Food): number | undefined =>
+  f.servings.find((s) => s.label === PIECE_LABEL)?.grams;
+
 /**
  * Review draft from an AI meal estimate. Items whose `searchHint` matches a verified
  * catalog food with similarity ≥ 0.8 use the catalog data by default (grams kept);
@@ -29,11 +34,17 @@ export async function mealToDraft(
       assumed: it.assumed,
     };
     const m = bestMatch(index, it.searchHint) ?? bestMatch(index, it.name);
+    // The user's own "1 шт" of a remembered product wins over the AI's guess of one piece.
+    const own = m && m.similarity >= MATCH_THRESHOLD ? pieceServing(m.item) : undefined;
+    const pieceGrams = own ?? it.pieceGrams;
+    const piece = it.pieces && pieceGrams ? { grams: pieceGrams } : undefined;
+    const grams = piece && it.pieces ? Math.round(it.pieces * piece.grams * 10) / 10 : it.grams;
     if (m && m.similarity >= MATCH_THRESHOLD) {
       const f: Food = m.item;
       return {
         key: reviewKey(),
-        grams: it.grams,
+        grams,
+        ...(piece ? { piece } : {}),
         name: f.name,
         per100g: f.per100g,
         foodId: f.id,
@@ -51,7 +62,13 @@ export async function mealToDraft(
           foodId: m.item.id,
         }
       : undefined;
-    return { key: reviewKey(), grams: it.grams, ...ai, ...(alt ? { alt } : {}) };
+    return {
+      key: reviewKey(),
+      grams,
+      ...(piece ? { piece } : {}),
+      ...ai,
+      ...(alt ? { alt } : {}),
+    };
   });
   return {
     items,

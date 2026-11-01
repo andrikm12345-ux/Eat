@@ -12,6 +12,9 @@ export function clarifyMessage(items: ReviewItem[], note: string): string {
   const prev = items.map((i) => ({
     name: i.name,
     grams: i.grams,
+    ...(i.piece
+      ? { pieces: Math.round((i.grams / i.piece.grams) * 100) / 100, pieceGrams: i.piece.grams }
+      : {}),
     per100g: {
       kcal: i.per100g.kcal,
       protein: i.per100g.protein,

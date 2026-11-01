@@ -195,3 +195,32 @@ describe('review screen: clarify with the AI and remember corrections', () => {
     );
   });
 });
+
+describe('review screen: pieces', () => {
+  it('opens in pieces for a countable product and recalculates from the piece weight', async () => {
+    draft([shake({ name: 'Сметанник', grams: 120, piece: { grams: 60 } })]);
+    const user = userEvent.setup();
+    await renderApp('/review');
+    expect(await screen.findByRole('radio', { name: t.modePieces })).toBeChecked();
+    const count = screen.getByLabelText(`${t.piecesLabel}: Сметанник`);
+    expect(count).toHaveValue('2');
+    await user.click(screen.getByRole('button', { name: `${ru.portion.plus}: Сметанник` }));
+    expect(count).toHaveValue('3');
+    expect(screen.getByLabelText(`${t.portionKcal}: Сметанник`)).toHaveValue('117');
+    await user.click(screen.getByRole('button', { name: `${ru.portion.minus}: Сметанник` }));
+    const weight = screen.getByLabelText(`${t.pieceWeight}: Сметанник`);
+    await user.clear(weight);
+    await user.type(weight, '45');
+    expect(screen.getByLabelText(`${t.portionKcal}: Сметанник`)).toHaveValue('58,5');
+    // Grams view shows the same total.
+    await user.click(screen.getByRole('radio', { name: t.modeGrams }));
+    expect(screen.getByLabelText(`${ru.portion.grams}: Сметанник`)).toHaveValue('90');
+  });
+
+  it('a product without pieces keeps the old portion / per 100 g choice', async () => {
+    draft([shake()]);
+    await renderApp('/review');
+    expect(await screen.findByRole('radio', { name: t.modePortion })).toBeChecked();
+    expect(screen.queryByRole('radio', { name: t.modePieces })).not.toBeInTheDocument();
+  });
+});

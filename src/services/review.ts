@@ -2,6 +2,11 @@ import { scaleNutrients } from '../domain/nutrients';
 import type { EntryItem } from '../domain/types';
 import { foodSearchKey, repos } from '../db/repos';
 import type { ReviewDraft, ReviewItem } from '../state/review';
+import { PIECE_LABEL } from './aiFood';
+
+/** The "1 шт" serving of an item (nothing while the weight of a piece is empty). */
+const pieceServings = (i: ReviewItem) =>
+  i.piece && i.piece.grams > 0 ? [{ label: PIECE_LABEL, grams: i.piece.grams }] : [];
 
 const nutrientsOf = (i: ReviewItem) => scaleNutrients(i.per100g, i.grams);
 
@@ -20,13 +25,20 @@ export async function saveReview(d: ReviewDraft, opts: { remember?: ReadonlySet<
         (f) => f.source === 'user' && f.searchKey === key,
       );
       if (same) {
-        await repos.foods.edit(same.id, { per100g: i.per100g, verified: true });
+        const others = same.servings.filter((s) => s.label !== PIECE_LABEL);
+        await repos.foods.edit(same.id, {
+          per100g: i.per100g,
+          verified: true,
+          servings: i.piece
+            ? [...others, { label: PIECE_LABEL, grams: i.piece.grams }]
+            : same.servings,
+        });
         foodIds.set(i.key, same.id);
       } else {
         const f = await repos.foods.add({
           name: i.name,
           per100g: i.per100g,
-          servings: [],
+          servings: pieceServings(i),
           source: 'user',
           verified: true,
         });

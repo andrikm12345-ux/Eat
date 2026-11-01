@@ -60,7 +60,9 @@ function Review({ initial }: { initial: ReviewDraft }) {
   const [date, setD] = useState(initial.date);
   const [time, setTime] = useState(initial.time);
   const [replacing, setReplacing] = useState<string | null>(null);
-  const [modes, setModes] = useState<Record<string, 'portion' | 'per100'>>({});
+  // Count kept while the piece-weight field is emptied for retyping.
+  const [heldCount, setHeldCount] = useState<Record<string, number>>({});
+  const [modes, setModes] = useState<Record<string, 'pieces' | 'portion' | 'per100'>>({});
   const [tplName, setTplName] = useState<string | null>(null);
   const run = useLiveQuery(
     async () => (initial.aiRunId ? await repos.db.aiRuns.get(initial.aiRunId) : undefined),
@@ -147,7 +149,12 @@ function Review({ initial }: { initial: ReviewDraft }) {
       {items.some((i) => i.source === 'off') && <Notice tone="info">{t.unverified}</Notice>}
       {items.map((i) => {
         const n = nutrientsOf(i);
-        const mode = modes[i.key] ?? 'portion';
+        const mode = modes[i.key] ?? (i.piece ? 'pieces' : 'portion');
+        const pieceG = i.piece?.grams ?? 0;
+        const count = pieceG > 0 ? Math.round((i.grams / pieceG) * 100) / 100 : 0;
+        const setCount = (c: number) => {
+          if (pieceG > 0) update(i.key, { grams: Math.round(Math.max(0, c) * pieceG * 10) / 10 });
+        };
         const low = i.confidence === 'low';
         return (
           <div key={i.key} className={`${styles.item} ${low ? styles.low : ''}`}>
@@ -163,13 +170,76 @@ function Review({ initial }: { initial: ReviewDraft }) {
             <Segmented
               label={`${t.modeLabel}: ${i.name}`}
               value={mode}
-              onChange={(v: 'portion' | 'per100') => setModes((m) => ({ ...m, [i.key]: v }))}
+              onChange={(v: 'pieces' | 'portion' | 'per100') =>
+                setModes((m) => ({ ...m, [i.key]: v }))
+              }
               options={[
-                { value: 'portion', label: t.modePortion },
-                { value: 'per100', label: t.mode100 },
+                ...(i.piece ? [{ value: 'pieces' as const, label: t.modePieces }] : []),
+                { value: 'portion' as const, label: i.piece ? t.modeGrams : t.modePortion },
+                { value: 'per100' as const, label: t.mode100 },
               ]}
             />
-            {mode === 'portion' ? (
+            {mode === 'pieces' && i.piece && (
+              <>
+                <div className={styles.stepper}>
+                  <button
+                    type="button"
+                    className={styles.step}
+                    aria-label={`${ru.portion.minus}: ${i.name}`}
+                    onClick={() => setCount(count - 1)}
+                  >
+                    −
+                  </button>
+                  <NumberField
+                    label={t.piecesLabel}
+                    ariaLabel={`${t.piecesLabel}: ${i.name}`}
+                    suffix="шт"
+                    value={count}
+                    emptyAs={0}
+                    onChange={(v) => setCount(v ?? 0)}
+                  />
+                  <button
+                    type="button"
+                    className={styles.step}
+                    aria-label={`${ru.portion.plus}: ${i.name}`}
+                    onClick={() => setCount(count + 1)}
+                  >
+                    +
+                  </button>
+                </div>
+                <NumberField
+                  label={t.pieceWeight}
+                  ariaLabel={`${t.pieceWeight}: ${i.name}`}
+                  suffix="г"
+                  value={pieceG}
+                  emptyAs={0}
+                  onChange={(v) => {
+                    if (!v || v <= 0) {
+                      setHeldCount((m) => ({ ...m, [i.key]: m[i.key] ?? count }));
+                      edit(i.key, (x) => ({ ...x, piece: { grams: 0 } }));
+                      return;
+                    }
+                    const c = heldCount[i.key] ?? count;
+                    setHeldCount(({ [i.key]: _gone, ...rest }) => rest);
+                    edit(i.key, (x) => ({
+                      ...x,
+                      piece: { grams: v },
+                      grams: Math.round(c * v * 10) / 10,
+                    }));
+                  }}
+                />
+                <p className={styles.meta}>{t.pieceHint(formatGrams(i.grams))}</p>
+                <NumberField
+                  label={t.portionKcal}
+                  ariaLabel={`${t.portionKcal}: ${i.name}`}
+                  suffix="ккал"
+                  value={Math.round(n.kcal * 10) / 10}
+                  emptyAs={0}
+                  onChange={(v) => edit(i.key, (x) => withPortionKcal(x, v ?? 0))}
+                />
+              </>
+            )}
+            {mode === 'portion' && (
               <>
                 <div className={styles.stepper}>
                   <button
@@ -206,7 +276,8 @@ function Review({ initial }: { initial: ReviewDraft }) {
                   onChange={(v) => edit(i.key, (x) => withPortionKcal(x, v ?? 0))}
                 />
               </>
-            ) : (
+            )}
+            {mode === 'per100' && (
               <div className={styles.per100}>
                 {(['kcal', 'protein', 'fat', 'carbs'] as const).map((k) => (
                   <NumberField

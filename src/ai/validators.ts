@@ -16,6 +16,9 @@ export type MealItem = {
   confidence: Confidence;
   assumed: boolean;
   searchHint: string;
+  /** Countable products: how many pieces and what one piece weighs (both or neither). */
+  pieces?: number;
+  pieceGrams?: number;
 };
 export type MealResult = { items: MealItem[]; mealGuess: string | null; notes: string };
 
@@ -41,6 +44,15 @@ function per100(
     else out[k] = v[k] as number;
   }
   return out;
+}
+
+/** Pieces are a convenience: broken values are dropped instead of failing the whole answer. */
+function pieceInfo(it: Record<string, unknown>): { pieces?: number; pieceGrams?: number } {
+  const n = it.pieces;
+  const g = it.pieceGrams;
+  if (typeof n !== 'number' || typeof g !== 'number') return {};
+  if (!(n > 0 && n <= 100) || !(g > 0 && g <= 2000)) return {};
+  return { pieces: n, pieceGrams: g };
 }
 
 export function validateMeal(data: unknown): Valid<MealResult> {
@@ -77,6 +89,7 @@ export function validateMeal(data: unknown): Valid<MealResult> {
           ? it.confidence
           : 'low') as Confidence,
         assumed: it.assumed === true,
+        ...pieceInfo(it),
         searchHint:
           typeof it.searchHint === 'string' && it.searchHint.trim()
             ? it.searchHint.trim()
