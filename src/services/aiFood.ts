@@ -84,6 +84,9 @@ export async function mealToDraft(
   };
 }
 
+/** "Пицца No2" → "Пицца №2": a Latin "No" before a number is the numero sign. */
+export const tidyName = (s: string): string => s.replace(/\bNo\.?\s?(?=\d)/g, '№').trim();
+
 /** Product draft from a label read (per 100 g), with warnings incl. Atwater check. */
 export function labelToDraft(
   res: LabelResult,
@@ -97,7 +100,7 @@ export function labelToDraft(
     warnings.push('Низкая уверенность распознавания — сверьте с упаковкой.');
   return {
     draft: {
-      name: res.name ?? '',
+      name: tidyName(res.name ?? ''),
       ...(res.brand ? { brand: res.brand } : {}),
       ...((barcode ?? res.barcode) ? { barcode: (barcode ?? res.barcode) as string } : {}),
       per100g,

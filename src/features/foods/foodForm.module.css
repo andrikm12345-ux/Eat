@@ -1,0 +1,19 @@
+/* Add / remove a serving: small text buttons side by side, text on one line. */
+.servingActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-4);
+  align-items: center;
+}
+.servingActions > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding-inline: 0;
+}
+
+/* Save on a full-width line, the secondary actions under it. */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}

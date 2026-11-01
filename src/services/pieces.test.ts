@@ -139,3 +139,13 @@ describe('clarify message with pieces', () => {
     expect(m).toContain('"pieceGrams":60');
   });
 });
+
+describe('tidyName', () => {
+  it('turns a Latin "No" before a number into the numero sign', async () => {
+    const { tidyName } = await import('./aiFood');
+    expect(tidyName('Пицца куриная No2')).toBe('Пицца куриная №2');
+    expect(tidyName('Пицца No. 3')).toBe('Пицца №3');
+    expect(tidyName('Nora')).toBe('Nora');
+    expect(tidyName('  Хлеб  ')).toBe('Хлеб');
+  });
+});

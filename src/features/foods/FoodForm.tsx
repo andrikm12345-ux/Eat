@@ -3,7 +3,9 @@ import { formatKcal } from '../../domain/format';
 import { atwaterKcal, isKcalInconsistent } from '../../domain/nutrients';
 import type { Food, Nutrients, Serving } from '../../domain/types';
 import { ru } from '../../i18n/ru';
+import { isValidEan } from '../../domain/ean';
 import { Button, Card, Notice, NumberField, Row, TextField } from '../../ui/kit';
+import styles from './foodForm.module.css';
 
 const t = ru.foods;
 
@@ -51,18 +53,27 @@ export function FoodForm({
   const validServings = servings.filter(
     (s) => s.label.trim() && s.grams && s.grams > 0,
   ) as Serving[];
-  const valid =
-    name.trim().length > 0 &&
-    kcal >= 0 &&
-    kcal <= 900 &&
-    macros.protein + macros.fat + macros.carbs <= 100.5;
+  const nameOk = name.trim().length > 0;
+  const kcalOk = kcal >= 0 && kcal <= 900;
+  const macrosOk = macros.protein + macros.fat + macros.carbs <= 100.5;
+  const valid = nameOk && kcalOk && macrosOk;
+  /** What is missing, said under the disabled save button. */
+  const problem = !nameOk ? t.needName : !kcalOk ? t.kcalRange : !macrosOk ? t.macrosRange : null;
+  const code = barcode.trim();
+  const codeSuspicious = [8, 12, 13].includes(code.length) && !isValidEan(code);
 
   return (
     <>
       <Card>
         <TextField label={t.name} value={name} onChange={setName} autoFocus={!initial.name} />
         <TextField label={t.brand} value={brand} onChange={setBrand} />
-        <TextField label={t.barcode} value={barcode} onChange={setBarcode} inputMode="numeric" />
+        <TextField
+          label={t.barcode}
+          value={barcode}
+          onChange={setBarcode}
+          inputMode="numeric"
+          {...(codeSuspicious ? { hint: t.barcodeCheck } : {})}
+        />
       </Card>
       <Card title={t.per100}>
         <NumberField
@@ -114,7 +125,7 @@ export function FoodForm({
             />
           </Row>
         ))}
-        <Row>
+        <div className={styles.servingActions}>
           <Button
             variant="text"
             onClick={() => setServings([...servings, { label: '', grams: null }])}
@@ -126,12 +137,13 @@ export function FoodForm({
               {t.removeServing}
             </Button>
           )}
-        </Row>
+        </div>
       </Card>
-      <Row>
-        {extraActions}
+      <div className={styles.actions}>
         <Button
+          block
           disabled={!valid}
+          hint={problem}
           onClick={() =>
             void onSave({
               name: name.trim(),
@@ -144,7 +156,8 @@ export function FoodForm({
         >
           {saveLabel}
         </Button>
-      </Row>
+        {extraActions}
+      </div>
     </>
   );
 }

@@ -23,3 +23,34 @@ describe('foods list: delete', () => {
     expect(await screen.findByText(/Сухарики/)).toBeVisible();
   });
 });
+
+describe('food form: hints and checks', () => {
+  it('says what is missing under the disabled save button', async () => {
+    const user = userEvent.setup();
+    await renderApp('/foods/new');
+    expect(await screen.findByText(ru.foods.needName)).toBeVisible();
+    await user.type(screen.getByLabelText(ru.foods.name), 'Пицца');
+    expect(screen.queryByText(ru.foods.needName)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: ru.foods.save })).toBeEnabled();
+    const kcal = screen.getByLabelText(ru.foods.kcal);
+    await user.type(kcal, '950');
+    expect(await screen.findByText(ru.foods.kcalRange)).toBeVisible();
+    await user.clear(kcal);
+    await user.type(kcal, '300');
+    await user.type(screen.getByLabelText(ru.foods.protein), '60');
+    await user.type(screen.getByLabelText(ru.foods.fat), '30');
+    await user.type(screen.getByLabelText(ru.foods.carbs), '30');
+    expect(await screen.findByText(ru.foods.macrosRange)).toBeVisible();
+  });
+
+  it('warns about a barcode whose check digit does not match', async () => {
+    const user = userEvent.setup();
+    await renderApp('/foods/new');
+    const code = await screen.findByLabelText(ru.foods.barcode);
+    await user.type(code, '4810268055578');
+    expect(await screen.findByText(ru.foods.barcodeCheck)).toBeVisible();
+    await user.clear(code);
+    await user.type(code, '4810268055577');
+    expect(screen.queryByText(ru.foods.barcodeCheck)).not.toBeInTheDocument();
+  });
+});
