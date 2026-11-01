@@ -74,12 +74,7 @@ export function DayFlow({ entries }: { entries: Entry[] }) {
               />
             ))}
             {stack.length > 1 && (
-              <button
-                type="button"
-                className={styles.more}
-                style={{ width: 'auto' }}
-                onClick={() => toggle(id)}
-              >
+              <button type="button" className={styles.collapse} onClick={() => toggle(id)}>
                 {t.collapse}
               </button>
             )}

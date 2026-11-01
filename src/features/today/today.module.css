@@ -497,3 +497,17 @@
     transform: translateX(-32px);
   }
 }
+
+/* "Свернуть" under an opened group: a small text button, not the big "⋯" one. */
+.collapse {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: var(--fs-5);
+  font-weight: var(--fw-semibold);
+  min-height: var(--tap);
+  padding: 0 var(--sp-2);
+  margin-left: calc(-1 * var(--sp-2));
+  cursor: pointer;
+}
