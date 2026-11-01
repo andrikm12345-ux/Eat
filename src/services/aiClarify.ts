@@ -5,7 +5,7 @@ import type { Repos } from '../db/repos';
 import type { LocalDate, LocalTime } from '../domain/types';
 import type { ReviewDraft, ReviewItem } from '../state/review';
 import { mealToDraft } from './aiFood';
-import { searchWeb, withWebContext } from './webSearch';
+import { remarkNamesProduct, searchWeb, withWebContext } from './webSearch';
 
 /** The message sent to the AI: the previous estimate and what the user says is wrong with it. */
 export function clarifyMessage(items: ReviewItem[], note: string): string {
@@ -33,8 +33,10 @@ export async function clarifyMeal(
   at: { date: LocalDate; time: LocalTime },
   entrySource: 'ai_photo' | 'ai_text',
 ): Promise<ReviewDraft> {
-  // The remark often names a brand or a product: look it up before asking the AI again.
-  const web = await searchWeb(r, `${items.map((i) => i.name).join(', ')}. ${note}`);
+  // Only a remark that names a brand or a product is worth a web search; "убери сыр" is not.
+  const web = remarkNamesProduct(note)
+    ? await searchWeb(r, `${items.map((i) => i.name).join(', ')}. ${note}`)
+    : null;
   const { value, runId } = await runAi(r, {
     kind: 'text',
     vision: false,

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import type { Food } from '../../domain/types';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
+import { identifyBarcodeOnWeb } from '../../services/barcodeWeb';
 import { attachBarcode, lookupBarcode } from '../../services/off';
 import { toast } from '../../state/ui';
 import { BottomSheet } from '../../ui/BottomSheet';
@@ -18,7 +19,7 @@ import styles from './barcode.module.css';
 const t = ru.barcode;
 type Status =
   | { s: 'scanning' }
-  | { s: 'looking'; code: string }
+  | { s: 'looking'; code: string; web?: boolean }
   | { s: 'notFound' | 'offline' | 'error'; code: string };
 
 export default function BarcodePage() {
@@ -41,6 +42,16 @@ export default function BarcodePage() {
     if (r.kind === 'local' || r.kind === 'off') {
       openReview(r.food, r.kind === 'off' ? 'off' : 'catalog');
       return;
+    }
+    if (r.kind === 'notFound') {
+      // Not in Open Food Facts: look the code up on the web and let the AI read the product.
+      setStatus({ s: 'looking', code, web: true });
+      const found = await identifyBarcodeOnWeb(repos, code, target);
+      if (found) {
+        setDraft(found);
+        navigate('/review', { replace: true });
+        return;
+      }
     }
     setStatus({ s: r.kind, code });
   }
@@ -117,7 +128,9 @@ export default function BarcodePage() {
           </Card>
         </>
       )}
-      {status.s === 'looking' && <p className={styles.hint}>{t.looking}</p>}
+      {status.s === 'looking' && (
+        <p className={styles.hint}>{status.web ? t.lookingWeb : t.looking}</p>
+      )}
       {(status.s === 'notFound' || status.s === 'offline' || status.s === 'error') && (
         <Card>
           <p>

@@ -52,6 +52,39 @@ describe('AI without a key', () => {
     expect(screen.getByRole('link', { name: ru.barcode.createLabel })).toBeVisible();
   });
 
+  it('an unknown barcode is looked up on the web and opens the review', async () => {
+    await repos.settings.set(AI_KEYS.enabled, true);
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-ant-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.consent, true);
+    await repos.settings.set(ACCOUNT.token, 'tok');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        if (url === '/api/search')
+          return Response.json({
+            results: [
+              { title: 'Йогурт', url: 'https://shop.example/p', content: '95 ккал на 100 г' },
+            ],
+          });
+        if (String(url).includes('openfoodfacts'))
+          return new Response(JSON.stringify({ status: 0 }), { status: 200 });
+        return new Response(
+          JSON.stringify({
+            content: [{ type: 'text', text: JSON.stringify(meal) }],
+            stop_reason: 'end_turn',
+          }),
+          { status: 200 },
+        );
+      }),
+    );
+    const user = userEvent.setup();
+    await renderApp('/add/barcode');
+    await user.type(await screen.findByLabelText(ru.barcode.code), '7601741054531');
+    await user.click(screen.getByRole('button', { name: ru.barcode.find }));
+    expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
+    expect(await screen.findByRole('link', { name: 'shop.example' })).toBeVisible();
+  });
+
   it('the text screen works without a key and shows no AI setup hint', async () => {
     await renderApp('/add/ai-text');
     expect(await screen.findByLabelText(ru.ai.text.label)).toBeVisible();

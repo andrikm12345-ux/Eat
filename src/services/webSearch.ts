@@ -35,6 +35,22 @@ export function withWebContext(description: string, web: WebContext | null): str
 }
 
 /**
+ * Does a remark to an estimate introduce a product or brand (worth looking up), or only
+ * change it ("убери сыр", "меньше масла")? Only the first kind is searched.
+ */
+export function remarkNamesProduct(note: string): boolean {
+  const t = note.trim();
+  if (/^(без|убер|убр|удал|нет|не |меньше|больше|добав|поменя|измени|вес|порци|\d)/i.test(t))
+    return false;
+  // A brand or a title: Latin letters, quotes, a capitalised word inside the sentence, or the words themselves.
+  return (
+    /[A-Za-z«"“]/.test(t) ||
+    /\s[А-ЯЁ][а-яё]{2,}/.test(t) ||
+    /(бренд|марк|производител|фирм)/i.test(t)
+  );
+}
+
+/**
  * Searches the web through our server. Never throws: without an account, without the
  * search configured, on a limit or any failure it returns null and the AI works as before.
  */
@@ -42,6 +58,7 @@ export async function searchWeb(
   r: Repos,
   description: string,
   fetchImpl: typeof fetch = fetch,
+  opts: { raw?: boolean } = {},
 ): Promise<WebContext | null> {
   try {
     if (description.trim().length < 3) return null;
@@ -53,7 +70,7 @@ export async function searchWeb(
       const res = await fetchImpl('/api/search', {
         method: 'POST',
         headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery(description) }),
+        body: JSON.stringify({ query: opts.raw ? description.trim() : searchQuery(description) }),
         signal: ctl.signal,
       });
       if (!res.ok) return null;

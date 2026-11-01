@@ -16,22 +16,26 @@ const nutrientsOf = (i: ReviewItem) => scaleNutrients(i.per100g, i.grams);
  * estimate of the same dish starts from the corrected values.
  */
 export async function saveReview(d: ReviewDraft, opts: { remember?: ReadonlySet<string> } = {}) {
+  // A product identified for a scanned barcode is always kept, so the next scan finds it.
+  const keep = new Set(opts.remember);
+  const bound = d.barcode && d.items.length === 1 ? d.barcode : undefined;
+  if (bound && d.items[0]) keep.add(d.items[0].key);
   return repos.db.transaction('rw', repos.db.entries, repos.db.foods, async () => {
     const foodIds = new Map<string, string>();
     for (const i of d.items) {
-      if (i.foodId || !opts.remember?.has(i.key)) continue;
+      if (i.foodId || !keep.has(i.key)) continue;
       const key = foodSearchKey(i.name);
       const same = (await repos.foods.list()).find(
         (f) => f.source === 'user' && f.searchKey === key,
       );
       if (same) {
         const others = same.servings.filter((s) => s.label !== PIECE_LABEL);
+        const piece = pieceServings(i);
         await repos.foods.edit(same.id, {
           per100g: i.per100g,
           verified: true,
-          servings: i.piece
-            ? [...others, { label: PIECE_LABEL, grams: i.piece.grams }]
-            : same.servings,
+          ...(bound ? { barcode: bound } : {}),
+          servings: piece.length ? [...others, ...piece] : same.servings,
         });
         foodIds.set(i.key, same.id);
       } else {
@@ -41,6 +45,7 @@ export async function saveReview(d: ReviewDraft, opts: { remember?: ReadonlySet<
           servings: pieceServings(i),
           source: 'user',
           verified: true,
+          ...(bound ? { barcode: bound } : {}),
         });
         foodIds.set(i.key, f.id);
       }

@@ -87,6 +87,8 @@ export type ReviewDraft = {
   analysis?: 'ai' | 'local';
   /** Web pages the AI was given as a reference (shown so the user can check them). */
   sources?: { title: string; url: string }[];
+  /** A scanned barcode the product was identified for: it is bound to the saved product. */
+  barcode?: string;
 };
 
 type ReviewState = {
