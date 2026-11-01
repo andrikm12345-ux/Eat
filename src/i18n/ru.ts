@@ -588,6 +588,8 @@ export const ru = {
     durationCustom: 'Своя длительность',
     start: 'Начало',
     until: 'до',
+    fromExercises: (n: number) =>
+      `Длительность посчитана по упражнениям: ≈ ${n} мин. Выберите свою, если иначе.`,
     intensity: 'Нагрузка',
     intensityName: { light: 'Лёгкая', moderate: 'Средняя', hard: 'Тяжёлая' },
     intensityHint: {

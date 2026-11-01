@@ -42,3 +42,31 @@ export function cleanExercises(list: WorkoutExercise[]): WorkoutExercise[] {
     .filter((e) => e.name && e.sets > 0 && e.reps > 0)
     .map(({ weightKg, ...rest }) => (weightKg && weightKg > 0 ? { ...rest, weightKg } : rest));
 }
+
+/** Seconds one repetition takes (controlled tempo) and the usual rest between sets. */
+export const REP_SECONDS = 4;
+export const REST_SECONDS = 75;
+
+/**
+ * Session length implied by the exercises: every set takes reps × tempo, then a rest.
+ * Rounded up to whole minutes, at least 5 when there is anything to do.
+ */
+export function estimateMinutes(list: WorkoutExercise[] | undefined): number {
+  const ex = list ?? [];
+  if (ex.length === 0) return 0;
+  const seconds = ex.reduce((s, e) => s + e.sets * (e.reps * REP_SECONDS + REST_SECONDS), 0);
+  return Math.max(5, Math.ceil(seconds / 60));
+}
+
+/**
+ * How much extra load raises the effort: energy cost grows with the mass moved, so
+ * the average added weight (weighted by repetitions) is compared with body weight.
+ * 1 = bodyweight only, at most 1.5.
+ */
+export function loadFactor(bodyKg: number, list: WorkoutExercise[] | undefined): number {
+  const ex = list ?? [];
+  const reps = ex.reduce((s, e) => s + e.sets * e.reps, 0);
+  if (reps === 0 || !(bodyKg > 0)) return 1;
+  const extra = ex.reduce((s, e) => s + e.sets * e.reps * (e.weightKg ?? 0), 0) / reps;
+  return Math.min(1.5, 1 + extra / bodyKg);
+}

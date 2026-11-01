@@ -113,4 +113,34 @@ describe('workout with exercises', () => {
     expect(chips.every((c) => c.getAttribute('aria-pressed') === 'false')).toBe(true);
     expect(screen.getByRole('button', { name: /^Сохранить ·/ })).toBeEnabled();
   });
+
+  it('adding exercises recalculates the length and the calories; a chosen length wins', async () => {
+    const user = userEvent.setup();
+    await renderApp('/workouts/new');
+    await screen.findByRole('button', { name: /^Сохранить/ });
+    const save = () => screen.getByRole('button', { name: /^Сохранить/ }).textContent;
+    // Default: 45 min of moderate bar work at 80 kg: (3.8 − 1) × 80 × 0.75 = 168
+    await waitFor(() => expect(save()).toContain('168'));
+    await user.click(screen.getByRole('button', { name: '+ Подтягивания' }));
+    await user.click(screen.getByRole('button', { name: '+ Отжимания на брусьях' }));
+    await user.click(screen.getByRole('button', { name: '+ Отжимания от пола' }));
+    // 3 exercises of 3 × 10 → 18 min → (3.8 − 1) × 80 × 0.3 = 67
+    expect(screen.getByText(t.fromExercises(18))).toBeVisible();
+    expect(save()).toContain('67');
+    // Extra weight raises it: average +16 kg on 80 kg → ×1.2 → 81
+    await user.type(screen.getByLabelText(`${t.weight}: Подтягивания`), '16');
+    await user.type(screen.getByLabelText(`${t.weight}: Отжимания на брусьях`), '16');
+    await user.type(screen.getByLabelText(`${t.weight}: Отжимания от пола`), '16');
+    expect(save()).toContain('81');
+    // Picking a length by hand stops the automatic length.
+    await user.click(screen.getByRole('button', { name: `60 ${t.minutes}` }));
+    expect(screen.queryByText(t.fromExercises(18))).not.toBeInTheDocument();
+    expect(save()).toContain('269');
+  });
+
+  it('the save button is kept in a bar that stays in reach', async () => {
+    await renderApp('/workouts/new');
+    const button = await screen.findByRole('button', { name: /^Сохранить/ });
+    expect(button.parentElement?.className).toMatch(/saveBar/);
+  });
 });

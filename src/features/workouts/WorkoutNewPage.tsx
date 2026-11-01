@@ -4,7 +4,12 @@ import { isLocalDate, toLocalDate, toLocalTime } from '../../domain/dates';
 import { formatKcal } from '../../domain/format';
 import { netKcal, WORKOUT_KINDS, type Intensity, type WorkoutKindId } from '../../domain/met';
 import type { ExerciseCaloriesMode } from '../../domain/types';
-import { cleanExercises, EXERCISE_PRESETS } from '../../domain/workout';
+import {
+  cleanExercises,
+  estimateMinutes,
+  EXERCISE_PRESETS,
+  loadFactor,
+} from '../../domain/workout';
 import { useLatestWeight, useProfile } from '../../db/hooks';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
@@ -65,7 +70,9 @@ export function WorkoutNewPage() {
   const pDate = params.get('date');
   const [kind, setKind] = useState<WorkoutKindId>('bars');
   const [custom, setCustom] = useState('');
-  const [minutes, setMinutes] = useState<number | null>(45);
+  const [pickedMinutes, setPickedMinutes] = useState<number | null>(45);
+  // Until the length is chosen by hand it follows the exercises (sets, reps, rests).
+  const [lengthChosen, setLengthChosen] = useState(false);
   const [intensity, setIntensity] = useState<Intensity>('moderate');
   const [kcal, setKcal] = useState<number | null>(null);
   const [date, setDate] = useState(pDate && isLocalDate(pDate) ? pDate : toLocalDate(new Date()));
@@ -73,23 +80,31 @@ export function WorkoutNewPage() {
   const [note, setNote] = useState('');
   const [exercises, setExercises] = useState<ExerciseDraft[]>([]);
 
+  const done = cleanExercises(
+    exercises.map((e) => ({
+      name: e.name,
+      sets: e.sets ?? 0,
+      reps: e.reps ?? 0,
+      ...(e.weightKg ? { weightKg: e.weightKg } : {}),
+    })),
+  );
+  const fromExercises = estimateMinutes(done);
+  const followsExercises = !lengthChosen && fromExercises > 0;
+  const minutes = followsExercises ? fromExercises : pickedMinutes;
+  const setMinutes = (v: number | null) => {
+    setLengthChosen(true);
+    setPickedMinutes(v);
+  };
+  const kg = latest?.kg ?? 70;
   const k = WORKOUT_KINDS.find((x) => x.id === kind) ?? WORKOUT_KINDS[0];
   const met = k.met[intensity];
-  const auto = minutes ? Math.round(netKcal(met, latest?.kg ?? 70, minutes)) : 0;
+  const auto = minutes ? Math.round(netKcal(met, kg, minutes) * loadFactor(kg, done)) : 0;
   const total = kcal ?? auto;
   const name = kind === 'other' ? custom.trim() || k.name : k.name;
   const valid = !!minutes && minutes > 0;
 
   async function save() {
     if (!valid) return;
-    const done = cleanExercises(
-      exercises.map((e) => ({
-        name: e.name,
-        sets: e.sets ?? 0,
-        reps: e.reps ?? 0,
-        ...(e.weightKg ? { weightKg: e.weightKg } : {}),
-      })),
-    );
     await repos.workouts.create({
       date,
       time: start,
@@ -225,6 +240,11 @@ export function WorkoutNewPage() {
           value={minutes}
           onChange={setMinutes}
         />
+        {followsExercises && (
+          <p className={styles.muted} style={{ margin: '0 0 8px' }}>
+            {t.fromExercises(fromExercises)}
+          </p>
+        )}
         {valid && (
           <div className={w.timeline} aria-hidden="true">
             <b>{start}</b>
@@ -293,10 +313,12 @@ export function WorkoutNewPage() {
         </Card>
       )}
 
-      <Button block onClick={() => void save()} disabled={!valid}>
-        {total > 0 ? t.saveWith(formatKcal(total)) : t.save}
-      </Button>
       <p className={w.footnote}>{t.kcalNet}</p>
+      <div className={w.saveBar}>
+        <Button block onClick={() => void save()} disabled={!valid}>
+          {total > 0 ? t.saveWith(formatKcal(total)) : t.save}
+        </Button>
+      </div>
     </Page>
   );
 }
