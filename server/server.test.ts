@@ -176,12 +176,18 @@ describe('register and login', () => {
     expect((await login(d, creds('x', 'password2'))).status).toBe(400);
   });
 
-  it('never locks the account: many wrong passwords, the right one still works', async () => {
+  it('a stranger who keeps guessing is locked out, the owner from another address is not', async () => {
     const { d } = deps();
     await register(d, creds('ivan', 'password1'));
-    for (let i = 0; i < 12; i++)
-      expect((await login(d, creds('ivan', 'bad-password'))).status).toBe(401);
-    expect((await login(d, creds('ivan', 'password1'))).status).toBe(200);
+    const from = (ip: string, password: string) =>
+      new Request('http://x', {
+        method: 'POST',
+        headers: { 'x-forwarded-for': ip },
+        body: JSON.stringify({ login: 'ivan', password }),
+      });
+    for (let i = 0; i < 12; i++) await login(d, from('6.6.6.6', 'bad-password'));
+    expect((await login(d, from('6.6.6.6', 'password1'))).status).toBe(429);
+    expect((await login(d, from('1.2.3.4', 'password1'))).status).toBe(200);
   });
 
   it('sync needs a valid session and validates what is stored', async () => {
@@ -396,5 +402,66 @@ describe('change password', () => {
     const store = d.store as ReturnType<typeof memoryStore>;
     store.data.clear();
     expect((await ask(reg.token, 'third-password', 'x-password-1')).status).toBe(401);
+  });
+});
+
+describe('too many wrong guesses', () => {
+  it('locks the account for a while, then lets the right password in; success resets the count', async () => {
+    const { MAX_FAILURES, LOCK_MS, login: loginFn } = await import('./handlers.js');
+    let t = Date.UTC(2026, 10, 1, 12);
+    const store = new Map<string, string>();
+    const d: Deps = {
+      secret: 's'.repeat(40),
+      store: {
+        get: async (p) => store.get(p) ?? null,
+        put: async (p, b) => void store.set(p, b),
+      },
+      now: () => t,
+      signupOpen: true,
+    };
+    const post = (path: string, body: unknown) =>
+      new Request(`http://x/${path}`, { method: 'POST', body: JSON.stringify(body) });
+    await register(d, post('r', { login: 'anna', password: 'password-1' }));
+    const bad = () => loginFn(d, post('l', { login: 'anna', password: 'wrong-pass-1' }));
+    const good = () => loginFn(d, post('l', { login: 'anna', password: 'password-1' }));
+
+    // A few mistakes, then the right password: allowed, and the count starts over.
+    for (let i = 0; i < MAX_FAILURES - 1; i++) expect((await bad()).status).toBe(401);
+    expect((await good()).status).toBe(200);
+    for (let i = 0; i < MAX_FAILURES - 1; i++) expect((await bad()).status).toBe(401);
+
+    // The last allowed mistake locks the account; even the right password is refused.
+    expect((await bad()).status).toBe(401);
+    const locked = await good();
+    expect(locked.status).toBe(429);
+    expect(((await locked.json()) as { retryAfterSec: number }).retryAfterSec).toBeGreaterThan(800);
+    expect((await bad()).status).toBe(429);
+
+    // After the lock expires the right password works again.
+    t += LOCK_MS + 1000;
+    expect((await good()).status).toBe(200);
+  });
+
+  it('does not count guesses at logins that do not exist (nothing to fill the storage with)', async () => {
+    const { login: loginFn } = await import('./handlers.js');
+    const store = new Map<string, string>();
+    const d: Deps = {
+      secret: 's'.repeat(40),
+      store: {
+        get: async (p) => store.get(p) ?? null,
+        put: async (p, b) => void store.set(p, b),
+      },
+      now: () => Date.now(),
+      signupOpen: true,
+    };
+    for (let i = 0; i < 12; i++)
+      await loginFn(
+        d,
+        new Request('http://x', {
+          method: 'POST',
+          body: JSON.stringify({ login: 'nobody', password: 'password-1' }),
+        }),
+      );
+    expect([...store.keys()].filter((k) => k.startsWith('attempts/'))).toHaveLength(0);
   });
 });

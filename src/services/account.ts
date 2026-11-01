@@ -12,11 +12,16 @@ export const ACCOUNT = {
   skipped: 'accountSkipped',
 } as const;
 
+/** What a failed reply means for the user: wrong secret, or locked for a while. */
+const failure = (status: number): AccountError =>
+  status === 401 ? 'wrong_credentials' : status === 429 ? 'too_many_attempts' : 'unknown';
+
 export type AccountError =
   | 'bad_login'
   | 'bad_password'
   | 'taken'
   | 'wrong_credentials'
+  | 'too_many_attempts'
   | 'signup_closed'
   | 'network'
   | 'unknown';
@@ -54,6 +59,7 @@ async function auth(
     'bad_password',
     'taken',
     'wrong_credentials',
+    'too_many_attempts',
     'signup_closed',
   ];
   const error = known.find((k) => k === data.error) ?? 'unknown';
@@ -103,7 +109,7 @@ export async function createRecoveryCode(
   }
   const data = (await res.json().catch(() => ({}))) as Reply;
   if (res.ok && data.recoveryCode) return { recoveryCode: data.recoveryCode };
-  return { error: res.status === 401 ? 'wrong_credentials' : 'unknown' };
+  return { error: failure(res.status) };
 }
 
 /** Changes the password of the signed-in account. */
@@ -127,5 +133,5 @@ export async function changeAccountPassword(
   if (res.ok) return { ok: true };
   const data = (await res.json().catch(() => ({}))) as Reply;
   if (data.error === 'bad_password') return { error: 'bad_password' };
-  return { error: res.status === 401 ? 'wrong_credentials' : 'unknown' };
+  return { error: failure(res.status) };
 }

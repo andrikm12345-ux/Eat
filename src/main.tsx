@@ -7,6 +7,8 @@ import { routes } from './routes';
 import { startAccountSync } from './services/sync';
 import { startTdeeSync } from './services/tdeeSync';
 import { startGamificationSync } from './services/gamificationSync';
+import { startTodayWatcher, toast } from './state/ui';
+import { ru } from './i18n/ru';
 import './styles/fonts.css';
 import './styles/tokens.css';
 import './styles/global.css';
@@ -21,6 +23,16 @@ startTdeeSync(repos);
 startAccountSync(repos);
 // Achievements, streak celebrations and the app icon badge.
 startGamificationSync(repos);
+
+// "Сегодня" follows the calendar when the app stays open overnight.
+startTodayWatcher();
+// A forgotten error in the background must not pass unnoticed.
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('Unhandled rejection', e.reason);
+  // Cancelled requests and interrupted media are not failures.
+  if ((e.reason as { name?: string } | undefined)?.name === 'AbortError') return;
+  toast({ text: ru.common.somethingWrong });
+});
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Root element not found');

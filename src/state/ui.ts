@@ -25,6 +25,38 @@ export const useUi = create<UiState>((set) => ({
   setWeighOpen: (weighOpen) => set({ weighOpen }),
 }));
 
+let knownToday = toLocalDate(new Date());
+
+/**
+ * The day changed while the app stayed open (a phone resumes the app the next morning):
+ * if the screen was showing the old "today", move it to the new one. A day the user picked
+ * on purpose stays. Returns true when it moved.
+ */
+export function rollOverToday(now: Date = new Date()): boolean {
+  const today = toLocalDate(now);
+  if (today === knownToday) return false;
+  const wasToday = useUi.getState().date === knownToday;
+  knownToday = today;
+  if (wasToday) useUi.getState().setDate(today);
+  return wasToday;
+}
+
+/** Checks for a new day on resume, focus and once a minute. Returns a stop function. */
+export function startTodayWatcher(): () => void {
+  const check = () => void rollOverToday();
+  const onVisible = () => {
+    if (document.visibilityState === 'visible') check();
+  };
+  document.addEventListener('visibilitychange', onVisible);
+  window.addEventListener('focus', check);
+  const timer = window.setInterval(check, 60_000);
+  return () => {
+    document.removeEventListener('visibilitychange', onVisible);
+    window.removeEventListener('focus', check);
+    window.clearInterval(timer);
+  };
+}
+
 export type Toast = {
   id: number;
   text: string;

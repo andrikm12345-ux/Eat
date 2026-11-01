@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import {
   checkSecret,
   createSession,
@@ -64,8 +65,58 @@ export async function register(d: Deps, req: Request): Promise<Response> {
   return json({ token: createSession(d.secret, userId, d.now()), login: c.login, recoveryCode });
 }
 
-/** A failed attempt: slow answer, same reply for unknown login and wrong secret. */
-async function failed(d: Deps): Promise<Response> {
+export const MAX_FAILURES = 8;
+export const LOCK_MS = 15 * 60 * 1000;
+type Attempts = { n: number; until?: number };
+
+/**
+ * Wrong guesses are counted per account AND per caller address, so a stranger who keeps
+ * guessing is locked out for a while, but cannot lock the owner out of their own account.
+ */
+function attemptsPath(d: Deps, req: Request, userId: string): string {
+  const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0]?.trim() || 'unknown';
+  const who = createHash('sha256').update(`${d.secret}|ip|${ip}`).digest('hex').slice(0, 16);
+  return `attempts/${userId}-${who}.json`;
+}
+
+async function readAttempts(d: Deps, path: string): Promise<Attempts> {
+  try {
+    const v = JSON.parse((await d.store.get(path)) ?? '{}') as Attempts;
+    return { n: Number(v.n) || 0, ...(v.until ? { until: Number(v.until) } : {}) };
+  } catch {
+    return { n: 0 };
+  }
+}
+
+/** A reply when this caller is locked out of this account after too many guesses; else null. */
+async function lockedReply(d: Deps, req: Request, userId: string): Promise<Response | null> {
+  const a = await readAttempts(d, attemptsPath(d, req, userId));
+  if (!a.until || a.until <= d.now()) return null;
+  return json(
+    { error: 'too_many_attempts', retryAfterSec: Math.ceil((a.until - d.now()) / 1000) },
+    429,
+  );
+}
+
+/** Counts a wrong guess; after MAX_FAILURES the caller is locked for LOCK_MS. */
+async function recordFailure(d: Deps, req: Request, userId: string): Promise<void> {
+  const path = attemptsPath(d, req, userId);
+  const n = (await readAttempts(d, path)).n + 1;
+  const next: Attempts = n >= MAX_FAILURES ? { n: 0, until: d.now() + LOCK_MS } : { n };
+  await d.store.put(path, JSON.stringify(next));
+}
+
+async function clearFailures(d: Deps, req: Request, userId: string): Promise<void> {
+  const path = attemptsPath(d, req, userId);
+  if ((await readAttempts(d, path)).n > 0) await d.store.put(path, '{"n":0}');
+}
+
+/**
+ * A failed attempt: slow answer, same reply for unknown login and wrong secret. Guesses at
+ * an existing account are counted (unknown logins are not, so nobody can fill the storage).
+ */
+async function failed(d: Deps, req: Request, userId?: string): Promise<Response> {
+  if (userId) await recordFailure(d, req, userId);
   await delay(d);
   return json({ error: 'wrong_credentials' }, 401);
 }
@@ -75,10 +126,13 @@ export async function login(d: Deps, req: Request): Promise<Response> {
   const c = await credentials(req);
   if ('fail' in c) return c.fail;
   const userId = userIdFor(d.secret, c.login);
+  const locked = await lockedReply(d, req, userId);
+  if (locked) return locked;
   const creds = await readCreds(d, userId);
   // Unknown users cost the same hashing time, so timing does not reveal them.
   const ok = creds ? await checkSecret(creds, c.password) : (await hashSecret(c.password), false);
-  if (!creds || !ok) return failed(d);
+  if (!creds || !ok) return failed(d, req, creds ? userId : undefined);
+  await clearFailures(d, req, userId);
   return json({ token: createSession(d.secret, userId, d.now()), login: c.login });
 }
 
@@ -94,11 +148,14 @@ export async function resetPassword(d: Deps, req: Request): Promise<Response> {
   if ('fail' in c) return c.fail;
   const code = normalizeRecovery(String(body?.recoveryCode ?? ''));
   const userId = userIdFor(d.secret, c.login);
+  const locked = await lockedReply(d, req, userId);
+  if (locked) return locked;
   const creds = await readCreds(d, userId);
   const ok = creds?.recovery
     ? await checkSecret(creds.recovery, code)
     : (await hashSecret(code), false);
-  if (!creds || !ok) return failed(d);
+  if (!creds || !ok) return failed(d, req, creds ? userId : undefined);
+  await clearFailures(d, req, userId);
   const fresh = await newAccount(c.password);
   await d.store.put(credPath(userId), JSON.stringify(fresh.creds));
   return json({
@@ -114,9 +171,12 @@ export async function newRecovery(d: Deps, req: Request): Promise<Response> {
   const userId = token ? verifySession(d.secret, token, d.now()) : null;
   if (!userId) return json({ error: 'unauthorized' }, 401);
   const body = await readJson(req);
+  const locked = await lockedReply(d, req, userId);
+  if (locked) return locked;
   const creds = await readCreds(d, userId);
   if (!creds) return json({ error: 'unauthorized' }, 401);
-  if (!(await checkSecret(creds, String(body?.password ?? '')))) return failed(d);
+  if (!(await checkSecret(creds, String(body?.password ?? '')))) return failed(d, req, userId);
+  await clearFailures(d, req, userId);
   const recoveryCode = generateRecoveryCode();
   const updated: Credentials = {
     ...creds,
@@ -136,7 +196,10 @@ export async function changePassword(d: Deps, req: Request): Promise<Response> {
   if (!creds) return json({ error: 'unauthorized' }, 401);
   const next = String(body?.newPassword ?? '');
   if (!isValidPassword(next)) return json({ error: 'bad_password' }, 400);
-  if (!(await checkSecret(creds, String(body?.password ?? '')))) return failed(d);
+  const locked = await lockedReply(d, req, userId);
+  if (locked) return locked;
+  if (!(await checkSecret(creds, String(body?.password ?? '')))) return failed(d, req, userId);
+  await clearFailures(d, req, userId);
   await d.store.put(credPath(userId), JSON.stringify({ ...creds, ...(await hashSecret(next)) }));
   return json({ ok: true });
 }
