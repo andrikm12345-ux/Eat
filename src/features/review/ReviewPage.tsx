@@ -7,7 +7,8 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { saveAsTemplate } from '../../services/entries';
 import { ACCOUNT } from '../../services/account';
-import { saveReview } from '../../services/review';
+import { clarifyMeal } from '../../services/aiClarify';
+import { correctedKeys, saveReview } from '../../services/review';
 import {
   swapAlt,
   useReview,
@@ -18,7 +19,8 @@ import {
 } from '../../state/review';
 import { toast, useUi } from '../../state/ui';
 import { BottomSheet } from '../../ui/BottomSheet';
-import { Button, Card, Notice, NumberField, Row, Segmented, TextField } from '../../ui/kit';
+import { Button, Card, Notice, NumberField, Segmented, Switch, TextField } from '../../ui/kit';
+import { useAiConfig } from '../ai/useAi';
 import { Page } from '../../ui/Page';
 import { FoodSearch } from '../add/SearchPage';
 import styles from './review.module.css';
@@ -39,6 +41,14 @@ function Review({ initial }: { initial: ReviewDraft }) {
   const setDraft = useReview((s) => s.setDraft);
   const setDate = useUi((s) => s.setDate);
   const [items, setItems] = useState(initial.items);
+  // The AI estimate the user started from; corrections are measured against it.
+  const [baseline, setBaseline] = useState(initial.items);
+  const [runId, setRunId] = useState(initial.aiRunId);
+  const [note, setNote] = useState('');
+  const [clarifying, setClarifying] = useState(false);
+  const [clarifyError, setClarifyError] = useState<string | null>(null);
+  const [remember, setRemember] = useState(true);
+  const cfg = useAiConfig();
   const [date, setD] = useState(initial.date);
   const [time, setTime] = useState(initial.time);
   const [replacing, setReplacing] = useState<string | null>(null);
@@ -58,13 +68,40 @@ function Review({ initial }: { initial: ReviewDraft }) {
 
   async function save(template?: string) {
     if (!valid) return;
-    const e = await saveReview({ ...initial, items, date, time });
+    const fixed = correctedKeys(baseline, items);
+    const e = await saveReview(
+      { ...initial, items, date, time, ...(runId ? { aiRunId: runId } : {}) },
+      remember ? { remember: new Set(fixed) } : {},
+    );
     if (template) await saveAsTemplate(repos, e, template);
     setDraft(null);
     setDate(date);
-    toast({ text: template ? `${t.saved} · ${ru.today.templateSaved}` : t.saved });
+    const extra = remember && fixed.length > 0 ? ` · ${t.remembered}` : '';
+    toast({ text: template ? `${t.saved} · ${ru.today.templateSaved}` : `${t.saved}${extra}` });
     navigate('/', { replace: true });
   }
+
+  async function clarify() {
+    if (note.trim().length < 3 || clarifying) return;
+    setClarifying(true);
+    setClarifyError(null);
+    try {
+      const src = initial.entrySource === 'ai_photo' ? 'ai_photo' : 'ai_text';
+      const draft = await clarifyMeal(repos, items, note, { date, time }, src);
+      setItems(draft.items);
+      setBaseline(draft.items);
+      if (draft.aiRunId) setRunId(draft.aiRunId);
+      setNote('');
+      toast({ text: t.clarifyDone });
+    } catch (e) {
+      setClarifyError(t.clarifyFailed((e as Error).message));
+    } finally {
+      setClarifying(false);
+    }
+  }
+
+  const canClarify = initial.analysis === 'ai' && !!cfg?.ready && cfg.consent;
+  const fixedNow = correctedKeys(baseline, items);
 
   function cancel() {
     setDraft(null);
@@ -167,27 +204,56 @@ function Review({ initial }: { initial: ReviewDraft }) {
                 {i.alt.source === 'ai' ? ru.ai.useAi : ru.ai.useCatalog(i.alt.name)}
               </Button>
             )}
-            <Row>
+            <div className={styles.itemActions}>
               <Button variant="text" onClick={() => setReplacing(i.key)}>
                 {t.replace}
               </Button>
               <Button variant="text" onClick={() => setItems(items.filter((x) => x.key !== i.key))}>
                 {t.remove}
               </Button>
-            </Row>
+            </div>
           </div>
         );
       })}
+      {canClarify && (
+        <Card title={t.clarifyTitle}>
+          <p className={styles.notes}>{t.clarifyHint}</p>
+          <TextField
+            label={t.clarifyLabel}
+            placeholder={t.clarifyPlaceholder}
+            value={note}
+            onChange={setNote}
+          />
+          {clarifyError && <Notice>{clarifyError}</Notice>}
+          <Button
+            variant="secondary"
+            block
+            onClick={() => void clarify()}
+            disabled={clarifying || note.trim().length < 3}
+            hint={clarifying ? undefined : t.clarifyNeed}
+          >
+            {clarifying ? t.clarifyBusy : t.clarifyGo}
+          </Button>
+        </Card>
+      )}
       <Card>
         <p className={styles.total}>
           {t.total}: <b>{formatKcal(totals.kcal)} ккал</b> · Б {formatGrams(totals.protein)} · Ж{' '}
           {formatGrams(totals.fat)} · У {formatGrams(totals.carbs)}
         </p>
-        <Row>
+        <div className={styles.dateRow}>
           <DateField label={ru.today.date} value={date} onChange={setD} />
           <TimeField label={ru.today.time} value={time} onChange={setTime} />
-        </Row>
+        </div>
         {initial.notes && <p className={styles.notes}>{initial.notes}</p>}
+        {fixedNow.length > 0 && (
+          <Switch
+            label={t.remember}
+            hint={t.rememberHint}
+            checked={remember}
+            onChange={setRemember}
+          />
+        )}
       </Card>
       <div className={styles.actions}>
         <Button onClick={() => void save()} disabled={!valid} hint={ru.hints.review}>

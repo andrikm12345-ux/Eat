@@ -1,6 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AI_KEYS } from '../../ai/settings';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { useReview, withPer100, withPortionKcal, type ReviewItem } from '../../state/review';
@@ -107,5 +108,85 @@ describe('review screen: portion / per 100 g', () => {
     const [e] = await repos.entries.byDate('2026-03-01');
     expect(Math.round(e!.items[0]!.nutrients.kcal)).toBe(300);
     expect(e!.items[0]!.grams).toBe(450);
+  });
+});
+
+describe('review screen: clarify with the AI and remember corrections', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('sends the remark, replaces the items with the new estimate', async () => {
+    await repos.settings.set(AI_KEYS.enabled, true);
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-ant-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.consent, true);
+    const redo = {
+      items: [
+        {
+          name: 'Треугольник без сыра',
+          grams: 250,
+          per100g: { kcal: 200, protein: 10, fat: 6, carbs: 28 },
+          confidence: 'medium',
+          assumed: false,
+          searchHint: 'треугольник без сыра',
+        },
+      ],
+      mealGuess: 'обед',
+      notes: '',
+    };
+    const f = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            content: [{ type: 'text', text: JSON.stringify(redo) }],
+            stop_reason: 'end_turn',
+          }),
+          { status: 200 },
+        ),
+    );
+    vi.stubGlobal('fetch', f);
+    draft([shake()]);
+    const user = userEvent.setup();
+    await renderApp('/review');
+    expect(await screen.findByRole('button', { name: t.clarifyGo })).toBeDisabled();
+    await user.type(screen.getByLabelText(t.clarifyLabel), 'сыра внутри нет');
+    await user.click(screen.getByRole('button', { name: t.clarifyGo }));
+    expect(await screen.findByText('Треугольник без сыра')).toBeVisible();
+    expect(screen.queryByText('Коктейль')).not.toBeInTheDocument();
+    const body = JSON.stringify(f.mock.calls[0]);
+    expect(body).toContain('сыра внутри нет');
+    expect(body).toContain('Коктейль');
+  });
+
+  it('shows the error when the AI cannot recalculate', async () => {
+    await repos.settings.set(AI_KEYS.enabled, true);
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-ant-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.consent, true);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('no', { status: 401 })),
+    );
+    draft([shake()]);
+    const user = userEvent.setup();
+    await renderApp('/review');
+    await user.type(await screen.findByLabelText(t.clarifyLabel), 'меньше масла');
+    await user.click(screen.getByRole('button', { name: t.clarifyGo }));
+    expect(await screen.findByText(/Не удалось пересчитать/)).toBeVisible();
+    expect(screen.getByText('Коктейль')).toBeVisible();
+  });
+
+  it('is not offered without AI, and the remember switch appears after a manual correction', async () => {
+    draft([shake()]);
+    const user = userEvent.setup();
+    await renderApp('/review');
+    await screen.findByText('Коктейль');
+    expect(screen.queryByText(t.clarifyTitle)).not.toBeInTheDocument();
+    expect(screen.queryByRole('switch', { name: t.remember })).not.toBeInTheDocument();
+    const kcal = screen.getByLabelText(`${t.portionKcal}: Коктейль`);
+    await user.clear(kcal);
+    await user.type(kcal, '400');
+    expect(await screen.findByRole('switch', { name: t.remember })).toBeChecked();
+    await user.click(screen.getByRole('button', { name: t.save }));
+    await waitFor(async () =>
+      expect((await repos.foods.list()).some((x) => x.name === 'Коктейль')).toBe(true),
+    );
   });
 });

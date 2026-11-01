@@ -81,3 +81,21 @@
 .item > [role='radiogroup'] {
   margin: var(--sp-1) 0 var(--sp-2);
 }
+
+.itemActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+.itemActions > button {
+  flex: 0 1 auto;
+}
+.dateRow {
+  display: flex;
+  gap: var(--sp-2);
+}
+.dateRow > * {
+  flex: 1;
+  min-width: 0;
+}
