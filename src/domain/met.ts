@@ -11,6 +11,8 @@ export const MET_TABLE = [
   { id: 'cycle_stationary', name: 'Велотренажёр', met: 6.8 },
   { id: 'swim_easy', name: 'Плавание, спокойно', met: 6.0 },
   { id: 'swim_hard', name: 'Плавание, интенсивно', met: 9.8 },
+  { id: 'calisthenics', name: 'Турник, брусья, воркаут', met: 3.8 },
+  { id: 'calisthenics_hard', name: 'Воркаут интенсивно (круговая)', met: 8.0 },
   { id: 'strength_mod', name: 'Силовая тренировка', met: 5.0 },
   { id: 'strength_hard', name: 'Силовая, интенсивная', met: 6.0 },
   { id: 'crossfit', name: 'Кроссфит / круговая', met: 8.0 },

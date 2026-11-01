@@ -166,6 +166,9 @@ export type Measurement = BaseRecord & {
   method?: 'navy' | 'manual';
 };
 
+/** One exercise of a workout: sets × reps, optionally with extra weight. */
+export type WorkoutExercise = { name: string; sets: number; reps: number; weightKg?: number };
+
 export type Workout = BaseRecord & {
   id: string;
   date: LocalDate;
@@ -173,6 +176,8 @@ export type Workout = BaseRecord & {
   type: string;
   durationMin: number;
   kcal?: number;
+  /** What was done, e.g. pull-ups 4×10, dips 3×12. */
+  exercises?: WorkoutExercise[];
   note?: string;
   source: 'manual' | 'import';
 };

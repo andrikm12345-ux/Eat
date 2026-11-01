@@ -1,5 +1,6 @@
 import { formatKcal } from '../../domain/format';
 import { exerciseBonus } from '../../domain/met';
+import { formatExercises } from '../../domain/workout';
 import type { DayMeta, ExerciseCaloriesMode, Workout } from '../../domain/types';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
@@ -46,6 +47,9 @@ export function ActivityCard({
                   <span className={addStyles.rowSub}>
                     {w.time} · {w.durationMin} {ru.workouts.minutes}
                   </span>
+                  {w.exercises?.length ? (
+                    <span className={addStyles.rowSub}>{formatExercises(w.exercises)}</span>
+                  ) : null}
                 </span>
                 {w.kcal ? (
                   <span className={addStyles.rowRight}>{formatKcal(w.kcal)} ккал</span>

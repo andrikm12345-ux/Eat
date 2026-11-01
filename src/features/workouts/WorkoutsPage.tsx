@@ -4,15 +4,25 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { addDays, formatDateRu, isLocalDate, toLocalDate, toLocalTime } from '../../domain/dates';
 import { formatKcal } from '../../domain/format';
 import { MET_TABLE, metKcal } from '../../domain/met';
+import { cleanExercises, EXERCISE_PRESETS, formatExercises } from '../../domain/workout';
+import type { ExerciseCaloriesMode } from '../../domain/types';
 import { repos } from '../../db/repos';
-import { useLatestWeight } from '../../db/hooks';
+import { useLatestWeight, useProfile } from '../../db/hooks';
 import { ru } from '../../i18n/ru';
 import { toast } from '../../state/ui';
-import { Button, Card, LinkButton, NumberField, Row, TextField } from '../../ui/kit';
+import { Button, Card, LinkButton, NumberField, Row, Segmented, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import styles from '../add/add.module.css';
 
 const t = ru.workouts;
+
+type ExerciseDraft = {
+  name: string;
+  sets: number | null;
+  reps: number | null;
+  weightKg: number | null;
+};
+const EMPTY: ExerciseDraft = { name: '', sets: 3, reps: 10, weightKg: null };
 
 export default function WorkoutsPage() {
   const from = addDays(toLocalDate(new Date()), -60);
@@ -40,6 +50,9 @@ export default function WorkoutsPage() {
                     {formatDateRu(w.date, 'd MMMM')} · {w.time} · {w.durationMin} {t.minutes}
                     {w.kcal ? ` · ${formatKcal(w.kcal)} ккал` : ''}
                   </span>
+                  {w.exercises?.length ? (
+                    <span className={styles.rowSub}>{formatExercises(w.exercises)}</span>
+                  ) : null}
                 </span>
                 <Button
                   variant="ghost"
@@ -68,7 +81,9 @@ export function WorkoutNewPage() {
   const [params] = useSearchParams();
   const latest = useLatestWeight();
   const pDate = params.get('date');
-  const [type, setType] = useState<string>(MET_TABLE[0].id);
+  const profile = useProfile();
+  const [type, setType] = useState<string>('calisthenics');
+  const [exercises, setExercises] = useState<ExerciseDraft[]>([]);
   const [custom, setCustom] = useState('');
   const [minutes, setMinutes] = useState<number | null>(30);
   const [kcal, setKcal] = useState<number | null>(null);
@@ -83,6 +98,14 @@ export function WorkoutNewPage() {
   async function save() {
     if (!valid) return;
     const k = kcal ?? auto;
+    const done = cleanExercises(
+      exercises.map((e) => ({
+        name: e.name,
+        sets: e.sets ?? 0,
+        reps: e.reps ?? 0,
+        ...(e.weightKg ? { weightKg: e.weightKg } : {}),
+      })),
+    );
     await repos.workouts.create({
       date,
       time,
@@ -90,6 +113,7 @@ export function WorkoutNewPage() {
       durationMin: Math.round(minutes as number),
       source: 'manual',
       ...(k ? { kcal: Math.round(k) } : {}),
+      ...(done.length ? { exercises: done } : {}),
       ...(note.trim() ? { note: note.trim() } : {}),
     });
     toast({ text: t.saved });
@@ -133,6 +157,93 @@ export function WorkoutNewPage() {
         </Row>
         <TextField label={t.note} value={note} onChange={setNote} />
       </Card>
+      <Card title={t.exercises}>
+        <p className={styles.muted}>{t.exercisesHint}</p>
+        <div className={styles.chips}>
+          {EXERCISE_PRESETS.slice(0, 4).map((name) => (
+            <button
+              key={name}
+              type="button"
+              className={styles.chip}
+              onClick={() => setExercises((l) => [...l, { ...EMPTY, name }])}
+            >
+              + {name}
+            </button>
+          ))}
+        </div>
+        <datalist id="exercise-presets">
+          {EXERCISE_PRESETS.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
+        {exercises.map((e, i) => {
+          const patch = (p: Partial<ExerciseDraft>) =>
+            setExercises((l) => l.map((x, j) => (j === i ? { ...x, ...p } : x)));
+          return (
+            <div key={i} className={styles.exercise}>
+              <div className={styles.exerciseHead}>
+                <TextField
+                  label={t.exName}
+                  value={e.name}
+                  onChange={(v) => patch({ name: v })}
+                  list="exercise-presets"
+                />
+                <button
+                  type="button"
+                  className={styles.exerciseRemove}
+                  aria-label={t.removeExercise(e.name)}
+                  onClick={() => setExercises((l) => l.filter((_, j) => j !== i))}
+                >
+                  ×
+                </button>
+              </div>
+              <div className={styles.exerciseNums}>
+                <NumberField
+                  label={t.sets}
+                  value={e.sets}
+                  onChange={(v) => patch({ sets: v })}
+                  ariaLabel={`${t.sets}: ${e.name || i + 1}`}
+                />
+                <NumberField
+                  label={t.reps}
+                  value={e.reps}
+                  onChange={(v) => patch({ reps: v })}
+                  ariaLabel={`${t.reps}: ${e.name || i + 1}`}
+                />
+                <NumberField
+                  label={t.weight}
+                  suffix="кг"
+                  value={e.weightKg}
+                  onChange={(v) => patch({ weightKg: v })}
+                  ariaLabel={`${t.weight}: ${e.name || i + 1}`}
+                />
+              </div>
+            </div>
+          );
+        })}
+        <Button variant="secondary" block onClick={() => setExercises((l) => [...l, EMPTY])}>
+          {t.addExercise}
+        </Button>
+      </Card>
+      {profile && (
+        <Card title={t.modeTitle}>
+          <Segmented
+            label={t.modeTitle}
+            value={profile.exerciseCaloriesMode}
+            onChange={(m: ExerciseCaloriesMode) => {
+              const { id: _id, createdAt: _c, updatedAt: _u, deletedAt: _d, ...rest } = profile;
+              void repos.profile.save({ ...rest, exerciseCaloriesMode: m });
+            }}
+            options={(['none', 'half', 'full'] as const).map((m) => ({
+              value: m,
+              label: t.modeShort[m],
+            }))}
+          />
+          <p className={styles.muted} style={{ margin: 0 }}>
+            {t.modeHint}
+          </p>
+        </Card>
+      )}
       <Button block onClick={() => void save()} disabled={!valid}>
         {t.save}
       </Button>
