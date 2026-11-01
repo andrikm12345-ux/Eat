@@ -19,8 +19,8 @@ export function envDeps(): Deps {
     ai: {
       ...(process.env.AI_API_KEY ? { apiKey: process.env.AI_API_KEY.trim() } : {}),
       baseUrl: process.env.AI_BASE_URL?.trim() || 'https://tokenharbor.ai/v1',
-      modelText: process.env.AI_MODEL_TEXT?.trim() || 'deepseek-v4.1-flash:free',
-      modelVision: process.env.AI_MODEL_VISION?.trim() || 'deepseek-v4.1-flash:free',
+      modelText: process.env.AI_MODEL_TEXT?.trim() || 'mimo-v2.6-flash:free',
+      modelVision: process.env.AI_MODEL_VISION?.trim() || 'mimo-v2.6-flash:free',
       dailyLimit: Number(process.env.AI_DAILY_LIMIT) || 60,
     },
   };

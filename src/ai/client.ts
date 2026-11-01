@@ -171,7 +171,8 @@ async function once(o: CallOptions): Promise<CallResult> {
     const body = proxy
       ? {
           vision: !!o.vision,
-          max_tokens: o.maxTokens ?? 4000,
+          // Reasoning models spend part of the budget on thinking: leave room for the answer.
+          max_tokens: o.maxTokens ?? 8000,
           messages: toOpenAiMessages(o.system, o.messages),
         }
       : format === 'openai'
