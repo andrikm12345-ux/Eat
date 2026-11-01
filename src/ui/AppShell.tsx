@@ -72,7 +72,15 @@ export function AppShell() {
       <UpdateBanner />
       <main className={styles.main}>
         {!MAIN_TABS.has(pathname) && <BackBar />}
-        <Suspense fallback={<div className={styles.loading}>{ru.common.loading}</div>}>
+        <Suspense
+          fallback={
+            <div className={styles.loading} aria-label={ru.common.loading} role="status">
+              <div className="skeleton" style={{ height: 34, width: '55%', marginBottom: 18 }} />
+              <div className="skeleton" style={{ height: 180, marginBottom: 14 }} />
+              <div className="skeleton" style={{ height: 120 }} />
+            </div>
+          }
+        >
           <div key={pathname} className="page-enter">
             <Outlet />
           </div>

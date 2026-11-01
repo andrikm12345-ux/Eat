@@ -29,7 +29,11 @@ export type Toast = {
   text: string;
   action?: { label: string; run: () => void | Promise<void> };
   durationMs: number;
+  /** Playing the exit animation; removed right after. */
+  leaving?: boolean;
 };
+
+const TOAST_EXIT_MS = 220;
 
 type ToastState = {
   toasts: Toast[];
@@ -44,11 +48,16 @@ export const useToasts = create<ToastState>((set, get) => ({
   push: (t) => {
     const id = nextId++;
     const toast: Toast = { durationMs: 5000, ...t, id };
-    set({ toasts: [...get().toasts.slice(-2), toast] });
+    // At most two at a time: a pile of messages hides the screen.
+    set({ toasts: [...get().toasts.slice(-1), toast] });
     setTimeout(() => get().dismiss(id), toast.durationMs);
     return id;
   },
-  dismiss: (id) => set({ toasts: get().toasts.filter((x) => x.id !== id) }),
+  dismiss: (id) => {
+    if (!get().toasts.some((x) => x.id === id && !x.leaving)) return;
+    set({ toasts: get().toasts.map((x) => (x.id === id ? { ...x, leaving: true } : x)) });
+    setTimeout(() => set({ toasts: get().toasts.filter((x) => x.id !== id) }), TOAST_EXIT_MS);
+  },
 }));
 
 /** Shorthand outside React. */

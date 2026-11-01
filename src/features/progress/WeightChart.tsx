@@ -1,3 +1,4 @@
+import type React from 'react';
 import { addDays, daysBetween, formatDateRu } from '../../domain/dates';
 import { formatKg } from '../../domain/format';
 import { niceTicks } from '../../domain/progress';
@@ -31,6 +32,13 @@ export function WeightChart({
   const ticks = niceTicks(min, max, 4);
   const line = visible.map((p) => `${x(p.date).toFixed(1)},${y(p.trend).toFixed(1)}`).join(' ');
   const mid = addDays(from, Math.round(span / 2));
+  // Length of the trend line, so CSS can "draw" it from start to end.
+  let length = 0;
+  for (let i = 1; i < visible.length; i++) {
+    const a = visible[i - 1] as TrendPoint;
+    const b = visible[i] as TrendPoint;
+    length += Math.hypot(x(b.date) - x(a.date), y(b.trend) - y(a.trend));
+  }
 
   return (
     <figure className={styles.chart}>
@@ -58,10 +66,22 @@ export function WeightChart({
             {formatDateRu(d, 'd MMM')}
           </text>
         ))}
-        {visible.map((p) => (
-          <circle key={p.date} cx={x(p.date)} cy={y(p.kg)} r={2.4} className={styles.dot} />
+        {visible.map((p, i) => (
+          <circle
+            key={p.date}
+            cx={x(p.date)}
+            cy={y(p.kg)}
+            r={2.4}
+            className={styles.dot}
+            style={{ animationDelay: `${Math.round((i / visible.length) * 600)}ms` }}
+          />
         ))}
-        <polyline points={line} className={styles.line} />
+        <polyline
+          key={line}
+          points={line}
+          className={styles.line}
+          style={{ '--len': `${Math.ceil(length)}` } as React.CSSProperties}
+        />
       </svg>
       <figcaption className={styles.legend}>
         <span>

@@ -28,7 +28,7 @@ export default function TodayPage() {
   const goal = day?.goal ? { ...day.goal, kcal: day.goal.kcal + bonus } : null;
   return (
     <section
-      className={pageStyles.page}
+      className={`${pageStyles.page} stagger`}
       style={{ paddingTop: 0 }}
       aria-label={ru.pages.today.title}
     >

@@ -34,8 +34,9 @@
   height: 30px;
   border-radius: 15px;
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+    background-color 0.25s var(--ease-out),
+    color 0.2s ease,
+    transform 0.15s ease;
 }
 
 .active {
@@ -45,4 +46,10 @@
 
 .active .icon {
   background: var(--accent-soft);
+}
+.active .icon svg {
+  animation: pop 0.4s var(--ease-spring);
+}
+.link:active .icon {
+  transform: scale(0.9);
 }

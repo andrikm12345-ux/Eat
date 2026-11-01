@@ -21,3 +21,19 @@
 .fab:active {
   transform: translateX(-50%) scale(0.93) !important;
 }
+
+.fab svg {
+  transition: transform 0.35s var(--ease-spring);
+}
+.fab[aria-expanded='true'] svg {
+  transform: rotate(45deg);
+}
+.fab {
+  animation: fab-in 0.45s var(--ease-spring) both;
+}
+@keyframes fab-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.6);
+  }
+}

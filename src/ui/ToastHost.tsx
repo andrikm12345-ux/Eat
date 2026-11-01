@@ -7,7 +7,8 @@ export function ToastHost() {
   return (
     <div className={styles.host} role="status" aria-live="polite">
       {toasts.map((t) => (
-        <div key={t.id} className={styles.toast}>
+        <div key={t.id} className={`${styles.toast} ${t.leaving ? styles.leaving : ''}`}>
+          <span className={styles.dot} aria-hidden="true" />
           <span className={styles.text}>{t.text}</span>
           {t.action && (
             <button

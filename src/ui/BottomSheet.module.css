@@ -7,7 +7,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  animation: fade 0.15s ease-out;
+  animation: fade 0.2s ease-out;
 }
 
 .sheet {
@@ -20,7 +20,7 @@
   padding: 8px calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom))
     calc(16px + var(--safe-left));
   box-shadow: var(--shadow);
-  animation: slide 0.2s ease-out;
+  animation: slide 0.38s var(--ease-spring);
 }
 
 .grabber {
@@ -63,6 +63,23 @@
 
 @keyframes slide {
   from {
+    transform: translateY(100%);
+  }
+}
+
+.closing {
+  animation: fade-out 0.22s ease-in both;
+}
+.closing .sheet {
+  animation: slide-out 0.22s ease-in both;
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes slide-out {
+  to {
     transform: translateY(100%);
   }
 }

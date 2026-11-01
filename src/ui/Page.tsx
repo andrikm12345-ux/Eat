@@ -4,7 +4,7 @@ import styles from './Page.module.css';
 
 export function Page({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <section className={styles.page} aria-labelledby="page-title">
+    <section className={`${styles.page} stagger`} aria-labelledby="page-title">
       <h1 id="page-title" className={styles.title}>
         {title}
       </h1>

@@ -35,6 +35,20 @@
   cursor: pointer;
   font-variant-numeric: tabular-nums;
 }
+.future {
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+.cell {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+.cell:active {
+  transform: scale(0.94);
+}
 .cell:disabled {
   opacity: 0.35;
   cursor: default;

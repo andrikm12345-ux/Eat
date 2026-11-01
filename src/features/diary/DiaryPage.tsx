@@ -104,6 +104,7 @@ export default function DiaryPage() {
             styles.cell,
             status !== 'empty' ? styles[status] : '',
             d === today ? styles.today : '',
+            d > today ? styles.future : '',
           ]
             .filter(Boolean)
             .join(' ');

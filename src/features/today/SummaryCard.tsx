@@ -3,13 +3,19 @@ import type { DayMeta, Goal, Nutrients } from '../../domain/types';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { Card, Switch } from '../../ui/kit';
+import { useAppeared, useCountUp } from '../../ui/motion';
 import styles from './today.module.css';
 
 const t = ru.today;
+
+function CountUp({ value }: { value: number }) {
+  return <>{formatKcal(Math.round(useCountUp(value)))}</>;
+}
 const R = 58;
 const C = 2 * Math.PI * R;
 
 function Ring({ eaten, goal }: { eaten: number; goal: number | null }) {
+  const appeared = useAppeared();
   const ratio = goal ? eaten / goal : 0;
   const over = goal !== null && eaten > goal;
   const left = goal !== null ? goal - eaten : null;
@@ -31,14 +37,17 @@ function Ring({ eaten, goal }: { eaten: number; goal: number | null }) {
           stroke={over ? 'var(--over)' : 'url(#ring-grad)'}
           strokeWidth="11"
           strokeLinecap="round"
-          strokeDasharray={`${Math.min(1, ratio) * C} ${C}`}
+          className={styles.ringArc}
+          strokeDasharray={`${appeared ? Math.min(1, ratio) * C : 0} ${C}`}
           transform="rotate(-90 68 68)"
         />
       </svg>
       <div className={styles.ringCenter}>
         {left === null ? (
           <>
-            <span className={styles.ringValue}>{formatKcal(eaten)}</span>
+            <span className={styles.ringValue}>
+              <CountUp value={eaten} />
+            </span>
             <span className={styles.ringLabel}>{ru.units.kcal}</span>
           </>
         ) : over ? (
@@ -50,7 +59,9 @@ function Ring({ eaten, goal }: { eaten: number; goal: number | null }) {
           </>
         ) : (
           <>
-            <span className={styles.ringValue}>{formatKcal(left)}</span>
+            <span className={styles.ringValue}>
+              <CountUp value={left} />
+            </span>
             <span className={styles.ringLabel}>{t.left}</span>
           </>
         )}
@@ -70,6 +81,7 @@ function Bar({
   goal: number | undefined;
   color: string;
 }) {
+  const appeared = useAppeared();
   const ratio = goal ? value / goal : 0;
   return (
     <div>
@@ -90,7 +102,7 @@ function Bar({
         <div
           className={`${styles.barFill} ${ratio > 1 ? styles.barOver : ''}`}
           style={{
-            width: `${Math.min(1, ratio) * 100}%`,
+            width: `${appeared ? Math.min(1, ratio) * 100 : 0}%`,
             ...(ratio > 1 ? {} : { background: color }),
           }}
         />

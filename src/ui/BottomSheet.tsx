@@ -1,6 +1,7 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { ru } from '../i18n/ru';
 import { IconClose } from './icons';
+import { motionEnabled } from './motion';
 import styles from './BottomSheet.module.css';
 
 type Props = {
@@ -13,6 +14,15 @@ type Props = {
 export function BottomSheet({ open, title, onClose, children }: Props) {
   const titleId = useId();
   const sheetRef = useRef<HTMLDivElement>(null);
+  // Stay on screen for a moment after closing so the sheet can slide away.
+  const [shown, setShown] = useState(open);
+  if (open && !shown) setShown(true);
+  if (!open && shown && !motionEnabled()) setShown(false);
+  useEffect(() => {
+    if (open || !shown) return;
+    const id = setTimeout(() => setShown(false), 220);
+    return () => clearTimeout(id);
+  }, [open, shown]);
 
   useEffect(() => {
     if (!open) return;
@@ -31,13 +41,14 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!shown) return null;
+  const closing = !open;
 
   return (
     <div
-      className={styles.backdrop}
+      className={`${styles.backdrop} ${closing ? styles.closing : ''}`}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget && !closing) onClose();
       }}
     >
       <div
