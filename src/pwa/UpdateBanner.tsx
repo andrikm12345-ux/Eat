@@ -14,9 +14,14 @@ export function UpdateBanner() {
     onRegisteredSW(_url, registration) {
       // Periodically look for a new version while the app stays open.
       if (registration) {
-        setInterval(() => {
+        const check = () => {
           if (navigator.onLine) void registration.update();
-        }, UPDATE_CHECK_MS);
+        };
+        setInterval(check, UPDATE_CHECK_MS);
+        // A phone resumes the app from the background: look for a new version right then.
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') check();
+        });
       }
     },
   });
