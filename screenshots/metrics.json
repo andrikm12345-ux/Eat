@@ -1,0 +1,8839 @@
+{
+ "light": {
+  "01-welcome.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Пока без аккаунта",
+     "w": 136,
+     "h": 29
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Создать аккаунт",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "02-account-signup.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "← Назад",
+     "w": 55,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Войти",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Создать аккаунт",
+     "w": 173,
+     "h": 40
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Создать аккаунт",
+     "bottom": 816
+    }
+   ],
+   "contrast": [
+    {
+     "sample": "Создать аккаунт",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "03-account-signin.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "← Назад",
+     "w": 55,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Войти",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Создать аккаунт",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Забыли пароль?",
+     "w": 127,
+     "h": 30
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Войти",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "04-account-reset.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "← Назад",
+     "w": 55,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Назад ко входу",
+     "w": 121,
+     "h": 30
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сменить пароль",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "05-wizard-1-about.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "a",
+     "label": "Уже есть аккаунт? Войти",
+     "w": 182,
+     "h": 19
+    },
+    {
+     "tag": "button",
+     "label": "Мужской",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Женский",
+     "w": 173,
+     "h": 40
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Далее",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "06-wizard-2-weight.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Далее",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "07-wizard-3-goal.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Похудеть",
+     "w": 105,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Поддерживать",
+     "w": 131,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Набрать",
+     "w": 105,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "0,3 % · 0,16 кг/нед",
+     "w": 153,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "0,5 % · 0,33 кг/нед",
+     "w": 161,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "0,8 % · 0,49 кг/нед",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "1 % · 0,66 кг/нед",
+     "w": 142,
+     "h": 40
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Далее",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "08-wizard-4-body.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Далее",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "09-wizard-5-summary-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить и начать",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "10-today-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 15:00",
+     "w": 258,
+     "h": 26
+    }
+   ],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Взвеситься",
+     "bottom": 871
+    }
+   ],
+   "contrast": []
+  },
+  "11-today-empty-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 15:00",
+     "w": 258,
+     "h": 26
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "12-diary-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "2",
+     "ratio": 2.55,
+     "need": 4.5,
+     "size": 14,
+     "color": "rgb(91, 95, 99)",
+     "bg": "rgb(245,244,240)",
+     "opacity": 0.6,
+     "count": 29
+    }
+   ]
+  },
+  "13-diary-empty-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "2",
+     "ratio": 2.55,
+     "need": 4.5,
+     "size": 14,
+     "color": "rgb(91, 95, 99)",
+     "bg": "rgb(245,244,240)",
+     "opacity": 0.6,
+     "count": 29
+    }
+   ]
+  },
+  "14-progress-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "1 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "3 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "6 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Всё",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "input",
+     "label": "range",
+     "w": 322,
+     "h": 16
+    },
+    {
+     "tag": "button",
+     "label": "Первое",
+     "w": 155,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Минимальное",
+     "w": 155,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "15-workouts-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Новая тренировка",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "16-reports-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Неделя",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Расход",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Микро",
+     "w": 114,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "›",
+     "ratio": 2.09,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(31, 114, 102)",
+     "bg": "rgb(245,244,240)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "17-reports-empty-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Неделя",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Расход",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Микро",
+     "w": 114,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "›",
+     "ratio": 2.09,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(31, 114, 102)",
+     "bg": "rgb(245,244,240)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "18-achievements-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Записать первый приём пищи",
+     "ratio": 2.93,
+     "need": 4.5,
+     "size": 13,
+     "color": "rgb(91, 95, 99)",
+     "bg": "rgb(255,255,255)",
+     "opacity": 0.65,
+     "count": 5
+    }
+   ]
+  },
+  "19-today-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "a",
+     "label": "Серия: 14 дн.",
+     "w": 109,
+     "h": 28
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    }
+   ],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "bottom": 818
+    },
+    {
+     "label": "Действия",
+     "bottom": 820
+    },
+    {
+     "label": "Добавить на 18:45",
+     "bottom": 858
+    }
+   ],
+   "contrast": []
+  },
+  "20-today-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 07:15",
+     "top": 45
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "21-today-c.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 11:00",
+     "top": 8
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "22-today-longnames-bignumbers-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "a",
+     "label": "Серия: 14 дн.",
+     "w": 109,
+     "h": 28
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 16:30",
+     "w": 258,
+     "h": 26
+    }
+   ],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "bottom": 818
+    },
+    {
+     "label": "Действия",
+     "bottom": 820
+    },
+    {
+     "label": "Добавить на 16:30",
+     "bottom": 858
+    }
+   ],
+   "contrast": []
+  },
+  "23-today-longnames-bignumbers-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 16:30",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Ужин19:30 · Б 40 · Ж 30 · У 40",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 20:25",
+     "w": 258,
+     "h": 11
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 22:35",
+     "w": 258,
+     "h": 16
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 07:15",
+     "top": 45
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "24-today-longnames-bignumbers-c.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 16:30",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Ужин19:30 · Б 40 · Ж 30 · У 40",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 20:25",
+     "w": 258,
+     "h": 11
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 22:35",
+     "w": 258,
+     "h": 16
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 16:30",
+     "top": 34
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "25-entry-actions-sheet.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 11:00",
+     "top": 31
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "26-add-sheet.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "a",
+     "label": "Серия: 14 дн.",
+     "w": 109,
+     "h": 28
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    }
+   ],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "bottom": 818
+    },
+    {
+     "label": "Действия",
+     "bottom": 820
+    },
+    {
+     "label": "Добавить на 18:45",
+     "bottom": 858
+    }
+   ],
+   "contrast": []
+  },
+  "27-weigh-sheet.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 07:15",
+     "top": 16
+    }
+   ],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "28-search-empty.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "29-search-results.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Грейпфрут42 ккал / 100 гбаза",
+     "bottom": 828
+    },
+    {
+     "label": "Грецкий орех654 ккал / 100 гбаза",
+     "bottom": 890
+    }
+   ],
+   "contrast": []
+  },
+  "30-search-longname.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "31-portion-longname-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "г",
+     "w": 36,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "1 порция (150 г)",
+     "w": 136,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Записать",
+     "bottom": 851
+    }
+   ],
+   "contrast": [
+    {
+     "sample": "Записать",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "32-portion-longname-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "г",
+     "w": 36,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "1 порция (150 г)",
+     "w": 136,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Записать",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "33-quick-kcal.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Записать",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "34-barcode.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Найти",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "35-ai-text.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Анализировать",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "36-review-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Порция",
+     "bottom": 817
+    },
+    {
+     "label": "На 100 г",
+     "bottom": 817
+    }
+   ],
+   "contrast": []
+  },
+  "37-review-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Заменить продукт",
+     "bottom": 819
+    },
+    {
+     "label": "Убрать",
+     "bottom": 819
+    }
+   ],
+   "contrast": []
+  },
+  "38-review-c.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "вручную",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Сохранить и в шаблон",
+     "bottom": 860
+    }
+   ],
+   "contrast": [
+    {
+     "sample": "Сохранить",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    },
+    {
+     "sample": "Заменить продукт",
+     "ratio": 4.47,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(31, 114, 102)",
+     "bg": "rgb(243,227,166)",
+     "opacity": 1,
+     "count": 2
+    }
+   ]
+  },
+  "39-review-per100.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Минус 10 г: Банан",
+     "bottom": 844
+    },
+    {
+     "label": "",
+     "bottom": 841
+    },
+    {
+     "label": "Плюс 10 г: Банан",
+     "bottom": 844
+    }
+   ],
+   "contrast": []
+  },
+  "40-review-replace-sheet.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "вручную",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    },
+    {
+     "sample": "Заменить продукт",
+     "ratio": 4.47,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(31, 114, 102)",
+     "bg": "rgb(243,227,166)",
+     "opacity": 1,
+     "count": 2
+    }
+   ]
+  },
+  "41-repeat.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Скопировать весь день",
+     "bottom": 840
+    }
+   ],
+   "contrast": []
+  },
+  "42-template-pick.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "43-recipe-pick.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Новый рецепт",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "44-entry-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "",
+     "bottom": 860
+    }
+   ],
+   "contrast": []
+  },
+  "45-entry-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "46-diary-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "2",
+     "ratio": 2.55,
+     "need": 4.5,
+     "size": 14,
+     "color": "rgb(91, 95, 99)",
+     "bg": "rgb(245,244,240)",
+     "opacity": 0.6,
+     "count": 29
+    }
+   ]
+  },
+  "47-diary-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "2",
+     "ratio": 2.55,
+     "need": 4.5,
+     "size": 14,
+     "color": "rgb(91, 95, 99)",
+     "bg": "rgb(245,244,240)",
+     "opacity": 0.6,
+     "count": 29
+    }
+   ]
+  },
+  "48-progress-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "1 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "3 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "6 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Всё",
+     "w": 76,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Замеры",
+     "bottom": 859
+    },
+    {
+     "label": "Фото прогресса",
+     "bottom": 859
+    }
+   ],
+   "contrast": []
+  },
+  "49-progress-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "input",
+     "label": "range",
+     "w": 322,
+     "h": 16
+    },
+    {
+     "tag": "button",
+     "label": "Первое",
+     "w": 155,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Минимальное",
+     "w": 155,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Удалить: 66,3 кг, 29 октября 2026",
+     "bottom": 848
+    },
+    {
+     "label": "Первое",
+     "bottom": 850
+    },
+    {
+     "label": "Минимальное",
+     "bottom": 850
+    }
+   ],
+   "contrast": []
+  },
+  "50-measurements-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Новый замер",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "51-photos.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "52-reports-week-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Неделя",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Расход",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Микро",
+     "w": 114,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "›",
+     "ratio": 2.09,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(31, 114, 102)",
+     "bg": "rgb(245,244,240)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "53-reports-week-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "54-reports-week-c.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "55-reports-energy-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Неделя",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Расход",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Микро",
+     "w": 114,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Как считается",
+     "bottom": 856
+    }
+   ],
+   "contrast": []
+  },
+  "56-reports-energy-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "57-reports-micro-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Неделя",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Расход",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Микро",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "7 дней",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "30 дней",
+     "w": 173,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "58-reports-micro-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "59-reports-micro-c.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "60-checkin-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Принять",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "61-more-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Импорт и экспорт",
+     "bottom": 817
+    },
+    {
+     "label": "Хранилище",
+     "bottom": 874
+    }
+   ],
+   "contrast": []
+  },
+  "62-more-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "63-profile-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "МинимальнаяСидячая работа, почти без с",
+     "bottom": 836
+    },
+    {
+     "label": "НизкаяЛёгкие тренировки 1–3 раза в нед",
+     "bottom": 925
+    }
+   ],
+   "contrast": []
+  },
+  "64-profile-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Сохранить профиль",
+     "bottom": 834
+    }
+   ],
+   "contrast": [
+    {
+     "sample": "Сохранить профиль",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "65-profile-c.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить профиль",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "66-foods-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Новый продукт",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "67-foods-new-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "",
+     "bottom": 862
+    },
+    {
+     "label": "",
+     "bottom": 862
+    }
+   ],
+   "contrast": []
+  },
+  "68-foods-new-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить продукт",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "69-recipes.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Новый рецепт",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "70-recipes-new-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "71-recipes-new-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить рецепт",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "72-templates.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "73-workouts.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Новая тренировка",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "74-workouts-new-top.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "15 мин",
+     "w": 99,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "30 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "45 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "60 мин",
+     "w": 157,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "90 мин",
+     "w": 157,
+     "h": 42
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Турник и брусья",
+     "ratio": 2.83,
+     "need": 4.5,
+     "size": 13,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(80,168,154)",
+     "opacity": 1,
+     "count": 1
+    },
+    {
+     "sample": "Сохранить · ≈ 139 ккал",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "75-workouts-new-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "15 мин",
+     "w": 99,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "30 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "45 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "60 мин",
+     "w": 157,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "90 мин",
+     "w": 157,
+     "h": 42
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Турник и брусья",
+     "ratio": 2.83,
+     "need": 4.5,
+     "size": 13,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(80,168,154)",
+     "opacity": 1,
+     "count": 1
+    },
+    {
+     "sample": "Сохранить · ≈ 37 ккал",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "76-workouts-new-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "15 мин",
+     "w": 99,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "30 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "45 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "60 мин",
+     "w": 157,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "90 мин",
+     "w": 157,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "Лёгкая",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Средняя",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Тяжёлая",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "+ Подтягивания",
+     "w": 141,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Отжимания на брусьях",
+     "w": 205,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Отжимания от пола",
+     "w": 180,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Подъём ног на турнике",
+     "w": 206,
+     "h": 38
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "",
+     "bottom": 852
+    },
+    {
+     "label": "Убрать упражнение: Подтягивания",
+     "bottom": 854
+    }
+   ],
+   "contrast": [
+    {
+     "sample": "Сохранить · ≈ 37 ккал",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "77-workouts-new-c.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "+ Подтягивания",
+     "w": 141,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Отжимания на брусьях",
+     "w": 205,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Отжимания от пола",
+     "w": 180,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Подъём ног на турнике",
+     "w": 206,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "Нет",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "+50 %",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "+100 %",
+     "w": 102,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "",
+     "bottom": 872
+    }
+   ],
+   "contrast": [
+    {
+     "sample": "Сохранить · ≈ 37 ккал",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "78-workouts-new-d.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Нет",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "+50 %",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "+100 %",
+     "w": 102,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить · ≈ 37 ккал",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "79-achievements-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "80-achievements-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Добавить продукт по штрихкоду",
+     "ratio": 2.93,
+     "need": 4.5,
+     "size": 13,
+     "color": "rgb(91, 95, 99)",
+     "bg": "rgb(255,255,255)",
+     "opacity": 0.65,
+     "count": 3
+    }
+   ]
+  },
+  "81-reminders-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "checkbox",
+     "bottom": 839
+    }
+   ],
+   "contrast": [
+    {
+     "sample": "Скачать .ics",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "82-reminders-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Скачать .ics",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "83-ai-settings-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "84-ai-settings-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить ключ",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    },
+    {
+     "sample": "Проверить ключ",
+     "ratio": 3.15,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(28, 29, 31)",
+     "bg": "rgb(239,237,232)",
+     "opacity": 0.5,
+     "count": 2
+    }
+   ]
+  },
+  "85-ai-settings-c.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить ключ",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    },
+    {
+     "sample": "Проверить ключ",
+     "ratio": 3.15,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(28, 29, 31)",
+     "bg": "rgb(239,237,232)",
+     "opacity": 0.5,
+     "count": 2
+    }
+   ]
+  },
+  "86-data-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Тренировки",
+     "bottom": 828
+    }
+   ],
+   "contrast": [
+    {
+     "sample": "Экспортировать JSON",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "87-data-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Экспортировать JSON",
+     "ratio": 3.16,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "88-csv-import.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "89-storage.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "90-about.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "91-account.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "← Назад",
+     "w": 55,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Войти",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Создать аккаунт",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Забыли пароль?",
+     "w": 127,
+     "h": 30
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Войти",
+     "ratio": 1.85,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(63,160,146)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "92-not-found.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "a",
+     "label": "На главную",
+     "w": 91,
+     "h": 20
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  }
+ },
+ "dark": {
+  "01-welcome.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Пока без аккаунта",
+     "w": 136,
+     "h": 29
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "02-account-signup.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "← Назад",
+     "w": 55,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Войти",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Создать аккаунт",
+     "w": 173,
+     "h": 40
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Создать аккаунт",
+     "bottom": 816
+    }
+   ],
+   "contrast": [
+    {
+     "sample": "Создать аккаунт",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "03-account-signin.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "← Назад",
+     "w": 55,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Войти",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Создать аккаунт",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Забыли пароль?",
+     "w": 127,
+     "h": 30
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Войти",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "04-account-reset.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "← Назад",
+     "w": 55,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Назад ко входу",
+     "w": 121,
+     "h": 30
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сменить пароль",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "05-wizard-1-about.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "a",
+     "label": "Уже есть аккаунт? Войти",
+     "w": 182,
+     "h": 19
+    },
+    {
+     "tag": "button",
+     "label": "Мужской",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Женский",
+     "w": 173,
+     "h": 40
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Далее",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "06-wizard-2-weight.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Далее",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "07-wizard-3-goal.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Похудеть",
+     "w": 105,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Поддерживать",
+     "w": 131,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Набрать",
+     "w": 105,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "0,3 % · 0,16 кг/нед",
+     "w": 153,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "0,5 % · 0,33 кг/нед",
+     "w": 161,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "0,8 % · 0,49 кг/нед",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "1 % · 0,66 кг/нед",
+     "w": 142,
+     "h": 40
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "08-wizard-4-body.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "09-wizard-5-summary-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "10-today-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 15:00",
+     "w": 258,
+     "h": 26
+    }
+   ],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Взвеситься",
+     "bottom": 871
+    }
+   ],
+   "contrast": []
+  },
+  "11-today-empty-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 15:00",
+     "w": 258,
+     "h": 26
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "12-diary-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "2",
+     "ratio": 3.54,
+     "need": 4.5,
+     "size": 14,
+     "color": "rgb(165, 170, 174)",
+     "bg": "rgb(22,24,26)",
+     "opacity": 0.6,
+     "count": 29
+    }
+   ]
+  },
+  "13-diary-empty-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "2",
+     "ratio": 3.54,
+     "need": 4.5,
+     "size": 14,
+     "color": "rgb(165, 170, 174)",
+     "bg": "rgb(22,24,26)",
+     "opacity": 0.6,
+     "count": 29
+    }
+   ]
+  },
+  "14-progress-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "1 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "3 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "6 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Всё",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "input",
+     "label": "range",
+     "w": 322,
+     "h": 16
+    },
+    {
+     "tag": "button",
+     "label": "Первое",
+     "w": 155,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Минимальное",
+     "w": 155,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "15-workouts-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "16-reports-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Неделя",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Расход",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Микро",
+     "w": 114,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "›",
+     "ratio": 3.01,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(92, 194, 179)",
+     "bg": "rgb(22,24,26)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "17-reports-empty-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Неделя",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Расход",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Микро",
+     "w": 114,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "›",
+     "ratio": 3.01,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(92, 194, 179)",
+     "bg": "rgb(22,24,26)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "18-achievements-empty-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Записать первый приём пищи",
+     "ratio": 3.71,
+     "need": 4.5,
+     "size": 13,
+     "color": "rgb(165, 170, 174)",
+     "bg": "rgb(31,34,36)",
+     "opacity": 0.65,
+     "count": 5
+    }
+   ]
+  },
+  "19-today-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "a",
+     "label": "Серия: 14 дн.",
+     "w": 109,
+     "h": 28
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    }
+   ],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "bottom": 818
+    },
+    {
+     "label": "Действия",
+     "bottom": 820
+    },
+    {
+     "label": "Добавить на 18:45",
+     "bottom": 858
+    }
+   ],
+   "contrast": []
+  },
+  "20-today-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 07:15",
+     "top": 45
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "21-today-c.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 11:00",
+     "top": 8
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "22-today-longnames-bignumbers-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "a",
+     "label": "Серия: 14 дн.",
+     "w": 109,
+     "h": 28
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 16:30",
+     "w": 258,
+     "h": 26
+    }
+   ],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "bottom": 818
+    },
+    {
+     "label": "Действия",
+     "bottom": 820
+    },
+    {
+     "label": "Добавить на 16:30",
+     "bottom": 858
+    }
+   ],
+   "contrast": []
+  },
+  "23-today-longnames-bignumbers-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 16:30",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Ужин19:30 · Б 40 · Ж 30 · У 40",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 20:25",
+     "w": 258,
+     "h": 11
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 22:35",
+     "w": 258,
+     "h": 16
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 07:15",
+     "top": 45
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "24-today-longnames-bignumbers-c.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 16:30",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Ужин19:30 · Б 40 · Ж 30 · У 40",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 20:25",
+     "w": 258,
+     "h": 11
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 22:35",
+     "w": 258,
+     "h": 16
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 16:30",
+     "top": 34
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "25-entry-actions-sheet.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 11:00",
+     "top": 31
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "26-add-sheet.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "a",
+     "label": "Серия: 14 дн.",
+     "w": 109,
+     "h": 28
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    }
+   ],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "bottom": 818
+    },
+    {
+     "label": "Действия",
+     "bottom": 820
+    },
+    {
+     "label": "Добавить на 18:45",
+     "bottom": 858
+    }
+   ],
+   "contrast": []
+  },
+  "27-weigh-sheet.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Добавить на 07:15",
+     "w": 258,
+     "h": 15
+    },
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 07:15",
+     "top": 16
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "28-search-empty.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "29-search-results.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    },
+    {
+     "text": "база",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Грейпфрут42 ккал / 100 гбаза",
+     "bottom": 828
+    },
+    {
+     "label": "Грецкий орех654 ккал / 100 гбаза",
+     "bottom": 890
+    }
+   ],
+   "contrast": []
+  },
+  "30-search-longname.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "31-portion-longname-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "г",
+     "w": 36,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "1 порция (150 г)",
+     "w": 136,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Записать",
+     "bottom": 851
+    }
+   ],
+   "contrast": []
+  },
+  "32-portion-longname-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "г",
+     "w": 36,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "1 порция (150 г)",
+     "w": 136,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "33-quick-kcal.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "34-barcode.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Найти",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "35-ai-text.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "36-review-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Порция",
+     "bottom": 884
+    },
+    {
+     "label": "На 100 г",
+     "bottom": 884
+    }
+   ],
+   "contrast": []
+  },
+  "37-review-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Заменить продукт",
+     "bottom": 887
+    },
+    {
+     "label": "Убрать",
+     "bottom": 887
+    }
+   ],
+   "contrast": []
+  },
+  "38-review-c.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "OFF",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Количество: Кофе с молоком",
+     "ratio": 4.38,
+     "need": 4.5,
+     "size": 14,
+     "color": "rgb(165, 170, 174)",
+     "bg": "rgb(74,64,32)",
+     "opacity": 1,
+     "count": 2
+    }
+   ]
+  },
+  "39-review-per100.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "каталог",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Порция",
+     "bottom": 825
+    },
+    {
+     "label": "На 100 г",
+     "bottom": 825
+    }
+   ],
+   "contrast": []
+  },
+  "40-review-replace-sheet.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Порция",
+     "w": 158,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "На 100 г",
+     "w": 158,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Количество: Кофе с молоком",
+     "ratio": 4.38,
+     "need": 4.5,
+     "size": 14,
+     "color": "rgb(165, 170, 174)",
+     "bg": "rgb(74,64,32)",
+     "opacity": 1,
+     "count": 2
+    }
+   ]
+  },
+  "41-repeat.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Скопировать весь день",
+     "bottom": 840
+    }
+   ],
+   "contrast": []
+  },
+  "42-template-pick.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "TypeError: Cannot convert undefine",
+     "ratio": 4.14,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(236, 234, 230)",
+     "bg": "rgb(111,112,113)",
+     "opacity": 1,
+     "count": 3
+    }
+   ]
+  },
+  "43-recipe-pick.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "44-entry-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "",
+     "bottom": 860
+    }
+   ],
+   "contrast": []
+  },
+  "45-entry-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "46-diary-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "2",
+     "ratio": 3.54,
+     "need": 4.5,
+     "size": 14,
+     "color": "rgb(165, 170, 174)",
+     "bg": "rgb(22,24,26)",
+     "opacity": 0.6,
+     "count": 29
+    }
+   ]
+  },
+  "47-diary-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "2",
+     "ratio": 3.54,
+     "need": 4.5,
+     "size": 14,
+     "color": "rgb(165, 170, 174)",
+     "bg": "rgb(22,24,26)",
+     "opacity": 0.6,
+     "count": 29
+    }
+   ]
+  },
+  "48-progress-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "1 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "3 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "6 мес",
+     "w": 76,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Всё",
+     "w": 76,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Замеры",
+     "bottom": 859
+    },
+    {
+     "label": "Фото прогресса",
+     "bottom": 859
+    }
+   ],
+   "contrast": []
+  },
+  "49-progress-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "input",
+     "label": "range",
+     "w": 322,
+     "h": 16
+    },
+    {
+     "tag": "button",
+     "label": "Первое",
+     "w": 155,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Минимальное",
+     "w": 155,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Удалить: 66,3 кг, 29 октября 2026",
+     "bottom": 848
+    },
+    {
+     "label": "Первое",
+     "bottom": 850
+    },
+    {
+     "label": "Минимальное",
+     "bottom": 850
+    }
+   ],
+   "contrast": []
+  },
+  "50-measurements-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "51-photos.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "52-reports-week-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Неделя",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Расход",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Микро",
+     "w": 114,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "›",
+     "ratio": 3.01,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(92, 194, 179)",
+     "bg": "rgb(22,24,26)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "53-reports-week-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "54-reports-week-c.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "55-reports-energy-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Неделя",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Расход",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Микро",
+     "w": 114,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Как считается",
+     "bottom": 856
+    }
+   ],
+   "contrast": []
+  },
+  "56-reports-energy-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "57-reports-micro-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Неделя",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Расход",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Микро",
+     "w": 114,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "7 дней",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "30 дней",
+     "w": 173,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "58-reports-micro-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "59-reports-micro-c.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "60-checkin-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "61-more-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Импорт и экспорт",
+     "bottom": 817
+    },
+    {
+     "label": "Хранилище",
+     "bottom": 874
+    }
+   ],
+   "contrast": []
+  },
+  "62-more-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "63-profile-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "МинимальнаяСидячая работа, почти без с",
+     "bottom": 836
+    },
+    {
+     "label": "НизкаяЛёгкие тренировки 1–3 раза в нед",
+     "bottom": 925
+    }
+   ],
+   "contrast": []
+  },
+  "64-profile-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Сохранить профиль",
+     "bottom": 834
+    }
+   ],
+   "contrast": []
+  },
+  "65-profile-c.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "66-foods-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "OFF",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "мой",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "67-foods-new-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "",
+     "bottom": 862
+    },
+    {
+     "label": "",
+     "bottom": 862
+    }
+   ],
+   "contrast": []
+  },
+  "68-foods-new-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить продукт",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "69-recipes.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "70-recipes-new-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "71-recipes-new-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить рецепт",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "72-templates.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "TypeError: Cannot convert undefine",
+     "ratio": 4.14,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(236, 234, 230)",
+     "bg": "rgb(111,112,113)",
+     "opacity": 1,
+     "count": 3
+    }
+   ]
+  },
+  "73-workouts.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "74-workouts-new-top.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "15 мин",
+     "w": 99,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "30 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "45 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "60 мин",
+     "w": 157,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "90 мин",
+     "w": 157,
+     "h": 42
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Турник и брусья",
+     "ratio": 2.83,
+     "need": 4.5,
+     "size": 13,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(80,168,154)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "75-workouts-new-a.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "15 мин",
+     "w": 99,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "30 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "45 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "60 мин",
+     "w": 157,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "90 мин",
+     "w": 157,
+     "h": 42
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Турник и брусья",
+     "ratio": 2.83,
+     "need": 4.5,
+     "size": 13,
+     "color": "rgb(255, 255, 255)",
+     "bg": "rgb(80,168,154)",
+     "opacity": 1,
+     "count": 1
+    }
+   ]
+  },
+  "76-workouts-new-b.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "15 мин",
+     "w": 99,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "30 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "45 мин",
+     "w": 103,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "60 мин",
+     "w": 157,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "90 мин",
+     "w": 157,
+     "h": 42
+    },
+    {
+     "tag": "button",
+     "label": "Лёгкая",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Средняя",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Тяжёлая",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "+ Подтягивания",
+     "w": 141,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Отжимания на брусьях",
+     "w": 205,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Отжимания от пола",
+     "w": 180,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Подъём ног на турнике",
+     "w": 206,
+     "h": 38
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "",
+     "bottom": 852
+    },
+    {
+     "label": "Убрать упражнение: Подтягивания",
+     "bottom": 854
+    }
+   ],
+   "contrast": []
+  },
+  "77-workouts-new-c.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "+ Подтягивания",
+     "w": 141,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Отжимания на брусьях",
+     "w": 205,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Отжимания от пола",
+     "w": 180,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "+ Подъём ног на турнике",
+     "w": 206,
+     "h": 38
+    },
+    {
+     "tag": "button",
+     "label": "Нет",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "+50 %",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "+100 %",
+     "w": 102,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "",
+     "bottom": 872
+    }
+   ],
+   "contrast": []
+  },
+  "78-workouts-new-d.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Нет",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "+50 %",
+     "w": 102,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "+100 %",
+     "w": 102,
+     "h": 40
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "79-achievements-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "80-achievements-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Записать еду с помощью ИИ",
+     "ratio": 3.71,
+     "need": 4.5,
+     "size": 13,
+     "color": "rgb(165, 170, 174)",
+     "bg": "rgb(31,34,36)",
+     "opacity": 0.65,
+     "count": 3
+    }
+   ]
+  },
+  "81-reminders-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "checkbox",
+     "bottom": 839
+    }
+   ],
+   "contrast": []
+  },
+  "82-reminders-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "83-ai-settings-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "84-ai-settings-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить ключ",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    },
+    {
+     "sample": "Проверить ключ",
+     "ratio": 4.06,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(236, 234, 230)",
+     "bg": "rgb(42,46,49)",
+     "opacity": 0.5,
+     "count": 2
+    }
+   ]
+  },
+  "85-ai-settings-c.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Сохранить ключ",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    },
+    {
+     "sample": "Проверить ключ",
+     "ratio": 4.06,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(236, 234, 230)",
+     "bg": "rgb(42,46,49)",
+     "opacity": 0.5,
+     "count": 2
+    }
+   ]
+  },
+  "86-data-a.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Тренировки",
+     "bottom": 828
+    }
+   ],
+   "contrast": []
+  },
+  "87-data-b.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "88-csv-import.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "89-storage.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "90-about.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "91-account.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "← Назад",
+     "w": 55,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Войти",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Создать аккаунт",
+     "w": 173,
+     "h": 40
+    },
+    {
+     "tag": "button",
+     "label": "Забыли пароль?",
+     "w": 127,
+     "h": 30
+    }
+   ],
+   "smallText": [],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": [
+    {
+     "sample": "Войти",
+     "ratio": 2.75,
+     "need": 4.5,
+     "size": 16,
+     "color": "rgb(14, 26, 25)",
+     "bg": "rgb(92,194,179)",
+     "opacity": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "92-not-found.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "a",
+     "label": "На главную",
+     "w": 91,
+     "h": 20
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  }
+ }
+}

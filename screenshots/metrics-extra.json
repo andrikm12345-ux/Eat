@@ -1,0 +1,436 @@
+{
+ "light": {
+  "93-templates-fixed.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "94-template-pick-fixed.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "95-entry-actions-open.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 11:00",
+     "top": 31
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "96-diary-october-colored.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "среда, 28 октября2 110 из 2 730 ккал",
+     "bottom": 863
+    }
+   ],
+   "contrast": []
+  },
+  "97-progress-weigh-history.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Удалить: 66,4 кг, 24 октября 2026",
+     "bottom": 844
+    }
+   ],
+   "contrast": []
+  }
+ },
+ "dark": {
+  "93-templates-fixed.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "94-template-pick-fixed.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "95-entry-actions-open.png": {
+   "overflowX": false,
+   "tapSmall": [
+    {
+     "tag": "button",
+     "label": "Завтрак08:30 · Б 18 · Ж 12 · У 85",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 11:00",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "Обед13:30 · Б 58 · Ж 32 · У 99",
+     "w": 159,
+     "h": 39
+    },
+    {
+     "tag": "button",
+     "label": "Действия",
+     "w": 36,
+     "h": 44
+    },
+    {
+     "tag": "button",
+     "label": "Добавить на 18:45",
+     "w": 258,
+     "h": 26
+    },
+    {
+     "tag": "button",
+     "label": "−250 мл",
+     "w": 69,
+     "h": 30
+    }
+   ],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [
+    {
+     "label": "Добавить на 11:00",
+     "top": 31
+    }
+   ],
+   "safeBottom": [],
+   "contrast": []
+  },
+  "96-diary-october-colored.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "пн",
+     "size": 11
+    },
+    {
+     "text": "вт",
+     "size": 11
+    },
+    {
+     "text": "ср",
+     "size": 11
+    },
+    {
+     "text": "чт",
+     "size": 11
+    },
+    {
+     "text": "пт",
+     "size": 11
+    },
+    {
+     "text": "сб",
+     "size": 11
+    },
+    {
+     "text": "вс",
+     "size": 11
+    },
+    {
+     "text": "Сегодня",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "среда, 28 октября2 110 из 2 730 ккал",
+     "bottom": 863
+    }
+   ],
+   "contrast": []
+  },
+  "97-progress-weigh-history.png": {
+   "overflowX": false,
+   "tapSmall": [],
+   "smallText": [
+    {
+     "text": "Сегодня",
+     "size": 11
+    },
+    {
+     "text": "Дневник",
+     "size": 11
+    },
+    {
+     "text": "Прогресс",
+     "size": 11
+    },
+    {
+     "text": "Отчёты",
+     "size": 11
+    },
+    {
+     "text": "Ещё",
+     "size": 11
+    }
+   ],
+   "safeTop": [],
+   "safeBottom": [
+    {
+     "label": "Удалить: 66,4 кг, 24 октября 2026",
+     "bottom": 844
+    }
+   ],
+   "contrast": []
+  }
+ }
+}
