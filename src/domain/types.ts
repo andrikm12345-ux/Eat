@@ -176,6 +176,8 @@ export type Workout = BaseRecord & {
   type: string;
   durationMin: number;
   kcal?: number;
+  /** Effort level the calories were estimated with. */
+  intensity?: 'light' | 'moderate' | 'hard';
   /** What was done, e.g. pull-ups 4×10, dips 3×12. */
   exercises?: WorkoutExercise[];
   note?: string;

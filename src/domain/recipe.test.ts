@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { exerciseBonus, findMet, MET_TABLE, metKcal } from './met';
+import { exerciseBonus, findMet, MET_TABLE, metKcal, netKcal, WORKOUT_KINDS } from './met';
 import { recipePer100g, servingGrams } from './recipe';
 
 describe('recipe', () => {
@@ -28,6 +28,15 @@ describe('MET', () => {
   it('has ~30+ activities and computes kcal', () => {
     expect(MET_TABLE.length).toBeGreaterThanOrEqual(30);
     expect(metKcal(8, 80, 45)).toBe(480);
+    // Net = above resting: (8 − 1) × 80 × 0.75 = 420; never negative.
+    expect(netKcal(8, 80, 45)).toBe(420);
+    expect(netKcal(0.5, 80, 45)).toBe(0);
+    // Compendium 2024: calisthenics light / moderate / vigorous.
+    expect(WORKOUT_KINDS.find((k) => k.id === 'bars')?.met).toEqual({
+      light: 2.8,
+      moderate: 3.8,
+      hard: 7.5,
+    });
     expect(findMet('Йога')?.met).toBe(2.5);
     expect(findMet('run_10')?.met).toBe(9.8);
     expect(findMet('нет такого')).toBeUndefined();

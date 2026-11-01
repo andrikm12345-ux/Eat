@@ -131,3 +131,44 @@ export const IconScale = mk(
   </>,
 );
 export const IconDrop = mk(<path d="M12 3s6 6.2 6 10.5a6 6 0 01-12 0C6 9.2 12 3 12 3z" />);
+
+/* Workout kinds */
+export const IconBars = mk(
+  <>
+    <path d="M3 4.5h18M6 4.5V20M18 4.5V20" />
+    <circle cx="12" cy="10.2" r="1.7" />
+    <path d="M9.4 4.5l2.6 4M14.6 4.5L12 8.5M12 12v4M12 16l-2 3.5M12 16l2 3.5" />
+  </>,
+);
+export const IconDumbbell = mk(<path d="M6.5 6.5v11M3.5 9v6M17.5 6.5v11M20.5 9v6M6.5 12h11" />);
+export const IconRun = mk(
+  <>
+    <circle cx="14.5" cy="4.5" r="1.8" />
+    <path d="M7 21l3.5-5.5 3 2.5v3M5.5 11.5L9 8.5h4.5l2 3.5 3 1M10.5 15.5l1.5-7" />
+  </>,
+);
+export const IconWalk = mk(
+  <path d="M8 3c-1.7 0-2.5 2-2.5 4.5S6.5 12 8 12s2.5-2 2.5-4.5S9.7 3 8 3zM6 14.5h4M16 8c-1.7 0-2.5 2-2.5 4.5S14.5 17 16 17s2.5-2 2.5-4.5S17.7 8 16 8zM14 19.5h4" />,
+);
+export const IconBike = mk(
+  <>
+    <circle cx="6" cy="16" r="3.5" />
+    <circle cx="18" cy="16" r="3.5" />
+    <path d="M6 16l4-8h5l3 8M10 8l2.5 8H6M13.5 5H17" />
+  </>,
+);
+export const IconSwim = mk(
+  <>
+    <circle cx="16" cy="6" r="1.8" />
+    <path d="M5 11.5l4.5-3.5 3 2.5 3.5-1.5M3 15.5c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5M3 19.5c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5" />
+  </>,
+);
+export const IconYoga = mk(
+  <path d="M12 3.5c2 2.2 2 5.3 0 8.5-2-3.2-2-6.3 0-8.5zM12 12c-2.2-1.2-5-1.2-8 1 2 3 5 4 8 3M12 12c2.2-1.2 5-1.2 8 1-2 3-5 4-8 3M4 20h16" />,
+);
+export const IconStretch = mk(
+  <>
+    <circle cx="12" cy="4.2" r="1.8" />
+    <path d="M4.5 6.5l7.5 3 7.5-3M12 9.5v5.5M12 15l-4 5.5M12 15l4 5.5" />
+  </>,
+);

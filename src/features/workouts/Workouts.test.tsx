@@ -13,7 +13,10 @@ describe('workout with exercises', () => {
   it('defaults to bar work and records pull-ups and dips with sets × reps', async () => {
     const user = userEvent.setup();
     await renderApp('/workouts/new');
-    expect(await screen.findByLabelText(t.type)).toHaveValue('calisthenics');
+    expect(await screen.findByRole('button', { name: 'Турник и брусья' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     await user.click(screen.getByRole('button', { name: '+ Подтягивания' }));
     await user.click(screen.getByRole('button', { name: '+ Отжимания на брусьях' }));
     const sets = screen.getByLabelText(`${t.sets}: Подтягивания`);
@@ -23,11 +26,11 @@ describe('workout with exercises', () => {
     await user.type(weight, '10');
     // An empty row is ignored on save.
     await user.click(screen.getByRole('button', { name: t.addExercise }));
-    await user.click(screen.getByRole('button', { name: t.save }));
+    await user.click(screen.getByRole('button', { name: /^Сохранить/ }));
     await waitFor(async () => expect(await repos.workouts.list()).toHaveLength(1));
     const [w] = await repos.workouts.list();
     expect(w).toMatchObject({
-      type: 'Турник, брусья, воркаут',
+      type: 'Турник и брусья',
       exercises: [
         { name: 'Подтягивания', sets: 4, reps: 10 },
         { name: 'Отжимания на брусьях', sets: 3, reps: 10, weightKg: 10 },
@@ -43,7 +46,7 @@ describe('workout with exercises', () => {
     await user.click(screen.getByRole('button', { name: '+ Подтягивания' }));
     await user.click(screen.getByRole('button', { name: t.removeExercise('Отжимания от пола') }));
     expect(screen.queryByLabelText(`${t.sets}: Отжимания от пола`)).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: t.save }));
+    await user.click(screen.getByRole('button', { name: /^Сохранить/ }));
     await waitFor(async () => expect(await repos.workouts.list()).toHaveLength(1));
     const { router } = await renderApp('/workouts', { seed: false });
     expect((await screen.findAllByText('Подтягивания 3×10')).length).toBeGreaterThan(0);
@@ -79,5 +82,35 @@ describe('workout with exercises', () => {
     });
     await renderApp('/', { seed: false });
     expect(await screen.findByText(ru.activityCard.goalBonus('300'))).toBeVisible();
+  });
+
+  it('"Другое" takes a custom name; own calories override the estimate', async () => {
+    const user = userEvent.setup();
+    await renderApp('/workouts/new');
+    await user.click(await screen.findByRole('button', { name: 'Другое' }));
+    await user.type(screen.getByLabelText(t.customName), 'Бокс');
+    await user.click(screen.getByText(t.more));
+    await user.type(screen.getByLabelText(t.kcal), '400');
+    await user.type(screen.getByLabelText(t.note), 'спарринг');
+    expect(screen.getByRole('button', { name: t.saveWith('400') })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: t.saveWith('400') }));
+    await waitFor(async () => expect(await repos.workouts.list()).toHaveLength(1));
+    expect((await repos.workouts.list())[0]).toMatchObject({
+      type: 'Бокс',
+      kcal: 400,
+      note: 'спарринг',
+    });
+  });
+
+  it('a custom duration works and an empty one disables saving', async () => {
+    const user = userEvent.setup();
+    await renderApp('/workouts/new');
+    const own = await screen.findByLabelText(t.durationCustom);
+    await user.clear(own);
+    expect(screen.getByRole('button', { name: t.save })).toBeDisabled();
+    await user.type(own, '20');
+    const chips = within(screen.getByRole('group', { name: t.duration })).getAllByRole('button');
+    expect(chips.every((c) => c.getAttribute('aria-pressed') === 'false')).toBe(true);
+    expect(screen.getByRole('button', { name: /^Сохранить ·/ })).toBeEnabled();
   });
 });

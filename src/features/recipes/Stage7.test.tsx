@@ -86,22 +86,26 @@ describe('templates', () => {
 });
 
 describe('workouts and exercise calories', () => {
-  it('estimates kcal by MET and saves', async () => {
+  it('estimates net kcal (above resting) by kind and effort, and saves', async () => {
     const user = userEvent.setup();
     await renderApp('/workouts/new?date=2026-03-01');
-    await user.selectOptions(await screen.findByLabelText(ru.workouts.type), 'run_10');
-    const dur = screen.getByLabelText(ru.workouts.duration);
-    await user.clear(dur);
-    await user.type(dur, '45');
-    // 9.8 × 80 kg × 0.75 h = 588
-    expect(screen.getByText(ru.workouts.kcalAuto('588'))).toBeVisible();
-    await user.click(screen.getByRole('button', { name: ru.workouts.save }));
+    await user.click(await screen.findByRole('button', { name: 'Бег' }));
+    await user.click(screen.getByRole('button', { name: `45 ${ru.workouts.minutes}` }));
+    // Medium effort run: (9.8 − 1) × 80 kg × 0.75 h = 528
+    const save = screen.getByRole('button', { name: ru.workouts.saveWith('528') });
+    // Harder effort raises the estimate: (11.8 − 1) × 80 × 0.75 = 648
+    await user.click(screen.getByRole('radio', { name: ru.workouts.intensityName.hard }));
+    expect(screen.getByText(ru.workouts.intensityHint.hard)).toBeVisible();
+    expect(screen.getByRole('button', { name: ru.workouts.saveWith('648') })).toBe(save);
+    await user.click(screen.getByRole('radio', { name: ru.workouts.intensityName.moderate }));
+    await user.click(save);
     await waitFor(async () =>
       expect((await repos.workouts.list())[0]).toMatchObject({
         date: '2026-03-01',
         durationMin: 45,
-        kcal: 588,
-        type: 'Бег, 10 км/ч',
+        kcal: 528,
+        type: 'Бег',
+        intensity: 'moderate',
       }),
     );
   });

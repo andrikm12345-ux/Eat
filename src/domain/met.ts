@@ -42,7 +42,56 @@ export const MET_TABLE = [
 
 export type MetId = (typeof MET_TABLE)[number]['id'];
 
-/** kcal = MET × kg × hours. */
+export type Intensity = 'light' | 'moderate' | 'hard';
+
+/**
+ * Workout kinds with MET by intensity (2024 Adult Compendium of Physical Activities):
+ * calisthenics 2.8 / 3.8 / 7.5, resistance training 3.5 / 5.0 / 6.0, etc.
+ * `exercises`: sets × reps make sense for this kind.
+ */
+export const WORKOUT_KINDS = [
+  {
+    id: 'bars',
+    name: 'Турник и брусья',
+    met: { light: 2.8, moderate: 3.8, hard: 7.5 },
+    exercises: true,
+  },
+  {
+    id: 'strength',
+    name: 'Силовая',
+    met: { light: 3.5, moderate: 5.0, hard: 6.0 },
+    exercises: true,
+  },
+  { id: 'run', name: 'Бег', met: { light: 7.0, moderate: 9.8, hard: 11.8 }, exercises: false },
+  { id: 'walk', name: 'Ходьба', met: { light: 2.8, moderate: 3.5, hard: 5.0 }, exercises: false },
+  {
+    id: 'bike',
+    name: 'Велосипед',
+    met: { light: 4.0, moderate: 6.8, hard: 10.0 },
+    exercises: false,
+  },
+  { id: 'swim', name: 'Плавание', met: { light: 5.8, moderate: 8.3, hard: 9.8 }, exercises: false },
+  { id: 'yoga', name: 'Йога', met: { light: 2.3, moderate: 3.0, hard: 4.0 }, exercises: false },
+  {
+    id: 'stretch',
+    name: 'Растяжка',
+    met: { light: 2.0, moderate: 2.3, hard: 2.8 },
+    exercises: false,
+  },
+  { id: 'other', name: 'Другое', met: { light: 3.0, moderate: 5.0, hard: 7.0 }, exercises: true },
+] as const;
+
+export type WorkoutKindId = (typeof WORKOUT_KINDS)[number]['id'];
+
+/**
+ * Calories burned ABOVE resting: (MET − 1) × kg × hours. The resting part is already in
+ * the daily expenditure, so only this net amount may be added to the day's goal.
+ */
+export function netKcal(met: number, kg: number, minutes: number): number {
+  return Math.max(0, met - 1) * kg * (minutes / 60);
+}
+
+/** kcal = MET × kg × hours (gross, includes the resting burn). */
 export function metKcal(met: number, kg: number, minutes: number): number {
   return met * kg * (minutes / 60);
 }
