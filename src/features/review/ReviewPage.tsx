@@ -8,10 +8,17 @@ import { ru } from '../../i18n/ru';
 import { saveAsTemplate } from '../../services/entries';
 import { ACCOUNT } from '../../services/account';
 import { saveReview } from '../../services/review';
-import { swapAlt, useReview, type ReviewDraft, type ReviewItem } from '../../state/review';
+import {
+  swapAlt,
+  useReview,
+  withPer100,
+  withPortionKcal,
+  type ReviewDraft,
+  type ReviewItem,
+} from '../../state/review';
 import { toast, useUi } from '../../state/ui';
 import { BottomSheet } from '../../ui/BottomSheet';
-import { Button, Card, Notice, NumberField, Row, TextField } from '../../ui/kit';
+import { Button, Card, Notice, NumberField, Row, Segmented, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { FoodSearch } from '../add/SearchPage';
 import styles from './review.module.css';
@@ -34,6 +41,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
   const [date, setD] = useState(initial.date);
   const [time, setTime] = useState(initial.time);
   const [replacing, setReplacing] = useState<string | null>(null);
+  const [modes, setModes] = useState<Record<string, 'portion' | 'per100'>>({});
   const [tplName, setTplName] = useState<string | null>(null);
   const run = useLiveQuery(
     async () => (initial.aiRunId ? await repos.db.aiRuns.get(initial.aiRunId) : undefined),
@@ -44,6 +52,8 @@ function Review({ initial }: { initial: ReviewDraft }) {
   const valid = items.length > 0 && items.every((i) => i.grams > 0);
   const update = (key: string, patch: Partial<ReviewItem>) =>
     setItems((list) => list.map((i) => (i.key === key ? { ...i, ...patch } : i)));
+  const edit = (key: string, fn: (i: ReviewItem) => ReviewItem) =>
+    setItems((list) => list.map((i) => (i.key === key ? fn(i) : i)));
 
   async function save(template?: string) {
     if (!valid) return;
@@ -69,6 +79,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
       {items.some((i) => i.source === 'off') && <Notice tone="info">{t.unverified}</Notice>}
       {items.map((i) => {
         const n = nutrientsOf(i);
+        const mode = modes[i.key] ?? 'portion';
         const low = i.confidence === 'low';
         return (
           <div key={i.key} className={`${styles.item} ${low ? styles.low : ''}`}>
@@ -81,31 +92,65 @@ function Review({ initial }: { initial: ReviewDraft }) {
               {i.assumed ? ` · ${t.assumed}` : ''}
               {low ? ` · ${t.checkGrams}` : ''}
             </p>
-            <div className={styles.stepper}>
-              <button
-                type="button"
-                className={styles.step}
-                aria-label={`${ru.portion.minus}: ${i.name}`}
-                onClick={() => update(i.key, { grams: Math.max(0, i.grams - 10) })}
-              >
-                −
-              </button>
-              <NumberField
-                label={`${ru.portion.grams}: ${i.name}`}
-                suffix="г"
-                value={i.grams}
-                emptyAs={0}
-                onChange={(v) => update(i.key, { grams: v ?? 0 })}
-              />
-              <button
-                type="button"
-                className={styles.step}
-                aria-label={`${ru.portion.plus}: ${i.name}`}
-                onClick={() => update(i.key, { grams: i.grams + 10 })}
-              >
-                +
-              </button>
-            </div>
+            <Segmented
+              label={`${t.modeLabel}: ${i.name}`}
+              value={mode}
+              onChange={(v: 'portion' | 'per100') => setModes((m) => ({ ...m, [i.key]: v }))}
+              options={[
+                { value: 'portion', label: t.modePortion },
+                { value: 'per100', label: t.mode100 },
+              ]}
+            />
+            {mode === 'portion' ? (
+              <>
+                <div className={styles.stepper}>
+                  <button
+                    type="button"
+                    className={styles.step}
+                    aria-label={`${ru.portion.minus}: ${i.name}`}
+                    onClick={() => update(i.key, { grams: Math.max(0, i.grams - 10) })}
+                  >
+                    −
+                  </button>
+                  <NumberField
+                    label={`${ru.portion.grams}: ${i.name}`}
+                    suffix="г"
+                    value={i.grams}
+                    emptyAs={0}
+                    onChange={(v) => update(i.key, { grams: v ?? 0 })}
+                  />
+                  <button
+                    type="button"
+                    className={styles.step}
+                    aria-label={`${ru.portion.plus}: ${i.name}`}
+                    onClick={() => update(i.key, { grams: i.grams + 10 })}
+                  >
+                    +
+                  </button>
+                </div>
+                <NumberField
+                  label={t.portionKcal}
+                  ariaLabel={`${t.portionKcal}: ${i.name}`}
+                  suffix="ккал"
+                  value={Math.round(n.kcal * 10) / 10}
+                  emptyAs={0}
+                  onChange={(v) => edit(i.key, (x) => withPortionKcal(x, v ?? 0))}
+                />
+              </>
+            ) : (
+              <div className={styles.per100}>
+                {(['kcal', 'protein', 'fat', 'carbs'] as const).map((k) => (
+                  <NumberField
+                    key={k}
+                    label={t.per100[k]}
+                    ariaLabel={t.per100Aria(t.per100[k], i.name)}
+                    value={i.per100g[k]}
+                    emptyAs={0}
+                    onChange={(v) => edit(i.key, (x) => withPer100(x, { [k]: v ?? 0 }))}
+                  />
+                ))}
+              </div>
+            )}
             <p className={styles.macros}>
               <b>{formatKcal(n.kcal)} ккал</b> · Б {formatGrams(n.protein)} · Ж {formatGrams(n.fat)}{' '}
               · У {formatGrams(n.carbs)}

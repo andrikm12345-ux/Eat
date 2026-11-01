@@ -25,6 +25,28 @@ export type ReviewItem = {
   };
 };
 
+const round2 = (v: number) => Math.round(v * 100) / 100;
+
+/** A hand-edited item is the user's own data: manual source, no link to a catalog food. */
+function asManual(i: ReviewItem, per100g: Nutrients): ReviewItem {
+  const { foodId: _dropped, ...rest } = i;
+  return { ...rest, per100g, source: 'manual' };
+}
+
+/** Sets the calories of the portion eaten (per-100 g calories follow; macros stay as they are). */
+export function withPortionKcal(i: ReviewItem, kcal: number): ReviewItem {
+  if (i.grams <= 0) return i;
+  return asManual(i, { ...i.per100g, kcal: round2((kcal * 100) / i.grams) });
+}
+
+/** Edits the per-100 g values of an item by hand. */
+export function withPer100(
+  i: ReviewItem,
+  patch: Partial<Pick<Nutrients, 'kcal' | 'protein' | 'fat' | 'carbs'>>,
+): ReviewItem {
+  return asManual(i, { ...i.per100g, ...patch });
+}
+
 /** Swaps an item with its alternative, keeping grams. */
 export function swapAlt(i: ReviewItem): ReviewItem {
   if (!i.alt) return i;

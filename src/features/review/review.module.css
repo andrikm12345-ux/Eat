@@ -71,3 +71,13 @@
   flex-direction: column;
   gap: 8px;
 }
+
+.per100 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 10px;
+  margin-top: 8px;
+}
+.item > [role='radiogroup'] {
+  margin: 4px 0 10px;
+}

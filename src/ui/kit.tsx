@@ -127,6 +127,8 @@ type NumberFieldProps = {
   placeholder?: string;
   /** The parent stores an empty field as this number (e.g. 0): don't write it back into the input. */
   emptyAs?: number;
+  /** Accessible name when it should be longer than the visible label. */
+  ariaLabel?: string;
 };
 
 const toText = (v: number | null) => (v === null ? '' : String(v).replace('.', ','));
@@ -140,6 +142,7 @@ export function NumberField({
   hint,
   error,
   emptyAs,
+  ariaLabel,
   ...rest
 }: NumberFieldProps) {
   const id = useId();
@@ -159,6 +162,7 @@ export function NumberField({
         inputMode="decimal"
         autoComplete="off"
         value={text}
+        {...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
         onChange={(e) => {
           setText(e.target.value);
           const v = parseDecimal(e.target.value);
