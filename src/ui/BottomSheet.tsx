@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { ru } from '../i18n/ru';
 import { IconClose } from './icons';
 import { motionEnabled } from './motion';
@@ -44,7 +45,9 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
   if (!shown) return null;
   const closing = !open;
 
-  return (
+  // Rendered straight into <body>: inside an animated page a fixed element would be sized
+  // and positioned by its transformed ancestor instead of the screen.
+  return createPortal(
     <div
       className={`${styles.backdrop} ${closing ? styles.closing : ''}`}
       onClick={(e) => {
@@ -75,6 +78,7 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
