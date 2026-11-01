@@ -36,7 +36,7 @@ async function effective(d: Deps): Promise<EffectiveAi | null> {
 const available = (e: EffectiveAi | null): e is EffectiveAi & { apiKey: string } =>
   !!e && e.enabled && !!e.apiKey;
 
-function session(d: Deps, req: Request): { userId: string; admin: boolean } | null {
+export function session(d: Deps, req: Request): { userId: string; admin: boolean } | null {
   const token = bearer(req);
   const userId = token ? verifySession(d.secret, token, d.now()) : null;
   if (!userId) return null;

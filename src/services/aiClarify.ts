@@ -5,6 +5,7 @@ import type { Repos } from '../db/repos';
 import type { LocalDate, LocalTime } from '../domain/types';
 import type { ReviewDraft, ReviewItem } from '../state/review';
 import { mealToDraft } from './aiFood';
+import { searchWeb, withWebContext } from './webSearch';
 
 /** The message sent to the AI: the previous estimate and what the user says is wrong with it. */
 export function clarifyMessage(items: ReviewItem[], note: string): string {
@@ -29,12 +30,15 @@ export async function clarifyMeal(
   at: { date: LocalDate; time: LocalTime },
   entrySource: 'ai_photo' | 'ai_text',
 ): Promise<ReviewDraft> {
+  // The remark often names a brand or a product: look it up before asking the AI again.
+  const web = await searchWeb(r, `${items.map((i) => i.name).join(', ')}. ${note}`);
   const { value, runId } = await runAi(r, {
     kind: 'text',
     vision: false,
     system: PROMPT_MEAL,
-    content: [{ type: 'text', text: clarifyMessage(items, note) }],
+    content: [{ type: 'text', text: withWebContext(clarifyMessage(items, note), web) }],
     validate: validateMeal,
   });
-  return mealToDraft(r, value, at, { entrySource, aiRunId: runId });
+  const draft = await mealToDraft(r, value, at, { entrySource, aiRunId: runId });
+  return web ? { ...draft, sources: web.sources } : draft;
 }

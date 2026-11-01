@@ -14,6 +14,8 @@ export type Deps = {
   failDelayMs?: () => number;
   /** Shared AI (server-side key). Absent = the feature is off. */
   ai?: SharedAiEnv;
+  /** Web search for the AI (server-side key). Absent = the feature is off. */
+  search?: { apiKey: string; dailyLimit: number };
   /** Logins of administrators (they edit the shared AI settings). */
   adminLogins?: string[];
   /** For tests: replaces fetch when calling the AI service. */

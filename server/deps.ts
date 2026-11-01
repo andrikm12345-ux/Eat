@@ -16,6 +16,14 @@ export function envDeps(): Deps {
       .split(',')
       .map((l) => l.trim().toLowerCase())
       .filter(Boolean),
+    ...(process.env.SEARCH_API_KEY
+      ? {
+          search: {
+            apiKey: process.env.SEARCH_API_KEY.trim(),
+            dailyLimit: Number(process.env.SEARCH_DAILY_LIMIT) || 40,
+          },
+        }
+      : {}),
     ai: {
       ...(process.env.AI_API_KEY ? { apiKey: process.env.AI_API_KEY.trim() } : {}),
       baseUrl: process.env.AI_BASE_URL?.trim() || 'https://tokenharbor.ai/v1',

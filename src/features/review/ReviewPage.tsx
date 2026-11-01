@@ -8,6 +8,7 @@ import { ru } from '../../i18n/ru';
 import { saveAsTemplate } from '../../services/entries';
 import { ACCOUNT } from '../../services/account';
 import { clarifyMeal } from '../../services/aiClarify';
+import { hostOf } from '../../services/webSearch';
 import { correctedKeys, saveReview } from '../../services/review';
 import {
   swapAlt,
@@ -46,6 +47,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
   const [runId, setRunId] = useState(initial.aiRunId);
   // The AI's remarks under the total; a recalculation brings new ones.
   const [notes, setNotes] = useState(initial.notes);
+  const [sources, setSources] = useState(initial.sources);
   const [note, setNote] = useState('');
   const [clarifying, setClarifying] = useState(false);
   const [clarifyError, setClarifyError] = useState<string | null>(null);
@@ -100,6 +102,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
       setItems(draft.items);
       setBaseline(draft.items);
       setNotes(draft.notes);
+      setSources(draft.sources);
       if (draft.aiRunId) setRunId(draft.aiRunId);
       setNote('');
       toast({ text: t.clarifyDone });
@@ -122,6 +125,19 @@ function Review({ initial }: { initial: ReviewDraft }) {
     <Page title={t.title}>
       {initial.analysis === 'ai' && (
         <Notice tone="info">{isAdmin && run?.model ? t.byAi(run.model) : t.byAiNoModel}</Notice>
+      )}
+      {initial.analysis === 'ai' && sources && sources.length > 0 && (
+        <Notice tone="info">
+          {t.webChecked}{' '}
+          {sources.map((s, i) => (
+            <span key={s.url}>
+              {i > 0 && ', '}
+              <a href={s.url} target="_blank" rel="noopener noreferrer">
+                {hostOf(s.url)}
+              </a>
+            </span>
+          ))}
+        </Notice>
       )}
       {initial.analysis === 'local' && <Notice tone="info">{t.byCatalog}</Notice>}
       {items.some((i) => i.source === 'off') && <Notice tone="info">{t.unverified}</Notice>}

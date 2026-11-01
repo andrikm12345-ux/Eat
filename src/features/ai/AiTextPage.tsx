@@ -8,6 +8,7 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { mealToDraft } from '../../services/aiFood';
 import { analyzeMealLocally } from '../../services/localMeal';
+import { searchWeb, withWebContext } from '../../services/webSearch';
 import { useReview } from '../../state/review';
 import { Button, Card, LinkButton, Notice } from '../../ui/kit';
 import { Page } from '../../ui/Page';
@@ -35,16 +36,20 @@ export default function AiTextPage() {
     try {
       if (useAiNow) {
         try {
+          // First look the described products up on the web, then let the AI use what was found.
+          const web = await searchWeb(repos, text);
           const { value, runId } = await runAi(repos, {
             kind: 'text',
             vision: false,
             system: PROMPT_MEAL,
-            content: [{ type: 'text', text: text.trim() }],
+            content: [{ type: 'text', text: withWebContext(text.trim(), web) }],
             validate: validateMeal,
           });
-          setDraft(
-            await mealToDraft(repos, value, target, { entrySource: 'ai_text', aiRunId: runId }),
-          );
+          const draft = await mealToDraft(repos, value, target, {
+            entrySource: 'ai_text',
+            aiRunId: runId,
+          });
+          setDraft(web ? { ...draft, sources: web.sources } : draft);
           navigate('/review');
           return;
         } catch (e) {

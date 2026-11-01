@@ -2,6 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AI_KEYS } from '../../ai/settings';
+import { ACCOUNT } from '../../services/account';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { renderApp } from '../../test/renderApp';
@@ -97,6 +98,43 @@ describe('AI text flow', () => {
     expect(e).toMatchObject({ source: 'ai_text', mealLabel: 'Завтрак' });
     expect(e!.aiRunId).toBeTruthy();
     expect(e!.items[0]).toMatchObject({ confidence: 'medium', grams: 250 });
+  });
+
+  it('looks the product up on the web first and hands the findings to the AI', async () => {
+    await repos.settings.set(AI_KEYS.enabled, true);
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-ant-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.consent, true);
+    await repos.settings.set(ACCOUNT.token, 'tok');
+    const f = vi.fn(async (url: string) =>
+      url === '/api/search'
+        ? Response.json({
+            results: [
+              {
+                title: 'Треугольник',
+                url: 'https://www.zhar.example/tri',
+                content: 'Калорийность 231 ккал на 100 г',
+              },
+            ],
+          })
+        : new Response(
+            JSON.stringify({
+              content: [{ type: 'text', text: JSON.stringify(meal) }],
+              stop_reason: 'end_turn',
+            }),
+            { status: 200 },
+          ),
+    );
+    vi.stubGlobal('fetch', f);
+    const user = userEvent.setup();
+    await renderApp('/add/ai-text?date=2026-03-01&time=08:00');
+    await user.type(await screen.findByLabelText(ru.ai.text.label), 'Жар Свежар треугольник 2 шт');
+    await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
+    expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
+    const aiCall = f.mock.calls.find(([u]) => u !== '/api/search');
+    expect(JSON.stringify(aiCall)).toContain('231 ккал на 100 г');
+    const link = await screen.findByRole('link', { name: 'zhar.example' });
+    expect(link).toHaveAttribute('href', 'https://www.zhar.example/tri');
+    expect(screen.getByText(new RegExp(ru.review.webChecked))).toBeVisible();
   });
 
   it('falls back to the local analysis when the AI call fails', async () => {

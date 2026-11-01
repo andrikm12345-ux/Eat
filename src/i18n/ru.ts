@@ -350,6 +350,7 @@ export const ru = {
     title: 'Проверка',
     byAi: (model: string) => `Распознано ИИ · ${model}`,
     byAiNoModel: 'Распознано ИИ',
+    webChecked: 'Сверено с интернетом:',
     clarifyTitle: 'Что-то не так?',
     clarifyHint: 'Напишите, что поправить: ИИ пересчитает с учётом замечания.',
     clarifyLabel: 'Поправка',

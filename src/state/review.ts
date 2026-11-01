@@ -82,6 +82,8 @@ export type ReviewDraft = {
   aiRunId?: string;
   /** How the items were produced: by AI or locally from the catalog (shown on the review screen). */
   analysis?: 'ai' | 'local';
+  /** Web pages the AI was given as a reference (shown so the user can check them). */
+  sources?: { title: string; url: string }[];
 };
 
 type ReviewState = {
