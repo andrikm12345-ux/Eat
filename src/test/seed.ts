@@ -26,5 +26,6 @@ export async function seedOnboarded() {
     targetWeightKg: 74,
     source: 'wizard',
   });
-  await repos.weights.create({ date: today, time: '07:00', kg: 80, source: 'manual' });
+  // 00:00 so that any weigh-in made during a test is later, whatever the time of day.
+  await repos.weights.create({ date: today, time: '00:00', kg: 80, source: 'manual' });
 }
