@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { fileURLToPath } from 'node:url';
 
-const THEME_LIGHT = '#f6f5f2';
+const THEME_LIGHT = '#f4f5f2';
 
 export default defineConfig(({ mode }) => ({
   define: {
@@ -66,6 +66,7 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,json}'],
+        globIgnores: ['splash/**'],
         navigateFallback: '/index.html',
         importScripts: ['sw-update.js'],
         cleanupOutdatedCaches: true,
