@@ -1,5 +1,5 @@
 import type React from 'react';
-import { formatGrams, formatKcal, formatSignedKcal } from '../../domain/format';
+import { formatGrams, formatKcal } from '../../domain/format';
 import type { Goal, Nutrients } from '../../domain/types';
 import { ru } from '../../i18n/ru';
 import { Card } from '../../ui/kit';
@@ -32,60 +32,52 @@ function RingValue({
 function CountUp({ value }: { value: number }) {
   return <>{formatKcal(Math.round(useCountUp(value)))}</>;
 }
-const R = 58;
+/** Whole grams in the big number; longer numbers get smaller so a column never overflows. */
+const macroFont = (text: string) => (text.length <= 3 ? 28 : text.length <= 5 ? 22 : 18);
+
+const R = 72;
 const C = 2 * Math.PI * R;
 
 function Ring({ eaten, goal }: { eaten: number; goal: number | null }) {
   const appeared = useAppeared();
   const ratio = goal ? eaten / goal : 0;
   const over = goal !== null && eaten > goal;
-  const left = goal !== null ? goal - eaten : null;
   return (
     <div className={styles.ring}>
-      <svg width="136" height="136" viewBox="0 0 136 136" aria-hidden="true">
+      <svg width="170" height="170" viewBox="0 0 170 170" aria-hidden="true">
         <defs>
           <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" style={{ stopColor: 'var(--accent-2)' }} />
             <stop offset="100%" style={{ stopColor: 'var(--accent)' }} />
           </linearGradient>
         </defs>
-        <circle cx="68" cy="68" r={R} fill="none" stroke="var(--surface-2)" strokeWidth="11" />
+        <circle cx="85" cy="85" r={R} fill="none" stroke="var(--surface-2)" strokeWidth="14" />
         <circle
-          cx="68"
-          cy="68"
+          cx="85"
+          cy="85"
           r={R}
           fill="none"
           stroke={over ? 'var(--over)' : 'url(#ring-grad)'}
-          strokeWidth="11"
+          strokeWidth="14"
           strokeLinecap="round"
           className={styles.ringArc}
           strokeDasharray={`${appeared ? Math.min(1, ratio) * C : 0} ${C}`}
-          transform="rotate(-90 68 68)"
+          transform="rotate(-90 85 85)"
         />
       </svg>
       <div className={styles.ringCenter}>
-        {left === null ? (
-          <RingValue text={formatKcal(Math.round(eaten))}>
-            <CountUp value={eaten} />
-          </RingValue>
-        ) : over ? (
-          <RingValue text={formatSignedKcal(-left)} over>
-            {formatSignedKcal(-left)}
-          </RingValue>
-        ) : (
-          <RingValue text={formatKcal(Math.round(left))}>
-            <CountUp value={left} />
-          </RingValue>
-        )}
-        <span className={styles.ringLabel}>
-          {left === null ? ru.units.kcal : over ? t.over('').trim() : t.left}
+        <RingValue text={formatKcal(Math.round(eaten))} over={over}>
+          <CountUp value={eaten} />
+        </RingValue>
+        <span className={`${styles.ringLabel} ${over ? styles.ringOver : ''}`}>
+          {goal !== null ? t.ringOf(formatKcal(goal)) : ru.units.kcal}
         </span>
       </div>
     </div>
   );
 }
 
-function Bar({
+function Macro({
   label,
   value,
   goal,
@@ -98,14 +90,19 @@ function Bar({
 }) {
   const appeared = useAppeared();
   const ratio = goal ? value / goal : 0;
+  const over = ratio > 1;
   return (
-    <div>
-      <div className={styles.barLabel}>
-        <span>{label}</span>
-        <span className={styles.barValue}>
-          {goal ? t.macroOf(formatGrams(value), formatGrams(goal)) : `${formatGrams(value)} г`}
-        </span>
-      </div>
+    <div className={styles.macro}>
+      <b
+        className={`${styles.macroValue} ${over ? styles.ringOver : ''}`}
+        style={{ fontSize: macroFont(formatKcal(value)) }}
+      >
+        {formatKcal(value)}
+      </b>
+      <span className={styles.macroOf}>{goal ? t.macroFrom(formatGrams(goal)) : ru.units.g}</span>
+      <span className={styles.macroName} style={{ color: over ? 'var(--over-text)' : color }}>
+        {label}
+      </span>
       <div
         className={styles.bar}
         role="meter"
@@ -115,10 +112,10 @@ function Bar({
         aria-valuenow={Math.round(value)}
       >
         <div
-          className={`${styles.barFill} ${ratio > 1 ? styles.barOver : ''}`}
+          className={`${styles.barFill} ${over ? styles.barOver : ''}`}
           style={{
             width: `${appeared ? Math.min(1, ratio) * 100 : 0}%`,
-            ...(ratio > 1 ? {} : { background: color }),
+            ...(over ? {} : { background: color }),
           }}
         />
       </div>
@@ -127,41 +124,45 @@ function Bar({
 }
 
 export function SummaryCard({ totals, goal }: { totals: Nutrients; goal: Goal | null }) {
+  const left = goal ? goal.kcal - totals.kcal : null;
+  const over = left !== null && left < 0;
+  const fiber = totals.fiber ?? 0;
   return (
     <Card className={styles.hero}>
       <div className={styles.summary}>
-        <div>
-          <Ring eaten={totals.kcal} goal={goal?.kcal ?? null} />
-          <div className={styles.eatenRow}>
-            <span>
-              {t.eaten} <b>{formatKcal(totals.kcal)}</b>
-            </span>
-            <span>
-              {t.goal} <b>{goal ? formatKcal(goal.kcal) : '—'}</b>
-            </span>
-          </div>
-        </div>
-        <div className={styles.bars}>
-          <Bar
+        <Ring eaten={totals.kcal} goal={goal?.kcal ?? null} />
+        <p className={`${styles.leftLine} ${over ? styles.ringOver : ''}`}>
+          {left === null
+            ? t.noGoal
+            : over
+              ? t.overLine(formatKcal(-left))
+              : t.leftLine(formatKcal(left))}
+        </p>
+        <div className={styles.macros}>
+          <Macro
             label={ru.foods.protein}
             value={totals.protein}
             goal={goal?.protein}
             color="var(--macro-protein)"
           />
-          <Bar label={ru.foods.fat} value={totals.fat} goal={goal?.fat} color="var(--macro-fat)" />
-          <Bar
+          <Macro
+            label={ru.foods.fat}
+            value={totals.fat}
+            goal={goal?.fat}
+            color="var(--macro-fat)"
+          />
+          <Macro
             label={ru.foods.carbs}
             value={totals.carbs}
             goal={goal?.carbs}
             color="var(--macro-carbs)"
           />
-          <Bar
-            label={ru.foods.fiber}
-            value={totals.fiber ?? 0}
-            goal={goal?.fiber}
-            color="var(--macro-fiber)"
-          />
         </div>
+        {(goal?.fiber || fiber > 0) && (
+          <p className={styles.fiberLine}>
+            {t.fiberLine(formatGrams(fiber), goal?.fiber ? formatGrams(goal.fiber) : undefined)}
+          </p>
+        )}
       </div>
     </Card>
   );

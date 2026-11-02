@@ -110,7 +110,7 @@ describe('Today', () => {
     await logFood(repos, f, 630, { date: '2026-03-01', time: '08:00' }); // 2394 kcal vs 2200
     const user = userEvent.setup();
     await renderApp('/');
-    expect(await screen.findByText('+194')).toBeVisible();
+    expect(await screen.findByText(ru.today.overLine('194'))).toBeVisible();
     await user.click(screen.getByRole('button', { name: '+250 мл' }));
     await waitFor(async () => expect((await repos.dayMeta.get('2026-03-01')).waterMl).toBe(250));
   });

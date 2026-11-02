@@ -108,15 +108,16 @@
   place-items: center;
 }
 .summary {
-  display: grid;
-  grid-template-columns: 136px 1fr;
-  gap: var(--sp-4);
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--sp-3);
 }
 .ring {
   position: relative;
-  width: 136px;
-  height: 136px;
+  width: 170px;
+  height: 170px;
+  margin: 0 auto;
 }
 .ringCenter {
   position: absolute;
@@ -139,29 +140,60 @@
 .ringOver {
   color: var(--over-text);
 }
-.eatenRow {
-  display: flex;
-  justify-content: space-between;
-  font-size: var(--fs-6);
+.leftLine {
+  margin: 0;
+  text-align: center;
   color: var(--text-muted);
-  margin-top: var(--sp-2);
-}
-.eatenRow b {
-  color: var(--text);
   font-variant-numeric: tabular-nums;
 }
-.bars {
+.macros {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.macro {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  align-items: center;
+  min-width: 0;
+  padding: 0 var(--sp-2);
 }
-.barLabel {
+.macro + .macro::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: var(--border);
+}
+.macroValue {
   display: flex;
-  justify-content: space-between;
-  font-size: var(--fs-6);
-  margin-bottom: var(--sp-1);
+  align-items: center;
+  height: 32px;
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
-.barValue {
+.macroOf {
+  font-size: var(--fs-6);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.macroName {
+  margin: 2px 0 var(--sp-1);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
+}
+.macro .bar {
+  align-self: stretch;
+}
+.fiberLine {
+  margin: 0;
+  text-align: center;
+  font-size: var(--fs-6);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
