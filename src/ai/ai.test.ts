@@ -16,7 +16,7 @@ import {
   supportsEffort,
 } from './client';
 import { extractFirstJson } from './json';
-import { PROMPT_MEAL } from './prompts';
+import { PROMPT_MEAL, PROMPT_PHOTO } from './prompts';
 import { runAi } from './run';
 import { AI_KEYS, maskKey } from './settings';
 import { validateLabel, validateMeal, validateWeekly } from './validators';
@@ -88,6 +88,33 @@ describe('json + validators', () => {
     const v = validateMeal({ items: [{ ...meal.items[0], searchHint: '' }], mealGuess: 'null' });
     expect(v.ok && v.value.items[0]!.searchHint).toBe('Гречка варёная');
     expect(v.ok && v.value.mealGuess).toBeNull();
+  });
+  it('numbers that cannot be right are marked low and named in the notes', () => {
+    const item = (per100g: Record<string, number>) => ({
+      ...meal.items[0],
+      name: 'Каша',
+      confidence: 'high',
+      per100g,
+    });
+    // 4*10 + 9*10 + 4*10 = 170 kcal, but the answer says 500: does not add up.
+    const bad = validateMeal({
+      items: [item({ kcal: 500, protein: 10, fat: 10, carbs: 10 })],
+      notes: 'ок',
+    });
+    expect(bad.ok && bad.value.items[0]!.confidence).toBe('low');
+    expect(bad.ok && bad.value.notes).toContain('Калории не сходятся с БЖУ: Каша');
+    // Consistent numbers keep their confidence.
+    const good = validateMeal({ items: [item({ kcal: 170, protein: 10, fat: 10, carbs: 10 })] });
+    expect(good.ok && good.value.items[0]!.confidence).toBe('high');
+    // More than 100 g of macros in 100 g is impossible.
+    const over = validateMeal({ items: [item({ kcal: 600, protein: 60, fat: 40, carbs: 40 })] });
+    expect(over.ok && over.value.items[0]!.confidence).toBe('low');
+  });
+  it('the prompts ask for a self-check and a scale object', () => {
+    for (const p of [PROMPT_MEAL, PROMPT_PHOTO]) {
+      expect(p).toContain('ПРОВЕРЬ себя');
+      expect(p).toContain('МАСШТАБ');
+    }
   });
   it('label schema', () => {
     const ok = validateLabel({

@@ -1,5 +1,6 @@
 // Hand-written validators for the strict JSON schemas of prompts A, B and C.
 
+import { isKcalInconsistent } from '../domain/nutrients';
 import type { Confidence } from '../domain/types';
 
 export type Valid<T> = { ok: true; value: T } | { ok: false; errors: string[] };
@@ -100,13 +101,25 @@ export function validateMeal(data: unknown): Valid<MealResult> {
   if (data.notes !== undefined && data.notes !== null && typeof data.notes !== 'string')
     errors.push('notes: строка');
   if (errors.length) return { ok: false, errors };
+  // Second line of defence after the prompt's own self-check: numbers that cannot be right are
+  // not hidden, the item is marked "low" so the review screen asks the person to check it.
+  const doubtful: string[] = [];
+  for (const it of items) {
+    const n = it.per100g;
+    if (isKcalInconsistent(n) || n.protein + n.fat + n.carbs > 100.5) {
+      it.confidence = 'low';
+      doubtful.push(it.name);
+    }
+  }
+  const baseNotes = typeof data.notes === 'string' ? data.notes : '';
+  const warn = doubtful.length ? `Калории не сходятся с БЖУ: ${doubtful.join(', ')}.` : '';
   return {
     ok: true,
     value: {
       items,
       mealGuess:
         typeof data.mealGuess === 'string' && data.mealGuess !== 'null' ? data.mealGuess : null,
-      notes: typeof data.notes === 'string' ? data.notes.slice(0, 300) : '',
+      notes: [baseNotes, warn].filter(Boolean).join(' ').slice(0, 300),
     },
   };
 }
