@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { formatDateRu } from '../../domain/dates';
 import { repos } from '../../db/repos';
 import { SETTINGS } from '../../db/settingsKeys';
+import { ACCOUNT } from '../../services/account';
 import { ru } from '../../i18n/ru';
 import { exportCsv, importJson, parseBackup, saveBackup, type Backup } from '../../services/backup';
 import { shareOrDownload } from '../../services/ics';
@@ -39,6 +40,8 @@ export default function DataPage() {
     }
   }
 
+  // The AI key is a topic for the administrator only.
+  const isAdmin = useLiveQuery(() => repos.settings.get<boolean>(ACCOUNT.aiAdmin, false), []);
   const count = pending
     ? Object.values(pending.tables).reduce((s, rows) => s + (rows?.length ?? 0), 0)
     : 0;
@@ -46,7 +49,7 @@ export default function DataPage() {
   return (
     <Page title={t.title}>
       <Card title={t.exportTitle}>
-        <p className={styles.muted}>{t.exportHint}</p>
+        <p className={styles.muted}>{isAdmin ? t.exportHintAdmin : t.exportHint}</p>
         <p className={styles.muted}>
           {last ? t.lastBackup(formatDateRu(last.slice(0, 10))) : t.noBackup}
         </p>

@@ -26,12 +26,13 @@ const t = ru.account;
 export default function AccountPage() {
   const navigate = useNavigate();
   const session = useLiveQuery(async () => {
-    const [login, token, last] = await Promise.all([
+    const [login, token, last, admin] = await Promise.all([
       repos.settings.get<string>(ACCOUNT.login, ''),
       repos.settings.get<string>(ACCOUNT.token, ''),
       repos.settings.get<string>(ACCOUNT.lastSync, ''),
+      repos.settings.get<boolean>(ACCOUNT.aiAdmin, false),
     ]);
-    return { login, signedIn: !!token, last };
+    return { login, signedIn: !!token, last, admin };
   }, []);
   const [params] = useSearchParams();
   const [mode, setMode] = useState<'signIn' | 'signUp' | 'reset'>(
@@ -148,7 +149,8 @@ export default function AccountPage() {
                   ? t.lastSync(new Date(session.last).toLocaleString('ru-RU'))
                   : t.neverSynced}
               </p>
-              <p>{t.what}</p>
+              {/* The AI key is a topic for the administrator only. */}
+              <p>{session.admin ? t.whatAdmin : t.what}</p>
             </Card>
             {error && <Notice>{error}</Notice>}
             {info && <Notice tone="info">{info}</Notice>}
