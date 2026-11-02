@@ -140,7 +140,10 @@ function StackRow({ stack, onOpen }: { stack: Entry[]; onOpen: () => void }) {
         >
           {t.stackCount(stack.length)}
         </button>
-        <span className={styles.rowKcal}>{formatKcal(totals.kcal)}</span>
+        <span className={styles.rowKcal}>
+          {formatKcal(totals.kcal)}
+          <span className={styles.rowKcalUnit}>{ru.units.kcal}</span>
+        </span>
         <span className={styles.more} aria-hidden="true" />
       </div>
     </div>
@@ -191,7 +194,10 @@ function EntryRow({
             {entry.time} · {macroLine(entry.totals)}
           </span>
         </button>
-        <span className={styles.rowKcal}>{formatKcal(entry.totals.kcal)}</span>
+        <span className={styles.rowKcal}>
+          {formatKcal(entry.totals.kcal)}
+          <span className={styles.rowKcalUnit}>{ru.units.kcal}</span>
+        </span>
         <button type="button" className={styles.more} aria-label={t.actions} onClick={onMenu}>
           ⋯
         </button>

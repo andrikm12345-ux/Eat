@@ -338,6 +338,18 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+/* The unit under the number, small and muted: the figure reads as kilocalories at a glance. */
+.rowKcal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+.rowKcalUnit {
+  font-size: var(--fs-6);
+  font-weight: var(--fw-regular, 400);
+  color: var(--text-muted);
+}
 .more {
   width: 44px;
   height: var(--tap);
