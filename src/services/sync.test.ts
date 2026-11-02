@@ -266,6 +266,65 @@ describe('recovery code for the signed-in account', () => {
   });
 });
 
+describe('whose data is on the device', () => {
+  const entry = () =>
+    repos.entries.add({
+      date: '2026-03-01',
+      time: '12:00',
+      source: 'manual',
+      items: [{ name: 'Суп', grams: 100, nutrients: { kcal: 50, protein: 2, fat: 2, carbs: 5 } }],
+    });
+
+  it('signing in to another account does not carry over the data of the previous one', async () => {
+    await registerAccount(repos, 'bob', PW);
+    await signOut(repos);
+    await registerAccount(repos, 'anna', PW);
+    await seedOnboarded();
+    await entry();
+    expect(await repos.db.entries.count()).toBe(1);
+    await signOut(repos);
+    expect(await loginAccount(repos, 'bob', PW)).toMatchObject({ login: 'bob' });
+    expect(await repos.db.entries.count()).toBe(0);
+    expect(await repos.profile.get()).toBeFalsy();
+    expect(await repos.settings.get('accountDataOwner', '')).toBe('bob');
+  });
+
+  it('signing back in to the same account keeps the data', async () => {
+    await registerAccount(repos, 'anna', PW);
+    await seedOnboarded();
+    await entry();
+    await signOut(repos);
+    expect(await repos.settings.get('accountDataOwner', '')).toBe('anna');
+    expect(await loginAccount(repos, 'anna', PW)).toMatchObject({ login: 'anna' });
+    expect(await repos.db.entries.count()).toBe(1);
+    expect(await repos.profile.get()).toBeTruthy();
+  });
+
+  it('data from before accounts (no owner yet) is merged into the first account that signs in', async () => {
+    await seedOnboarded();
+    await entry();
+    await registerAccount(repos, 'anna', PW);
+    // (A new account is cleaned by the sign-up screen; the plain service call only merges.)
+    expect(await repos.db.entries.count()).toBe(1);
+    await signOut(repos);
+    expect(await loginAccount(repos, 'anna', PW)).toMatchObject({ login: 'anna' });
+    expect(await repos.db.entries.count()).toBe(1);
+  });
+
+  it('a device signed in before owners were tracked gets its owner at the next sync', async () => {
+    await registerAccount(repos, 'anna', PW);
+    await repos.db.settings.delete('accountDataOwner');
+    await syncNow(repos);
+    expect(await repos.settings.get('accountDataOwner', '')).toBe('anna');
+  });
+
+  it('the owner is never exported or synced', async () => {
+    await registerAccount(repos, 'anna', PW);
+    const snapshot = JSON.stringify(await buildSnapshot(repos));
+    expect(snapshot).not.toContain('accountDataOwner');
+  });
+});
+
 describe('change password', () => {
   it('service: needs the current password', async () => {
     await registerAccount(repos, 'ivan', PW);

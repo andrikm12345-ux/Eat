@@ -1,4 +1,5 @@
 import type { Repos } from '../db/repos';
+import { clearLocalData } from './localData';
 
 /** Settings holding the signed-in session (never exported or synced). */
 export const ACCOUNT = {
@@ -10,6 +11,8 @@ export const ACCOUNT = {
   aiAdmin: 'accountAiAdmin',
   /** The visitor chose to start without an account. */
   skipped: 'accountSkipped',
+  /** Whose data the device holds (login). It outlives signing out: that is its purpose. */
+  owner: 'accountDataOwner',
 } as const;
 
 /** What a failed reply means for the user: wrong secret, or locked for a while. */
@@ -50,6 +53,11 @@ async function auth(
   }
   const data = (await res.json().catch(() => ({}))) as Reply;
   if (res.ok && data.token && data.login) {
+    // The data on the device belongs to the account it was used with: another account must
+    // never inherit it (it would be merged into that account's cloud copy as well).
+    const owner = await r.settings.get<string>(ACCOUNT.owner, '');
+    if (owner && owner !== data.login) await clearLocalData(r);
+    await r.settings.set(ACCOUNT.owner, data.login);
     await r.settings.set(ACCOUNT.token, data.token);
     await r.settings.set(ACCOUNT.login, data.login);
     return { login: data.login, recoveryCode: data.recoveryCode };
@@ -87,7 +95,8 @@ export async function getSession(r: Repos): Promise<{ token: string; login: stri
 }
 
 export async function signOut(r: Repos) {
-  for (const k of Object.values(ACCOUNT)) await r.db.settings.delete(k);
+  // The owner of the data on the device stays, so the next sign-in knows whether it may merge.
+  for (const k of Object.values(ACCOUNT)) if (k !== ACCOUNT.owner) await r.db.settings.delete(k);
 }
 
 /** Issues a new recovery code for the signed-in account (needs the current password). */

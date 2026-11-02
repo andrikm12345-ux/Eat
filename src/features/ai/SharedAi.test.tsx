@@ -274,6 +274,15 @@ describe('screens', () => {
     cleanup();
     await signOut(repos);
     await signUp('blackjack');
+    // Another account does not inherit the data of the previous one (the log is cleared).
+    expect(await repos.aiRuns.list()).toHaveLength(0);
+    await repos.aiRuns.create({
+      kind: 'text',
+      model: 'some-model',
+      request: {},
+      response: {},
+      latencyMs: 1500,
+    });
     await renderApp('/more/ai');
     expect(await screen.findByText(ru.ai.logs)).toBeVisible();
     expect(await screen.findByText(/some-model/)).toBeVisible();

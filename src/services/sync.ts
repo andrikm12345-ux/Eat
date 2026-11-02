@@ -38,6 +38,9 @@ const stripTables = (b: Backup) => JSON.stringify(b.tables);
 export async function syncNow(r: Repos): Promise<SyncResult> {
   const session = await getSession(r);
   if (!session) return { ok: false, reason: 'signed_out' };
+  // Devices signed in before owners were tracked: the signed-in account owns what is on them.
+  if (!(await r.settings.get<string>(ACCOUNT.owner, '')))
+    await r.settings.set(ACCOUNT.owner, session.login);
   const headers = { authorization: `Bearer ${session.token}` };
   try {
     const res = await fetch('/api/sync', { headers });
