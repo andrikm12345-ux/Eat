@@ -19,7 +19,6 @@
   height: var(--safe-top);
   z-index: 30;
   pointer-events: none;
-  background: color-mix(in srgb, var(--bg) 78%, transparent);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
+  /* Solid, no backdrop-filter: on iOS WebKit a blurred layer can leave a dark rectangle behind. */
+  background: var(--bg);
 }

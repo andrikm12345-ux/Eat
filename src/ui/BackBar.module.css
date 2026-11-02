@@ -6,9 +6,8 @@
   align-items: center;
   min-height: calc(var(--tap) + var(--safe-top));
   padding: var(--safe-top) calc(8px + var(--safe-right)) 0 calc(8px + var(--safe-left));
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
+  /* Solid, no backdrop-filter: on iOS WebKit a blurred layer can leave a dark rectangle behind. */
+  background: var(--bg);
   /* The page below already pads for the safe area; don't count it twice. */
   margin-bottom: calc(-1 * var(--safe-top));
 }
