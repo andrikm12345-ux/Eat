@@ -386,6 +386,15 @@
 .pair > * {
   margin-bottom: 0;
 }
+/* Both cards are one height; whatever the text above them takes, the buttons stay at the
+   bottom of each card and the spare room sits above them, so the bottom padding is equal. */
+.pair > section {
+  display: flex;
+  flex-direction: column;
+}
+.pair > section > :last-child {
+  margin-top: auto;
+}
 .miniBig {
   font-size: var(--fs-1);
   font-weight: var(--fw-bold);
