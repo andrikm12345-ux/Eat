@@ -73,23 +73,52 @@ export function splitMeal(text: string): string[] {
     .filter(Boolean);
 }
 
-export function parsePart(raw: string): ParsedItem | null {
+const WORD_NUMBERS: [RegExp, string][] = [
+  [/полтора|полторы/, '1.5'],
+  [/один|одна|одно|одну/, '1'],
+  [/два|две/, '2'],
+  [/три/, '3'],
+  [/четыре/, '4'],
+  [/пять/, '5'],
+  [/шесть/, '6'],
+  [/семь/, '7'],
+  [/восемь/, '8'],
+  [/девять/, '9'],
+  [/десять/, '10'],
+];
+
+/** "два яйца" → "2 яйца": a number written in words before a food word. */
+export function numberWordsToDigits(s: string): string {
+  return s.replace(/(^|\s)([а-яё]+)(?=\s+[а-яё])/giu, (m, pre: string, w: string) => {
+    const hit = WORD_NUMBERS.find(([re]) => new RegExp(`^(?:${re.source})$`, 'iu').test(w));
+    return hit ? `${pre}${hit[1]}` : m;
+  });
+}
+
+/** Drinks measured in litres: "пиво 0,5" means half a litre, not half a piece. */
+const LIQUID =
+  /(пив|молок|сок|чай|кофе|вод[аыуе]|кефир|вино|компот|кола|колу|лимонад|ряженк|морс|квас)/iu;
+
+export function parsePart(source: string): ParsedItem | null {
+  const raw = source;
+  source = numberWordsToDigits(source);
   let grams: number | null = null;
   let count: number | null = null;
-  let rest = raw;
+  let rest = source;
   UNIT_RE.lastIndex = 0;
-  for (const m of raw.matchAll(UNIT_RE)) {
+  for (const m of source.matchAll(UNIT_RE)) {
     const start = m.index as number;
     const end = start + m[0].length;
     const unit = m[2];
     // "5%" / "3,2 %" is part of the product name, not a quantity.
-    if (!unit && /^\s*%/.test(raw.slice(end))) continue;
+    if (!unit && /^\s*%/.test(source.slice(end))) continue;
     const n = Number((m[1] as string).replace(',', '.'));
     if (!Number.isFinite(n) || n <= 0) continue;
     const factor = unit ? FACTORS.find(([re]) => re.test(unit.trim()))?.[1] : undefined;
     if (factor !== undefined && factor !== 'count') grams = n * factor;
+    else if (!unit && !Number.isInteger(n) && LIQUID.test(source)) grams = n * 1000;
     else count = n;
-    rest = raw.slice(0, start) + ' ' + raw.slice(end);
+    rest = source.slice(0, start) + ' ' + source.slice(end);
     break;
   }
   const query = clean(rest);

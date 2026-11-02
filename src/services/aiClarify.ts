@@ -44,6 +44,10 @@ export async function clarifyMeal(
     content: [{ type: 'text', text: withWebContext(clarifyMessage(items, note), web) }],
     validate: validateMeal,
   });
-  const draft = await mealToDraft(r, value, at, { entrySource, aiRunId: runId });
+  const draft = await mealToDraft(r, value, at, {
+    entrySource,
+    aiRunId: runId,
+    ...(web ? { refs: web.sources } : {}),
+  });
   return web ? { ...draft, sources: web.sources } : draft;
 }

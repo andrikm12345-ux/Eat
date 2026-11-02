@@ -66,4 +66,21 @@ describe('meal text parsing', () => {
     expect(resolveGrams({ grams: null, count: null }, { servings: [], lastGrams: 75 })).toBe(75);
     expect(resolveGrams({ grams: null, count: null }, { servings: [] })).toBe(100);
   });
+
+  it('understands numbers written in words', () => {
+    expect(parsePart('два яйца')).toMatchObject({ query: 'яйца', count: 2 });
+    expect(parsePart('три сырника')).toMatchObject({ query: 'сырника', count: 3 });
+    expect(parsePart('полтора банана')).toMatchObject({ query: 'банана', count: 1.5 });
+    // A number word that is not before a food word stays as it is.
+    expect(parsePart('три')).toMatchObject({ query: 'три', count: null });
+    expect(parsePart('борщ')).toMatchObject({ query: 'борщ', count: null, grams: null });
+  });
+
+  it('a bare decimal after a drink is litres, after food it is pieces', () => {
+    expect(parsePart('пиво 0,5')).toMatchObject({ query: 'пиво', grams: 500, count: null });
+    expect(parsePart('1,5 молока')).toMatchObject({ grams: 1500 });
+    expect(parsePart('0,5 пиццы')).toMatchObject({ query: 'пиццы', grams: null, count: 0.5 });
+    // A whole number without a unit stays a count.
+    expect(parsePart('2 пива')).toMatchObject({ count: 2, grams: null });
+  });
 });

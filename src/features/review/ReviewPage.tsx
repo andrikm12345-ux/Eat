@@ -166,6 +166,15 @@ function Review({ initial }: { initial: ReviewDraft }) {
               {i.confidence ? t.confidence[i.confidence] : ''}
               {i.assumed ? ` · ${t.assumed}` : ''}
               {low ? ` · ${t.checkGrams}` : ''}
+              {i.site && (
+                <>
+                  {' · '}
+                  {t.fromSite}{' '}
+                  <a href={i.site.url} target="_blank" rel="noopener noreferrer">
+                    {hostOf(i.site.url)}
+                  </a>
+                </>
+              )}
             </p>
             <Segmented
               label={`${t.modeLabel}: ${i.name}`}

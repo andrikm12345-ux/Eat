@@ -16,6 +16,8 @@ export type ReviewItem = {
   piece?: { grams: number };
   foodId?: string;
   recipeId?: string;
+  /** The web page the numbers were taken from (source web). */
+  site?: { title: string; url: string };
   /** Alternative data source for this item (AI estimate ↔ catalog food). */
   alt?: {
     name: string;

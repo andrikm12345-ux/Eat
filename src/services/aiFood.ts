@@ -22,14 +22,20 @@ export async function mealToDraft(
   r: Repos,
   res: MealResult,
   at: { date: LocalDate; time: LocalTime },
-  meta: { entrySource: 'ai_photo' | 'ai_text'; aiRunId: string },
+  meta: {
+    entrySource: 'ai_photo' | 'ai_text';
+    aiRunId: string;
+    /** The web references the AI was given, in the order of their numbers; none means no web. */
+    refs?: { title: string; url: string }[];
+  },
 ): Promise<ReviewDraft> {
   const index = buildIndex(await r.foods.list());
   const items: ReviewItem[] = res.items.map((it) => {
     const ai = {
       name: it.name,
       per100g: withKcal(it.per100g),
-      source: it.source === 'web' ? ('web' as const) : ('ai' as const),
+      // "web" counts only when a web reference was actually given.
+      source: it.source === 'web' && meta.refs?.length ? ('web' as const) : ('ai' as const),
       confidence: it.confidence,
       assumed: it.assumed,
     };
@@ -62,11 +68,13 @@ export async function mealToDraft(
           foodId: m.item.id,
         }
       : undefined;
+    const site = ai.source === 'web' && it.sourceRef ? meta.refs?.[it.sourceRef - 1] : undefined;
     return {
       key: reviewKey(),
       grams,
       ...(piece ? { piece } : {}),
       ...ai,
+      ...(site ? { site } : {}),
       ...(alt ? { alt } : {}),
     };
   });

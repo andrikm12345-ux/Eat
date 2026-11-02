@@ -7,7 +7,7 @@ import { bestMatch, buildIndex } from '../domain/search';
 import type { LocalDate, LocalTime } from '../domain/types';
 import { reviewKey, type ReviewDraft, type ReviewItem } from '../state/review';
 import { MATCH_THRESHOLD, mealToDraft } from './aiFood';
-import { searchWeb, type WebContext } from './webSearch';
+import { searchWeb } from './webSearch';
 
 /** At most this many parts are looked up on the web per description (every lookup is a request). */
 export const MAX_WEB_PARTS = 3;
@@ -25,15 +25,20 @@ export function pickWebParts(parts: ParsedItem[]): ParsedItem[] {
   return [...branded, ...plain].slice(0, MAX_WEB_PARTS);
 }
 
+/** Renumbers "[1] …" reference lines so numbers stay unique across several searches. */
+export function renumber(text: string, offset: number): string {
+  return text.replace(/^\[(\d+)\]/gm, (_m, n: string) => `[${Number(n) + offset}]`);
+}
+
 /** The AI message: the fragments the catalog could not answer, each with its own web reference. */
-export function partsMessage(parts: ParsedItem[], refs: Map<string, WebContext>): string {
+export function partsMessage(parts: ParsedItem[], refs: Map<string, string>): string {
   const lines = parts.map((p) => `- ${p.raw.trim()}`).join('\n');
   const refText = parts
     .filter((p) => refs.has(p.raw))
-    .map((p) => `Справка для «${p.query}»:\n${refs.get(p.raw)?.text ?? ''}`)
+    .map((p) => `Справка для «${p.query}»:\n${refs.get(p.raw) ?? ''}`)
     .join('\n\n');
   if (!refText) return lines;
-  return `${lines}\n\nСправка из интернета (результаты поиска, могут быть неточными или относиться к другому продукту). Для каждого продукта: если справка относится именно к нему — возьми из неё калорийность и БЖУ на 100 г и поставь "source": "web"; если нет — игнорируй её и поставь "source": "estimate".\n${refText}`;
+  return `${lines}\n\nСправка из интернета (результаты поиска, могут быть неточными или относиться к другому продукту). Для каждого продукта: если справка относится именно к нему — возьми из неё калорийность и БЖУ на 100 г, поставь "source": "web" и "sourceRef": номер справки [N], из которой взял цифры; если нет — игнорируй её и поставь "source": "estimate".\n${refText}`;
 }
 
 /**
@@ -85,12 +90,14 @@ export async function analyzeMealByParts(
     rest.length > 0 ? rest : [{ raw: text.trim(), query: text.trim(), grams: null, count: null }];
   const toSearch = pickWebParts(todo);
   const found = await Promise.all(toSearch.map((p) => searchWeb(r, p.query)));
-  const refs = new Map<string, WebContext>();
+  const refs = new Map<string, string>();
+  const sources: { title: string; url: string }[] = [];
   toSearch.forEach((p, i) => {
     const web = found[i];
-    if (web) refs.set(p.raw, web);
+    if (!web) return;
+    refs.set(p.raw, renumber(web.text, sources.length));
+    sources.push(...web.sources);
   });
-  const sources = [...refs.values()].flatMap((w) => w.sources);
 
   const { value, runId } = await runAi(r, {
     kind: 'text',
@@ -99,15 +106,11 @@ export async function analyzeMealByParts(
     content: [{ type: 'text', text: partsMessage(todo, refs) }],
     validate: validateMeal,
   });
-  // Without any reference nothing can have come from the web, whatever the model claims.
-  const checked = {
-    ...value,
-    items: value.items.map((it) => ({
-      ...it,
-      source: refs.size > 0 ? (it.source ?? 'estimate') : ('estimate' as const),
-    })),
-  };
-  const aiDraft = await mealToDraft(r, checked, at, { entrySource: 'ai_text', aiRunId: runId });
+  const aiDraft = await mealToDraft(r, value, at, {
+    entrySource: 'ai_text',
+    aiRunId: runId,
+    refs: sources,
+  });
   return {
     ...aiDraft,
     items: [...fromCatalog, ...aiDraft.items],

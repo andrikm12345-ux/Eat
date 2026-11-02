@@ -280,6 +280,7 @@ describe('AI text flow', () => {
           confidence: 'high',
           assumed: false,
           source: 'web',
+          sourceRef: 1,
           searchHint: 'сырник',
         },
         {
@@ -331,6 +332,10 @@ describe('AI text flow', () => {
     expect(screen.getByText(ru.review.source.catalog)).toBeVisible();
     expect(screen.getByText(ru.review.source.web)).toBeVisible();
     expect(screen.getByText(ru.review.source.ai)).toBeVisible();
+    // The web item says which site its numbers came from.
+    const site = await screen.findAllByRole('link', { name: 'shop.example' });
+    expect(site.length).toBeGreaterThan(0);
+    expect(screen.getByText(new RegExp(ru.review.fromSite))).toBeVisible();
   });
 
   it('falls back to the local analysis when the AI call fails', async () => {

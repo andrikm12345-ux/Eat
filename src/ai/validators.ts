@@ -18,6 +18,8 @@ export type MealItem = {
   assumed: boolean;
   /** Where the per-100 g numbers came from: a web reference or the model's own estimate. */
   source?: 'web' | 'estimate';
+  /** Number of the web reference [N] the numbers were taken from (only with source web). */
+  sourceRef?: number;
   searchHint: string;
   /** Countable products: how many pieces and what one piece weighs (both or neither). */
   pieces?: number;
@@ -93,6 +95,12 @@ export function validateMeal(data: unknown): Valid<MealResult> {
           : 'low') as Confidence,
         assumed: it.assumed === true,
         source: it.source === 'web' ? 'web' : 'estimate',
+        ...(it.source === 'web' &&
+        typeof it.sourceRef === 'number' &&
+        Number.isInteger(it.sourceRef) &&
+        it.sourceRef > 0
+          ? { sourceRef: it.sourceRef }
+          : {}),
         ...pieceInfo(it),
         searchHint:
           typeof it.searchHint === 'string' && it.searchHint.trim()
