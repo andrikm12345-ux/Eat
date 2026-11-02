@@ -8,6 +8,7 @@ import { ru } from '../../i18n/ru';
 import { saveAsTemplate } from '../../services/entries';
 import { ACCOUNT } from '../../services/account';
 import { clarifyMeal } from '../../services/aiClarify';
+import { additionItem, isDrink, type Addition } from '../../services/drinkAdditions';
 import { hostOf } from '../../services/webSearch';
 import { correctedKeys, saveReview } from '../../services/review';
 import {
@@ -20,7 +21,16 @@ import {
 } from '../../state/review';
 import { toast, useUi } from '../../state/ui';
 import { BottomSheet } from '../../ui/BottomSheet';
-import { Button, Card, Notice, NumberField, Segmented, Switch, TextField } from '../../ui/kit';
+import {
+  Button,
+  Card,
+  Chips,
+  Notice,
+  NumberField,
+  Segmented,
+  Switch,
+  TextField,
+} from '../../ui/kit';
 import { useAiConfig } from '../ai/useAi';
 import { Page } from '../../ui/Page';
 import { FoodSearch } from '../add/SearchPage';
@@ -38,6 +48,11 @@ export default function ReviewPage() {
 /** One link per site: several pages of the same site would only repeat its name. */
 const uniqueHosts = (list: { title: string; url: string }[]) =>
   list.filter((s, i) => list.findIndex((x) => hostOf(x.url) === hostOf(s.url)) === i);
+
+const dropAssumption = (i: ReviewItem): ReviewItem => {
+  const { assumption: _gone, ...rest } = i;
+  return rest;
+};
 
 const nutrientsOf = (i: ReviewItem) => scaleNutrients(i.per100g, i.grams);
 
@@ -98,6 +113,22 @@ function Review({ initial }: { initial: ReviewDraft }) {
     navigate('/', { replace: true });
   }
 
+  /** A drink's add-on becomes its own line under the drink; "no sugar" only confirms the guess. */
+  async function addToDrink(key: string, kind: 'none' | Addition) {
+    if (kind === 'none') {
+      setItems((list) => list.map((x) => (x.key === key ? dropAssumption(x) : x)));
+      return;
+    }
+    const extra = await additionItem(repos, kind);
+    setItems((list) => {
+      const at = list.findIndex((x) => x.key === key);
+      if (at < 0) return list;
+      const next = list.map((x) => (x.key === key ? dropAssumption(x) : x));
+      next.splice(at + 1, 0, extra);
+      return next;
+    });
+  }
+
   async function clarify() {
     if (note.trim().length < 3 || clarifying) return;
     setClarifying(true);
@@ -155,7 +186,7 @@ function Review({ initial }: { initial: ReviewDraft }) {
         const setCount = (c: number) => {
           if (pieceG > 0) update(i.key, { grams: Math.round(Math.max(0, c) * pieceG * 10) / 10 });
         };
-        const low = i.confidence === 'low';
+        const low = i.confidence === 'low' || !!i.assumption;
         return (
           <div key={i.key} className={`${styles.item} ${low ? styles.low : ''}`}>
             <div className={styles.head}>
@@ -165,7 +196,8 @@ function Review({ initial }: { initial: ReviewDraft }) {
             <p className={styles.meta}>
               {i.confidence ? t.confidence[i.confidence] : ''}
               {i.assumed ? ` · ${t.assumed}` : ''}
-              {low ? ` · ${t.checkGrams}` : ''}
+              {i.assumption ? ` · ${t.assumptionLabel}: ${i.assumption}` : ''}
+              {i.confidence === 'low' ? ` · ${t.checkGrams}` : ''}
               {i.site && (
                 <>
                   {' · '}
@@ -298,6 +330,22 @@ function Review({ initial }: { initial: ReviewDraft }) {
                     onChange={(v) => edit(i.key, (x) => withPer100(x, { [k]: v ?? 0 }))}
                   />
                 ))}
+              </div>
+            )}
+            {isDrink(i.name) && (
+              <div className={styles.drink}>
+                <p className={styles.meta}>{t.drinkAsk}</p>
+                <Chips
+                  label={t.drinkAsk}
+                  value={null}
+                  onChange={(v: 'none' | Addition) => void addToDrink(i.key, v)}
+                  options={[
+                    { value: 'none', label: t.noSugar },
+                    { value: 'sugar1', label: t.sugar1 },
+                    { value: 'sugar2', label: t.sugar2 },
+                    { value: 'milk', label: t.milk },
+                  ]}
+                />
               </div>
             )}
             <p className={styles.macros}>

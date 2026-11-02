@@ -20,6 +20,8 @@ export type MealItem = {
   source?: 'web' | 'estimate';
   /** Number of the web reference [N] the numbers were taken from (only with source web). */
   sourceRef?: number;
+  /** What the model took for granted without being told ("без сахара"): shown for checking. */
+  assumption?: string;
   searchHint: string;
   /** Countable products: how many pieces and what one piece weighs (both or neither). */
   pieces?: number;
@@ -95,6 +97,9 @@ export function validateMeal(data: unknown): Valid<MealResult> {
           : 'low') as Confidence,
         assumed: it.assumed === true,
         source: it.source === 'web' ? 'web' : 'estimate',
+        ...(typeof it.assumption === 'string' && it.assumption.trim()
+          ? { assumption: it.assumption.trim().slice(0, 60) }
+          : {}),
         ...(it.source === 'web' &&
         typeof it.sourceRef === 'number' &&
         Number.isInteger(it.sourceRef) &&

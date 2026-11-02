@@ -57,6 +57,7 @@ export async function mealToDraft(
         source: 'catalog',
         confidence: it.confidence,
         assumed: it.assumed,
+        ...(it.assumption ? { assumption: it.assumption } : {}),
         alt: ai,
       };
     }
@@ -75,6 +76,7 @@ export async function mealToDraft(
       ...(piece ? { piece } : {}),
       ...ai,
       ...(site ? { site } : {}),
+      ...(it.assumption ? { assumption: it.assumption } : {}),
       ...(alt ? { alt } : {}),
     };
   });

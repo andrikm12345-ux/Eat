@@ -105,3 +105,8 @@
   font-size: var(--fs-5);
   color: var(--text-muted);
 }
+
+/* Quick add-ons under a tea or coffee line. */
+.drink {
+  margin-bottom: var(--sp-2);
+}

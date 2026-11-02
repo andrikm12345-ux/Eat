@@ -110,6 +110,15 @@ describe('json + validators', () => {
     const over = validateMeal({ items: [item({ kcal: 600, protein: 60, fat: 40, carbs: 40 })] });
     expect(over.ok && over.value.items[0]!.confidence).toBe('low');
   });
+  it('keeps what the model assumed, trimmed, and drops empty values', () => {
+    const base = { ...meal.items[0] };
+    const v = validateMeal({ items: [{ ...base, assumption: '  без сахара  ' }] });
+    expect(v.ok && v.value.items[0]!.assumption).toBe('без сахара');
+    const none = validateMeal({ items: [{ ...base, assumption: '  ' }] });
+    expect(none.ok && none.value.items[0]).not.toHaveProperty('assumption');
+    const nul = validateMeal({ items: [{ ...base, assumption: null }] });
+    expect(nul.ok && nul.value.items[0]).not.toHaveProperty('assumption');
+  });
   it('the prompts ask for a self-check and a scale object', () => {
     for (const p of [PROMPT_MEAL, PROMPT_PHOTO]) {
       expect(p).toContain('ПРОВЕРЬ себя');

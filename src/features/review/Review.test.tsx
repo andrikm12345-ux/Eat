@@ -224,3 +224,44 @@ describe('review screen: pieces', () => {
     expect(screen.queryByRole('radio', { name: t.modePieces })).not.toBeInTheDocument();
   });
 });
+
+describe('drinks and what the AI took for granted', () => {
+  const tea = (): ReviewItem =>
+    shake({
+      key: 'tea',
+      name: 'Чай (заваренный)',
+      grams: 250,
+      per100g: { kcal: 0, protein: 0, fat: 0, carbs: 0 },
+      assumption: 'без сахара',
+    });
+
+  it('shows the assumption on the card', async () => {
+    draft([tea()]);
+    await renderApp('/review');
+    expect(await screen.findByText(/предположено: без сахара/)).toBeVisible();
+    expect(screen.getByText(t.drinkAsk)).toBeVisible();
+  });
+
+  it('"+ 2 ложки" adds a separate sugar line, the total follows and the assumption is gone', async () => {
+    draft([tea()]);
+    const user = userEvent.setup();
+    await renderApp('/review');
+    await user.click(await screen.findByRole('radio', { name: t.sugar2 }));
+    expect(await screen.findByText('Сахар')).toBeVisible();
+    expect(screen.queryByText(/предположено: без сахара/)).not.toBeInTheDocument();
+    // 10 g of sugar = 39.9 kcal
+    await waitFor(() =>
+      expect(screen.getByText(/^Итого:/).querySelector('b')).toHaveTextContent(/^40\s*ккал$/),
+    );
+  });
+
+  it('"Без сахара" only confirms the guess; a non-drink has no add-ons', async () => {
+    draft([tea(), shake({ key: 's', name: 'Гречка' })]);
+    const user = userEvent.setup();
+    await renderApp('/review');
+    await user.click(await screen.findByRole('radio', { name: t.noSugar }));
+    expect(screen.queryByText(/предположено: без сахара/)).not.toBeInTheDocument();
+    // One drink, one set of add-ons.
+    expect(screen.getAllByRole('radio', { name: t.milk })).toHaveLength(1);
+  });
+});

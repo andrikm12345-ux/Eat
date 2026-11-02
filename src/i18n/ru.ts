@@ -394,6 +394,12 @@ export const ru = {
     checkGrams: 'проверьте граммовку',
     assumed: 'предположено',
     fromSite: 'сайт',
+    assumptionLabel: 'предположено',
+    drinkAsk: 'Проверьте допущение: пьёте с добавками?',
+    noSugar: 'Без сахара',
+    sugar1: '+ 1 ложка сахара',
+    sugar2: '+ 2 ложки',
+    milk: '+ молоко',
     source: {
       ai: 'оценка ИИ',
       web: 'по данным сайта',
