@@ -116,6 +116,16 @@ describe('shared AI chat', () => {
     expect(calls).toHaveLength(0);
   });
 
+  it('a model that takes too long gives a clean 504, not a crash', async () => {
+    const slow = setup({}, async () => {
+      throw new DOMException('The operation was aborted due to timeout', 'TimeoutError');
+    });
+    const token = await signUp(slow.d, 'ivan');
+    const res = await aiChat(slow.d, post(token, msgs));
+    expect(res.status).toBe(504);
+    expect(await res.json()).toEqual({ error: 'ai_upstream_timeout' });
+  });
+
   it('passes the service errors through (balance, images) and reports an unreachable service', async () => {
     const paid = setup(
       {},

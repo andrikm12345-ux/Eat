@@ -89,27 +89,47 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
   if (!s.admin && !(await takeQuota(d, s.userId, cfg.dailyLimit)))
     return json({ error: 'ai_daily_limit', limit: cfg.dailyLimit }, 429);
 
+  const model = body.vision ? cfg.modelVision : cfg.modelText;
+  const started = d.now();
+  const note = (what: string, status?: number) =>
+    // Timing for the administrator's logs: model, size of the request, how long it took. No key, no text.
+    console.log(
+      `ai upstream ${what}`,
+      JSON.stringify({
+        model,
+        vision: !!body.vision,
+        chars: JSON.stringify(body.messages).length,
+        status,
+        ms: d.now() - started,
+      }),
+    );
   let upstream: Response;
+  let answer: string;
   try {
     upstream = await (d.fetchImpl ?? fetch)(`${cfg.baseUrl.replace(/\/+$/, '')}/chat/completions`, {
       method: 'POST',
       headers: { authorization: `Bearer ${cfg.apiKey}`, 'content-type': 'application/json' },
       body: JSON.stringify({
-        model: body.vision ? cfg.modelVision : cfg.modelText,
+        model,
         messages: body.messages,
         max_tokens: Math.min(Number(body.max_tokens) || 4000, 8000),
       }),
       // Answer before the platform kills the function, so the app gets a clean error.
+      // The limit covers reading the answer too, which is where a slow model usually stalls.
       signal: AbortSignal.timeout(85_000),
     });
+    answer = await upstream.text();
   } catch (e) {
-    if (e instanceof Error && e.name === 'TimeoutError')
-      return json({ error: 'ai_upstream_timeout' }, 504);
-    return json({ error: 'ai_upstream_unreachable' }, 502);
+    const timedOut = e instanceof Error && e.name === 'TimeoutError';
+    note(timedOut ? 'timeout' : 'unreachable');
+    return timedOut
+      ? json({ error: 'ai_upstream_timeout' }, 504)
+      : json({ error: 'ai_upstream_unreachable' }, 502);
   }
+  note('done', upstream.status);
   // Pass the service's status and body through: the client already understands them
   // (402 balance, 429 limits, 400 images not supported…). The key never appears in them.
-  return new Response(await upstream.text(), {
+  return new Response(answer, {
     status: upstream.status,
     headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
   });
