@@ -9,6 +9,7 @@ import { startTdeeSync } from './services/tdeeSync';
 import { startGamificationSync } from './services/gamificationSync';
 import { startTodayWatcher, toast } from './state/ui';
 import { startKeyboardWatcher } from './ui/keyboard';
+import { startNoZoom } from './ui/noZoom';
 import { ru } from './i18n/ru';
 import './styles/fonts.css';
 import './styles/tokens.css';
@@ -29,6 +30,8 @@ startGamificationSync(repos);
 startTodayWatcher();
 // No empty strip between the tab bar and the phone keyboard.
 startKeyboardWatcher();
+// Pinching and double-tap do not zoom the screen.
+startNoZoom();
 // A forgotten error in the background must not pass unnoticed.
 window.addEventListener('unhandledrejection', (e) => {
   console.error('Unhandled rejection', e.reason);

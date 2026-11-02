@@ -26,6 +26,8 @@ body {
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
   overscroll-behavior-y: none;
+  /* No double-tap zoom; scrolling and taps work as usual. */
+  touch-action: manipulation;
 }
 
 a:not([class]) {
