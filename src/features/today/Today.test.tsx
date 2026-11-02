@@ -81,13 +81,27 @@ describe('Today', () => {
     await waitFor(async () => expect((await repos.entries.get(e.id))?.time).toBe('09:30'));
   });
 
-  it('tap on the empty line opens "add at time"', async () => {
+  it('tap on the line between two entries opens "add at time" in that gap', async () => {
     useUi.setState({ date: '2026-03-01' });
+    const f = await oats();
+    await logFood(repos, f, 60, { date: '2026-03-01', time: '08:00' });
+    await logFood(repos, f, 60, { date: '2026-03-01', time: '14:00' });
     const user = userEvent.setup();
     await renderApp('/');
     const gaps = await screen.findAllByRole('button', { name: /Добавить на/ });
-    await user.click(gaps[0]!);
-    expect(screen.getByRole('dialog', { name: /Добавить на \d\d:\d\d/ })).toBeVisible();
+    // A gap from a past date has no "now", so it offers the middle of the gap.
+    await user.click(gaps[1]!);
+    expect(screen.getByRole('dialog', { name: /Добавить на 11:\d\d/ })).toBeVisible();
+  });
+
+  it('the "+" of an empty past day adds like the big "+" (no made-up time)', async () => {
+    useUi.setState({ date: '2026-03-01' });
+    const user = userEvent.setup();
+    await renderApp('/');
+    const plus = await screen.findByRole('button', { name: ru.add.fab, hidden: false });
+    expect(screen.queryByRole('button', { name: /Добавить на/ })).not.toBeInTheDocument();
+    await user.click(plus);
+    expect(await screen.findByRole('dialog')).toBeVisible();
   });
 
   it('shows over-target neutrally and tracks water', async () => {

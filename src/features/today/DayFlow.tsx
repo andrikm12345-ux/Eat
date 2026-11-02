@@ -1,5 +1,6 @@
 import { useState, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
+import { toLocalDate } from '../../domain/dates';
 import { entryTitle, groupStacks, minutesToTime, timeToMinutes } from '../../domain/day';
 import { formatGrams, formatKcal } from '../../domain/format';
 import { sumNutrients } from '../../domain/nutrients';
@@ -31,10 +32,20 @@ export function DayFlow({ entries }: { entries: Entry[] }) {
     DAY_START,
     stacks[0] ? timeToMinutes((stacks[0][0] as Entry).time) - 30 : DAY_START,
   );
+  // "Now" in minutes, on today's flow only: a "+" in the gap that contains it adds at this time.
+  const date = useUi((s) => s.date);
+  const now = new Date();
+  const nowMin = date === toLocalDate(now) ? now.getHours() * 60 + now.getMinutes() : null;
   const gap = (from: number, to: number, key: string) => {
     if (to - from < 5) return;
     const height = Math.max(26, Math.min(34, (to - from) * 0.1));
+    const empty = stacks.length === 0;
+    const hereNow = nowMin !== null && nowMin >= from && nowMin <= to;
+    const nowTime = nowMin !== null ? minutesToTime(Math.round(nowMin / 5) * 5) : undefined;
     const onClick = (ev: MouseEvent<HTMLButtonElement>) => {
+      // An empty day or the gap with the current moment: add right now, like the big "+".
+      if (empty && !hereNow) return openAdd();
+      if (hereNow && nowTime) return openAdd(nowTime);
       const rect = ev.currentTarget.getBoundingClientRect();
       const ratio = rect.height ? (ev.clientY - rect.top) / rect.height : 0.5;
       const m = Math.round((from + Math.min(1, Math.max(0, ratio)) * (to - from)) / 5) * 5;
@@ -47,7 +58,13 @@ export function DayFlow({ entries }: { entries: Entry[] }) {
         className={styles.gap}
         style={{ height }}
         onClick={onClick}
-        aria-label={t.addAt(minutesToTime(Math.round((from + to) / 2 / 5) * 5))}
+        aria-label={
+          empty && !hereNow
+            ? ru.add.fab
+            : hereNow && nowTime
+              ? t.addAt(nowTime)
+              : t.addAt(minutesToTime(Math.round((from + to) / 2 / 5) * 5))
+        }
       />,
     );
   };
