@@ -37,7 +37,7 @@ export default function TodayPage() {
         <>
           <Banners />
           <StreakRow meta={day.meta} empty={day.entries.length === 0} />
-          <SummaryCard totals={dayTotals(day.entries)} goal={goal} meta={day.meta} />
+          <SummaryCard totals={dayTotals(day.entries)} goal={goal} />
           <Card title={ru.today.flowTitle}>
             <DayFlow entries={day.entries} />
           </Card>

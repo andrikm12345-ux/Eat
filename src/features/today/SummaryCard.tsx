@@ -1,9 +1,8 @@
 import type React from 'react';
 import { formatGrams, formatKcal, formatSignedKcal } from '../../domain/format';
-import type { DayMeta, Goal, Nutrients } from '../../domain/types';
-import { repos } from '../../db/repos';
+import type { Goal, Nutrients } from '../../domain/types';
 import { ru } from '../../i18n/ru';
-import { Card, Switch } from '../../ui/kit';
+import { Card } from '../../ui/kit';
 import { useAppeared, useCountUp } from '../../ui/motion';
 import { ringFont } from './ringFont';
 import styles from './today.module.css';
@@ -127,15 +126,7 @@ function Bar({
   );
 }
 
-export function SummaryCard({
-  totals,
-  goal,
-  meta,
-}: {
-  totals: Nutrients;
-  goal: Goal | null;
-  meta: DayMeta;
-}) {
+export function SummaryCard({ totals, goal }: { totals: Nutrients; goal: Goal | null }) {
   return (
     <Card className={styles.hero}>
       <div className={styles.summary}>
@@ -172,11 +163,6 @@ export function SummaryCard({
           />
         </div>
       </div>
-      <Switch
-        label={t.complete}
-        checked={meta.complete}
-        onChange={(v) => void repos.dayMeta.upsert(meta.date, { complete: v })}
-      />
     </Card>
   );
 }

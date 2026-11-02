@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { addDays, formatDateRu, parseLocalDate, toLocalDate, weekStart } from '../../domain/dates';
 import { dayStatus } from '../../domain/day';
+import { isValidDay } from '../../domain/tdee';
 import { formatKcal } from '../../domain/format';
 import { goalFor } from '../../domain/goals';
 import { repos } from '../../db/repos';
@@ -46,7 +47,20 @@ export default function DiaryPage() {
     return {
       kcal,
       goals,
-      complete: new Set(metas.filter((m) => m.complete && !m.deletedAt).map((m) => m.date)),
+      // A fully logged day is decided automatically (about half of the day's goal or more),
+      // exactly like the energy estimate does; the old manual mark still counts.
+      complete: new Set(
+        [...new Set([...kcal.keys(), ...metas.map((m) => m.date)])].filter((d) =>
+          isValidDay({
+            kcal: kcal.get(d) ?? 0,
+            ...(goalFor(goals, d)?.kcal !== undefined
+              ? { goalKcal: goalFor(goals, d)?.kcal as number }
+              : {}),
+            complete: metas.some((m) => m.date === d && m.complete && !m.deletedAt),
+            excluded: false,
+          }),
+        ),
+      ),
       workoutDays: new Set(workouts.map((w) => w.date)),
     };
   }, [month, last]);
