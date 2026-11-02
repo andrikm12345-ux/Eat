@@ -69,7 +69,7 @@
   ],
   "functions": {
     "api/ai/chat.ts": {
-      "maxDuration": 60
+      "maxDuration": 90
     }
   }
 }

@@ -99,8 +99,12 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
         messages: body.messages,
         max_tokens: Math.min(Number(body.max_tokens) || 4000, 8000),
       }),
+      // Answer before the platform kills the function, so the app gets a clean error.
+      signal: AbortSignal.timeout(85_000),
     });
-  } catch {
+  } catch (e) {
+    if (e instanceof Error && e.name === 'TimeoutError')
+      return json({ error: 'ai_upstream_timeout' }, 504);
     return json({ error: 'ai_upstream_unreachable' }, 502);
   }
   // Pass the service's status and body through: the client already understands them

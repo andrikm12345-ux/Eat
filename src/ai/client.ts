@@ -27,6 +27,8 @@ export const modelsUrl = (raw?: string, format: ApiFormat = 'anthropic', limit =
     ? `${normalizeBase(raw, format)}/models`
     : `${normalizeBase(raw)}/v1/models?limit=${limit}`;
 export const AI_TIMEOUT_MS = 45_000;
+/** Photos take the model longer (several images, a slower upload). */
+export const AI_VISION_TIMEOUT_MS = 90_000;
 
 export type AiErrorKind =
   | 'noKey'
@@ -163,7 +165,8 @@ function errorFor(status: number, body: string, proxy = false): AiError {
 
 async function once(o: CallOptions): Promise<CallResult> {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), o.timeoutMs ?? AI_TIMEOUT_MS);
+  const limitMs = o.timeoutMs ?? (o.vision ? AI_VISION_TIMEOUT_MS : AI_TIMEOUT_MS);
+  const timer = setTimeout(() => ctrl.abort(), limitMs);
   const t0 = performance.now();
   try {
     const proxy = !!o.proxyToken;
@@ -199,7 +202,8 @@ async function once(o: CallOptions): Promise<CallResult> {
         signal: ctrl.signal,
       });
     } catch {
-      if (ctrl.signal.aborted) throw new AiError('timeout', 'ИИ не ответил за 45 секунд');
+      if (ctrl.signal.aborted)
+        throw new AiError('timeout', `ИИ не ответил за ${Math.round(limitMs / 1000)} секунд`);
       throw new AiError('offline', 'Нет связи с сервисом ИИ');
     }
     if (!res.ok) throw errorFor(res.status, await res.text().catch(() => ''), proxy);
