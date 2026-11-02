@@ -44,7 +44,9 @@ export async function initErrorReporting(dsn: string | undefined): Promise<void>
       tracesSampleRate: 0,
       ignoreErrors: IGNORED,
       // No click / console / network trail: it can contain what the person typed or ate.
-      integrations: (defaults) => defaults.filter((i) => i.name !== 'Breadcrumbs'),
+      // No session pings either: only real errors are sent.
+      integrations: (defaults) =>
+        defaults.filter((i) => i.name !== 'Breadcrumbs' && i.name !== 'BrowserSession'),
       beforeSend: scrubEvent,
     });
     sentry = s;
