@@ -9,31 +9,34 @@ import { renderApp } from '../../test/renderApp';
 const t = ru.wizard;
 
 describe('onboarding wizard', () => {
-  it('redirects to the wizard without a profile once an account was skipped', async () => {
-    await repos.settings.set('accountSkipped', true);
-    const { router } = await renderApp('/', { seed: false });
-    expect(await screen.findByRole('heading', { name: t.steps.about })).toBeVisible();
-    expect(router.state.location.pathname).toBe('/wizard');
-  });
-
   it('a new visitor first sees sign in / create account', async () => {
     const user = userEvent.setup();
-    const { router } = await renderApp('/', { seed: false });
+    const { router } = await renderApp('/', { seed: false, signedOut: true });
     expect(await screen.findByRole('link', { name: ru.welcome.signUp })).toBeVisible();
+    // There is no way to skip the account.
+    expect(screen.queryByText(/Пока без аккаунта/)).not.toBeInTheDocument();
     expect(router.state.location.pathname).toBe('/welcome');
     await user.click(screen.getByRole('link', { name: ru.welcome.signIn }));
     expect(await screen.findByRole('radio', { name: ru.account.tabs.signIn })).toBeChecked();
   });
 
-  it('create account opens on the sign-up tab; "without account" goes to the wizard', async () => {
+  it('create account opens on the sign-up tab', async () => {
     const user = userEvent.setup();
-    const { router } = await renderApp('/welcome', { seed: false });
+    await renderApp('/welcome', { seed: false, signedOut: true });
     await user.click(await screen.findByRole('link', { name: ru.welcome.signUp }));
     expect(await screen.findByRole('radio', { name: ru.account.tabs.signUp })).toBeChecked();
-    await router.navigate('/welcome');
-    await user.click(await screen.findByRole('button', { name: ru.welcome.skip }));
+  });
+
+  it('whoever is not signed in is sent to the welcome screen, even with a profile on the device', async () => {
+    const { router } = await renderApp('/', { signedOut: true });
+    await waitFor(() => expect(router.state.location.pathname).toBe('/welcome'));
+    expect(await screen.findByRole('link', { name: ru.welcome.signIn })).toBeVisible();
+  });
+
+  it('a signed-in visitor without a profile is sent to the wizard', async () => {
+    const { router } = await renderApp('/', { seed: false });
+    await waitFor(() => expect(router.state.location.pathname).toBe('/wizard'));
     expect(await screen.findByRole('heading', { name: t.steps.about })).toBeVisible();
-    expect(router.state.location.pathname).toBe('/wizard');
   });
 
   it('a signed-in visitor skips the welcome screen', async () => {

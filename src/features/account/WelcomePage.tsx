@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Navigate, useNavigate } from 'react-router';
+import { Navigate } from 'react-router';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { ACCOUNT } from '../../services/account';
@@ -11,7 +11,6 @@ const t = ru.welcome;
 
 /** First screen for a new visitor: sign in or create an account. */
 export default function WelcomePage() {
-  const navigate = useNavigate();
   const signedIn = useLiveQuery(
     async () => !!(await repos.settings.get<string>(ACCOUNT.token, '')),
     [],
@@ -42,18 +41,7 @@ export default function WelcomePage() {
           {t.signIn}
         </LinkButton>
         <p className={styles.stepHint} style={{ textAlign: 'center' }}>
-          <button
-            type="button"
-            className={styles.linkBtn}
-            onClick={async () => {
-              await repos.settings.set(ACCOUNT.skipped, true);
-              navigate('/wizard', { replace: true });
-            }}
-          >
-            {t.skip}
-          </button>
-          <br />
-          {t.skipHint}
+          {t.why}
         </p>
       </div>
     </div>

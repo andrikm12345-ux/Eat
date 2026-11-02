@@ -307,10 +307,9 @@ describe('change password', () => {
 });
 
 describe('storage screen', () => {
-  it('tells whether the cloud copy is on', async () => {
-    await renderApp('/more/storage');
-    expect(await screen.findByText(ru.storage.cloudOff)).toBeVisible();
+  it('tells that the cloud copy is on for the signed-in account', async () => {
     await registerAccount(repos, 'ivan', PW);
+    await renderApp('/more/storage');
     expect(await screen.findByText(ru.storage.cloudOn('ivan'))).toBeVisible();
   });
 });
@@ -320,7 +319,7 @@ describe('account page', () => {
     await registerAccount(repos, 'busy', PW);
     await signOut(repos);
     const user = userEvent.setup();
-    await renderApp('/account', { seed: false });
+    await renderApp('/account', { seed: false, signedOut: true });
     await user.click(await screen.findByRole('radio', { name: ru.account.tabs.signUp }));
     await user.type(screen.getByLabelText(ru.account.login), 'busy');
     await user.type(screen.getByLabelText(ru.account.password), PW);
@@ -346,7 +345,7 @@ describe('account page', () => {
     await registerAccount(repos, 'ivan', PW);
     await signOut(repos);
     const user = userEvent.setup();
-    await renderApp('/account', { seed: false });
+    await renderApp('/account', { seed: false, signedOut: true });
     await user.type(await screen.findByLabelText(ru.account.login), 'ivan');
     await user.type(screen.getByLabelText(ru.account.password), 'wrong-password');
     await user.click(screen.getByRole('button', { name: ru.account.signIn }));
@@ -361,7 +360,7 @@ describe('account page', () => {
     const reg = (await registerAccount(repos, 'ivan', PW)) as { recoveryCode: string };
     await signOut(repos);
     const user = userEvent.setup();
-    await renderApp('/account', { seed: false });
+    await renderApp('/account', { seed: false, signedOut: true });
     await user.click(await screen.findByRole('button', { name: ru.account.forgot }));
     await user.type(screen.getByLabelText(ru.account.login), 'ivan');
     await user.type(screen.getByLabelText(ru.account.recoveryCode), reg.recoveryCode);
@@ -375,7 +374,7 @@ describe('account page', () => {
 
   it('can go back from the reset form', async () => {
     const user = userEvent.setup();
-    await renderApp('/account', { seed: false });
+    await renderApp('/account', { seed: false, signedOut: true });
     await user.click(await screen.findByRole('button', { name: ru.account.forgot }));
     expect(await screen.findByLabelText(ru.account.recoveryCode)).toBeVisible();
     await user.click(screen.getByRole('button', { name: ru.account.backToSignIn }));

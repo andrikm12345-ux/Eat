@@ -290,7 +290,8 @@ describe('AI settings', () => {
     await renderApp('/more/ai');
     await user.click(await screen.findByRole('button', { name: ru.ai.modelsShow }));
     expect(await screen.findByText('vision-x')).toBeVisible();
-    expect(calls[0]).toBe('https://r.example.com/v1/models?limit=200');
+    // (A signed-in user also asks the server whether a shared AI exists: not part of this check.)
+    expect(calls).toContain('https://r.example.com/v1/models?limit=200');
     await user.click(screen.getByRole('button', { name: `${ru.ai.forText}: deepseek-chat` }));
     await user.click(screen.getByRole('button', { name: `${ru.ai.forPhoto}: vision-x` }));
     await waitFor(async () => {

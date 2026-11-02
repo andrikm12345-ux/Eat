@@ -67,18 +67,15 @@ export function AppShell() {
 
   useOpenNotifications();
   const profile = useProfile();
-  // A new visitor first signs in or creates an account (or explicitly skips it).
-  const entered = useLiveQuery(async () => {
-    const [token, skipped] = await Promise.all([
-      repos.settings.get<string>(ACCOUNT.token, ''),
-      repos.settings.get<boolean>(ACCOUNT.skipped, false),
-    ]);
-    return !!token || skipped;
-  }, []);
-  if (profile === null) {
-    if (entered === undefined) return null;
-    return <Navigate to={entered ? '/wizard' : '/welcome'} replace />;
-  }
+  // The app needs an account: whoever is not signed in is sent to sign in or create one.
+  // (The data on the device stays; signing in merges it with the cloud copy.)
+  const signedIn = useLiveQuery(
+    async () => !!(await repos.settings.get<string>(ACCOUNT.token, '')),
+    [],
+  );
+  if (signedIn === undefined) return null;
+  if (!signedIn) return <Navigate to="/welcome" replace />;
+  if (profile === null) return <Navigate to="/wizard" replace />;
 
   return (
     <>
