@@ -16,6 +16,8 @@ export type MealItem = {
   per100g: { kcal: number; protein: number; fat: number; carbs: number; fiber?: number };
   confidence: Confidence;
   assumed: boolean;
+  /** Where the per-100 g numbers came from: a web reference or the model's own estimate. */
+  source?: 'web' | 'estimate';
   searchHint: string;
   /** Countable products: how many pieces and what one piece weighs (both or neither). */
   pieces?: number;
@@ -90,6 +92,7 @@ export function validateMeal(data: unknown): Valid<MealResult> {
           ? it.confidence
           : 'low') as Confidence,
         assumed: it.assumed === true,
+        source: it.source === 'web' ? 'web' : 'estimate',
         ...pieceInfo(it),
         searchHint:
           typeof it.searchHint === 'string' && it.searchHint.trim()

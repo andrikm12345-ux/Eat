@@ -9,6 +9,7 @@ export const PROMPT_MEAL = `Ты — нутрициолог-аналитик. О
       "per100g": {"kcal":0,"protein":0,"fat":0,"carbs":0,"fiber":0},
       "confidence": "high|medium|low",
       "assumed": false,
+      "source": "web|estimate",
       "searchHint": "string — как искать в базе (RU)",
       "pieces": 0,
       "pieceGrams": 0

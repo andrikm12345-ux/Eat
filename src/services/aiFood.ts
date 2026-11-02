@@ -29,7 +29,7 @@ export async function mealToDraft(
     const ai = {
       name: it.name,
       per100g: withKcal(it.per100g),
-      source: 'ai' as const,
+      source: it.source === 'web' ? ('web' as const) : ('ai' as const),
       confidence: it.confidence,
       assumed: it.assumed,
     };

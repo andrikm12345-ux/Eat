@@ -302,7 +302,9 @@ function Review({ initial }: { initial: ReviewDraft }) {
                   setItems((list) => list.map((x) => (x.key === i.key ? swapAlt(x) : x)))
                 }
               >
-                {i.alt.source === 'ai' ? ru.ai.useAi : ru.ai.useCatalog(i.alt.name)}
+                {i.alt.source === 'ai' || i.alt.source === 'web'
+                  ? ru.ai.useAi
+                  : ru.ai.useCatalog(i.alt.name)}
               </Button>
             )}
             <div className={styles.itemActions}>

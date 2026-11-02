@@ -235,6 +235,104 @@ describe('AI text flow', () => {
     expect(screen.getAllByRole('link', { name: 'zhar.example' })).toHaveLength(1);
   });
 
+  it('by parts: everything in the catalog needs neither the web nor the AI', async () => {
+    await repos.settings.set(AI_KEYS.enabled, true);
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-ant-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.consent, true);
+    await repos.settings.set(ACCOUNT.token, 'tok');
+    await repos.foods.add({
+      name: 'Гречка',
+      per100g: { kcal: 110, protein: 4, fat: 1, carbs: 21 },
+      servings: [],
+      source: 'base',
+      verified: true,
+    });
+    const f = vi.fn(async () => new Response('no', { status: 500 }));
+    vi.stubGlobal('fetch', f);
+    const user = userEvent.setup();
+    await renderApp('/add/ai-text?date=2026-03-01&time=08:00');
+    await user.type(await screen.findByLabelText(ru.ai.text.label), 'гречка 200 г');
+    await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
+    expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
+    expect(f).not.toHaveBeenCalled();
+    expect(screen.getByText(ru.review.source.catalog)).toBeVisible();
+    expect(screen.getByLabelText(/^Количество: Гречка/)).toHaveValue('200');
+  });
+
+  it('by parts: the catalog part is kept, only the rest is searched and sent to the AI, each item is marked', async () => {
+    await repos.settings.set(AI_KEYS.enabled, true);
+    await repos.settings.set(AI_KEYS.apiKey, 'sk-ant-xxxxxxxxxxxx');
+    await repos.settings.set(AI_KEYS.consent, true);
+    await repos.settings.set(ACCOUNT.token, 'tok');
+    await repos.foods.add({
+      name: 'Гречка',
+      per100g: { kcal: 110, protein: 4, fat: 1, carbs: 21 },
+      servings: [],
+      source: 'base',
+      verified: true,
+    });
+    const aiAnswer = {
+      items: [
+        {
+          name: 'Сырник Домик',
+          grams: 80,
+          per100g: { kcal: 200, protein: 10, fat: 8, carbs: 22 },
+          confidence: 'high',
+          assumed: false,
+          source: 'web',
+          searchHint: 'сырник',
+        },
+        {
+          name: 'Компот',
+          grams: 200,
+          per100g: { kcal: 40, protein: 0, fat: 0, carbs: 10 },
+          confidence: 'medium',
+          assumed: false,
+          source: 'estimate',
+          searchHint: 'компот из сухофруктов',
+        },
+      ],
+      mealGuess: null,
+      notes: '',
+    };
+    const f = vi.fn(async (url: string) =>
+      url === '/api/search'
+        ? Response.json({
+            results: [
+              { title: 'Сырники', url: 'https://shop.example/s', content: '200 ккал на 100 г' },
+            ],
+          })
+        : new Response(
+            JSON.stringify({
+              content: [{ type: 'text', text: JSON.stringify(aiAnswer) }],
+              stop_reason: 'end_turn',
+            }),
+            { status: 200 },
+          ),
+    );
+    vi.stubGlobal('fetch', f);
+    const user = userEvent.setup();
+    await renderApp('/add/ai-text?date=2026-03-01&time=08:00');
+    await user.type(
+      await screen.findByLabelText(ru.ai.text.label),
+      'гречка 200 г, сырники Домик в деревне 2 шт, компот',
+    );
+    await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
+    expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
+    const aiCall = f.mock.calls.find(([u]) => u !== '/api/search');
+    const sent = JSON.stringify(aiCall);
+    // The catalog part is not sent to the AI, the others are.
+    expect(sent).not.toContain('гречка');
+    expect(sent).toContain('сырники');
+    expect(sent).toContain('компот');
+    // One search per unresolved part (two), none for the catalog part.
+    expect(f.mock.calls.filter(([u]) => u === '/api/search')).toHaveLength(2);
+    // Every item carries its own mark.
+    expect(screen.getByText(ru.review.source.catalog)).toBeVisible();
+    expect(screen.getByText(ru.review.source.web)).toBeVisible();
+    expect(screen.getByText(ru.review.source.ai)).toBeVisible();
+  });
+
   it('falls back to the local analysis when the AI call fails', async () => {
     await repos.settings.set(AI_KEYS.enabled, true);
     await repos.settings.set(AI_KEYS.apiKey, 'sk-ant-xxxxxxxxxxxx');
@@ -252,7 +350,7 @@ describe('AI text flow', () => {
     );
     const user = userEvent.setup();
     await renderApp('/add/ai-text?date=2026-03-01&time=08:00');
-    await user.type(await screen.findByLabelText(ru.ai.text.label), 'суп 300 г');
+    await user.type(await screen.findByLabelText(ru.ai.text.label), 'суп 300 г и штрудель');
     await user.click(screen.getByRole('button', { name: ru.ai.text.go }));
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
     expect(screen.getByText(/ИИ недоступен/)).toBeVisible();

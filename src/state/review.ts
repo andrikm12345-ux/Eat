@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Confidence, EntrySource, LocalDate, LocalTime, Nutrients } from '../domain/types';
 
-export type ReviewSource = 'ai' | 'off' | 'catalog' | 'manual';
+export type ReviewSource = 'ai' | 'web' | 'off' | 'catalog' | 'manual';
 
 export type ReviewItem = {
   key: string;

@@ -1,14 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { PROMPT_MEAL } from '../../ai/prompts';
-import { runAi } from '../../ai/run';
 import { AI_KEYS } from '../../ai/settings';
-import { validateMeal } from '../../ai/validators';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
-import { mealToDraft } from '../../services/aiFood';
 import { analyzeMealLocally } from '../../services/localMeal';
-import { searchWeb, withWebContext } from '../../services/webSearch';
+import { analyzeMealByParts } from '../../services/mealParts';
 import { useReview } from '../../state/review';
 import { Button, Card, LinkButton, Notice } from '../../ui/kit';
 import { Page } from '../../ui/Page';
@@ -36,20 +32,8 @@ export default function AiTextPage() {
     try {
       if (useAiNow) {
         try {
-          // First look the described products up on the web, then let the AI use what was found.
-          const web = await searchWeb(repos, text);
-          const { value, runId } = await runAi(repos, {
-            kind: 'text',
-            vision: false,
-            system: PROMPT_MEAL,
-            content: [{ type: 'text', text: withWebContext(text.trim(), web) }],
-            validate: validateMeal,
-          });
-          const draft = await mealToDraft(repos, value, target, {
-            entrySource: 'ai_text',
-            aiRunId: runId,
-          });
-          setDraft(web ? { ...draft, sources: web.sources } : draft);
+          // By parts: the catalog first, then the web and the AI only for what is left.
+          setDraft(await analyzeMealByParts(repos, text, target));
           navigate('/review');
           return;
         } catch (e) {

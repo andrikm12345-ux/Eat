@@ -81,6 +81,11 @@ export async function saveReview(d: ReviewDraft, opts: { remember?: ReadonlySet<
 export function correctedKeys(baseline: ReviewItem[], now: ReviewItem[]): string[] {
   const was = new Map(baseline.map((i) => [i.key, i]));
   return now
-    .filter((i) => i.source === 'manual' && !i.foodId && was.get(i.key)?.source === 'ai')
+    .filter(
+      (i) =>
+        i.source === 'manual' &&
+        !i.foodId &&
+        (was.get(i.key)?.source === 'ai' || was.get(i.key)?.source === 'web'),
+    )
     .map((i) => i.key);
 }
