@@ -399,12 +399,15 @@
 }
 .waterBtns {
   display: grid;
-  grid-template-columns: var(--tap) 1fr 1fr;
-  gap: var(--sp-2);
+  /* A narrow undo button and two equal ones; text a size smaller so nothing sticks out. */
+  grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--sp-1);
 }
 .waterBtns > button {
   padding: 0;
+  min-width: 0;
   min-height: var(--tap);
+  font-size: var(--fs-4);
 }
 
 .activityRow {
