@@ -190,9 +190,8 @@ function EntryRow({
           }}
         >
           <span className={styles.rowTitle}>{entryTitle(entry)}</span>
-          <span className={styles.rowSub}>
-            {entry.time} · {macroLine(entry.totals)}
-          </span>
+          {/* The time is already on the timeline to the left: not repeated here. */}
+          <span className={styles.rowSub}>{macroLine(entry.totals)}</span>
         </button>
         <span className={styles.rowKcal}>
           {formatKcal(entry.totals.kcal)}
