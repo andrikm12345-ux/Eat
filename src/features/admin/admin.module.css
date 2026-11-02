@@ -1,0 +1,114 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.item + .item {
+  border-top: 1px solid var(--border);
+}
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--text);
+  text-decoration: none;
+}
+.link:active {
+  background: var(--surface-2);
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+.name {
+  font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
+}
+.sub {
+  display: block;
+  color: var(--text-muted);
+  font-size: var(--fs-6);
+}
+.chevron {
+  color: var(--text-muted);
+  flex: none;
+}
+.dayNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+.navBtn {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-field);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-card);
+}
+.navBtn:disabled {
+  opacity: 0.4;
+}
+.dayTitle {
+  flex: 1;
+  text-align: center;
+  font-weight: var(--fw-semibold);
+}
+.big {
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+.muted {
+  color: var(--text-muted);
+  font-size: var(--fs-6);
+}
+.week {
+  display: flex;
+  gap: var(--sp-1);
+}
+.weekDay {
+  flex: 1;
+  border: 0;
+  border-radius: var(--r-field);
+  padding: var(--sp-2) 0;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.weekDayOn {
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+}
+.meal {
+  padding: var(--sp-2) 0;
+}
+.meal + .meal {
+  border-top: 1px solid var(--border);
+}
+.mealHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  font-weight: var(--fw-semibold);
+}

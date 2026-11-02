@@ -161,6 +161,12 @@ export default function AccountPage() {
             <Button block disabled={busy} onClick={() => void sync()}>
               {busy ? t.syncing : t.syncNow}
             </Button>
+            {/* Only the administrator ever sees this entry; the server checks it again. */}
+            {session.admin && (
+              <Button block variant="secondary" onClick={() => navigate('/admin')}>
+                {t.adminOpen}
+              </Button>
+            )}
             <p>{t.signOutHint}</p>
             <Card title={t.changeTitle}>
               <TextField
@@ -294,6 +300,7 @@ export default function AccountPage() {
               {error && <Notice>{error}</Notice>}
               {info && <Notice tone="info">{info}</Notice>}
               {mode === 'signUp' && <p>{t.noReset}</p>}
+              {mode === 'signUp' && <p>{t.adminSees}</p>}
               <Button
                 block
                 type="submit"

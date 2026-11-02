@@ -26,6 +26,16 @@ export const routes: RouteObject[] = [
     lazy: lazyPage(() => import('./features/account/AccountPage')),
   },
   {
+    path: '/admin',
+    errorElement: <ErrorPage />,
+    lazy: lazyPage(() => import('./features/admin/AdminUsersPage')),
+  },
+  {
+    path: '/admin/:id',
+    errorElement: <ErrorPage />,
+    lazy: lazyPage(() => import('./features/admin/AdminUserPage')),
+  },
+  {
     path: '/',
     Component: AppShell,
     errorElement: <ErrorPage />,

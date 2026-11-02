@@ -114,6 +114,7 @@ describe('register and login', () => {
     const stored = [...store.data.entries()];
     expect(stored.map(([k]) => k).sort()).toEqual([
       expect.stringMatching(/^creds\/[0-9a-f]{40}\.json$/),
+      expect.stringMatching(/^meta\/[0-9a-f]{40}\.json$/),
       expect.stringMatching(/^users\/[0-9a-f]{40}\.json$/),
     ]);
     // The password itself is never stored.

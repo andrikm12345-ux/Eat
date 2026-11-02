@@ -2,6 +2,8 @@
 export interface Store {
   get(path: string): Promise<string | null>;
   put(path: string, body: string): Promise<void>;
+  /** Paths that start with `prefix` (optional: only the admin view needs it). */
+  list?(prefix: string): Promise<string[]>;
 }
 
 export type Deps = {

@@ -18,6 +18,24 @@ import type { Deps } from './types.js';
 export const MAX_SYNC_BYTES = 4 * 1024 * 1024;
 
 const credPath = (userId: string) => `creds/${userId}.json`;
+const metaPath = (userId: string) => `meta/${userId}.json`;
+
+/**
+ * Remembers the readable login, the registration day and the last sign-in of an account (the
+ * credentials store only hashes). Best effort: a failure here never blocks signing in.
+ */
+async function touchMeta(d: Deps, userId: string, login: string, created: boolean): Promise<void> {
+  try {
+    let createdAt = d.now();
+    if (!created) {
+      const old = await d.store.get(metaPath(userId));
+      if (old) createdAt = (JSON.parse(old) as { createdAt?: number }).createdAt ?? createdAt;
+    }
+    await d.store.put(metaPath(userId), JSON.stringify({ login, createdAt, lastLogin: d.now() }));
+  } catch (e) {
+    console.error('meta update failed', e);
+  }
+}
 
 export async function readCreds(d: Deps, userId: string): Promise<Credentials | null> {
   const text = await d.store.get(credPath(userId));
@@ -75,6 +93,7 @@ export async function register(d: Deps, req: Request): Promise<Response> {
   if (await readCreds(d, userId)) return json({ error: 'taken' }, 409);
   const { creds, recoveryCode } = await newAccount(c.password);
   await d.store.put(credPath(userId), JSON.stringify(creds));
+  await touchMeta(d, userId, c.login, true);
   return json({ token: createSession(d.secret, userId, d.now()), login: c.login, recoveryCode });
 }
 
@@ -146,6 +165,7 @@ export async function login(d: Deps, req: Request): Promise<Response> {
   const ok = creds ? await checkSecret(creds, c.password) : (await hashSecret(c.password), false);
   if (!creds || !ok) return failed(d, req, creds ? userId : undefined);
   await clearFailures(d, req, userId);
+  await touchMeta(d, userId, c.login, false);
   return json({ token: createSession(d.secret, userId, d.now()), login: c.login });
 }
 
