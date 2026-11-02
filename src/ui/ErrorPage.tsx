@@ -1,6 +1,7 @@
 import { Link, useRouteError } from 'react-router';
 import { ru } from '../i18n/ru';
 import { forceUpdate } from '../pwa/forceUpdate';
+import { reportError } from '../services/errorReport';
 import styles from './ErrorPage.module.css';
 
 const t = ru.errorPage;
@@ -8,7 +9,10 @@ const t = ru.errorPage;
 /** Shown when a screen crashes: own text instead of the framework's English page. */
 export function ErrorPage() {
   const error = useRouteError();
-  if (error) console.error('Screen crashed', error);
+  if (error) {
+    console.error('Screen crashed', error);
+    reportError(error, { where: 'screen' });
+  }
   return (
     <main className={styles.wrap} role="alert">
       <svg className={styles.art} viewBox="0 0 120 120" aria-hidden="true">

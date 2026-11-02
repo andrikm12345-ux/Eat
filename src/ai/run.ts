@@ -6,6 +6,7 @@ import { retryMessage } from './prompts';
 import { getSession } from '../services/account';
 import { aiReady, getAiConfig } from './settings';
 import type { Valid } from './validators';
+import { reportError } from '../services/errorReport';
 
 export type RunOptions<T> = {
   kind: AiRun['kind'];
@@ -95,6 +96,12 @@ export async function runAi<T>(r: Repos, o: RunOptions<T>): Promise<{ value: T; 
     throw new AiError('invalidJson', 'ИИ вернул данные в неверном формате');
   } catch (e) {
     error = e instanceof Error ? e.message : String(e);
+    // Which kind of AI failure (timeout, invalid answer…) and for what: no text, no key.
+    reportError(e, {
+      where: 'ai',
+      ai: o.kind,
+      failure: (e as { kind?: string }).kind ?? 'unknown',
+    });
     await log(r, o.kind, model, messages, lastResponse, t0, error);
     throw e;
   }

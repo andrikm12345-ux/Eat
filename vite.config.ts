@@ -66,7 +66,8 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,json}'],
-        globIgnores: ['splash/**'],
+        // Crash reporting is fetched on demand only (online); it is not part of the offline app.
+        globIgnores: ['splash/**', 'assets/sentry-*.js'],
         navigateFallback: '/index.html',
         importScripts: ['sw-update.js'],
         cleanupOutdatedCaches: true,
@@ -88,7 +89,15 @@ export default defineConfig(({ mode }) => ({
           },
         }
       : undefined,
-  build: { target: 'es2022', sourcemap: false },
+  build: {
+    target: 'es2022',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: (id: string) => (id.includes('node_modules/@sentry') ? 'sentry' : undefined),
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

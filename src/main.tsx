@@ -10,10 +10,14 @@ import { startGamificationSync } from './services/gamificationSync';
 import { startTodayWatcher, toast } from './state/ui';
 import { startKeyboardWatcher } from './ui/keyboard';
 import { startNoZoom } from './ui/noZoom';
+import { initErrorReporting } from './services/errorReport';
 import { ru } from './i18n/ru';
 import './styles/fonts.css';
 import './styles/tokens.css';
 import './styles/global.css';
+
+// Crash reports (off unless the build has a project key).
+void initErrorReporting(import.meta.env.VITE_SENTRY_DSN as string | undefined);
 
 const router = createBrowserRouter(routes);
 
