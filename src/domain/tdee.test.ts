@@ -41,7 +41,6 @@ function simulate(opts: {
     const logged = !opts.skipDay?.(i);
     days.set(date, {
       kcal: logged ? opts.intake : 0,
-      goalKcal: 2200,
       complete: logged,
       excluded: false,
     });
@@ -161,7 +160,6 @@ describe('adaptive TDEE', () => {
       const d = addDays(START, i);
       (input.days as Map<string, DayInput>).set(d, {
         kcal: 5000,
-        goalKcal: 2200,
         complete: true,
         excluded: true,
       });
@@ -201,11 +199,10 @@ describe('helpers', () => {
     expect(isValidDay(undefined)).toBe(false);
     expect(isValidDay({ kcal: 0, complete: true, excluded: false })).toBe(true);
     expect(isValidDay({ kcal: 3000, complete: true, excluded: true })).toBe(false);
-    expect(isValidDay({ kcal: 1100, goalKcal: 2200, complete: false, excluded: false })).toBe(true);
-    expect(isValidDay({ kcal: 1000, goalKcal: 2200, complete: false, excluded: false })).toBe(
-      false,
-    );
-    expect(isValidDay({ kcal: 1000, complete: false, excluded: false })).toBe(false);
+    // Anything logged counts as it is, without a threshold; nothing logged is unknown.
+    expect(isValidDay({ kcal: 300, complete: false, excluded: false })).toBe(true);
+    expect(isValidDay({ kcal: 1, complete: false, excluded: false })).toBe(true);
+    expect(isValidDay({ kcal: 0, complete: false, excluded: false })).toBe(false);
   });
   it('regime starts', () => {
     expect(

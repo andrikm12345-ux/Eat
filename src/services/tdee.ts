@@ -1,7 +1,6 @@
 import { ageOn, daysBetween, parseLocalDate, weekStart } from '../domain/dates';
 import { proposeCheckin } from '../domain/checkin';
 import { bmrMifflin, startingTdee } from '../domain/energy';
-import { goalFor } from '../domain/goals';
 import { computeMacros } from '../domain/macros';
 import {
   computeTdeeSeries,
@@ -55,10 +54,8 @@ export async function recomputeTdee(r: Repos, today: LocalDate): Promise<TdeeSta
   const days = new Map<LocalDate, DayInput>();
   for (const date of new Set([...kcal.keys(), ...metaBy.keys()])) {
     const m = metaBy.get(date);
-    const g = goalFor(goals, date)?.kcal;
     days.set(date, {
       kcal: kcal.get(date) ?? 0,
-      ...(g !== undefined ? { goalKcal: g } : {}),
       complete: !!m?.complete,
       excluded: !!m?.excludeFromTdee,
     });

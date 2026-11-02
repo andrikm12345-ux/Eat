@@ -24,7 +24,7 @@ export type TdeeParams = typeof TDEE_DEFAULTS;
 
 export type DayInput = {
   kcal: number;
-  goalKcal?: number;
+  /** An old manual "day is full" mark; such a day counts even when nothing is logged. */
   complete: boolean;
   excluded: boolean;
 };
@@ -59,11 +59,14 @@ export type TdeeRow = {
   warnings: ('clampedLow' | 'clampedHigh')[];
 };
 
-/** A day counts as fully logged when marked complete, or (if not) has ≥ 50 % of that day's goal. */
+/**
+ * A day counts as it was recorded: any day with something logged is used with its real
+ * numbers (no threshold). A day with nothing logged is unknown and is skipped, unless it
+ * was marked complete before (a recorded empty day). Paused days never count.
+ */
 export function isValidDay(d: DayInput | undefined): boolean {
   if (!d || d.excluded) return false;
-  if (d.complete) return true;
-  return d.goalKcal ? d.kcal >= 0.5 * d.goalKcal : false;
+  return d.complete || d.kcal > 0;
 }
 
 /** Days that start a new regime: the first goal and every lose↔gain switch (maintain keeps the direction). */

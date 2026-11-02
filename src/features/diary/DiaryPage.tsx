@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { addDays, formatDateRu, parseLocalDate, toLocalDate, weekStart } from '../../domain/dates';
 import { dayStatus } from '../../domain/day';
-import { isValidDay } from '../../domain/tdee';
 import { formatKcal } from '../../domain/format';
 import { goalFor } from '../../domain/goals';
 import { repos } from '../../db/repos';
@@ -30,16 +29,14 @@ export default function DiaryPage() {
   const openAdd = useUi((s) => s.openAdd);
   const navigate = useNavigate();
   const [month, setMonth] = useState(monthStart(selected));
-  const [onlyComplete, setOnlyComplete] = useState(false);
   const [onlyWorkouts, setOnlyWorkouts] = useState(false);
   const last = addDays(shiftMonth(month, 1), -1);
   const today = toLocalDate(new Date());
 
   const data = useLiveQuery(async () => {
-    const [entries, goals, metas, workouts] = await Promise.all([
+    const [entries, goals, workouts] = await Promise.all([
       repos.entries.inRange(month, last),
       repos.goals.list(),
-      repos.db.dayMeta.where('date').between(month, last, true, true).toArray(),
       repos.workouts.list(),
     ]);
     const kcal = new Map<string, number>();
@@ -47,20 +44,6 @@ export default function DiaryPage() {
     return {
       kcal,
       goals,
-      // A fully logged day is decided automatically (about half of the day's goal or more),
-      // exactly like the energy estimate does; the old manual mark still counts.
-      complete: new Set(
-        [...new Set([...kcal.keys(), ...metas.map((m) => m.date)])].filter((d) =>
-          isValidDay({
-            kcal: kcal.get(d) ?? 0,
-            ...(goalFor(goals, d)?.kcal !== undefined
-              ? { goalKcal: goalFor(goals, d)?.kcal as number }
-              : {}),
-            complete: metas.some((m) => m.date === d && m.complete && !m.deletedAt),
-            excluded: false,
-          }),
-        ),
-      ),
       workoutDays: new Set(workouts.map((w) => w.date)),
     };
   }, [month, last]);
@@ -71,8 +54,7 @@ export default function DiaryPage() {
     cells.push(d < month || d > last ? null : d);
   }
 
-  const visible = (d: string) =>
-    !!data && (!onlyComplete || data.complete.has(d)) && (!onlyWorkouts || data.workoutDays.has(d));
+  const visible = (d: string) => !!data && (!onlyWorkouts || data.workoutDays.has(d));
 
   const open = (d: string) => {
     setDate(d);
@@ -151,7 +133,6 @@ export default function DiaryPage() {
           {t.legendAbove}
         </span>
       </div>
-      <Switch label={t.onlyComplete} checked={onlyComplete} onChange={setOnlyComplete} />
       <Switch label={t.onlyWorkouts} checked={onlyWorkouts} onChange={setOnlyWorkouts} />
       <h2 className={listStyles.sectionTitle}>{t.days}</h2>
       {days.length === 0 ? (

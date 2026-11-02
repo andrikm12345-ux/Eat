@@ -339,7 +339,6 @@ export const ru = {
     title: 'Дневник',
     prevMonth: 'Предыдущий месяц',
     nextMonth: 'Следующий месяц',
-    onlyComplete: 'Только полные дни',
     onlyWorkouts: 'Только с тренировками',
     legendClose: 'близко к цели',
     legendBelow: 'ниже цели',
