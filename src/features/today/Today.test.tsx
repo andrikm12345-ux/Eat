@@ -115,6 +115,20 @@ describe('Today', () => {
     await waitFor(async () => expect((await repos.dayMeta.get('2026-03-01')).waterMl).toBe(250));
   });
 
+  it('water undo sits in the button row: disabled at 0, removes 250 ml, the card does not grow', async () => {
+    useUi.setState({ date: '2026-03-01' });
+    const user = userEvent.setup();
+    await renderApp('/');
+    const undo = await screen.findByRole('button', { name: '−250 мл' });
+    expect(undo).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: '+250 мл' }));
+    await user.click(screen.getByRole('button', { name: '+500 мл' }));
+    await waitFor(async () => expect((await repos.dayMeta.get('2026-03-01')).waterMl).toBe(750));
+    expect(screen.getByRole('button', { name: '−250 мл' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: '−250 мл' }));
+    await waitFor(async () => expect((await repos.dayMeta.get('2026-03-01')).waterMl).toBe(500));
+  });
+
   it('switches days with arrows', async () => {
     useUi.setState({ date: today() });
     const user = userEvent.setup();

@@ -27,6 +27,15 @@ export function WaterCard({ meta, goalMl }: { meta: DayMeta; goalMl: number | un
         </div>
       ) : null}
       <div className={styles.waterBtns}>
+        {/* Undo sits in the row (disabled at 0), so the card never changes height. */}
+        <Button
+          variant="secondary"
+          aria-label={t.remove}
+          disabled={meta.waterMl <= 0}
+          onClick={() => void add(-250)}
+        >
+          −
+        </Button>
         <Button variant="secondary" aria-label={t.add(250)} onClick={() => void add(250)}>
           +250
         </Button>
@@ -34,16 +43,6 @@ export function WaterCard({ meta, goalMl }: { meta: DayMeta; goalMl: number | un
           +500
         </Button>
       </div>
-      {meta.waterMl > 0 && (
-        <button
-          type="button"
-          className={styles.undoWater}
-          aria-label={t.remove}
-          onClick={() => void add(-250)}
-        >
-          {t.remove}
-        </button>
-      )}
     </Card>
   );
 }

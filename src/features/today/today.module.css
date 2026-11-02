@@ -399,23 +399,12 @@
 }
 .waterBtns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--tap) 1fr 1fr;
   gap: var(--sp-2);
 }
 .waterBtns > button {
   padding: 0;
   min-height: var(--tap);
-}
-.undoWater {
-  display: block;
-  margin: var(--sp-2) auto 0;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: var(--fs-6);
-  padding: 0 var(--sp-3);
-  min-height: var(--tap);
-  cursor: pointer;
 }
 
 .activityRow {
