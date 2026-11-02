@@ -4,7 +4,7 @@ import { getSession } from './account';
 export type WebHit = { title: string; url: string; content: string };
 export type WebContext = { text: string; sources: { title: string; url: string }[] };
 
-const TIMEOUT_MS = 9000;
+const TIMEOUT_MS = 6000;
 
 /** Hostname without "www." for compact display. */
 export const hostOf = (url: string): string => {

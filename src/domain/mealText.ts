@@ -37,6 +37,8 @@ const UNIT_RE = new RegExp(
       'кус\\p{L}*',
       'ломт\\p{L}*',
       'порци\\p{L}*',
+      'тарелк\\p{L}*',
+      'миск\\p{L}*',
     ].join('|') +
     ')?\\.?' +
     U,
@@ -50,6 +52,7 @@ const FACTORS: [RegExp, number | 'count'][] = [
   [/^лит|^л$/i, 1000],
   [/^стакан/i, 250],
   [/^чашк/i, 240],
+  [/^тарелк|^миск/i, 250],
   [/^ст\.?\s*л|^столов/i, 15],
   [/^ч\.?\s*л|^чайн/i, 5],
 ];
@@ -75,6 +78,7 @@ export function splitMeal(text: string): string[] {
 
 const WORD_NUMBERS: [RegExp, string][] = [
   [/полтора|полторы/, '1.5'],
+  [/пару|пара|пары/, '2'],
   [/один|одна|одно|одну/, '1'],
   [/два|две/, '2'],
   [/три/, '3'],
@@ -89,10 +93,16 @@ const WORD_NUMBERS: [RegExp, string][] = [
 
 /** "два яйца" → "2 яйца": a number written in words before a food word. */
 export function numberWordsToDigits(s: string): string {
-  return s.replace(/(^|\s)([а-яё]+)(?=\s+[а-яё])/giu, (m, pre: string, w: string) => {
+  const withNumbers = s.replace(/(^|\s)([а-яё]+)(?=\s+[а-яё])/giu, (m, pre: string, w: string) => {
     const hit = WORD_NUMBERS.find(([re]) => new RegExp(`^(?:${re.source})$`, 'iu').test(w));
     return hit ? `${pre}${hit[1]}` : m;
   });
+  // "тарелку", "миска" without a number is one plate or bowl.
+  return withNumbers.replace(
+    /(^|\s)(тарелк\p{L}*|миск\p{L}*)(?=\s|$)/giu,
+    (m, pre: string, w: string, offset: number) =>
+      /\d\s*$/.test(withNumbers.slice(0, offset + pre.length)) ? m : `${pre}1 ${w}`,
+  );
 }
 
 /** Drinks measured in litres: "пиво 0,5" means half a litre, not half a piece. */

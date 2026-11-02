@@ -83,4 +83,14 @@ describe('meal text parsing', () => {
     // A whole number without a unit stays a count.
     expect(parsePart('2 пива')).toMatchObject({ count: 2, grams: null });
   });
+
+  it('understands "пару" and a plate or bowl without a number', () => {
+    expect(parsePart('Бананы пару штук')).toMatchObject({ query: 'Бананы', count: 2 });
+    expect(parsePart('гречка вареная тарелку')).toMatchObject({
+      query: 'гречка вареная',
+      grams: 250,
+    });
+    expect(parsePart('две тарелки борща')).toMatchObject({ query: 'борща', grams: 500 });
+    expect(parsePart('2 чудо с клубникой')).toMatchObject({ query: 'чудо с клубникой', count: 2 });
+  });
 });
