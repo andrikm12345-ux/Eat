@@ -14,6 +14,7 @@ import {
   type AccountError,
 } from '../../services/account';
 import { refreshSharedAi } from '../../services/sharedAi';
+import { clearLocalData } from '../../services/localData';
 import { syncNow } from '../../services/sync';
 import { toast } from '../../state/ui';
 import { Button, Card, Notice, Segmented, Switch, TextField } from '../../ui/kit';
@@ -81,6 +82,9 @@ export default function AccountPage() {
       setBusy(false);
       return setError(message(r.error));
     }
+    // A new account always starts clean, with the wizard: whatever this browser held before is
+    // removed (the sign-in just stored is kept). Signing in to an old account merges instead.
+    if (mode === 'signUp') await clearLocalData(repos);
     // New accounts and resets show the recovery code once before going on.
     if (r.recoveryCode) {
       setBusy(false);

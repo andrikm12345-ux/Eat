@@ -14,6 +14,7 @@ import type { Deps } from '../../server/types';
 import { repos } from '../db/repos';
 import { ru } from '../i18n/ru';
 import { renderApp } from '../test/renderApp';
+import { seedOnboarded } from '../test/seed';
 import {
   ACCOUNT,
   changeAccountPassword,
@@ -339,6 +340,25 @@ describe('account page', () => {
     expect(await screen.findByText(ru.account.copied)).toBeVisible();
     await user.click(screen.getByRole('button', { name: ru.account.saved }));
     await waitFor(() => expect(screen.queryByText(ru.account.saveCodeTitle)).toBeNull());
+  });
+
+  it('a new account on a browser that holds data starts clean, with the wizard', async () => {
+    await seedOnboarded();
+    expect(await repos.profile.get()).toBeTruthy();
+    const user = userEvent.setup();
+    const { router } = await renderApp('/account', { seed: false, signedOut: true });
+    await user.click(await screen.findByRole('radio', { name: ru.account.tabs.signUp }));
+    await user.type(screen.getByLabelText(ru.account.login), 'newbie');
+    await user.type(screen.getByLabelText(ru.account.password), PW);
+    await user.type(screen.getByLabelText(ru.account.password2), PW);
+    await user.click(screen.getByRole('button', { name: ru.account.signUp }));
+    expect(await screen.findByText(ru.account.saveCodeTitle)).toBeVisible();
+    expect(await repos.profile.get()).toBeFalsy();
+    expect(await repos.db.goals.count()).toBe(0);
+    expect(await getSession(repos)).toMatchObject({ login: 'newbie' });
+    await user.click(screen.getByRole('button', { name: ru.account.saved }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/wizard'));
   });
 
   it('sign in: wrong password, then right one', async () => {
