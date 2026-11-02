@@ -50,8 +50,8 @@ describe('storage screen', () => {
   it('sizes: megabytes below a gigabyte, gigabytes above', () => {
     const mb = 1024 * 1024;
     const plain = (v: string) => v.replace(/\u00a0/g, ' ');
-    expect(plain(ru.storage.size(8 * mb))).toBe('8,0 МБ');
-    expect(plain(ru.storage.size(1023.9 * mb))).toBe('1023,9 МБ');
-    expect(plain(ru.storage.size(39321.6 * mb))).toBe('38,4 ГБ');
+    expect(plain(ru.storage.size(8 * mb))).toBe('8,0 МБ');
+    expect(plain(ru.storage.size(1023.9 * mb))).toBe('1023,9 МБ');
+    expect(plain(ru.storage.size(39321.6 * mb))).toBe('38,4 ГБ');
   });
 });
