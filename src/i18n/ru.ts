@@ -393,8 +393,14 @@ export const ru = {
     remove: 'Убрать',
     checkGrams: 'проверьте граммовку',
     assumed: 'предположено',
-    fromSite: 'взято с сайта',
-    source: { ai: 'оценка ИИ', web: 'интернет', off: 'OFF', catalog: 'база', manual: 'вручную' },
+    fromSite: 'сайт',
+    source: {
+      ai: 'оценка ИИ',
+      web: 'по данным сайта',
+      off: 'OFF',
+      catalog: 'база',
+      manual: 'вручную',
+    },
     confidence: {
       high: 'уверенность высокая',
       medium: 'уверенность средняя',
