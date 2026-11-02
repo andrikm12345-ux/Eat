@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { adminUsers } from './admin.js';
-import { login, putSync, register } from './handlers.js';
+import { getSync, login, putSync, register } from './handlers.js';
 import { userIdFor } from './auth.js';
 import type { Deps, Store } from './types.js';
 
@@ -123,5 +123,26 @@ describe('administrator view of the accounts', () => {
     store.data.delete(`meta/${userIdFor(SECRET, 'blackjack')}.json`);
     await login(d, post({ login: 'blackjack', password: 'password1' }));
     expect(store.data.has(`meta/${userIdFor(SECRET, 'blackjack')}.json`)).toBe(true);
+  });
+});
+
+describe('last visit', () => {
+  it('a sync shows an account that never signed in again, and the login must match', async () => {
+    const d = setup();
+    const admin = await signUp(d, 'blackjack');
+    const user = await signUp(d, 'ivan');
+    const store = d.store as ReturnType<typeof memoryStore>;
+    store.data.delete(`meta/${userIdFor(SECRET, 'ivan')}.json`);
+    const sync = (token: string, name: string) =>
+      new Request('http://x', {
+        headers: { authorization: `Bearer ${token}`, 'x-account-login': name },
+      });
+    // Someone else's name in the header changes nothing.
+    await getSync(d, sync(user, 'blackjack'));
+    expect(store.data.has(`meta/${userIdFor(SECRET, 'ivan')}.json`)).toBe(false);
+    await getSync(d, sync(user, 'ivan'));
+    const res = await adminUsers(d, get(admin));
+    const { users } = (await res.json()) as { users: { login: string; lastLogin: number }[] };
+    expect(users.map((u) => u.login).sort()).toEqual(['blackjack', 'ivan']);
   });
 });

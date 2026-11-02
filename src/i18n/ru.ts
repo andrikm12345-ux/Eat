@@ -984,7 +984,7 @@ export const ru = {
     title: 'Пользователи',
     total: (n: number) => `Всего аккаунтов: ${n}`,
     registered: (d: string) => `Регистрация: ${d}`,
-    lastLogin: (d: string) => `Последний вход: ${d}`,
+    lastLogin: (d: string) => `Последний заход: ${d}`,
     never: 'нет данных',
     entriesCount: (n: number) => `Записей о еде: ${n}`,
     you: 'это вы',

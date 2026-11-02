@@ -60,6 +60,33 @@ export async function userOf(d: Deps, req: Request): Promise<string | null> {
   return info.userId;
 }
 
+const SEEN_EVERY_MS = 10 * 60 * 1000;
+
+/**
+ * Every sync is a visit: remembers when the account was last in the app (at most once per ten
+ * minutes). The login comes from a header and is trusted only if it hashes to this account, so
+ * accounts signed in long ago appear in the administrator's list without signing in again.
+ */
+async function touchSeen(d: Deps, req: Request, userId: string): Promise<void> {
+  try {
+    const login = normalizeLogin(req.headers.get('x-account-login') ?? '');
+    if (!isValidLogin(login) || userIdFor(d.secret, login) !== userId) return;
+    const old = JSON.parse((await d.store.get(metaPath(userId))) ?? 'null') as {
+      login?: string;
+      createdAt?: number;
+      lastLogin?: number;
+      lastSeen?: number;
+    } | null;
+    if (old?.login === login && old.lastSeen && d.now() - old.lastSeen < SEEN_EVERY_MS) return;
+    await d.store.put(
+      metaPath(userId),
+      JSON.stringify({ ...old, login, createdAt: old?.createdAt ?? d.now(), lastSeen: d.now() }),
+    );
+  } catch (e) {
+    console.error('seen update failed', e);
+  }
+}
+
 const delay = (d: Deps) =>
   d.failDelayMs ? new Promise((r) => setTimeout(r, d.failDelayMs?.())) : null;
 
@@ -247,6 +274,7 @@ const dataPath = (userId: string) => `users/${userId}.json`;
 export async function getSync(d: Deps, req: Request): Promise<Response> {
   const userId = await userOf(d, req);
   if (!userId) return json({ error: 'unauthorized' }, 401);
+  await touchSeen(d, req, userId);
   const text = await d.store.get(dataPath(userId));
   return text
     ? new Response(text, {

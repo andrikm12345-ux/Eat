@@ -41,7 +41,8 @@ export async function syncNow(r: Repos): Promise<SyncResult> {
   // Devices signed in before owners were tracked: the signed-in account owns what is on them.
   if (!(await r.settings.get<string>(ACCOUNT.owner, '')))
     await r.settings.set(ACCOUNT.owner, session.login);
-  const headers = { authorization: `Bearer ${session.token}` };
+  // The login lets the server show the administrator who is using the app (it is verified there).
+  const headers = { authorization: `Bearer ${session.token}`, 'x-account-login': session.login };
   try {
     const res = await fetch('/api/sync', { headers });
     if (res.status === 401) {

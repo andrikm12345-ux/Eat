@@ -2,7 +2,7 @@ import { session } from './sharedAi.js';
 import { json } from './http.js';
 import type { Deps } from './types.js';
 
-type Meta = { login?: string; createdAt?: number; lastLogin?: number };
+type Meta = { login?: string; createdAt?: number; lastLogin?: number; lastSeen?: number };
 type Row = { id?: string; deletedAt?: string; [k: string]: unknown };
 type Snapshot = { exportedAt?: string; tables?: Record<string, Row[] | undefined> };
 
@@ -64,7 +64,7 @@ export async function adminUsers(d: Deps, req: Request): Promise<Response> {
         id: uid,
         login: meta.login ?? null,
         createdAt: meta.createdAt ?? null,
-        lastLogin: meta.lastLogin ?? null,
+        lastLogin: Math.max(meta.lastLogin ?? 0, meta.lastSeen ?? 0) || null,
         lastSync: snap?.exportedAt ?? null,
         entries: alive(snap?.tables?.entries).length,
         me: uid === s.userId,
