@@ -34,3 +34,24 @@ describe('the AI key is mentioned to the administrator only', () => {
     expect(await screen.findByText(ru.data.exportHintAdmin)).toBeVisible();
   });
 });
+
+describe('storage screen', () => {
+  it('names the AI key only for the administrator', async () => {
+    await signIn(false);
+    const first = await renderApp('/more/storage');
+    expect(await screen.findByText(ru.storage.cloudOn('ivan'))).toBeVisible();
+    expect(screen.queryByText(/ключ ИИ/)).not.toBeInTheDocument();
+    first.unmount();
+    await signIn(true);
+    await renderApp('/more/storage', { seed: false });
+    expect(await screen.findByText(ru.storage.cloudOn('ivan', true))).toBeVisible();
+  });
+
+  it('sizes: megabytes below a gigabyte, gigabytes above', () => {
+    const mb = 1024 * 1024;
+    const plain = (v: string) => v.replace(/\u00a0/g, ' ');
+    expect(plain(ru.storage.size(8 * mb))).toBe('8,0 МБ');
+    expect(plain(ru.storage.size(1023.9 * mb))).toBe('1023,9 МБ');
+    expect(plain(ru.storage.size(39321.6 * mb))).toBe('38,4 ГБ');
+  });
+});
