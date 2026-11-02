@@ -224,3 +224,9 @@ input[type='range'] {
   min-height: var(--tap);
   accent-color: var(--accent);
 }
+
+/* The phone keyboard covers the home-indicator area: drop that padding so the tab bar sits
+   right on the keyboard without an empty strip. The bar and the "+" stay where they are. */
+html[data-kbd='1'] {
+  --safe-bottom: 0px;
+}

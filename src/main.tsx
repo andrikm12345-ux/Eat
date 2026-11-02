@@ -8,6 +8,7 @@ import { startAccountSync } from './services/sync';
 import { startTdeeSync } from './services/tdeeSync';
 import { startGamificationSync } from './services/gamificationSync';
 import { startTodayWatcher, toast } from './state/ui';
+import { startKeyboardWatcher } from './ui/keyboard';
 import { ru } from './i18n/ru';
 import './styles/fonts.css';
 import './styles/tokens.css';
@@ -26,6 +27,8 @@ startGamificationSync(repos);
 
 // "Сегодня" follows the calendar when the app stays open overnight.
 startTodayWatcher();
+// No empty strip between the tab bar and the phone keyboard.
+startKeyboardWatcher();
 // A forgotten error in the background must not pass unnoticed.
 window.addEventListener('unhandledrejection', (e) => {
   console.error('Unhandled rejection', e.reason);
