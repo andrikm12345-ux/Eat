@@ -33,9 +33,9 @@ function CountUp({ value }: { value: number }) {
   return <>{formatKcal(Math.round(useCountUp(value)))}</>;
 }
 /** Whole grams in the big number; longer numbers get smaller so a column never overflows. */
-const macroFont = (text: string) => (text.length <= 3 ? 28 : text.length <= 5 ? 22 : 18);
+const macroFont = (text: string) => (text.length <= 3 ? 26 : text.length <= 5 ? 21 : 17);
 
-const R = 72;
+const R = 63;
 const C = 2 * Math.PI * R;
 
 function Ring({ eaten, goal }: { eaten: number; goal: number | null }) {
@@ -44,25 +44,25 @@ function Ring({ eaten, goal }: { eaten: number; goal: number | null }) {
   const over = goal !== null && eaten > goal;
   return (
     <div className={styles.ring}>
-      <svg width="170" height="170" viewBox="0 0 170 170" aria-hidden="true">
+      <svg width="150" height="150" viewBox="0 0 150 150" aria-hidden="true">
         <defs>
           <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" style={{ stopColor: 'var(--accent-2)' }} />
             <stop offset="100%" style={{ stopColor: 'var(--accent)' }} />
           </linearGradient>
         </defs>
-        <circle cx="85" cy="85" r={R} fill="none" stroke="var(--surface-2)" strokeWidth="14" />
+        <circle cx="75" cy="75" r={R} fill="none" stroke="var(--surface-2)" strokeWidth="12" />
         <circle
-          cx="85"
-          cy="85"
+          cx="75"
+          cy="75"
           r={R}
           fill="none"
           stroke={over ? 'var(--over)' : 'url(#ring-grad)'}
-          strokeWidth="14"
+          strokeWidth="12"
           strokeLinecap="round"
           className={styles.ringArc}
           strokeDasharray={`${appeared ? Math.min(1, ratio) * C : 0} ${C}`}
-          transform="rotate(-90 85 85)"
+          transform="rotate(-90 75 75)"
         />
       </svg>
       <div className={styles.ringCenter}>
@@ -123,6 +123,38 @@ function Macro({
   );
 }
 
+/** Fibre is not one of the three columns: its own thin row with a bar, always visible. */
+function Fiber({ value, goal }: { value: number; goal: number | undefined }) {
+  const appeared = useAppeared();
+  const ratio = goal ? value / goal : 0;
+  return (
+    <div className={styles.fiber}>
+      <span className={styles.fiberName}>{ru.foods.fiber}</span>
+      <div
+        className={styles.bar}
+        role="meter"
+        aria-label={ru.foods.fiber}
+        aria-valuemin={0}
+        aria-valuemax={goal ?? 0}
+        aria-valuenow={Math.round(value)}
+      >
+        <div
+          className={styles.barFill}
+          style={{
+            width: `${appeared ? Math.min(1, ratio) * 100 : 0}%`,
+            background: 'var(--macro-fiber)',
+          }}
+        />
+      </div>
+      <span className={styles.fiberValue}>
+        {goal
+          ? t.fiberOf(formatGrams(value), formatGrams(goal))
+          : `${formatGrams(value)}\u00A0${ru.units.g}`}
+      </span>
+    </div>
+  );
+}
+
 export function SummaryCard({ totals, goal }: { totals: Nutrients; goal: Goal | null }) {
   const left = goal ? goal.kcal - totals.kcal : null;
   const over = left !== null && left < 0;
@@ -158,11 +190,7 @@ export function SummaryCard({ totals, goal }: { totals: Nutrients; goal: Goal | 
             color="var(--macro-carbs)"
           />
         </div>
-        {(goal?.fiber || fiber > 0) && (
-          <p className={styles.fiberLine}>
-            {t.fiberLine(formatGrams(fiber), goal?.fiber ? formatGrams(goal.fiber) : undefined)}
-          </p>
-        )}
+        {(goal?.fiber || fiber > 0) && <Fiber value={fiber} goal={goal?.fiber} />}
       </div>
     </Card>
   );

@@ -111,12 +111,12 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: var(--sp-3);
+  gap: var(--sp-2);
 }
 .ring {
   position: relative;
-  width: 170px;
-  height: 170px;
+  width: 150px;
+  height: 150px;
   margin: 0 auto;
 }
 .ringCenter {
@@ -170,8 +170,8 @@
 .macroValue {
   display: flex;
   align-items: center;
-  height: 32px;
-  font-size: 28px;
+  height: 30px;
+  font-size: 26px;
   font-weight: var(--fw-bold);
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -190,10 +190,23 @@
 .macro .bar {
   align-self: stretch;
 }
-.fiberLine {
-  margin: 0;
-  text-align: center;
+.fiber {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-1);
   font-size: var(--fs-6);
+}
+.fiberName {
+  flex: none;
+  font-weight: var(--fw-semibold);
+  color: var(--macro-fiber);
+}
+.fiber .bar {
+  flex: 1;
+}
+.fiberValue {
+  flex: none;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }

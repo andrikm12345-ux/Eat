@@ -205,8 +205,7 @@ export const ru = {
     overLine: (n: string) => `перебор +${n}\u00A0ккал`,
     noGoal: 'Цель не задана',
     macroFrom: (goal: string) => `из\u00A0${goal}\u00A0г`,
-    fiberLine: (v: string, goal?: string) =>
-      goal ? `Клетчатка ${v} из\u00A0${goal}\u00A0г` : `Клетчатка ${v}\u00A0г`,
+    fiberOf: (v: string, goal: string) => `${v} из\u00A0${goal}\u00A0г`,
     completeHint: 'Помогает точнее рассчитать расход энергии',
     flowTitle: 'Поток дня',
     empty: 'Пока ничего не записано. Нажмите «+» или на линию, чтобы добавить на нужное время.',
