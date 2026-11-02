@@ -201,7 +201,6 @@ function Insights({ w }: { w: WeekReport }) {
             <div key={i} style={{ marginBottom: 'var(--sp-2)' }}>
               <strong>{o.title}</strong>
               <p style={{ margin: '0 0' }}>{o.text}</p>
-              {o.evidence && <p className={listStyles.muted}>{o.evidence}</p>}
             </div>
           ))}
           <ul>
