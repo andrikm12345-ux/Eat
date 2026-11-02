@@ -408,17 +408,16 @@
   min-height: var(--tap);
 }
 .waterTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--sp-2);
+  position: relative;
 }
+/* In the corner beside the number: the caption keeps the whole width of the card. */
 .waterUndo {
-  flex: none;
+  position: absolute;
+  top: calc(-1 * var(--sp-1));
+  right: 0;
   width: var(--tap);
   min-width: var(--tap);
   padding: 0;
-  margin-top: calc(-1 * var(--sp-1));
 }
 
 .activityRow {

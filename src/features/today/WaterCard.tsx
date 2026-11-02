@@ -13,7 +13,7 @@ export function WaterCard({ meta, goalMl }: { meta: DayMeta; goalMl: number | un
   return (
     <Card title={t.title}>
       <div className={styles.waterTop}>
-        <div>
+        <div style={{ marginBottom: 'var(--sp-1)' }}>
           <div key={meta.waterMl} className={`${styles.miniBig} ${styles.bump}`}>
             {formatKcal(meta.waterMl)}
           </div>
