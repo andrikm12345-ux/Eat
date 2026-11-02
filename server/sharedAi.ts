@@ -120,7 +120,8 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
     });
     answer = await upstream.text();
   } catch (e) {
-    const timedOut = e instanceof Error && e.name === 'TimeoutError';
+    // A DOMException is not always an Error instance, so only the name is checked.
+    const timedOut = (e as { name?: string } | null)?.name === 'TimeoutError';
     note(timedOut ? 'timeout' : 'unreachable');
     return timedOut
       ? json({ error: 'ai_upstream_timeout' }, 504)
