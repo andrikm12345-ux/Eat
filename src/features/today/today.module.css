@@ -399,15 +399,26 @@
 }
 .waterBtns {
   display: grid;
-  /* A narrow undo button and two equal ones; text a size smaller so nothing sticks out. */
-  grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--sp-1);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--sp-2);
 }
 .waterBtns > button {
   padding: 0;
   min-width: 0;
   min-height: var(--tap);
-  font-size: var(--fs-4);
+}
+.waterTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+.waterUndo {
+  flex: none;
+  width: var(--tap);
+  min-width: var(--tap);
+  padding: 0;
+  margin-top: calc(-1 * var(--sp-1));
 }
 
 .activityRow {

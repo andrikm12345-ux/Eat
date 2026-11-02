@@ -12,14 +12,30 @@ export function WaterCard({ meta, goalMl }: { meta: DayMeta; goalMl: number | un
     repos.dayMeta.upsert(meta.date, { waterMl: Math.max(0, meta.waterMl + ml) });
   return (
     <Card title={t.title}>
-      <div key={meta.waterMl} className={`${styles.miniBig} ${styles.bump}`}>
-        {formatKcal(meta.waterMl)}
-      </div>
-      <div className={styles.miniSub} style={{ marginBottom: 'var(--sp-2)' }}>
-        {goalMl ? `из ${formatKcal(goalMl)} мл` : 'мл'}
+      <div className={styles.waterTop}>
+        <div>
+          <div key={meta.waterMl} className={`${styles.miniBig} ${styles.bump}`}>
+            {formatKcal(meta.waterMl)}
+          </div>
+          <div className={styles.miniSub}>{goalMl ? `из ${formatKcal(goalMl)} мл` : 'мл'}</div>
+        </div>
+        {/* Undo sits beside the number (disabled at 0): the card never changes height. */}
+        <Button
+          variant="secondary"
+          className={styles.waterUndo}
+          aria-label={t.remove}
+          disabled={meta.waterMl <= 0}
+          onClick={() => void add(-250)}
+        >
+          −
+        </Button>
       </div>
       {goalMl ? (
-        <div className={styles.bar} style={{ marginBottom: 'var(--sp-3)' }} aria-hidden="true">
+        <div
+          className={styles.bar}
+          style={{ margin: 'var(--sp-2) 0 var(--sp-3)' }}
+          aria-hidden="true"
+        >
           <div
             className={styles.barFill}
             style={{ width: `${Math.min(1, meta.waterMl / goalMl) * 100}%` }}
@@ -27,15 +43,6 @@ export function WaterCard({ meta, goalMl }: { meta: DayMeta; goalMl: number | un
         </div>
       ) : null}
       <div className={styles.waterBtns}>
-        {/* Undo sits in the row (disabled at 0), so the card never changes height. */}
-        <Button
-          variant="secondary"
-          aria-label={t.remove}
-          disabled={meta.waterMl <= 0}
-          onClick={() => void add(-250)}
-        >
-          −
-        </Button>
         <Button variant="secondary" aria-label={t.add(250)} onClick={() => void add(250)}>
           +250
         </Button>
