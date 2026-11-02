@@ -7,6 +7,7 @@ import type { FoodDraft } from '../../domain/off';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { labelToDraft, mealToDraft } from '../../services/aiFood';
+import { logFood } from '../../services/entries';
 import { useReview } from '../../state/review';
 import { toast } from '../../state/ui';
 import { Button, LinkButton, Notice, TextField } from '../../ui/kit';
@@ -81,6 +82,14 @@ function AiPhotoInner() {
         <FoodForm
           initial={product.draft}
           saveLabel={log ? ru.foods.saveAndLog : ru.foods.save}
+          logger={{
+            onLog: async (d, grams) => {
+              const f = await repos.foods.add({ ...d, source: 'ai_label', verified: true });
+              await logFood(repos, f, grams, { date: target.date, time: target.time });
+              toast({ text: ru.portion.added(f.name) });
+              navigate('/', { replace: true });
+            },
+          }}
           onSave={async (d) => {
             const f = await repos.foods.add({ ...d, source: 'ai_label', verified: true });
             toast({ text: t.photo.productSaved });

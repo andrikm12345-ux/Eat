@@ -27,8 +27,7 @@ import { Fab } from './Fab';
 import styles from './AppShell.module.css';
 
 /** Manifest shortcut actions (`/?action=…`) that open the add sheet. */
-/** The floating "+" only lives on the main tabs; form screens keep their own buttons clear. */
-/** The floating "+" lives on Today and Diary only: elsewhere it only covers content. */
+/** The floating "+" lives on every main tab except "Ещё"; form screens keep their own buttons clear. */
 const ADD_ACTIONS = new Set(['add']);
 
 function pageClass(pathname: string, navType: string) {

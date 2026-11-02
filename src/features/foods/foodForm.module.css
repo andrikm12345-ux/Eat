@@ -17,3 +17,37 @@
   flex-direction: column;
   gap: var(--sp-2);
 }
+
+/* "How much did you eat": the recalculated portion right above the add button. */
+.portion {
+  margin-top: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-field);
+  background: var(--accent-wash);
+  text-align: center;
+}
+.portionKcal {
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.portionKcal small {
+  margin-left: var(--sp-1);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+}
+.portionMacros {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: var(--sp-2);
+}
+.portionMacros b {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+.portionMacros span {
+  font-size: var(--fs-6);
+  color: var(--text-muted);
+}

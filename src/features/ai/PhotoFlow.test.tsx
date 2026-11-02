@@ -99,13 +99,54 @@ describe('combined photo screen (flag on)', () => {
     await pickPhoto(user);
     await user.click(screen.getByRole('button', { name: ru.ai.photo.go }));
     expect(await screen.findByRole('heading', { name: ru.ai.photo.productTitle })).toBeVisible();
-    await user.click(screen.getByRole('button', { name: ru.foods.save }));
+    await user.click(screen.getByRole('button', { name: ru.foods.onlySave }));
     await waitFor(async () =>
       expect(await repos.foods.byBarcode('4610282720266')).toMatchObject({
         name: 'Кефир 1%',
         source: 'ai_label',
       }),
     );
+  });
+
+  it('a label photo: the grams recalculate the portion and one button logs it', async () => {
+    await setup();
+    vi.stubGlobal(
+      'fetch',
+      reply({
+        kind: 'label',
+        label: {
+          name: 'Кефир 1%',
+          brand: null,
+          barcode: null,
+          per100g: { kcal: 40, protein: 3, fat: 1, carbs: 4 },
+          serving: null,
+          confidence: 'high',
+          warnings: [],
+        },
+      }),
+    );
+    const user = userEvent.setup();
+    await renderApp('/add/ai-photo?date=2026-03-01&time=09:30');
+    await pickPhoto(user);
+    await user.click(screen.getByRole('button', { name: ru.ai.photo.go }));
+    expect(await screen.findByRole('heading', { name: ru.ai.photo.productTitle })).toBeVisible();
+    const grams = screen.getByLabelText(ru.foods.eatenGrams);
+    await user.clear(grams);
+    await user.type(grams, '250');
+    // 40 kcal per 100 g x 250 g = 100 kcal
+    await waitFor(() =>
+      expect(
+        screen.getByText(ru.units.kcal, { selector: 'small' }).parentElement,
+      ).toHaveTextContent(/^100\s*ккал$/),
+    );
+    await user.click(screen.getByRole('button', { name: ru.foods.addToDiary }));
+    await waitFor(async () => {
+      const list = await repos.entries.list();
+      expect(list).toHaveLength(1);
+      expect(list[0]).toMatchObject({ date: '2026-03-01', time: '09:30' });
+      expect(list[0]!.items[0]).toMatchObject({ name: 'Кефир 1%', grams: 250 });
+      expect(list[0]!.totals.kcal).toBeCloseTo(100, 0);
+    });
   });
 
   it('shows the error with a manual way out', async () => {

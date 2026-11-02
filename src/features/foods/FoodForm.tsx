@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { formatKcal } from '../../domain/format';
-import { atwaterKcal, isKcalInconsistent } from '../../domain/nutrients';
+import { formatGrams, formatKcal } from '../../domain/format';
+import { atwaterKcal, isKcalInconsistent, scaleNutrients } from '../../domain/nutrients';
 import type { Food, Nutrients, Serving } from '../../domain/types';
 import { ru } from '../../i18n/ru';
 import { isValidEan } from '../../domain/ean';
-import { Button, Card, Notice, NumberField, Row, TextField } from '../../ui/kit';
+import { Button, Card, Chips, Notice, NumberField, Row, TextField } from '../../ui/kit';
 import styles from './foodForm.module.css';
 
 const t = ru.foods;
@@ -25,6 +25,7 @@ export function FoodForm({
   onSave,
   saveLabel = t.save,
   extraActions,
+  logger,
 }: {
   initial: FoodDraft;
   onSave: (
@@ -32,6 +33,16 @@ export function FoodForm({
   ) => void | Promise<void>;
   saveLabel?: string;
   extraActions?: React.ReactNode;
+  /**
+   * Adds a "how much did you eat" block: the portion is recalculated from the per-100 g values
+   * as the grams change, and one button saves the food and logs it.
+   */
+  logger?: {
+    onLog: (
+      d: Pick<Food, 'name' | 'per100g' | 'servings'> & { brand?: string; barcode?: string },
+      grams: number,
+    ) => void | Promise<void>;
+  };
 }) {
   const [name, setName] = useState(initial.name);
   const [brand, setBrand] = useState(initial.brand ?? '');
@@ -40,6 +51,7 @@ export function FoodForm({
   const [servings, setServings] = useState<{ label: string; grams: number | null }[]>(
     initial.servings,
   );
+  const [grams, setGrams] = useState<number | null>(100);
   const val = (k: string) => (typeof n[k] === 'number' ? (n[k] as number) : null);
   const set = (k: string) => (v: number | null) => setN((p) => ({ ...p, [k]: v }));
 
@@ -59,7 +71,16 @@ export function FoodForm({
   const valid = nameOk && kcalOk && macrosOk;
   /** What is missing, said under the disabled save button. */
   const problem = !nameOk ? t.needName : !kcalOk ? t.kcalRange : !macrosOk ? t.macrosRange : null;
+  const portion = scaleNutrients(per100g, grams ?? 0);
+  const gramsOk = grams !== null && grams > 0 && grams < 5000;
   const code = barcode.trim();
+  const record = () => ({
+    name: name.trim(),
+    per100g,
+    servings: validServings,
+    ...(brand.trim() ? { brand: brand.trim() } : {}),
+    ...(barcode.trim() ? { barcode: barcode.trim() } : {}),
+  });
   const codeSuspicious = [8, 12, 13].includes(code.length) && !isValidEan(code);
 
   return (
@@ -139,22 +160,61 @@ export function FoodForm({
           )}
         </div>
       </Card>
+      {logger && (
+        <Card title={t.eatenTitle}>
+          <NumberField label={t.eatenGrams} suffix={ru.units.g} value={grams} onChange={setGrams} />
+          {validServings.length > 0 && (
+            <Chips
+              label={t.servings}
+              value={grams}
+              onChange={setGrams}
+              options={validServings.map((s) => ({
+                value: s.grams,
+                label: `${s.label} · ${formatGrams(s.grams)}\u00A0${ru.units.g}`,
+              }))}
+            />
+          )}
+          <div className={styles.portion} aria-live="polite">
+            <div className={styles.portionKcal}>
+              {formatKcal(portion.kcal)}
+              <small>{ru.units.kcal}</small>
+            </div>
+            <div className={styles.portionMacros}>
+              {(
+                [
+                  [t.protein, portion.protein],
+                  [t.fat, portion.fat],
+                  [t.carbs, portion.carbs],
+                ] as const
+              ).map(([label, v]) => (
+                <div key={label}>
+                  <b>{`${formatGrams(v)}\u00A0${ru.units.g}`}</b>
+                  <span>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      )}
       <div className={styles.actions}>
+        {logger && (
+          <Button
+            block
+            disabled={!valid || !gramsOk}
+            hint={problem ?? (gramsOk ? null : t.needGrams)}
+            onClick={() => void logger.onLog(record(), Math.round((grams ?? 0) * 10) / 10)}
+          >
+            {t.addToDiary}
+          </Button>
+        )}
         <Button
           block
+          variant={logger ? 'secondary' : 'primary'}
           disabled={!valid}
-          hint={problem}
-          onClick={() =>
-            void onSave({
-              name: name.trim(),
-              per100g,
-              servings: validServings,
-              ...(brand.trim() ? { brand: brand.trim() } : {}),
-              ...(barcode.trim() ? { barcode: barcode.trim() } : {}),
-            })
-          }
+          hint={logger ? null : problem}
+          onClick={() => void onSave(record())}
         >
-          {saveLabel}
+          {logger ? t.onlySave : saveLabel}
         </Button>
         {extraActions}
       </div>
