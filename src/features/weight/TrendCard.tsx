@@ -3,6 +3,7 @@ import { formatKg } from '../../domain/format';
 import { direction } from '../../domain/progress';
 import { trendChange, trendOn } from '../../domain/weightTrend';
 import { ru } from '../../i18n/ru';
+import { useProfile } from '../../db/hooks';
 import { useUi } from '../../state/ui';
 import { Button, Card } from '../../ui/kit';
 import { useTrend } from '../progress/useTrend';
@@ -13,6 +14,7 @@ const ARROWS = { down: '↓', up: '↑', flat: '→' } as const;
 
 export function TrendCard() {
   const data = useTrend();
+  const profile = useProfile();
   const setOpen = useUi((s) => s.setWeighOpen);
   const today = toLocalDate(new Date());
   if (!data) return null;
@@ -40,7 +42,8 @@ export function TrendCard() {
             )}
           </div>
           <div className={styles.small} style={{ marginBottom: 'var(--sp-3)' }}>
-            {t.raw} {formatKg(last.kg)} · {t.daysAgo(daysBetween(last.date, today))}
+            {t.raw(profile?.sex ?? 'male')} {formatKg(last.kg)} ·{' '}
+            {t.daysAgo(daysBetween(last.date, today))}
           </div>
         </>
       ) : (

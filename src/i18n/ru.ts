@@ -429,7 +429,8 @@ export const ru = {
     weigh: 'Взвеситься',
     sheetTitle: 'Взвешивание',
     trend: 'Тренд',
-    raw: 'Был',
+    /** The last weigh-in, worded in the gender of the user: Был 66,4 / Была 66,4. */
+    raw: (sex: 'male' | 'female') => (sex === 'female' ? 'Была' : 'Был'),
     change7: 'за 7 дней',
     none: 'Взвешиваний пока нет.',
     saved: 'Вес записан',
