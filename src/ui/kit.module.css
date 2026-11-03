@@ -152,7 +152,11 @@
 }
 .segment {
   flex: 1;
-  min-width: var(--tap);
+  /* A long word must not spill into the next segment: the text may wrap, the size is a notch smaller. */
+  min-width: 0;
+  padding-inline: var(--sp-1);
+  font-size: var(--fs-5);
+  line-height: 1.15;
   min-height: var(--tap);
   border: none;
   border-radius: var(--r-field);
