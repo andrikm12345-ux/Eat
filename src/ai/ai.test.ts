@@ -119,11 +119,11 @@ describe('json + validators', () => {
     const nul = validateMeal({ items: [{ ...base, assumption: null }] });
     expect(nul.ok && nul.value.items[0]).not.toHaveProperty('assumption');
   });
-  it('the prompts ask for a self-check and a scale object', () => {
-    for (const p of [PROMPT_MEAL, PROMPT_PHOTO]) {
-      expect(p).toContain('ПРОВЕРЬ себя');
-      expect(p).toContain('МАСШТАБ');
-    }
+  it('the meal prompt stays lean (no long self-check: a reasoning model would think for minutes); photos ask for a scale object', () => {
+    expect(PROMPT_MEAL).not.toContain('ПРОВЕРЬ себя');
+    expect(PROMPT_MEAL.length).toBeLessThan(3000);
+    expect(PROMPT_PHOTO).toContain('МАСШТАБ');
+    expect(PROMPT_PHOTO).not.toContain('ПРОВЕРЬ себя');
   });
   it('label schema', () => {
     const ok = validateLabel({

@@ -9,6 +9,9 @@ import { reviewKey, type ReviewDraft, type ReviewItem } from '../state/review';
 import { MATCH_THRESHOLD, mealToDraft } from './aiFood';
 import { searchWeb } from './webSearch';
 
+/** Without a stated quantity a catalog match must be almost exact. */
+const EXACT_THRESHOLD = 0.95;
+
 /** At most this many parts are looked up on the web per description (every lookup is a request). */
 export const MAX_WEB_PARTS = 3;
 
@@ -60,8 +63,10 @@ export async function analyzeMealByParts(
   const fromCatalog: ReviewItem[] = [];
   const rest: ParsedItem[] = [];
   for (const p of parts) {
-    const m = hasQuantity(p) ? bestMatch(index, p.query) : null;
-    if (m && m.similarity >= MATCH_THRESHOLD) {
+    // A quantity makes the catalog enough; without one only a near-exact name does ("банан"),
+    // and the usual portion of that food is taken.
+    const m = bestMatch(index, p.query);
+    if (m && m.similarity >= (hasQuantity(p) ? MATCH_THRESHOLD : EXACT_THRESHOLD)) {
       fromCatalog.push({
         key: reviewKey(),
         name: m.item.name,
@@ -69,7 +74,7 @@ export async function analyzeMealByParts(
         per100g: m.item.per100g,
         foodId: m.item.id,
         source: 'catalog',
-        confidence: 'high',
+        confidence: hasQuantity(p) ? 'high' : 'medium',
       });
     } else rest.push(p);
   }
