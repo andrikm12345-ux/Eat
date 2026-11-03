@@ -26,9 +26,10 @@ export const modelsUrl = (raw?: string, format: ApiFormat = 'anthropic', limit =
   format === 'openai'
     ? `${normalizeBase(raw, format)}/models`
     : `${normalizeBase(raw)}/v1/models?limit=${limit}`;
-export const AI_TIMEOUT_MS = 75_000;
+/** A bit more than the server's own limit (87 s), so the server's clean answer arrives first. */
+export const AI_TIMEOUT_MS = 92_000;
 /** Photos take the model longer (several images, a slower upload). */
-export const AI_VISION_TIMEOUT_MS = 90_000;
+export const AI_VISION_TIMEOUT_MS = 92_000;
 
 export type AiErrorKind =
   | 'noKey'

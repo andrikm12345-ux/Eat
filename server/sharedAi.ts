@@ -116,7 +116,7 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
       }),
       // Answer before the platform kills the function, so the app gets a clean error.
       // The limit covers reading the answer too, which is where a slow model usually stalls.
-      signal: AbortSignal.timeout(85_000),
+      signal: AbortSignal.timeout(87_000),
     });
     answer = await upstream.text();
   } catch (e) {
