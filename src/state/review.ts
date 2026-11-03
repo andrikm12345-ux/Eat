@@ -97,13 +97,18 @@ export type ReviewDraft = {
 
 type ReviewState = {
   draft: ReviewDraft | null;
+  /** The AI's answer that arrived after the quick catalog result was already shown. */
+  upgrade: ReviewDraft | null;
   setDraft: (d: ReviewDraft | null) => void;
+  setUpgrade: (d: ReviewDraft | null) => void;
 };
 
 /** Pending data for the review screen (nothing is saved until "Сохранить"). */
 export const useReview = create<ReviewState>((set) => ({
   draft: null,
-  setDraft: (draft) => set({ draft }),
+  upgrade: null,
+  setDraft: (draft) => set({ draft, upgrade: null }),
+  setUpgrade: (upgrade) => set({ upgrade }),
 }));
 
 let k = 0;

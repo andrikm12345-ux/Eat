@@ -15,6 +15,9 @@ import { useAiConfig } from './useAi';
 
 const t = ru.ai;
 
+/** How long to wait for the AI before showing the quick catalog result (ms). */
+export const AI_WAIT_MS = 20_000;
+
 /** Describe a meal in words → "Анализировать": AI when configured, otherwise catalog + OFF. */
 export default function AiTextPage() {
   const target = useAddTarget();
@@ -33,8 +36,30 @@ export default function AiTextPage() {
       if (useAiNow) {
         try {
           // By parts: the catalog first, then the web and the AI only for what is left.
-          setDraft(await analyzeMealByParts(repos, text, target));
+          // The AI may take over a minute: if it is not done in AI_WAIT_MS, the quick catalog
+          // result is shown and the AI's answer is offered when it arrives.
+          const aiRun = analyzeMealByParts(repos, text, target);
+          const waited = await Promise.race([
+            aiRun.then((draft) => ({ draft })),
+            new Promise<{ draft: null }>((resolve) =>
+              setTimeout(() => resolve({ draft: null }), AI_WAIT_MS),
+            ),
+          ]);
+          if (waited.draft) {
+            setDraft(waited.draft);
+            navigate('/review');
+            return;
+          }
+          const quick = await analyzeMealLocally(repos, text, target, { note: t.text.aiLateNote });
+          setDraft(quick);
           navigate('/review');
+          aiRun.then(
+            (late) => {
+              // Only if the person is still on this result.
+              if (useReview.getState().draft === quick) useReview.getState().setUpgrade(late);
+            },
+            () => undefined,
+          );
           return;
         } catch (e) {
           // AI unavailable → still give the user a result.

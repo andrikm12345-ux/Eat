@@ -265,3 +265,33 @@ describe('drinks and what the AI took for granted', () => {
     expect(screen.getAllByRole('radio', { name: t.milk })).toHaveLength(1);
   });
 });
+
+describe('the AI answer that arrives after the quick catalog result', () => {
+  it('offers the AI estimate and replaces the list when taken', async () => {
+    useReview.getState().setDraft({
+      items: [shake({ key: 'q', name: 'Быстрый разбор', source: 'catalog' })],
+      entrySource: 'manual',
+      date: '2026-03-01',
+      time: '08:00',
+      analysis: 'local',
+    });
+    const user = userEvent.setup();
+    await renderApp('/review');
+    expect(await screen.findByText('Быстрый разбор')).toBeVisible();
+    expect(screen.queryByText(t.upgradeGo)).not.toBeInTheDocument();
+    // The AI finishes later.
+    useReview.getState().setUpgrade({
+      items: [shake({ key: 'a', name: 'Оценка ИИ-разбора' })],
+      entrySource: 'ai_text',
+      date: '2026-03-01',
+      time: '08:00',
+      analysis: 'ai',
+      aiRunId: 'run1',
+    });
+    await user.click(await screen.findByRole('button', { name: t.upgradeGo }));
+    expect(await screen.findByText('Оценка ИИ-разбора')).toBeVisible();
+    expect(screen.queryByText('Быстрый разбор')).not.toBeInTheDocument();
+    expect(screen.queryByText(t.upgradeGo)).not.toBeInTheDocument();
+    expect(useReview.getState().upgrade).toBeNull();
+  });
+});

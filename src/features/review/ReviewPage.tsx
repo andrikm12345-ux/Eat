@@ -42,7 +42,7 @@ const t = ru.review;
 export default function ReviewPage() {
   const draft = useReview((s) => s.draft);
   if (!draft) return <Navigate to="/" replace />;
-  return <Review initial={draft} />;
+  return <Review key={`${draft.analysis}-${draft.aiRunId ?? ''}`} initial={draft} />;
 }
 
 /** One link per site: several pages of the same site would only repeat its name. */
@@ -59,6 +59,7 @@ const nutrientsOf = (i: ReviewItem) => scaleNutrients(i.per100g, i.grams);
 function Review({ initial }: { initial: ReviewDraft }) {
   const navigate = useNavigate();
   const setDraft = useReview((s) => s.setDraft);
+  const upgrade = useReview((s) => s.upgrade);
   const setDate = useUi((s) => s.setDate);
   const [items, setItems] = useState(initial.items);
   // The AI estimate the user started from; corrections are measured against it.
@@ -177,6 +178,14 @@ function Review({ initial }: { initial: ReviewDraft }) {
         </Notice>
       )}
       {initial.analysis === 'local' && <Notice tone="info">{t.byCatalog}</Notice>}
+      {initial.analysis === 'local' && upgrade && (
+        <Card>
+          <p className={styles.notes}>{t.upgradeText}</p>
+          <Button block onClick={() => setDraft({ ...upgrade, date, time })}>
+            {t.upgradeGo}
+          </Button>
+        </Card>
+      )}
       {items.some((i) => i.source === 'off') && <Notice tone="info">{t.unverified}</Notice>}
       {items.map((i) => {
         const n = nutrientsOf(i);
