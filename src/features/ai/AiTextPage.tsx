@@ -5,6 +5,7 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { analyzeMealLocally } from '../../services/localMeal';
 import { analyzeMealByParts } from '../../services/mealParts';
+import { offerAiUpgrade } from './upgrade';
 import { useReview } from '../../state/review';
 import { Button, Card, LinkButton, Notice } from '../../ui/kit';
 import { Page } from '../../ui/Page';
@@ -54,10 +55,7 @@ export default function AiTextPage() {
           setDraft(quick);
           navigate('/review');
           aiRun.then(
-            (late) => {
-              // Only if the person is still on this result.
-              if (useReview.getState().draft === quick) useReview.getState().setUpgrade(late);
-            },
+            (late) => offerAiUpgrade(quick, late),
             () => undefined,
           );
           return;
