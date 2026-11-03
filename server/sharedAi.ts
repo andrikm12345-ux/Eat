@@ -91,7 +91,12 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
 
   const model = body.vision ? cfg.modelVision : cfg.modelText;
   const started = d.now();
-  const note = (what: string, status?: number) =>
+  const note = (
+    what: string,
+    status?: number,
+    extra: Record<string, unknown> = {},
+    retried = false,
+  ) =>
     // Timing for the administrator's logs: model, size of the request, how long it took. No key, no text.
     console.log(
       `ai upstream ${what}`,
@@ -101,24 +106,41 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
         chars: JSON.stringify(body.messages).length,
         status,
         ms: d.now() - started,
+        ...(retried ? { retriedWithoutThinkingFlags: true } : {}),
+        ...extra,
       }),
     );
-  let upstream: Response;
-  let answer: string;
-  try {
-    upstream = await (d.fetchImpl ?? fetch)(`${cfg.baseUrl.replace(/\/+$/, '')}/chat/completions`, {
+  // The cheapest way to a fast answer from a "thinking" model: ask it not to think. Gateways
+  // that do not know these fields either ignore them or answer 400/422; then the same request
+  // is repeated once without them.
+  const noThinking = {
+    reasoning_effort: 'low',
+    thinking: { type: 'disabled' },
+    enable_thinking: false,
+  };
+  const maxTokens = Math.min(Number(body.max_tokens) || 4000, body.vision ? 6000 : 4000);
+  const signal = AbortSignal.timeout(87_000);
+  const url = `${cfg.baseUrl.replace(/\/+$/, '')}/chat/completions`;
+  const send = (extra: object) =>
+    (d.fetchImpl ?? fetch)(url, {
       method: 'POST',
       headers: { authorization: `Bearer ${cfg.apiKey}`, 'content-type': 'application/json' },
-      body: JSON.stringify({
-        model,
-        messages: body.messages,
-        max_tokens: Math.min(Number(body.max_tokens) || 4000, 8000),
-      }),
+      body: JSON.stringify({ model, messages: body.messages, max_tokens: maxTokens, ...extra }),
       // Answer before the platform kills the function, so the app gets a clean error.
       // The limit covers reading the answer too, which is where a slow model usually stalls.
-      signal: AbortSignal.timeout(87_000),
+      signal,
     });
+  let upstream: Response;
+  let answer: string;
+  let withoutExtras = false;
+  try {
+    upstream = await send(noThinking);
     answer = await upstream.text();
+    if (upstream.status === 400 || upstream.status === 422) {
+      withoutExtras = true;
+      upstream = await send({});
+      answer = await upstream.text();
+    }
   } catch (e) {
     // A DOMException is not always an Error instance, so only the name is checked.
     const timedOut = (e as { name?: string } | null)?.name === 'TimeoutError';
@@ -127,13 +149,33 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
       ? json({ error: 'ai_upstream_timeout' }, 504)
       : json({ error: 'ai_upstream_unreachable' }, 502);
   }
-  note('done', upstream.status);
+  note('done', upstream.status, usageOf(answer), withoutExtras);
   // Pass the service's status and body through: the client already understands them
   // (402 balance, 429 limits, 400 images not supported…). The key never appears in them.
   return new Response(answer, {
     status: upstream.status,
     headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
   });
+}
+
+/** Token counts from the service's answer, for the logs (never the text itself). */
+function usageOf(answer: string): Record<string, unknown> {
+  try {
+    const r = JSON.parse(answer) as {
+      usage?: {
+        completion_tokens?: number;
+        completion_tokens_details?: { reasoning_tokens?: number };
+      };
+      choices?: { finish_reason?: string }[];
+    };
+    return {
+      outTokens: r.usage?.completion_tokens,
+      thinkTokens: r.usage?.completion_tokens_details?.reasoning_tokens,
+      finish: r.choices?.[0]?.finish_reason,
+    };
+  } catch {
+    return {};
+  }
 }
 
 /** GET (administrator) → the current shared settings; the key itself is never returned. */

@@ -99,7 +99,7 @@ describe('shared AI chat', () => {
       'Bearer thk_live_SECRET_KEY',
     );
     const sent = JSON.parse(calls[0]!.init.body as string);
-    expect(sent).toMatchObject({ model: 'text-model', max_tokens: 8000 });
+    expect(sent).toMatchObject({ model: 'text-model', max_tokens: 4000, reasoning_effort: 'low' });
     // Photos use the vision model.
     await aiChat(d, post(token, { ...msgs, vision: true }));
     expect(JSON.parse(calls[1]!.init.body as string).model).toBe('vision-model');
@@ -114,6 +114,24 @@ describe('shared AI chat', () => {
     expect((await aiChat(d, post(token, { vision: false }))).status).toBe(400);
     expect((await aiChat(d, post(token, 'x'.repeat(MAX_AI_BYTES + 1), true))).status).toBe(413);
     expect(calls).toHaveLength(0);
+  });
+
+  it('repeats once without the no-thinking flags when the service does not know them', async () => {
+    const seen: Record<string, unknown>[] = [];
+    const { d } = setup({}, async (_url, init) => {
+      const b = JSON.parse(init.body as string) as Record<string, unknown>;
+      seen.push(b);
+      return 'reasoning_effort' in b
+        ? new Response('{"error":"unknown field"}', { status: 400 })
+        : okReply();
+    });
+    const token = await signUp(d, 'ivan');
+    const res = await aiChat(d, post(token, msgs));
+    expect(res.status).toBe(200);
+    expect(seen).toHaveLength(2);
+    expect(seen[0]).toHaveProperty('reasoning_effort', 'low');
+    expect(seen[1]).not.toHaveProperty('reasoning_effort');
+    expect(seen[1]).not.toHaveProperty('thinking');
   });
 
   it('a model that takes too long gives a clean 504, not a crash', async () => {
