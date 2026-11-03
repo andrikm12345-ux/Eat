@@ -115,8 +115,10 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
   // is repeated once without them.
   const noThinking = {
     reasoning_effort: 'low',
+    reasoning: { enabled: false, effort: 'low' },
     thinking: { type: 'disabled' },
     enable_thinking: false,
+    chat_template_kwargs: { enable_thinking: false },
   };
   const maxTokens = Math.min(Number(body.max_tokens) || 4000, body.vision ? 6000 : 4000);
   const signal = AbortSignal.timeout(87_000);
@@ -166,12 +168,18 @@ function usageOf(answer: string): Record<string, unknown> {
         completion_tokens?: number;
         completion_tokens_details?: { reasoning_tokens?: number };
       };
-      choices?: { finish_reason?: string }[];
+      choices?: {
+        finish_reason?: string;
+        message?: { reasoning_content?: string; reasoning?: string };
+      }[];
     };
+    const m = r.choices?.[0]?.message;
     return {
       outTokens: r.usage?.completion_tokens,
       thinkTokens: r.usage?.completion_tokens_details?.reasoning_tokens,
       finish: r.choices?.[0]?.finish_reason,
+      // How much the model wrote as hidden thinking (size only, never the text).
+      thinkChars: (m?.reasoning_content ?? m?.reasoning ?? '').length,
     };
   } catch {
     return {};
