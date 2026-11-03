@@ -50,6 +50,7 @@ export async function syncNow(r: Repos): Promise<SyncResult> {
       return { ok: false, reason: 'expired' };
     }
     if (!res.ok) return { ok: false, reason: 'server' };
+    await storeLabels(r, res.headers.get('x-ui-labels'));
     const body = await res.text();
     let pulled = 0;
     let remoteTables: string | null = null;
@@ -78,6 +79,19 @@ export async function syncNow(r: Repos): Promise<SyncResult> {
     return { ok: true, pulled, pushed };
   } catch {
     return { ok: false, reason: 'network' };
+  }
+}
+
+/** Personal button texts from the server: kept for the screens, removed when there are none. */
+async function storeLabels(r: Repos, header: string | null) {
+  try {
+    const labels = header
+      ? (JSON.parse(decodeURIComponent(header)) as Record<string, string>)
+      : null;
+    if (labels && typeof labels === 'object') await r.settings.set(ACCOUNT.labels, labels);
+    else await r.db.settings.delete(ACCOUNT.labels);
+  } catch {
+    await r.db.settings.delete(ACCOUNT.labels);
   }
 }
 

@@ -13,6 +13,8 @@ export const ACCOUNT = {
   skipped: 'accountSkipped',
   /** Whose data the device holds (login). It outlives signing out: that is its purpose. */
   owner: 'accountDataOwner',
+  /** Personal button texts the administrator set for this account (from the server). */
+  labels: 'accountLabels',
 } as const;
 
 /** What a failed reply means for the user: wrong secret, or locked for a while. */

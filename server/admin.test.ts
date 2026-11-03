@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { adminUsers } from './admin.js';
 import { getSync, login, putSync, register } from './handlers.js';
+import { parseUserLabels } from './deps.js';
 import { userIdFor } from './auth.js';
 import type { Deps, Store } from './types.js';
 
@@ -144,5 +145,29 @@ describe('last visit', () => {
     const res = await adminUsers(d, get(admin));
     const { users } = (await res.json()) as { users: { login: string; lastLogin: number }[] };
     expect(users.map((u) => u.login).sort()).toEqual(['blackjack', 'ivan']);
+  });
+});
+
+describe('personal button texts', () => {
+  it('only the named person gets the header; malformed settings are ignored', async () => {
+    const d = setup();
+    d.userLabels = parseUserLabels(
+      JSON.stringify({ Crimor: { weigh: '  Вздимониться  ', evil: 'x' } }),
+    );
+    expect(d.userLabels).toEqual({ crimor: { weigh: 'Вздимониться' } });
+    const crimor = await signUp(d, 'crimor');
+    const other = await signUp(d, 'ivan');
+    const get1 = (t: string) =>
+      new Request('http://x', { headers: { authorization: `Bearer ${t}` } });
+    const mine = await getSync(d, get1(crimor));
+    expect(JSON.parse(decodeURIComponent(mine.headers.get('x-ui-labels') ?? ''))).toEqual({
+      weigh: 'Вздимониться',
+    });
+    expect((await getSync(d, get1(other))).headers.get('x-ui-labels')).toBeNull();
+    expect(parseUserLabels('not json')).toEqual({});
+    expect(parseUserLabels(undefined)).toEqual({});
+    expect(
+      parseUserLabels(JSON.stringify({ a: { weigh: 'x'.repeat(100) } })).a?.weigh,
+    ).toHaveLength(30);
   });
 });

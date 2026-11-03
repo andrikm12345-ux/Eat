@@ -20,6 +20,8 @@ export type Deps = {
   search?: { apiKey: string; dailyLimit: number };
   /** Logins of administrators (they edit the shared AI settings). */
   adminLogins?: string[];
+  /** Personal button texts set by the administrator: login → { key: text } (USER_LABELS). */
+  userLabels?: Record<string, Record<string, string>>;
   /** For tests: replaces fetch when calling the AI service. */
   fetchImpl?: typeof fetch;
 };

@@ -276,12 +276,26 @@ export async function getSync(d: Deps, req: Request): Promise<Response> {
   if (!userId) return json({ error: 'unauthorized' }, 401);
   await touchSeen(d, req, userId);
   const text = await d.store.get(dataPath(userId));
+  // Personal button texts set by the administrator travel in a header (URL-encoded JSON).
+  const mine = Object.entries(d.userLabels ?? {}).find(
+    ([login]) => userIdFor(d.secret, login) === userId,
+  )?.[1];
+  const extra: Record<string, string> = mine
+    ? { 'x-ui-labels': encodeURIComponent(JSON.stringify(mine)) }
+    : {};
   return text
     ? new Response(text, {
         status: 200,
-        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          'cache-control': 'no-store',
+          ...extra,
+        },
       })
-    : json({ empty: true });
+    : new Response(JSON.stringify({ empty: true }), {
+        status: 200,
+        headers: { 'content-type': 'application/json; charset=utf-8', ...extra },
+      });
 }
 
 /** PUT <snapshot json> → stores it for the signed-in user. */
