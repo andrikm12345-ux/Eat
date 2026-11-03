@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseMealText } from '../domain/mealText';
 import { MAX_WEB_PARTS, partsMessage, pickWebParts, renumber } from './mealParts';
+import { formatWebContext } from './webSearch';
 
 describe('meal parts', () => {
   it('searches branded parts first and at most MAX_WEB_PARTS of them', () => {
@@ -27,5 +28,16 @@ describe('meal parts', () => {
 
   it('renumbers references so numbers stay unique across searches', () => {
     expect(renumber('[1] A: a\n[2] B: b', 3)).toBe('[4] A: a\n[5] B: b');
+  });
+
+  it('a web reference is short: three hits at most, each excerpt cut', () => {
+    const hits = Array.from({ length: 6 }, (_, i) => ({
+      title: `T${i}`,
+      url: `https://s${i}.example/p`,
+      content: 'x'.repeat(2000),
+    }));
+    const web = formatWebContext(hits);
+    expect(web?.sources).toHaveLength(3);
+    expect(web?.text.length).toBeLessThan(1300);
   });
 });

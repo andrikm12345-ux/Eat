@@ -20,10 +20,18 @@ export const searchQuery = (description: string): string =>
   `${description.replace(/\s+/g, ' ').trim().slice(0, 200)} калорийность БЖУ на 100 г состав`;
 
 /** Reference text for the AI built from search hits. */
-export function formatWebContext(hits: WebHit[]): WebContext | null {
-  if (hits.length === 0) return null;
+/** A slow model reads the whole reference before it answers: few hits, short excerpts. */
+const MAX_HITS = 3;
+const MAX_EXCERPT = 350;
+
+export function formatWebContext(all: WebHit[]): WebContext | null {
+  if (all.length === 0) return null;
+  const hits = all.slice(0, MAX_HITS);
   const text = hits
-    .map((h, i) => `[${i + 1}] ${h.title} (${hostOf(h.url)}): ${h.content.replace(/\s+/g, ' ')}`)
+    .map(
+      (h, i) =>
+        `[${i + 1}] ${h.title} (${hostOf(h.url)}): ${h.content.replace(/\s+/g, ' ').slice(0, MAX_EXCERPT)}`,
+    )
     .join('\n');
   return { text, sources: hits.map((h) => ({ title: h.title, url: h.url })) };
 }
