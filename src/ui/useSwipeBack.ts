@@ -47,14 +47,18 @@ export function useSwipeBack(
       live = e.touches.length === 1 && !(e.target as Element).closest?.(SKIP);
       locked = false;
       if (!live) return;
-      sx = e.touches[0]!.clientX;
-      sy = e.touches[0]!.clientY;
+      const t = e.touches[0];
+      if (!t) return;
+      sx = t.clientX;
+      sy = t.clientY;
       if (scrollsSideways(e.target as Element, el)) live = false;
     };
     const move = (e: TouchEvent) => {
       if (!live) return;
-      const dx = e.touches[0]!.clientX - sx;
-      const dy = e.touches[0]!.clientY - sy;
+      const t = e.touches[0];
+      if (!t) return;
+      const dx = t.clientX - sx;
+      const dy = t.clientY - sy;
       if (!locked) {
         if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) live = false;
         else if (dx > 12 && dx > Math.abs(dy) * 1.5) locked = true;
@@ -65,7 +69,7 @@ export function useSwipeBack(
     const up = (e: TouchEvent) => {
       if (!live || !locked) return;
       live = false;
-      const dx = e.changedTouches[0]!.clientX - sx;
+      const dx = (e.changedTouches[0]?.clientX ?? sx) - sx;
       release();
       if (dx > DISTANCE) back();
     };
