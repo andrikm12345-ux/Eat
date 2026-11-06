@@ -176,6 +176,11 @@ export const ru = {
   },
   more: {
     title: 'Ещё',
+    hero: {
+      streak: (n: number) => `🔥 ${n}\u00A0дн. подряд с записями`,
+      weigh: (n: number) => `${n}\u00A0дн. подряд со взвешиванием`,
+      start: 'Запишите еду сегодня — начнётся серия',
+    },
     groups: { food: 'Питание', body: 'Тело и цели', app: 'Приложение' },
     items: {
       profile: 'Профиль и цели',
@@ -497,6 +502,15 @@ export const ru = {
   },
   progress: {
     title: 'Прогресс',
+    hero: {
+      now: (kg: string) => `${kg}\u00A0кг`,
+      goal: (kg: string) => `цель ${kg}\u00A0кг`,
+      month: (v: string) => `${v}\u00A0кг за месяц`,
+      left: (v: string) => `до цели ${v}\u00A0кг`,
+      reached: 'цель достигнута',
+      none: 'Взвесьтесь, чтобы увидеть тренд',
+      chart: 'Тренд веса за месяц',
+    },
     chart: 'Вес и тренд',
     periods: { m1: '1 мес', m3: '3 мес', m6: '6 мес', all: 'Всё' },
     period: 'Период',
@@ -842,6 +856,10 @@ export const ru = {
     prevWeek: 'Предыдущая неделя',
     nextWeek: 'Следующая неделя',
     weekRange: (a: string, b: string) => `${a} — ${b}`,
+    bars: 'Калории по дням недели',
+    barDay: (day: string, kcal: string) => `${day}: ${kcal}\u00A0ккал`,
+    heroAvg: (kcal: string) => `в среднем ${kcal}\u00A0ккал в день`,
+    heroInGoal: (n: number) => `${n} из 7 дней в норме`,
     logged: (n: number) => `Дней с записями: ${n} из 7`,
     averages: 'Среднее за день',
     vsGoal: (v: string, g: string) => `${v} из ${g}`,

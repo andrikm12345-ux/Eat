@@ -33,9 +33,11 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  background: var(--card-plain);
+  border-radius: 22px;
+  box-shadow:
+    var(--shadow-card),
+    inset 0 0 0 1px var(--tone-edge);
   overflow: hidden;
 }
 .row + .row {

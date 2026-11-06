@@ -83,6 +83,23 @@
   --kind-deepen: 30%;
   --on-kind: #ffffff;
 
+  /* ---- coloured cards: one soft tone per theme ---- */
+  --tone-food: linear-gradient(140deg, #ffffff 0%, #fff0dc 100%);
+  --tone-weight: linear-gradient(140deg, #f3fbec 0%, #d6f0c2 100%);
+  --tone-water: linear-gradient(140deg, #f0f8ff 0%, #cde6fc 100%);
+  --tone-activity: linear-gradient(140deg, #faf4ff 0%, #e4d6ff 100%);
+  --tone-sun: linear-gradient(140deg, #fffaf0 0%, #ffe2ad 100%);
+  --tone-rose: linear-gradient(140deg, #fff5f7 0%, #ffd2dc 100%);
+  --tone-sand: linear-gradient(140deg, #fbf8f3 0%, #eadfce 100%);
+  --tone-mint: linear-gradient(140deg, #f0fbf7 0%, #c6eedd 100%);
+  --tone-sky: linear-gradient(140deg, #f2f4ff 0%, #d0d8ff 100%);
+  --card-plain: linear-gradient(160deg, #ffffff 40%, #fbf7f1 100%);
+  --tone-edge: rgb(255 255 255 / 0.7);
+  --chip-on-tone: rgb(255 255 255 / 0.85);
+  --water: #3d97f0;
+  --sky-accent: #b6e98e;
+  --sky-accent-ink: #1d3b2f;
+
   /* ---- shadows: two soft steps ---- */
   --shadow-1: 0 1px 2px rgb(20 40 30 / 0.05), 0 4px 14px rgb(20 40 30 / 0.05);
   --shadow-2: 0 10px 30px rgb(20 40 30 / 0.16), 0 2px 6px rgb(20 40 30 / 0.08);
@@ -131,7 +148,7 @@
   --hit: 44px; /* the smallest tappable box */
   --icon: 24px;
   --icon-stroke: 2;
-  --nav-height: 64px;
+  --nav-height: 72px; /* the floating bar (64) and the air under it */
   --fab: 58px;
 
   /* ---- device ---- */
@@ -200,6 +217,20 @@
     --kind-other: #a3acb1;
     --kind-deepen: 0%;
     --on-kind: #0b1a17;
+
+    --tone-food: linear-gradient(140deg, #1f1d19 0%, #2f2619 100%);
+    --tone-weight: linear-gradient(140deg, #1a211a 0%, #213321 100%);
+    --tone-water: linear-gradient(140deg, #171f28 0%, #1a2e42 100%);
+    --tone-activity: linear-gradient(140deg, #1e1b26 0%, #2c2443 100%);
+    --tone-sun: linear-gradient(140deg, #211e16 0%, #3a2e14 100%);
+    --tone-rose: linear-gradient(140deg, #231a1d 0%, #3c2229 100%);
+    --tone-sand: linear-gradient(140deg, #1f1d1a 0%, #2f2a22 100%);
+    --tone-mint: linear-gradient(140deg, #172320 0%, #1b3a30 100%);
+    --tone-sky: linear-gradient(140deg, #1a1c27 0%, #232a48 100%);
+    --card-plain: var(--surface);
+    --tone-edge: rgb(255 255 255 / 0.06);
+    --chip-on-tone: rgb(255 255 255 / 0.08);
+    --water: #6fb4f7;
 
     /* No shadows on dark: a thin light edge instead. */
     --shadow-1: 0 0 0 1px rgb(255 255 255 / 0.06);

@@ -22,7 +22,7 @@ export function ActivityCard({
   const total = workouts.reduce((s, w) => s + (w.kcal ?? 0), 0);
   const bonus = exerciseBonus(mode, total);
   return (
-    <Card title={t.title}>
+    <Card title={t.title} tone="activity">
       <div className={styles.activityRow}>
         <NumberField
           label={t.steps}

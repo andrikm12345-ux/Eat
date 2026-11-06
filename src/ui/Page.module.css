@@ -20,19 +20,6 @@
 .head {
   display: contents;
 }
-.pinnedPage {
+.skyPage {
   padding-top: 0;
-}
-.pinned {
-  position: sticky;
-  top: 0;
-  z-index: 12;
-  margin: 0 calc(-16px - var(--safe-right)) 12px calc(-16px - var(--safe-left));
-  padding: calc(12px + var(--safe-top)) calc(16px + var(--safe-right)) 8px
-    calc(16px + var(--safe-left));
-  /* Solid, no backdrop-filter: on iOS WebKit a blurred layer can leave a dark rectangle behind. */
-  background: var(--bg);
-}
-.pinned .title {
-  margin: 0;
 }

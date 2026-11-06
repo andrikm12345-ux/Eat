@@ -36,7 +36,7 @@ export default function TodayPage() {
           <DayHero date={date} entries={day.entries} totals={dayTotals(day.entries)} goal={goal} />
           <Banners />
           {day.entries.length === 0 && <StreakRow meta={day.meta} empty showStreak={false} />}
-          <Card title={ru.today.flowTitle}>
+          <Card title={ru.today.flowTitle} tone="food">
             <DayFlow entries={day.entries} />
           </Card>
           <div className={styles.pair}>

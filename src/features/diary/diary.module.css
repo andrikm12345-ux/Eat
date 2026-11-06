@@ -1,87 +1,104 @@
-.monthBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--sp-2);
-}
-.monthTitle {
-  font-size: var(--fs-4);
-  font-weight: var(--fw-semibold);
-  text-transform: capitalize;
-}
+/* The month calendar sits on the sky; the colours say how each day went. */
 .grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: var(--sp-1);
-  margin-bottom: var(--sp-2);
+  gap: 6px;
+  margin: var(--sp-3) 0 var(--sp-2);
 }
 .dow {
   text-align: center;
   font-size: var(--fs-6);
-  color: var(--text-muted);
+  color: var(--hero-muted);
   text-transform: uppercase;
 }
 .cell {
   min-width: 0;
-  height: var(--tap);
-  border-radius: var(--r-field);
+  height: 40px;
+  border-radius: 50%;
   border: 2px solid transparent;
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
-  font-weight: var(--fw-semibold);
+  background: var(--hero-chip);
+  color: var(--hero-text);
+  font: inherit;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-5);
   display: grid;
   place-items: center;
-  font-size: var(--fs-5);
   cursor: pointer;
   font-variant-numeric: tabular-nums;
+  animation: cell-in 0.4s var(--ease-spring) both;
+  transition: transform 0.15s ease;
+}
+@keyframes cell-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+.cell:active {
+  transform: scale(0.9);
 }
 .future {
   background: transparent;
-  box-shadow: none;
-  color: var(--text-muted);
-}
-.cell {
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.2s ease;
-}
-.cell:active {
-  transform: scale(0.94);
-}
-.cell:disabled {
-  opacity: 0.35;
-  cursor: default;
+  color: var(--hero-muted);
 }
 .today {
-  border-color: var(--accent);
-  color: var(--accent);
-  font-weight: var(--fw-bold);
+  border-color: var(--hero-text);
 }
 .close {
-  background: linear-gradient(145deg, var(--accent-2), var(--accent));
-  color: var(--accent-contrast);
-  box-shadow: 0 4px 12px var(--glow);
+  background: var(--sky-accent);
+  color: var(--sky-accent-ink);
+  box-shadow: 0 0 0 3px rgb(182 233 142 / 0.25);
 }
 .below {
-  background: var(--accent-soft);
+  background: #ffe08a;
+  color: #4a3505;
 }
 .above {
-  background: color-mix(in srgb, var(--over) 35%, var(--surface));
+  background: #ffae78;
+  color: #4a2105;
 }
 .legend {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: var(--sp-3);
   font-size: var(--fs-6);
-  color: var(--text-muted);
-  margin-bottom: var(--sp-3);
+  color: var(--hero-muted);
 }
 .swatch {
-  box-shadow: none !important;
   display: inline-block;
   width: 10px;
   height: 10px;
   border-radius: var(--r-pill);
   margin-right: var(--sp-1);
   vertical-align: middle;
+  box-shadow: none;
+}
+
+/* The list of days below: a coloured dot per day. */
+ul.days {
+  background: var(--tone-food);
+}
+.dayDot {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin: 0 var(--sp-1);
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+.days .close {
+  background: #6cc24a;
+  box-shadow: none;
+}
+.days .below {
+  background: #f2c33d;
+}
+.days .above {
+  background: #f08a4b;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    animation: none;
+  }
 }

@@ -53,17 +53,27 @@ export function LinkButton({
   );
 }
 
+/** Soft colour of a card, by what it is about. */
+export type Tone =
+  'food' | 'weight' | 'water' | 'activity' | 'sun' | 'rose' | 'sand' | 'mint' | 'sky';
+
 export function Card({
   title,
   children,
   className,
+  tone,
 }: {
   title?: ReactNode;
   children: ReactNode;
   className?: string;
+  tone?: Tone;
 }) {
   return (
-    <section className={className ? `${styles.card} ${className}` : styles.card}>
+    <section
+      className={[styles.card, tone ? styles[`tone-${tone}`] : '', className]
+        .filter(Boolean)
+        .join(' ')}
+    >
       {title ? <h2 className={styles.cardTitle}>{title}</h2> : null}
       {children}
     </section>

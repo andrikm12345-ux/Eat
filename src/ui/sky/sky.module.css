@@ -1,0 +1,104 @@
+/* The sky at the top of every main tab: full width, follows the time of day. */
+.sky {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  margin: calc(-16px - var(--safe-top)) calc(-16px - var(--safe-right)) var(--sp-4)
+    calc(-16px - var(--safe-left));
+  padding: calc(28px + var(--safe-top)) calc(18px + var(--safe-right)) 40px
+    calc(18px + var(--safe-left));
+  border-radius: 0 0 30px 30px;
+  background: linear-gradient(
+    180deg,
+    var(--sky-top) 0%,
+    var(--sky-mid) 52%,
+    var(--sky-bottom) 100%
+  );
+  transition: background 1s linear;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+}
+
+.dark {
+  --hero-text: #ffffff;
+  --hero-muted: rgb(255 255 255 / 0.68);
+  --hero-line: rgb(255 255 255 / 0.22);
+  --hero-protein: #7fe0cc;
+  --hero-fat: #f3c96a;
+  --hero-carbs: #a9c0ff;
+  --hero-status: #ffd890;
+  --hero-over: #ffa36e;
+  --hero-chip: rgb(255 255 255 / 0.14);
+  color: var(--hero-text);
+}
+.light {
+  --hero-text: #14231d;
+  --hero-muted: #3e4f48;
+  --hero-line: rgb(20 35 29 / 0.16);
+  --hero-protein: #1f7d70;
+  --hero-fat: #9a6c0c;
+  --hero-carbs: #3a5fb5;
+  --hero-status: #1f6b4c;
+  --hero-over: #9a4a08;
+  --hero-chip: rgb(255 255 255 / 0.55);
+  color: var(--hero-text);
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---- pieces shared by every sky ---- */
+.title {
+  margin: 0;
+  font-size: var(--fs-2);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-align: center;
+}
+.sub {
+  margin: var(--sp-1) 0 0;
+  text-align: center;
+  font-size: var(--fs-5);
+  color: var(--hero-muted);
+}
+.navRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+.navRow > :not(button) {
+  flex: 1;
+  text-align: center;
+  font-size: 17px;
+  font-weight: var(--fw-semibold);
+  text-transform: capitalize;
+}
+.arrow {
+  flex: none;
+  width: var(--tap);
+  height: var(--tap);
+  border: none;
+  border-radius: 50%;
+  background: var(--hero-chip);
+  color: inherit;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.arrow:active {
+  transform: scale(0.92);
+}
+.arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sky {
+    transition: none;
+  }
+}

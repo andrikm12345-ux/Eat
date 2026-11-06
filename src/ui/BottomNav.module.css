@@ -1,16 +1,32 @@
+/* The floating bottom bar: rounded, in the colours of the sky above. */
 .nav {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: calc(10px + var(--safe-left));
+  right: calc(10px + var(--safe-right));
+  bottom: calc(8px + var(--safe-bottom));
   z-index: 20;
+  max-width: 620px;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  height: calc(var(--nav-height) + var(--safe-bottom));
-  padding: 0 var(--safe-right) var(--safe-bottom) var(--safe-left);
-  /* No backdrop-filter: on iOS WebKit it can leave dark rectangles while scrolling. */
-  background: var(--glass-solid);
-  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+  height: 64px;
+  padding: 0 4px;
+  border-radius: 24px;
+  background: linear-gradient(100deg, var(--nav-a) 0%, var(--nav-b) 55%, var(--nav-c) 100%);
+  box-shadow:
+    0 10px 26px rgb(30 20 40 / 0.3),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+  transition: background 1s linear;
+}
+.withFab {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) 62px repeat(3, minmax(0, 1fr));
+}
+.dark {
+  --nav-ink: rgb(255 255 255 / 0.78);
+}
+.light {
+  --nav-ink: #1c2c26;
 }
 
 .link {
@@ -18,38 +34,58 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--sp-1);
-  min-height: var(--tap);
-  min-width: var(--tap);
-  color: var(--text-muted);
+  gap: 2px;
+  min-width: 0;
+  height: 54px;
+  margin: 0 1px;
+  border-radius: 18px;
+  color: var(--nav-ink);
   text-decoration: none;
-  font-size: var(--fs-6);
+  font-size: clamp(9.5px, 2.75vw, 11px);
+  letter-spacing: -0.01em;
   font-weight: var(--fw-semibold);
-}
-
-.icon {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 30px;
-  border-radius: var(--r-card);
   transition:
     background-color 0.25s var(--ease-out),
     color 0.2s ease,
     transform 0.15s ease;
 }
-
-.active {
-  color: var(--accent);
-  font-weight: var(--fw-semibold);
+.label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.icon {
+  display: grid;
+  place-items: center;
+  height: 26px;
+}
+.icon svg {
+  width: 22px;
+  height: 22px;
 }
 
-.active .icon {
-  background: var(--accent-soft);
+.active {
+  background: var(--sky-accent);
+  color: var(--sky-accent-ink);
+  font-weight: var(--fw-bold);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.18);
 }
 .active .icon svg {
   animation: pop 0.4s var(--ease-spring);
 }
-.link:active .icon {
-  transform: scale(0.9);
+.link:active {
+  transform: scale(0.93);
+}
+
+.fabSlot {
+  display: grid;
+  place-items: center;
+  height: 64px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav {
+    transition: none;
+  }
 }

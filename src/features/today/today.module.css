@@ -213,7 +213,7 @@
 .bar {
   height: 8px;
   border-radius: var(--r-pill);
-  background: var(--surface-2);
+  background: var(--bar-track, var(--surface-2));
   overflow: hidden;
 }
 .barFill {
@@ -588,4 +588,9 @@
   padding: 0 var(--sp-2);
   margin-left: calc(-1 * var(--sp-2));
   cursor: pointer;
+}
+
+/* Water fills up in blue; on the coloured cards the empty part of a bar is a light track. */
+.waterFill {
+  background: linear-gradient(90deg, #7cc3ff, var(--water));
 }

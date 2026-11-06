@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router';
 import { repos } from '../../db/repos';
 import { addDays, formatDateRu, toLocalDate } from '../../domain/dates';
@@ -12,32 +12,13 @@ import { toast, useUi } from '../../state/ui';
 import { motionEnabled } from '../../ui/motion';
 import { dayTitle } from './dayTitle';
 import { useSwipe } from './useDaySwipe';
-import { SeasonLayer, Stars } from './SeasonLayer';
-import {
-  dayPins,
-  greetingAt,
-  linePos,
-  seasonOf,
-  skyAt,
-  slotNow,
-  SLOTS,
-  type Pin,
-  type Slot,
-} from './scene';
+import { SkyHeader } from '../../ui/sky/SkyHeader';
+import { useSky } from '../../ui/sky/useSky';
+import { dayPins, greetingAt, linePos, slotNow, SLOTS, type Pin, type Slot } from './scene';
 import styles from './dayHero.module.css';
 
 const t = ru.today;
 const h = t.hero;
-
-/** The clock, refreshed every minute: the sky and the "now" mark follow it. */
-function useNow(): Date {
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60_000);
-    return () => clearInterval(id);
-  }, []);
-  return now;
-}
 
 const ICONS: Record<Slot, React.ReactNode> = {
   breakfast: (
@@ -109,22 +90,11 @@ export function DayHero({
 }) {
   const setDate = useUi((s) => s.setDate);
   const openAdd = useUi((s) => s.openAdd);
-  const now = useNow();
+  const { now, hours } = useSky();
   const today = toLocalDate(now);
-  const hours = now.getHours() + now.getMinutes() / 60;
-  const sky = skyAt(hours);
-  const season = seasonOf(now.getMonth());
   const login = useLiveQuery(() => repos.settings.get<string>(ACCOUNT.login, ''), []);
   const streaks = useLiveQuery(() => loadStreaks(repos, today), [today, entries.length]);
   const swipe = useSwipe((dir) => setDate(addDays(date, dir)));
-
-  // The browser bar takes the sky's colour while this card is on screen.
-  useEffect(() => {
-    const metas = [...document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')];
-    const old = metas.map((m) => m.content);
-    for (const m of metas) m.content = sky.top;
-    return () => metas.forEach((m, i) => (m.content = old[i] ?? m.content));
-  }, [sky.top]);
 
   const pins = useMemo(() => dayPins(entries), [entries]);
   const nowPos =
@@ -174,140 +144,122 @@ export function DayHero({
     );
   };
 
-  const style = {
-    '--sky-top': sky.top,
-    '--sky-mid': sky.mid,
-    '--sky-bottom': sky.bottom,
-    '--stars': String(sky.stars),
-  } as CSSProperties;
-
   return (
-    <section
-      className={`${styles.hero} ${sky.dark ? styles.dark : styles.light}`}
-      style={style}
-      aria-label={t.flowTitle}
-    >
-      <Stars />
-      <SeasonLayer season={season} night={sky.stars > 0.5} />
-      <div className={styles.content}>
-        <div className={styles.top}>
-          <div className={styles.avatar} aria-hidden="true">
-            {name ? name.charAt(0) : '🙂'}
-          </div>
-          <div className={styles.hello}>
-            <span className={styles.muted}>{h.greet[greetingAt(hours)]}</span>
-            <strong>{name}</strong>
-          </div>
-          {streaks && streaks.log.current > 0 && (
-            <Link to="/more/achievements" className={styles.streak}>
-              <span aria-hidden="true">🔥</span> {h.streak(streaks.log.current)}
-            </Link>
-          )}
+    <SkyHeader label={t.flowTitle}>
+      <div className={styles.top}>
+        <div className={styles.avatar} aria-hidden="true">
+          {name ? name.charAt(0) : '🙂'}
         </div>
-
-        <div className={styles.dateRow} {...swipe.handlers}>
-          <button
-            type="button"
-            className={styles.arrow}
-            aria-label={t.prevDay}
-            onClick={() => setDate(addDays(date, -1))}
-          >
-            ‹
-          </button>
-          <div className={styles.dateText}>
-            <h1 className={styles.srOnly}>{dayTitle(date)}</h1>
-            {date === today ? (
-              <span>{formatDateRu(date, 'd MMMM, EEEE')}</span>
-            ) : (
-              <button
-                type="button"
-                className={styles.linkish}
-                aria-label={h.backToToday}
-                onClick={() => setDate(today)}
-              >
-                {formatDateRu(date, 'd MMMM, EEEE')}
-              </button>
-            )}
-            <b className={over ? styles.statusOver : styles.status}>{status}</b>
-          </div>
-          <button
-            type="button"
-            className={styles.arrow}
-            aria-label={t.nextDay}
-            onClick={() => setDate(addDays(date, 1))}
-          >
-            ›
-          </button>
+        <div className={styles.hello}>
+          <span className={styles.muted}>{h.greet[greetingAt(hours)]}</span>
+          <strong>{name}</strong>
         </div>
-
-        <div className={styles.macros}>
-          {macro(ru.foods.protein, totals.protein, goal?.protein, 'var(--hero-protein)')}
-          {macro(ru.foods.fat, totals.fat, goal?.fat, 'var(--hero-fat)')}
-          {macro(ru.foods.carbs, totals.carbs, goal?.carbs, 'var(--hero-carbs)')}
-        </div>
-        {(goal?.fiber || (totals.fiber ?? 0) > 0) && (
-          <p className={styles.fiber}>
-            {ru.foods.fiber}{' '}
-            {goal?.fiber
-              ? t.fiberOf(formatGrams(totals.fiber ?? 0), formatGrams(goal.fiber))
-              : `${formatGrams(totals.fiber ?? 0)} ${ru.units.g}`}
-          </p>
-        )}
-
-        <div className={styles.line} role="group" aria-label={t.flowTitle}>
-          <div className={styles.track} />
-          <div className={styles.fill} style={{ width: `${nowPos * 100}%` }} />
-          {date === today && (
-            <div className={styles.nowMark} style={{ left: `${nowPos * 100}%` }} />
-          )}
-          {pins.map((p: Pin) => (
-            <button
-              key={p.slot}
-              type="button"
-              className={styles.pin}
-              style={{ left: `${p.pos * 100}%` }}
-              aria-label={h.pin(h.slot[p.slot], p.time, p.count)}
-              onClick={() => (p.count ? scrollToEntry(p.firstId) : openAdd())}
-            >
-              <span className={`${styles.dot} ${p.count ? styles.dotOn : ''}`}>
-                {ICONS[p.slot]}
-                {p.count > 1 && <span className={styles.count}>{p.count}</span>}
-              </span>
-              <small>{p.time ?? h.slot[p.slot]}</small>
-            </button>
-          ))}
-        </div>
-
-        <p className={styles.kcal}>
-          <b>{formatKcal(totals.kcal)}</b> <span className={styles.muted}>{h.kcalOf}</span>{' '}
-          <b>{goal ? formatKcal(goal.kcal) : '—'}</b>
-          {left !== null && (
-            <span className={over ? styles.overText : styles.muted}>
-              {' · '}
-              {over ? h.overShort(formatKcal(-left)) : h.leftShort(formatKcal(left))}
-            </span>
-          )}
-        </p>
-
-        {done ? (
-          <button type="button" className={styles.cta} onClick={share}>
-            {h.share}
-            <small>{h.shareSub}</small>
-          </button>
-        ) : (
-          <button type="button" className={styles.cta} onClick={() => openAdd()}>
-            {date === today && next ? h.add[next] : h.addFood}
-            <small>
-              {entries.length === 0
-                ? h.ctaStart
-                : left !== null && !over
-                  ? h.ctaLeft(formatKcal(left))
-                  : h.shareSub}
-            </small>
-          </button>
+        {streaks && streaks.log.current > 0 && (
+          <Link to="/more/achievements" className={styles.streak}>
+            <span aria-hidden="true">🔥</span> {h.streak(streaks.log.current)}
+          </Link>
         )}
       </div>
-      <SeasonLayer season={season} ground />
-    </section>
+
+      <div className={styles.dateRow} {...swipe.handlers}>
+        <button
+          type="button"
+          className={styles.arrow}
+          aria-label={t.prevDay}
+          onClick={() => setDate(addDays(date, -1))}
+        >
+          ‹
+        </button>
+        <div className={styles.dateText}>
+          <h1 className={styles.srOnly}>{dayTitle(date)}</h1>
+          {date === today ? (
+            <span>{formatDateRu(date, 'd MMMM, EEEE')}</span>
+          ) : (
+            <button
+              type="button"
+              className={styles.linkish}
+              aria-label={h.backToToday}
+              onClick={() => setDate(today)}
+            >
+              {formatDateRu(date, 'd MMMM, EEEE')}
+            </button>
+          )}
+          <b className={over ? styles.statusOver : styles.status}>{status}</b>
+        </div>
+        <button
+          type="button"
+          className={styles.arrow}
+          aria-label={t.nextDay}
+          onClick={() => setDate(addDays(date, 1))}
+        >
+          ›
+        </button>
+      </div>
+
+      <div className={styles.macros}>
+        {macro(ru.foods.protein, totals.protein, goal?.protein, 'var(--hero-protein)')}
+        {macro(ru.foods.fat, totals.fat, goal?.fat, 'var(--hero-fat)')}
+        {macro(ru.foods.carbs, totals.carbs, goal?.carbs, 'var(--hero-carbs)')}
+      </div>
+      {(goal?.fiber || (totals.fiber ?? 0) > 0) && (
+        <p className={styles.fiber}>
+          {ru.foods.fiber}{' '}
+          {goal?.fiber
+            ? t.fiberOf(formatGrams(totals.fiber ?? 0), formatGrams(goal.fiber))
+            : `${formatGrams(totals.fiber ?? 0)} ${ru.units.g}`}
+        </p>
+      )}
+
+      <div className={styles.line} role="group" aria-label={t.flowTitle}>
+        <div className={styles.track} />
+        <div className={styles.fill} style={{ width: `${nowPos * 100}%` }} />
+        {date === today && <div className={styles.nowMark} style={{ left: `${nowPos * 100}%` }} />}
+        {pins.map((p: Pin) => (
+          <button
+            key={p.slot}
+            type="button"
+            className={styles.pin}
+            style={{ left: `${p.pos * 100}%` }}
+            aria-label={h.pin(h.slot[p.slot], p.time, p.count)}
+            onClick={() => (p.count ? scrollToEntry(p.firstId) : openAdd())}
+          >
+            <span className={`${styles.dot} ${p.count ? styles.dotOn : ''}`}>
+              {ICONS[p.slot]}
+              {p.count > 1 && <span className={styles.count}>{p.count}</span>}
+            </span>
+            <small>{p.time ?? h.slot[p.slot]}</small>
+          </button>
+        ))}
+      </div>
+
+      <p className={styles.kcal}>
+        <b>{formatKcal(totals.kcal)}</b> <span className={styles.muted}>{h.kcalOf}</span>{' '}
+        <b>{goal ? formatKcal(goal.kcal) : '—'}</b>
+        {left !== null && (
+          <span className={over ? styles.overText : styles.muted}>
+            {' · '}
+            {over ? h.overShort(formatKcal(-left)) : h.leftShort(formatKcal(left))}
+          </span>
+        )}
+      </p>
+
+      {done ? (
+        <button type="button" className={styles.cta} onClick={share}>
+          {h.share}
+          <small>{h.shareSub}</small>
+        </button>
+      ) : (
+        <button type="button" className={styles.cta} onClick={() => openAdd()}>
+          {date === today && next ? h.add[next] : h.addFood}
+          <small>
+            {entries.length === 0
+              ? h.ctaStart
+              : left !== null && !over
+                ? h.ctaLeft(formatKcal(left))
+                : h.shareSub}
+          </small>
+        </button>
+      )}
+    </SkyHeader>
   );
 }

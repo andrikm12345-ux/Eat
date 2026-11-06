@@ -3,16 +3,10 @@ import { useState } from 'react';
 import { PROMPT_WEEKLY } from '../../ai/prompts';
 import { runAi } from '../../ai/run';
 import { validateWeekly, type WeeklyResult } from '../../ai/validators';
-import { addDays, formatDateRu, toLocalDate, weekStart } from '../../domain/dates';
 import { formatGrams, formatKcal, formatKg } from '../../domain/format';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
-import {
-  insightsKey,
-  loadWeekReport,
-  weeklyAggregates,
-  type WeekReport,
-} from '../../services/reports';
+import { insightsKey, weeklyAggregates, type WeekReport } from '../../services/reports';
 import { Button, Card, Notice, Stat } from '../../ui/kit';
 import listStyles from '../add/add.module.css';
 import { useAiConfig } from '../ai/useAi';
@@ -22,37 +16,9 @@ const t = ru.reports;
 const signed = (v: number, fmt: (x: number) => string) =>
   v > 0 ? `+${fmt(v)}` : v < 0 ? `−${fmt(-v)}` : fmt(0);
 
-export function WeekReportView() {
-  const [ws, setWs] = useState(weekStart(toLocalDate(new Date())));
-  const data = useLiveQuery(() => loadWeekReport(repos, ws), [ws]);
-  return (
-    <>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 'var(--sp-2)',
-        }}
-      >
-        <Button variant="text" aria-label={t.prevWeek} onClick={() => setWs(addDays(ws, -7))}>
-          ‹
-        </Button>
-        <strong>
-          {t.weekRange(formatDateRu(ws, 'd MMM'), formatDateRu(addDays(ws, 6), 'd MMM'))}
-        </strong>
-        <Button
-          variant="text"
-          aria-label={t.nextWeek}
-          onClick={() => setWs(addDays(ws, 7))}
-          disabled={addDays(ws, 7) > toLocalDate(new Date())}
-        >
-          ›
-        </Button>
-      </div>
-      {data ? <Week w={data} /> : <Loading />}
-    </>
-  );
+/** The numbers of one week; the week itself is chosen on the sky above. */
+export function WeekReportView({ data }: { data: WeekReport | undefined }) {
+  return data ? <Week w={data} /> : <Loading />;
 }
 
 function Week({ w }: { w: WeekReport }) {
@@ -62,7 +28,7 @@ function Week({ w }: { w: WeekReport }) {
   const flagged = w.micros.filter((m) => m.deficit || m.above);
   return (
     <>
-      <Card title={t.averages}>
+      <Card title={t.averages} tone="food">
         <p className={listStyles.muted}>{t.logged(w.loggedDays)}</p>
         {w.loggedDays === 0 ? (
           <p className={listStyles.muted}>{t.noData}</p>
@@ -76,7 +42,7 @@ function Week({ w }: { w: WeekReport }) {
           </>
         )}
       </Card>
-      <Card>
+      <Card tone="weight">
         {w.trendStart !== null && w.trendEnd !== null && (
           <Stat
             label={t.trend}
@@ -107,7 +73,7 @@ function Week({ w }: { w: WeekReport }) {
         )}
       </Card>
       {w.topKcal.length > 0 && (
-        <Card title={t.topKcal}>
+        <Card title={t.topKcal} tone="sun">
           {w.topKcal.map((s) => (
             <Stat
               key={s.name}
@@ -118,7 +84,7 @@ function Week({ w }: { w: WeekReport }) {
         </Card>
       )}
       {w.topProtein.length > 0 && (
-        <Card title={t.topProtein}>
+        <Card title={t.topProtein} tone="mint">
           {w.topProtein.map((s) => (
             <Stat
               key={s.name}
@@ -128,7 +94,7 @@ function Week({ w }: { w: WeekReport }) {
           ))}
         </Card>
       )}
-      <Card title={t.microDeficits}>
+      <Card title={t.microDeficits} tone="rose">
         {w.loggedDays < 3 ? (
           <p className={listStyles.muted}>{t.microFewDays}</p>
         ) : flagged.length === 0 ? (
@@ -148,7 +114,7 @@ function Week({ w }: { w: WeekReport }) {
           ))
         )}
       </Card>
-      <Card title={t.activity}>
+      <Card title={t.activity} tone="water">
         <p style={{ margin: 'var(--sp-1) 0' }}>{t.water(formatKcal(w.waterAvg))}</p>
         {w.stepsAvg !== null && (
           <p style={{ margin: 'var(--sp-1) 0' }}>{t.steps(formatKcal(w.stepsAvg))}</p>
@@ -192,7 +158,7 @@ function Insights({ w }: { w: WeekReport }) {
   }
 
   return (
-    <Card title={t.aiTitle}>
+    <Card title={t.aiTitle} tone="activity">
       <p className={listStyles.muted}>{t.aiHint}</p>
       {saved && (
         <>

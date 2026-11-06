@@ -63,11 +63,49 @@
 }
 
 .card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  background: var(--card-plain);
+  border-radius: 22px;
+  box-shadow:
+    var(--shadow-card),
+    inset 0 0 0 1px var(--tone-edge);
   padding: var(--sp-4);
   margin-bottom: var(--sp-3);
+}
+.tone-food {
+  --bar-track: var(--chip-on-tone);
+  background: var(--tone-food);
+}
+.tone-weight {
+  --bar-track: var(--chip-on-tone);
+  background: var(--tone-weight);
+}
+.tone-water {
+  --bar-track: var(--chip-on-tone);
+  background: var(--tone-water);
+}
+.tone-activity {
+  --bar-track: var(--chip-on-tone);
+  background: var(--tone-activity);
+}
+.tone-sun {
+  --bar-track: var(--chip-on-tone);
+  background: var(--tone-sun);
+}
+.tone-rose {
+  --bar-track: var(--chip-on-tone);
+  background: var(--tone-rose);
+}
+.tone-sand {
+  --bar-track: var(--chip-on-tone);
+  background: var(--tone-sand);
+}
+.tone-mint {
+  --bar-track: var(--chip-on-tone);
+  background: var(--tone-mint);
+}
+.tone-sky {
+  --bar-track: var(--chip-on-tone);
+  background: var(--tone-sky);
 }
 .cardTitle {
   margin: 0 0 var(--sp-3);
@@ -370,4 +408,19 @@
 }
 .collapsible[open] > .collapsibleBody {
   animation: rise 0.35s var(--ease-out) both;
+}
+
+/* On a coloured card the secondary buttons are light chips, not grey ones. */
+.tone-food .secondary,
+.tone-weight .secondary,
+.tone-water .secondary,
+.tone-activity .secondary,
+.tone-sun .secondary,
+.tone-rose .secondary,
+.tone-sand .secondary,
+.tone-mint .secondary,
+.tone-sky .secondary {
+  background: var(--chip-on-tone);
+  border-color: transparent;
+  box-shadow: 0 2px 6px rgb(40 30 20 / 0.06);
 }

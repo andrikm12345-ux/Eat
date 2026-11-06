@@ -1,3 +1,54 @@
+/* "Ещё": the sky with the name, then colourful tiles two in a row. */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+  max-width: 100%;
+}
+.who strong {
+  font-size: 24px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.avatar {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  font-weight: var(--fw-bold);
+  color: #3a2406;
+  background: radial-gradient(circle at 35% 30%, #ffe39a, #f1a63a 70%, #d9822a);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.18);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-2);
+}
+.chip {
+  padding: 7px 14px;
+  border-radius: var(--r-pill);
+  background: var(--hero-chip);
+  color: inherit;
+  text-decoration: none;
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
+}
+
 .group {
   margin-bottom: var(--sp-5);
 }
@@ -9,44 +60,80 @@
   text-transform: uppercase;
   color: var(--text-muted);
 }
-.list {
+.grid {
   list-style: none;
   margin: 0;
   padding: 0;
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
-}
-.item + .item {
-  border-top: 1px solid var(--border);
-}
-.link {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--sp-3);
-  min-height: 56px;
-  padding: 0 var(--sp-4);
+}
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  height: 100%;
+  min-height: 104px;
+  padding: var(--sp-4);
+  border-radius: 22px;
   color: var(--text);
   text-decoration: none;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-5);
+  line-height: 1.25;
+  box-shadow:
+    var(--shadow-card),
+    inset 0 0 0 1px var(--tone-edge);
+  transition: transform 0.15s ease;
 }
-.link:active {
-  background: var(--surface-2);
+.tile:active {
+  transform: scale(0.96);
 }
 .icon {
-  flex: none;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--r-field);
   display: grid;
   place-items: center;
-  background: var(--accent-soft);
-  color: var(--accent);
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--chip-on-tone);
+  color: var(--text);
 }
 .label {
-  flex: 1;
+  overflow-wrap: anywhere;
 }
 .chevron {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-3);
   color: var(--text-muted);
-  opacity: 0.7;
+  opacity: 0.6;
+}
+.food {
+  background: var(--tone-food);
+}
+.weight {
+  background: var(--tone-weight);
+}
+.water {
+  background: var(--tone-water);
+}
+.activity {
+  background: var(--tone-activity);
+}
+.sun {
+  background: var(--tone-sun);
+}
+.rose {
+  background: var(--tone-rose);
+}
+.sand {
+  background: var(--tone-sand);
+}
+.mint {
+  background: var(--tone-mint);
+}
+.sky {
+  background: var(--tone-sky);
 }

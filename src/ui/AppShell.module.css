@@ -1,7 +1,7 @@
 .main {
   min-height: 100%;
   /* Room for the bottom bar and the round "+" (58 + 14) with some air above it. */
-  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 48px);
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 40px);
 }
 
 .loading {
@@ -20,5 +20,6 @@
   z-index: 30;
   pointer-events: none;
   /* Solid, no backdrop-filter: on iOS WebKit a blurred layer can leave a dark rectangle behind. */
-  background: var(--bg);
+  background: var(--top-color, var(--bg));
+  transition: background-color 1s linear;
 }

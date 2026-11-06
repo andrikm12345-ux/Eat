@@ -11,7 +11,7 @@ export function WaterCard({ meta, goalMl }: { meta: DayMeta; goalMl: number | un
   const add = (ml: number) =>
     repos.dayMeta.upsert(meta.date, { waterMl: Math.max(0, meta.waterMl + ml) });
   return (
-    <Card title={t.title}>
+    <Card title={t.title} tone="water">
       <div className={styles.waterTop}>
         <div style={{ marginBottom: 'var(--sp-1)' }}>
           <div key={meta.waterMl} className={`${styles.miniBig} ${styles.bump}`}>
@@ -37,7 +37,7 @@ export function WaterCard({ meta, goalMl }: { meta: DayMeta; goalMl: number | un
           aria-hidden="true"
         >
           <div
-            className={styles.barFill}
+            className={`${styles.barFill} ${styles.waterFill}`}
             style={{ width: `${Math.min(1, meta.waterMl / goalMl) * 100}%` }}
           />
         </div>

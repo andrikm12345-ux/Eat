@@ -11,11 +11,15 @@ import { repos } from '../../db/repos';
 import { SETTINGS } from '../../db/settingsKeys';
 import { ru } from '../../i18n/ru';
 import { toast, useUi } from '../../state/ui';
-import { Button, Card, Collapsible, LinkButton, Row, Segmented } from '../../ui/kit';
+import { Link } from 'react-router';
+import { Button, Card, Collapsible, Segmented } from '../../ui/kit';
+import { IconCamera, IconScale } from '../../ui/icons';
+import { Sparkline } from './Sparkline';
 import { Page } from '../../ui/Page';
 import listStyles from '../add/add.module.css';
 import { useTrend } from './useTrend';
 import { WeightChart } from './WeightChart';
+import sky from '../../ui/sky/sky.module.css';
 import styles from './progress.module.css';
 import { Loading } from '../../ui/states';
 
@@ -39,8 +43,8 @@ export default function ProgressPage() {
   const from = period === 'all' ? first : addDays(today, -DAYS[period]);
 
   return (
-    <Page title={t.title}>
-      <Card title={t.chart}>
+    <Page title={t.title} hero={<ProgressHero points={data.points} goal={goal} today={today} />}>
+      <Card title={t.chart} tone="sky">
         <Segmented
           label={t.period}
           value={period}
@@ -62,18 +66,67 @@ export default function ProgressPage() {
         </div>
       </Card>
       <GoalScale points={data.points} goal={goal} today={today} />
-      <Row>
-        <LinkButton to="/progress/measurements" variant="secondary">
+      <div className={styles.tiles}>
+        <Link to="/progress/measurements" className={`${styles.tile} ${styles.tileWater}`}>
+          <span className={styles.tileIcon}>
+            <IconScale />
+          </span>
           {t.measurements}
-        </LinkButton>
-        <LinkButton to="/progress/photos" variant="secondary">
+        </Link>
+        <Link to="/progress/photos" className={`${styles.tile} ${styles.tileRose}`}>
+          <span className={styles.tileIcon}>
+            <IconCamera />
+          </span>
           {t.photos}
-        </LinkButton>
-      </Row>
-      <div style={{ height: 12 }} />
+        </Link>
+      </div>
       <WeightHistory weights={data.weights} />
       <TrendSettings alpha={data.alpha} pick={data.pick} />
     </Page>
+  );
+}
+
+/** On the sky: the trend weight now, the goal, the change over a month and the line itself. */
+function ProgressHero({
+  points,
+  goal,
+  today,
+}: {
+  points: TrendPoint[];
+  goal: Goal | null;
+  today: string;
+}) {
+  const h = t.hero;
+  const now = trendOn(points, today);
+  if (now === undefined) return <p className={sky.sub}>{h.none}</p>;
+  const monthAgo = addDays(today, -30);
+  const recent = points.filter((p) => p.date >= monthAgo);
+  const startTrend = trendOn(points, monthAgo) ?? recent[0]?.trend ?? now;
+  const change = now - startTrend;
+  const target = goal?.targetWeightKg;
+  const signedKg =
+    Math.abs(change) < 0.05
+      ? formatKg(0)
+      : `${change > 0 ? '+' : '−'}${formatKg(Math.abs(change))}`;
+  const left = target === undefined ? null : Math.abs(now - target);
+  return (
+    <>
+      <p className={styles.heroWeight}>{h.now(formatKg(now))}</p>
+      <p className={sky.sub}>
+        {target !== undefined && <>{h.goal(formatKg(target))} · </>}
+        {h.month(signedKg)}
+      </p>
+      <Sparkline
+        values={
+          recent.length >= 2 ? recent.map((p) => p.trend) : points.slice(-30).map((p) => p.trend)
+        }
+        target={target}
+        label={h.chart}
+      />
+      {left !== null && (
+        <p className={styles.heroChip}>{left < 0.1 ? h.reached : h.left(formatKg(left))}</p>
+      )}
+    </>
   );
 }
 
@@ -91,7 +144,7 @@ function GoalScale({
   const target = goal?.targetWeightKg;
   if (!goal || target === undefined) {
     return (
-      <Card title={t.goalScale}>
+      <Card title={t.goalScale} tone="weight">
         <p className={styles.muted}>{t.noTarget}</p>
       </Card>
     );
@@ -104,7 +157,7 @@ function GoalScale({
   const rate = trendRatePerWeek(points, today);
   const eta = forecastDate(now, target, rate, today);
   return (
-    <Card title={t.goalScale}>
+    <Card title={t.goalScale} tone="weight">
       <div
         className={styles.scale}
         role="meter"

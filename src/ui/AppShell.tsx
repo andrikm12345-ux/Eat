@@ -94,8 +94,9 @@ export function AppShell() {
           </div>
         </Suspense>
       </main>
-      {ADD_TABS.has(pathname) && <Fab onClick={() => openAdd()} expanded={addOpen} />}
-      <BottomNav />
+      <BottomNav
+        fab={ADD_TABS.has(pathname) ? <Fab onClick={() => openAdd()} expanded={addOpen} /> : null}
+      />
       <AddSheet />
       <WeighSheet />
       <ToastHost />

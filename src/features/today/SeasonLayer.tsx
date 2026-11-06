@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { motionEnabled } from '../../ui/motion';
 import type { Season } from './scene';
-import styles from './dayHero.module.css';
+import styles from './season.module.css';
 
 /** A fixed pseudo-random sequence: the sky looks the same on every render. */
 function seeded(seed: number) {

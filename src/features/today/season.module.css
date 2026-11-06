@@ -1,0 +1,101 @@
+/* Stars, falling leaves / snow / petals, fireflies and the strip of ground under the sky. */
+/* ---- stars, falling things, ground ---- */
+.stars {
+  position: absolute;
+  inset: 0;
+  opacity: var(--stars);
+  transition: opacity 2s linear;
+  pointer-events: none;
+}
+.stars i {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  animation: twinkle 5s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.particles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.fall {
+  position: absolute;
+  top: -20px;
+  animation: fall linear infinite;
+  will-change: transform;
+}
+@keyframes fall {
+  from {
+    transform: translate3d(0, -20px, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(var(--drift), 640px, 0) rotate(var(--spin));
+  }
+}
+.snow {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.9;
+}
+.firefly {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff6a8;
+  box-shadow: 0 0 10px 3px rgb(255 240 140 / 0.7);
+  animation: float ease-in-out infinite alternate;
+}
+@keyframes float {
+  from {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.3;
+  }
+  to {
+    transform: translate3d(var(--drift), -30px, 0);
+    opacity: 1;
+  }
+}
+/* Reduced motion or tests: the scene stands still. */
+.still .fall,
+.still .firefly {
+  animation: none;
+}
+.still .fall {
+  transform: rotate(var(--spin));
+}
+
+.ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 30px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stars i,
+  .fall,
+  .firefly {
+    animation: none !important;
+  }
+  .stars {
+    transition: none;
+  }
+}

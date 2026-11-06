@@ -11,6 +11,7 @@ import { useUi } from '../../state/ui';
 import { Switch } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import listStyles from '../add/add.module.css';
+import sky from '../../ui/sky/sky.module.css';
 import styles from './diary.module.css';
 import { EmptyState } from '../../ui/states';
 
@@ -64,75 +65,80 @@ export default function DiaryPage() {
   const days = data ? [...data.kcal.keys()].filter(visible).sort((a, b) => b.localeCompare(a)) : [];
 
   return (
-    <Page title={t.title}>
-      <div className={styles.monthBar}>
-        <button
-          type="button"
-          className={listStyles.stepBtn}
-          style={{ margin: '0', borderRadius: '50%', width: 44, height: 44, border: 'none' }}
-          aria-label={t.prevMonth}
-          onClick={() => setMonth(shiftMonth(month, -1))}
-        >
-          ‹
-        </button>
-        <span className={styles.monthTitle}>{formatDateRu(month, 'LLLL yyyy')}</span>
-        <button
-          type="button"
-          className={listStyles.stepBtn}
-          style={{ margin: '0', borderRadius: '50%', width: 44, height: 44, border: 'none' }}
-          aria-label={t.nextMonth}
-          onClick={() => setMonth(shiftMonth(month, 1))}
-        >
-          ›
-        </button>
-      </div>
-      <div className={styles.grid}>
-        {DOW.map((d) => (
-          <span key={d} className={styles.dow}>
-            {d}
-          </span>
-        ))}
-        {cells.map((d, i) => {
-          if (!d) return <span key={i} />;
-          const kcal = data?.kcal.get(d) ?? 0;
-          const status = visible(d)
-            ? dayStatus(kcal, data ? goalFor(data.goals, d)?.kcal : undefined)
-            : 'empty';
-          const cls = [
-            styles.cell,
-            status !== 'empty' ? styles[status] : '',
-            d === today ? styles.today : '',
-            d > today ? styles.future : '',
-          ]
-            .filter(Boolean)
-            .join(' ');
-          return (
+    <Page
+      title={t.title}
+      hero={
+        <>
+          <div className={sky.navRow}>
             <button
-              key={d}
               type="button"
-              className={cls}
-              onClick={() => open(d)}
-              aria-label={formatDateRu(d)}
+              className={sky.arrow}
+              aria-label={t.prevMonth}
+              onClick={() => setMonth(shiftMonth(month, -1))}
             >
-              {parseLocalDate(d).getDate()}
+              ‹
             </button>
-          );
-        })}
-      </div>
-      <div className={styles.legend}>
-        <span>
-          <i className={`${styles.swatch} ${styles.close}`} />
-          {t.legendClose}
-        </span>
-        <span>
-          <i className={`${styles.swatch} ${styles.below}`} />
-          {t.legendBelow}
-        </span>
-        <span>
-          <i className={`${styles.swatch} ${styles.above}`} />
-          {t.legendAbove}
-        </span>
-      </div>
+            <span>{formatDateRu(month, 'LLLL yyyy')}</span>
+            <button
+              type="button"
+              className={sky.arrow}
+              aria-label={t.nextMonth}
+              onClick={() => setMonth(shiftMonth(month, 1))}
+            >
+              ›
+            </button>
+          </div>
+          <div className={styles.grid}>
+            {DOW.map((d) => (
+              <span key={d} className={styles.dow}>
+                {d}
+              </span>
+            ))}
+            {cells.map((d, i) => {
+              if (!d) return <span key={i} />;
+              const kcal = data?.kcal.get(d) ?? 0;
+              const status = visible(d)
+                ? dayStatus(kcal, data ? goalFor(data.goals, d)?.kcal : undefined)
+                : 'empty';
+              const cls = [
+                styles.cell,
+                status !== 'empty' ? styles[status] : '',
+                d === today ? styles.today : '',
+                d > today ? styles.future : '',
+              ]
+                .filter(Boolean)
+                .join(' ');
+              return (
+                <button
+                  key={d}
+                  type="button"
+                  className={cls}
+                  style={{ animationDelay: `${i * 12}ms` }}
+                  onClick={() => open(d)}
+                  aria-label={formatDateRu(d)}
+                >
+                  {parseLocalDate(d).getDate()}
+                </button>
+              );
+            })}
+          </div>
+          <div className={styles.legend}>
+            <span>
+              <i className={`${styles.swatch} ${styles.close}`} />
+              {t.legendClose}
+            </span>
+            <span>
+              <i className={`${styles.swatch} ${styles.below}`} />
+              {t.legendBelow}
+            </span>
+            <span>
+              <i className={`${styles.swatch} ${styles.above}`} />
+              {t.legendAbove}
+            </span>
+          </div>
+        </>
+      }
+    >
       <Switch label={t.onlyWorkouts} checked={onlyWorkouts} onChange={setOnlyWorkouts} />
       <h2 className={listStyles.sectionTitle}>{t.days}</h2>
       {days.length === 0 ? (
@@ -142,13 +148,18 @@ export default function DiaryPage() {
           action={{ label: t.addEntry, onClick: () => openAdd() }}
         />
       ) : (
-        <ul className={listStyles.list}>
+        <ul className={`${listStyles.list} ${styles.days}`}>
           {days.map((d) => {
             const goal = data ? goalFor(data.goals, d)?.kcal : undefined;
             const kcal = data?.kcal.get(d) ?? 0;
+            const status = dayStatus(kcal, goal);
             return (
               <li key={d} className={listStyles.row}>
                 <button type="button" className={listStyles.rowLink} onClick={() => open(d)}>
+                  <i
+                    className={`${styles.dayDot} ${status !== 'empty' ? styles[status] : ''}`}
+                    aria-hidden="true"
+                  />
                   <span className={listStyles.rowMain}>
                     <span className={listStyles.rowName}>{formatDateRu(d, 'EEEE, d MMMM')}</span>
                     <span className={listStyles.rowSub}>

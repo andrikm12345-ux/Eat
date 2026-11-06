@@ -31,7 +31,7 @@ export function TrendCard() {
   const delta = trendChange(data.points, today, 7);
   const dir = direction(delta);
   return (
-    <Card title={t.title}>
+    <Card title={t.title} tone="weight">
       {last ? (
         <>
           <div className={styles.big}>

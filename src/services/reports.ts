@@ -5,6 +5,7 @@ import { summarizeWeek, topSources, type SourceRow, type WeekSummary } from '../
 import { computeTrend, pickDailyWeights, trendOn } from '../domain/weightTrend';
 import type { Repos } from '../db/repos';
 import { SETTINGS } from '../db/settingsKeys';
+import { goalFor } from '../domain/goals';
 
 export type WeekReport = WeekSummary & {
   weekStart: string;
@@ -19,6 +20,8 @@ export type WeekReport = WeekSummary & {
   waterAvg: number;
   stepsAvg: number | null;
   workouts: { count: number; minutes: number; kcal: number };
+  /** Calories of each day Mon–Sun with that day's goal, for the bars at the top. */
+  dayKcal: { date: string; kcal: number; goal: number | null }[];
 };
 
 /** All numbers of the weekly review (Mon–Sun). Works fully offline, no AI. */
@@ -68,6 +71,11 @@ export async function loadWeekReport(r: Repos, weekStart: string): Promise<WeekR
       minutes: live.reduce((s, w) => s + w.durationMin, 0),
       kcal: live.reduce((s, w) => s + (w.kcal ?? 0), 0),
     },
+    dayKcal: days.map((d) => ({
+      date: d,
+      kcal: entries.filter((e) => e.date === d).reduce((s, e) => s + e.totals.kcal, 0),
+      goal: goalFor(goals, d)?.kcal ?? null,
+    })),
   };
 }
 
