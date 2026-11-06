@@ -1,7 +1,7 @@
 .main {
   min-height: 100%;
-  /* Room for the bottom bar and the round "+" (58 + 14) with some air above it. */
-  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 40px);
+  /* Room for the bottom bar and the round "+" floating above it, with some air. */
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 96px);
 }
 
 .loading {

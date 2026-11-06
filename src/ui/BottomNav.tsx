@@ -6,8 +6,8 @@ import { useSky } from './sky/useSky';
 import styles from './BottomNav.module.css';
 
 /**
- * The floating bar at the bottom, coloured like the sky of this hour. When the round "+" is
- * shown it sits in the middle of the bar, between the second and the third tab.
+ * The floating bar at the bottom, coloured like the sky of this hour. The round "+" floats
+ * exactly in the middle of the screen, just above the bar, so the five tabs keep equal room.
  */
 export function BottomNav({ fab }: { fab?: ReactNode }) {
   const { sky } = useSky();
@@ -34,13 +34,12 @@ export function BottomNav({ fab }: { fab?: ReactNode }) {
   };
   return (
     <nav
-      className={`${styles.nav} ${sky.dark ? styles.dark : styles.light} ${fab ? styles.withFab : ''}`}
+      className={`${styles.nav} ${sky.dark ? styles.dark : styles.light}`}
       style={style}
       aria-label={ru.nav.label}
     >
-      {NAV_ITEMS.slice(0, 2).map(link)}
+      {NAV_ITEMS.map(link)}
       {fab && <div className={styles.fabSlot}>{fab}</div>}
-      {NAV_ITEMS.slice(2).map(link)}
     </nav>
   );
 }
