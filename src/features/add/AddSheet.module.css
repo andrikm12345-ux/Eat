@@ -5,10 +5,13 @@
 }
 
 .tile {
-  min-height: 92px;
+  min-height: 96px;
   border: none;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
+  border-radius: 20px;
+  background: var(--tone-sand);
+  box-shadow:
+    0 6px 14px rgb(60 40 20 / 0.08),
+    inset 0 0 0 1px var(--tone-edge);
   padding: var(--sp-3) var(--sp-1);
   display: flex;
   flex-direction: column;
@@ -16,15 +19,38 @@
   justify-content: center;
   gap: var(--sp-2);
   font-size: var(--fs-6);
-  font-weight: var(--fw-semibold);
+  font-weight: 800;
   line-height: 1.2;
   text-align: center;
   cursor: pointer;
   color: var(--text);
 }
 .tile:active {
-  background: var(--border);
-  transform: scale(0.96);
+  transform: scale(0.95);
+}
+.t-search {
+  background: var(--tone-sun);
+}
+.t-barcode {
+  background: var(--tone-sky);
+}
+.t-textAi {
+  background: var(--tone-mint);
+}
+.t-photoAi {
+  background: var(--tone-rose);
+}
+.t-quickKcal {
+  background: var(--tone-food);
+}
+.t-repeat {
+  background: var(--tone-water);
+}
+.t-template {
+  background: var(--tone-sand);
+}
+.t-recipe {
+  background: var(--tone-weight);
 }
 .tile {
   animation: rise 0.35s var(--ease-out) both;
@@ -55,13 +81,14 @@
 }
 
 .tileIcon {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--r-field);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   display: grid;
   place-items: center;
-  background: var(--surface);
-  color: var(--accent);
+  background: var(--chip-on-tone);
+  color: var(--text);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.06);
 }
 
 .soon {
@@ -93,8 +120,9 @@
   gap: var(--sp-2);
   min-height: 48px;
   padding: var(--sp-2) var(--sp-3);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
+  border-radius: 16px;
+  background: var(--tone-food);
+  box-shadow: inset 0 0 0 1px var(--tone-edge);
   color: var(--text);
   text-decoration: none;
 }

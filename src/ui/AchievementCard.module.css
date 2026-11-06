@@ -16,9 +16,9 @@
   max-width: 320px;
   padding: var(--sp-5) var(--sp-6);
   border-radius: var(--r-sheet);
-  background: var(--surface);
+  background: var(--tone-sun);
   box-shadow: var(--shadow-2);
-  border: 1px solid var(--border);
+  border: none;
   text-align: center;
   animation: card-in var(--dur-3) var(--ease-spring) both;
 }
@@ -28,8 +28,9 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: linear-gradient(145deg, var(--accent-2), var(--accent));
-  color: var(--accent-contrast);
+  background: radial-gradient(circle at 35% 30%, #ffe39a, #f1a63a 70%, #d9822a);
+  color: #3a2406;
+  box-shadow: 0 6px 16px rgb(200 120 30 / 0.35);
   margin-bottom: var(--sp-2);
 }
 .kicker {

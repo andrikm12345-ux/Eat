@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router';
 import { MAIN_TABS } from './nav';
+import { usePageTitle } from './pageTitle';
 import { SkyHeader } from './sky/SkyHeader';
 import skyStyles from './sky/sky.module.css';
 import styles from './Page.module.css';
 
 /**
  * A screen with a title. The five main tabs open with the sky (title on it, plus whatever the
- * tab puts in `hero`); other screens keep a plain title under the back bar.
+ * tab puts in `hero`); on other screens the title sits on the sky strip of the back bar.
  */
 export function Page({
   title,
@@ -19,6 +20,7 @@ export function Page({
   children?: ReactNode;
 }) {
   const main = MAIN_TABS.has(useLocation().pathname);
+  usePageTitle(main ? '' : title);
   return (
     <section
       className={`${styles.page} ${main ? styles.skyPage : ''} stagger`}
@@ -33,7 +35,8 @@ export function Page({
         </SkyHeader>
       ) : (
         <header className={styles.head}>
-          <h1 id="page-title" className={styles.title}>
+          {/* Shown on the sky strip above; kept here for screen readers and the page outline. */}
+          <h1 id="page-title" className={styles.srTitle}>
             {title}
           </h1>
         </header>

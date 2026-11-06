@@ -1,27 +1,84 @@
+/* The sky strip on top of every inner screen: stays while the page scrolls. */
 .bar {
   position: sticky;
   top: 0;
   z-index: 15;
-  display: flex;
-  align-items: center;
-  min-height: calc(var(--tap) + var(--safe-top));
-  padding: var(--safe-top) calc(8px + var(--safe-right)) 0 calc(8px + var(--safe-left));
-  /* Solid, no backdrop-filter: on iOS WebKit a blurred layer can leave a dark rectangle behind. */
-  background: var(--bg);
+  overflow: hidden;
+  isolation: isolate;
+  padding: calc(6px + var(--safe-top)) calc(10px + var(--safe-right)) 20px
+    calc(10px + var(--safe-left));
+  border-radius: 0 0 24px 24px;
+  background: linear-gradient(
+    180deg,
+    var(--sky-top) 0%,
+    var(--sky-mid) 60%,
+    var(--sky-bottom) 100%
+  );
+  box-shadow: 0 8px 22px rgb(0 0 0 / 0.12);
+  transition: background 1s linear;
   /* The page below already pads for the safe area; don't count it twice. */
   margin-bottom: calc(-1 * var(--safe-top));
 }
-.back {
-  display: inline-flex;
+/* Inside a padded screen (account, admin): reaches the edges and the top anyway. */
+.bleed {
+  margin: calc(-16px - var(--safe-top)) calc(-16px - var(--safe-right)) var(--sp-4)
+    calc(-16px - var(--safe-left));
+}
+.dark {
+  --hero-text: #ffffff;
+  --hero-chip: rgb(255 255 255 / 0.18);
+  color: var(--hero-text);
+}
+.light {
+  --hero-text: #14231d;
+  --hero-chip: rgb(255 255 255 / 0.6);
+  color: var(--hero-text);
+}
+.row {
+  position: relative;
+  z-index: 2;
+  display: flex;
   align-items: center;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   min-height: var(--tap);
-  padding: 0 var(--sp-3) 0 var(--sp-1);
+}
+.back {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
   border: none;
-  border-radius: var(--r-field);
-  background: transparent;
-  color: var(--accent);
-  font-size: var(--fs-4);
-  font-weight: var(--fw-semibold);
+  border-radius: 50%;
+  background: var(--hero-chip);
+  color: inherit;
   cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.back:active {
+  transform: scale(0.9);
+}
+.title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.spacer {
+  flex: none;
+  width: 42px;
+}
+.bar :global(svg) {
+  max-width: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
 }

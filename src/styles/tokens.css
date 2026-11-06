@@ -15,7 +15,7 @@
   --green-800: #124840;
 
   /* ---- surfaces and text (light) ---- */
-  --bg: #f4f5f2;
+  --bg: #f4f1ec;
   --surface: #ffffff;
   --surface-2: #eceee9; /* raised / inset */
   --text: #16201d;
@@ -98,6 +98,14 @@
   --chip-on-tone: rgb(255 255 255 / 0.85);
   --water: #3d97f0;
   --sky-accent: #b6e98e;
+  --btn-main: linear-gradient(180deg, #ccf3a9 0%, #9edb6c 100%);
+  --btn-main-ink: #173326;
+  --btn-main-glow: rgb(90 150 50 / 0.3);
+  --btn-soft: #ffffff;
+  --field-bg: #ffffff;
+  --field-shadow: 0 2px 8px rgb(60 40 20 / 0.06);
+  --picked: #5cb83f;
+  --picked-soft: #ecf9e1;
   --sky-accent-ink: #1d3b2f;
 
   /* ---- shadows: two soft steps ---- */
@@ -135,7 +143,7 @@
   --gutter: var(--sp-4);
 
   /* ---- radius ---- */
-  --r-field: 12px; /* fields, buttons, chips */
+  --r-field: 16px; /* fields, buttons, chips */
   --r-card: 20px;
   --r-sheet: 28px;
   --r-pill: 999px;
@@ -228,6 +236,12 @@
     --tone-mint: linear-gradient(140deg, #172320 0%, #1b3a30 100%);
     --tone-sky: linear-gradient(140deg, #1a1c27 0%, #232a48 100%);
     --card-plain: var(--surface);
+    --btn-soft: var(--surface-2);
+    --field-bg: var(--surface-2);
+    --field-shadow: none;
+    --picked: #8fd16a;
+    --picked-soft: #1f3320;
+    --btn-main-glow: rgb(140 210 100 / 0.18);
     --tone-edge: rgb(255 255 255 / 0.06);
     --chip-on-tone: rgb(255 255 255 / 0.08);
     --water: #6fb4f7;

@@ -1,8 +1,17 @@
-import { useEffect, useId, useRef, useState, type PointerEvent, type ReactNode } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent,
+  type ReactNode,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { ru } from '../i18n/ru';
 import { IconClose } from './icons';
 import { motionEnabled } from './motion';
+import { useSky } from './sky/useSky';
 import styles from './BottomSheet.module.css';
 
 type Props = {
@@ -14,6 +23,7 @@ type Props = {
 
 export function BottomSheet({ open, title, onClose, children }: Props) {
   const titleId = useId();
+  const { sky } = useSky();
   const sheetRef = useRef<HTMLDivElement>(null);
   // Stay on screen for a moment after closing so the sheet can slide away.
   const [shown, setShown] = useState(open);
@@ -76,6 +86,11 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
   };
 
   if (!shown) return null;
+  const skyStyle = {
+    '--sky-top': sky.top,
+    '--sky-mid': sky.mid,
+    '--sky-bottom': sky.bottom,
+  } as CSSProperties;
   const closing = !open;
 
   // Rendered straight into <body>: inside an animated page a fixed element would be sized
@@ -95,33 +110,35 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
         aria-labelledby={titleId}
         tabIndex={-1}
       >
-        <div
-          className={styles.dragZone}
-          onPointerDown={onDown}
-          onPointerMove={onMove}
-          onPointerUp={onUp}
-          onPointerCancel={onUp}
-        >
-          <div className={styles.grabber} aria-hidden="true" />
-        </div>
-        <div
-          className={styles.header}
-          onPointerDown={onDown}
-          onPointerMove={onMove}
-          onPointerUp={onUp}
-          onPointerCancel={onUp}
-        >
-          <h2 id={titleId} className={styles.title}>
-            {title}
-          </h2>
-          <button
-            type="button"
-            className={styles.close}
-            onClick={onClose}
-            aria-label={ru.add.close}
+        <div className={`${styles.top} ${sky.dark ? styles.dark : styles.light}`} style={skyStyle}>
+          <div
+            className={styles.dragZone}
+            onPointerDown={onDown}
+            onPointerMove={onMove}
+            onPointerUp={onUp}
+            onPointerCancel={onUp}
           >
-            <IconClose />
-          </button>
+            <div className={styles.grabber} aria-hidden="true" />
+          </div>
+          <div
+            className={styles.header}
+            onPointerDown={onDown}
+            onPointerMove={onMove}
+            onPointerUp={onUp}
+            onPointerCancel={onUp}
+          >
+            <h2 id={titleId} className={styles.title}>
+              {title}
+            </h2>
+            <button
+              type="button"
+              className={styles.close}
+              onClick={onClose}
+              aria-label={ru.add.close}
+            >
+              <IconClose />
+            </button>
+          </div>
         </div>
         {children}
       </div>

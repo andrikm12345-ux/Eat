@@ -31,8 +31,8 @@ export default function AdminUsersPage() {
 
   return (
     <div className={wizard.wrap}>
-      <BackBar />
-      <h1 className={wizard.title}>{t.title}</h1>
+      <BackBar title={t.title} bleed />
+      <h1 className={wizard.srTitle}>{t.title}</h1>
       <div className={wizard.body}>
         {error && <Notice>{error}</Notice>}
         {!users && !error && <Loading />}

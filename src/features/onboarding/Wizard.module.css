@@ -93,3 +93,66 @@
   align-items: center;
   min-height: var(--tap);
 }
+
+.srTitle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  margin: 0;
+}
+/* The top of the wizard and of the welcome screen: the same sky as on the tabs. */
+.skyTop {
+  text-align: center;
+}
+.skyTop .step,
+.skyTop .stepHint {
+  color: var(--hero-muted);
+  margin: 0;
+}
+.skyTop .title {
+  margin: var(--sp-2) 0 var(--sp-1);
+}
+.skyTop .progress {
+  background: var(--hero-chip);
+}
+.skyTop .progressBar {
+  background: var(--sky-accent);
+}
+.welcomeSky {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 58vh;
+}
+.welcomeSky > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.welcomeSky .title {
+  font-size: 40px;
+  font-weight: 800;
+}
+.welcomeSky .stepHint {
+  color: var(--hero-muted);
+  font-size: var(--fs-4);
+}
+.welcomeLogo {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--sp-3);
+  font-size: 44px;
+  background: radial-gradient(circle at 35% 30%, #ffe39a, #f1a63a 70%, #d9822a);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+}
+.footer {
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}

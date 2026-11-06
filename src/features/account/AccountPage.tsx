@@ -104,8 +104,8 @@ export default function AccountPage() {
 
   return (
     <div className={styles.wrap}>
-      <BackBar />
-      <h1 className={styles.title}>{t.title}</h1>
+      <BackBar title={t.title} bleed />
+      <h1 className={styles.srTitle}>{t.title}</h1>
       <div className={styles.body}>
         {newCode ? (
           <>

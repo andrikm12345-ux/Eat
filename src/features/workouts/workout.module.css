@@ -75,9 +75,11 @@
   flex: 1 0 auto;
   min-height: var(--tap);
   padding: 0 var(--sp-3);
-  border-radius: var(--r-field);
-  border: 1px solid var(--border);
-  background: var(--surface-2);
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--btn-soft);
+  box-shadow: 0 3px 10px rgb(60 40 20 / 0.08);
+  color: var(--text);
   color: var(--text);
   font: inherit;
   font-weight: var(--fw-semibold);
@@ -88,9 +90,11 @@
     transform 0.12s ease;
 }
 .durationOn {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-contrast);
+  background: var(--btn-main);
+  border-color: transparent;
+  color: var(--btn-main-ink);
+  font-weight: 800;
+  box-shadow: 0 4px 12px var(--btn-main-glow);
 }
 .timeline {
   display: flex;

@@ -15,9 +15,9 @@
   max-width: 560px;
   max-height: 90dvh;
   overflow-y: auto;
-  background: var(--surface);
+  background: var(--bg);
   border-radius: var(--r-sheet) var(--r-sheet) 0 0;
-  padding: 8px calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom))
+  padding: 0 calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom))
     calc(16px + var(--safe-left));
   box-shadow: var(--shadow);
   animation: slide 0.38s var(--ease-spring);
@@ -35,7 +35,8 @@
   width: 40px;
   height: 4px;
   border-radius: var(--r-pill);
-  background: var(--border);
+  background: currentColor;
+  opacity: 0.45;
   margin: 0 auto var(--sp-2);
 }
 
@@ -46,19 +47,46 @@
   margin-bottom: var(--sp-3);
 }
 
+/* The head of the sheet is a strip of the sky of this hour. */
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin: 0 calc(-16px - var(--safe-right)) var(--sp-4) calc(-16px - var(--safe-left));
+  padding: 8px calc(12px + var(--safe-right)) 12px calc(18px + var(--safe-left));
+  background: linear-gradient(
+    120deg,
+    var(--sky-top) 0%,
+    var(--sky-mid) 60%,
+    var(--sky-bottom) 100%
+  );
+  border-radius: var(--r-sheet) var(--r-sheet) 20px 20px;
+}
+.dark {
+  color: #ffffff;
+  --close-bg: rgb(255 255 255 / 0.18);
+}
+.light {
+  color: #14231d;
+  --close-bg: rgb(255 255 255 / 0.6);
+}
+.top .header {
+  margin-bottom: 0;
+}
 .title {
   margin: 0;
-  font-size: var(--fs-4);
-  font-weight: var(--fw-semibold);
+  font-size: 21px;
+  font-weight: 800;
 }
 
 .close {
-  width: var(--tap);
-  height: var(--tap);
+  width: 40px;
+  height: 40px;
   display: grid;
   place-items: center;
   border: none;
-  background: transparent;
+  color: inherit;
+  background: var(--close-bg);
   border-radius: 50%;
   cursor: pointer;
 }

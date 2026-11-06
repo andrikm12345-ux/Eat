@@ -1,23 +1,51 @@
+import type { CSSProperties } from 'react';
 import { useLocation, useNavigate } from 'react-router';
+import { SeasonLayer, Stars } from '../features/today/SeasonLayer';
 import { ru } from '../i18n/ru';
 import { IconBack } from './icons';
+import { usePageTitleStore } from './pageTitle';
+import { useSky, useTopColor } from './sky/useSky';
 import styles from './BackBar.module.css';
 
-/** In-app back arrow for secondary screens (falls back to "Сегодня" without history). */
-export function BackBar() {
+/**
+ * The top of every inner screen: a strip of the same sky as on the tabs, a round back button
+ * and the screen's title (falls back to "Сегодня" without history).
+ */
+export function BackBar({ title: own, bleed = false }: { title?: string; bleed?: boolean } = {}) {
   const navigate = useNavigate();
   const { key } = useLocation();
+  const stored = usePageTitleStore((s) => s.title);
+  const title = own ?? stored;
+  const { sky, season } = useSky();
+  useTopColor(sky.top);
+  const style = {
+    '--sky-top': sky.top,
+    '--sky-mid': sky.mid,
+    '--sky-bottom': sky.bottom,
+    '--stars': String(sky.stars),
+  } as CSSProperties;
   return (
-    <div className={styles.bar}>
-      <button
-        type="button"
-        className={styles.back}
-        aria-label={ru.common.back}
-        onClick={() => (key === 'default' ? navigate('/', { replace: true }) : navigate(-1))}
-      >
-        <IconBack />
-        {ru.common.back}
-      </button>
+    <div
+      className={`${styles.bar} ${bleed ? styles.bleed : ''} ${sky.dark ? styles.dark : styles.light}`}
+      style={style}
+    >
+      <Stars />
+      <div className={styles.row}>
+        <button
+          type="button"
+          className={styles.back}
+          aria-label={ru.common.back}
+          onClick={() => (key === 'default' ? navigate('/', { replace: true }) : navigate(-1))}
+        >
+          <IconBack />
+        </button>
+        {/* The real heading is on the page itself; this is its picture on the sky. */}
+        <span className={styles.title} aria-hidden="true">
+          {title}
+        </span>
+        <span className={styles.spacer} />
+      </div>
+      <SeasonLayer season={season} ground />
     </div>
   );
 }

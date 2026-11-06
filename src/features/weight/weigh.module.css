@@ -26,8 +26,10 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface-2);
+  border: none;
+  background: var(--btn-soft);
+  box-shadow: 0 3px 10px rgb(60 40 20 / 0.08);
+  color: var(--text);
   font-size: var(--fs-2);
   cursor: pointer;
 }
@@ -45,9 +47,11 @@
 }
 .key {
   min-height: 52px;
-  border-radius: var(--r-field);
+  border-radius: 16px;
   border: none;
-  background: var(--surface-2);
+  background: var(--btn-soft);
+  box-shadow: 0 3px 10px rgb(60 40 20 / 0.08);
+  color: var(--text);
   font-size: var(--fs-3);
   font-weight: var(--fw-semibold);
   cursor: pointer;

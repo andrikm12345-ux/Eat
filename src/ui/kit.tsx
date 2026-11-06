@@ -70,7 +70,7 @@ export function Card({
 }) {
   return (
     <section
-      className={[styles.card, tone ? styles[`tone-${tone}`] : '', className]
+      className={[styles.card, tone ? styles[`tone-${tone}`] : styles.auto, className]
         .filter(Boolean)
         .join(' ')}
     >

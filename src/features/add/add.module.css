@@ -1,16 +1,18 @@
 .searchBox {
+  border-radius: 0 0 18px 18px;
   position: sticky;
-  top: calc(var(--tap) + var(--safe-top));
+  top: calc(var(--tap) + 26px + var(--safe-top));
   z-index: 5;
   background: var(--bg);
   padding: var(--sp-2) 0;
 }
 .input {
   width: 100%;
-  min-height: 48px;
-  border-radius: var(--r-field);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  min-height: 50px;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background: var(--field-bg);
+  box-shadow: var(--field-shadow);
   padding: 0 var(--sp-3);
   font: inherit;
   font-size: var(--fs-4);
@@ -19,7 +21,8 @@
 .input:focus,
 .input:focus-visible {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--picked);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--picked) 20%, transparent);
 }
 .sectionTitle {
   font-size: var(--fs-6);
@@ -104,7 +107,11 @@
 }
 .rowRight {
   font-size: var(--fs-6);
-  color: var(--text-muted);
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--chip-on-tone);
   text-align: right;
   white-space: nowrap;
 }
@@ -112,9 +119,9 @@
   display: inline-block;
   font-size: var(--fs-6);
   border-radius: var(--r-pill);
-  padding: 0 var(--sp-1);
-  background: var(--surface-2);
-  color: var(--text-muted);
+  padding: 0 7px;
+  background: var(--picked-soft);
+  color: var(--text);
   margin-left: var(--sp-1);
 }
 .actions {
@@ -133,20 +140,27 @@
 .stepper > :nth-child(2) {
   flex: 1;
 }
+.stepBtn:active {
+  transform: scale(0.9);
+}
 .stepBtn {
-  width: 52px;
-  height: 46px;
+  width: 50px;
+  height: 50px;
   margin-bottom: var(--sp-3);
-  border-radius: var(--r-field);
-  border: 1px solid var(--border);
-  background: var(--surface-2);
-  font-size: var(--fs-4);
+  border-radius: 50%;
+  border: none;
+  background: var(--btn-soft);
+  box-shadow: 0 4px 12px rgb(60 40 20 / 0.1);
+  color: var(--text);
+  font-size: 22px;
+  transition: transform 0.15s ease;
   font-weight: var(--fw-semibold);
   cursor: pointer;
 }
 .big {
-  font-size: var(--fs-1);
-  font-weight: var(--fw-bold);
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   margin: var(--sp-2) 0 0;
   font-variant-numeric: tabular-nums;
 }
@@ -163,8 +177,9 @@
   margin-bottom: var(--sp-3);
 }
 .chip {
-  border: 1px solid var(--border);
-  background: var(--surface-2);
+  border: 2px solid transparent;
+  background: var(--btn-soft);
+  box-shadow: var(--field-shadow);
   color: var(--text);
   border-radius: var(--r-pill);
   padding: 0 var(--sp-3);

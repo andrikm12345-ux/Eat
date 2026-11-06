@@ -86,9 +86,10 @@
 .weekDay {
   flex: 1;
   border: 0;
-  border-radius: var(--r-field);
+  border-radius: 14px;
   padding: var(--sp-2) 0;
-  background: var(--surface-2);
+  background: var(--btn-soft);
+  box-shadow: var(--field-shadow);
   color: var(--text);
   font: inherit;
   font-size: var(--fs-6);
@@ -97,8 +98,8 @@
   align-items: center;
 }
 .weekDayOn {
-  background: var(--accent);
-  color: var(--on-accent, #fff);
+  background: var(--btn-main);
+  color: var(--btn-main-ink);
 }
 .meal {
   padding: var(--sp-2) 0;

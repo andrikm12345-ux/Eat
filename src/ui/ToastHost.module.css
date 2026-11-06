@@ -19,10 +19,10 @@
   gap: var(--sp-2);
   padding: var(--sp-1) var(--sp-1) var(--sp-1) var(--sp-3);
   min-height: 50px;
-  border-radius: var(--r-card);
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: linear-gradient(120deg, #2f3558, #5c4470);
+  color: #ffffff;
+  border: none;
   box-shadow: var(--shadow-2);
   font-size: var(--fs-5);
   font-weight: var(--fw-semibold);
@@ -36,8 +36,8 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: linear-gradient(145deg, var(--accent-2), var(--accent));
-  box-shadow: 0 0 0 4px var(--accent-soft);
+  background: var(--sky-accent);
+  box-shadow: 0 0 0 4px rgb(182 233 142 / 0.3);
 }
 @keyframes toast-in {
   from {
@@ -59,8 +59,9 @@
   padding: 0 var(--sp-3);
   border: none;
   border-radius: var(--r-field);
-  background: transparent;
-  color: var(--accent);
+  background: var(--sky-accent);
+  color: var(--sky-accent-ink);
+  border-radius: var(--r-pill);
   font-weight: var(--fw-bold);
   cursor: pointer;
 }

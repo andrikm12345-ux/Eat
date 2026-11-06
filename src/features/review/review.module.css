@@ -1,12 +1,15 @@
 .item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--tone-food);
+  border: none;
+  box-shadow:
+    var(--shadow-card),
+    inset 0 0 0 1px var(--tone-edge);
+  border-radius: 22px;
   padding: var(--sp-3) var(--sp-3) var(--sp-1);
   margin-bottom: var(--sp-2);
 }
 .low {
-  background: var(--attention);
+  background: var(--tone-sun);
   color: var(--attention-text);
 }
 .head {
@@ -21,8 +24,8 @@
 .badge {
   font-size: var(--fs-6);
   border-radius: var(--r-pill);
-  padding: 0 var(--sp-1);
-  background: var(--surface-2);
+  padding: 0 7px;
+  background: var(--picked-soft);
   color: var(--text-muted);
   white-space: nowrap;
 }
@@ -43,9 +46,11 @@
   width: 48px;
   height: 46px;
   margin-bottom: var(--sp-3);
-  border-radius: var(--r-field);
-  border: 1px solid var(--border);
-  background: var(--surface-2);
+  border-radius: 50%;
+  border: none;
+  background: var(--btn-soft);
+  box-shadow: 0 3px 10px rgb(60 40 20 / 0.08);
+  color: var(--text);
   color: var(--text);
   font-size: var(--fs-4);
   font-weight: var(--fw-semibold);

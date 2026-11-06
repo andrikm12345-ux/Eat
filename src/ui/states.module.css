@@ -23,7 +23,7 @@
   height: 100%;
 }
 .blob {
-  fill: var(--accent-wash);
+  fill: var(--picked-soft);
 }
 .ring {
   fill: none;
@@ -53,10 +53,10 @@
   width: 64px;
   height: 64px;
   margin: -32px 0 0 -32px;
-  border-radius: var(--r-card);
-  background: var(--accent-grad);
-  color: var(--accent-contrast);
-  box-shadow: 0 8px 20px var(--glow);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e2f9cc, var(--sky-accent) 55%, #7fc957);
+  color: var(--sky-accent-ink);
+  box-shadow: 0 8px 20px var(--btn-main-glow);
   animation: pop var(--dur-3) var(--ease-spring);
 }
 .text {
@@ -71,12 +71,12 @@
   min-height: var(--btn-h);
   padding: 0 var(--sp-6);
   border: none;
-  border-radius: var(--r-field);
-  background: var(--accent-grad);
-  color: var(--accent-contrast);
+  border-radius: var(--r-pill);
+  background: var(--btn-main);
+  color: var(--btn-main-ink);
   font: inherit;
-  font-weight: var(--fw-semibold);
+  font-weight: 800;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 6px 16px var(--glow);
+  box-shadow: 0 8px 18px var(--btn-main-glow);
 }

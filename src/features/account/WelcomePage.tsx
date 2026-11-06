@@ -4,6 +4,7 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { ACCOUNT } from '../../services/account';
 import { LinkButton } from '../../ui/kit';
+import { SkyHeader } from '../../ui/sky/SkyHeader';
 import styles from '../onboarding/Wizard.module.css';
 import { Loading } from '../../ui/states';
 
@@ -24,15 +25,13 @@ export default function WelcomePage() {
   if (signedIn) return <Navigate to="/" replace />;
   return (
     <div className={styles.wrap}>
-      <div
-        className={styles.body}
-        style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
-      >
-        <h1 className={styles.title} style={{ fontSize: 'var(--fs-1)' }}>
-          {t.title}
-        </h1>
+      <SkyHeader className={styles.welcomeSky}>
+        <span className={styles.welcomeLogo} aria-hidden="true">
+          🥗
+        </span>
+        <h1 className={styles.title}>{t.title}</h1>
         <p className={styles.stepHint}>{t.tagline}</p>
-      </div>
+      </SkyHeader>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
         <LinkButton to="/account?mode=signUp" block>
           {t.signUp}

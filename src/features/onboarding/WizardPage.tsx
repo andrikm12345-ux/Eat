@@ -28,6 +28,7 @@ import {
   Stat,
 } from '../../ui/kit';
 import { saveWizard, type WizardData } from './saveWizard';
+import { SkyHeader } from '../../ui/sky/SkyHeader';
 import styles from './Wizard.module.css';
 import { DateField } from '../../ui/DateTimeFields';
 import { Loading } from '../../ui/states';
@@ -158,17 +159,19 @@ function Wizard({ initial, editing, today }: { initial: Draft; editing: boolean;
 
   return (
     <div className={styles.wrap}>
-      <p className={styles.step}>
-        {editing ? t.editTitle : t.title} · {t.stepOf(step + 1, STEPS.length)}
-      </p>
-      <div className={styles.progress} aria-hidden="true">
-        <div
-          className={styles.progressBar}
-          style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
-        />
-      </div>
-      <h1 className={styles.title}>{t.steps[name]}</h1>
-      <p className={styles.stepHint}>{t.stepHints[name]}</p>
+      <SkyHeader className={styles.skyTop}>
+        <p className={styles.step}>
+          {editing ? t.editTitle : t.title} · {t.stepOf(step + 1, STEPS.length)}
+        </p>
+        <div className={styles.progress} aria-hidden="true">
+          <div
+            className={styles.progressBar}
+            style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+          />
+        </div>
+        <h1 className={styles.title}>{t.steps[name]}</h1>
+        <p className={styles.stepHint}>{t.stepHints[name]}</p>
+      </SkyHeader>
 
       <div className={styles.body}>
         {name === 'about' && (

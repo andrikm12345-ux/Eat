@@ -47,7 +47,7 @@ export function AddSheet() {
             <button
               key={key}
               type="button"
-              className={styles.tile}
+              className={`${styles.tile} ${styles[`t-${key}`] ?? ''}`}
               disabled={off}
               onClick={() => go(`${manual ?? path}${qs}`)}
             >
