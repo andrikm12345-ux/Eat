@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { fileURLToPath } from 'node:url';
 
-const THEME_LIGHT = '#f4f5f2';
+const THEME_LIGHT = '#f4f1ec';
 
 export default defineConfig(({ mode }) => ({
   define: {

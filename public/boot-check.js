@@ -50,7 +50,7 @@
     box.setAttribute('role', 'alert');
     box.style.cssText =
       'position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;font:17px/1.4 -apple-system,system-ui,sans-serif;background:' +
-      (dark ? '#111513' : '#f4f5f2') +
+      (dark ? '#111513' : '#f4f1ec') +
       ';color:' +
       (dark ? '#e9eeeb' : '#16201d');
     var text = document.createElement('p');
