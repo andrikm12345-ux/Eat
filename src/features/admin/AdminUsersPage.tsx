@@ -9,11 +9,14 @@ import { Notice } from '../../ui/kit';
 import { Loading } from '../../ui/states';
 import styles from './admin.module.css';
 import wizard from '../onboarding/Wizard.module.css';
+import { useGoBack } from '../../ui/useGoBack';
+import { useSwipeBack } from '../../ui/useSwipeBack';
 
 const t = ru.admin;
 const when = (ms: number | null) => (ms ? new Date(ms).toLocaleString('ru-RU') : t.never);
 
 export default function AdminUsersPage() {
+  useSwipeBack(true, useGoBack());
   const [users, setUsers] = useState<AdminUser[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 

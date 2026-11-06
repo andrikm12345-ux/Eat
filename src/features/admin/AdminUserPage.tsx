@@ -13,12 +13,15 @@ import { Card, Notice, Stat } from '../../ui/kit';
 import { Loading } from '../../ui/states';
 import styles from './admin.module.css';
 import wizard from '../onboarding/Wizard.module.css';
+import { useGoBack } from '../../ui/useGoBack';
+import { useSwipeBack } from '../../ui/useSwipeBack';
 
 const t = ru.admin;
 const NB = ' ';
 const unit = (value: string, u: string) => `${value}${NB}${u}`;
 
 export default function AdminUserPage() {
+  useSwipeBack(true, useGoBack());
   const { id = '' } = useParams();
   const [diary, setDiary] = useState<AdminDiary | null>(null);
   const [error, setError] = useState<string | null>(null);

@@ -21,10 +21,13 @@ import { Button, Card, Notice, Segmented, Switch, TextField } from '../../ui/kit
 import { BackBar } from '../../ui/BackBar';
 import styles from '../onboarding/Wizard.module.css';
 import { Loading } from '../../ui/states';
+import { useGoBack } from '../../ui/useGoBack';
+import { useSwipeBack } from '../../ui/useSwipeBack';
 
 const t = ru.account;
 
 export default function AccountPage() {
+  useSwipeBack(true, useGoBack());
   const navigate = useNavigate();
   const session = useLiveQuery(async () => {
     const [login, token, last, admin] = await Promise.all([
