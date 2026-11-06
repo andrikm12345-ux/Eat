@@ -10,7 +10,16 @@ import { Button } from '../../ui/kit';
 const t = ru.achievements;
 
 /** Logging streak chip and the "intentional skip" toggle for an empty day. */
-export function StreakRow({ meta, empty }: { meta: DayMeta; empty: boolean }) {
+export function StreakRow({
+  meta,
+  empty,
+  showStreak = true,
+}: {
+  meta: DayMeta;
+  empty: boolean;
+  /** The day card shows the streak itself. */
+  showStreak?: boolean;
+}) {
   const today = toLocalDate(new Date());
   const streaks = useLiveQuery(() => loadStreaks(repos, today), [today]);
   return (
@@ -24,7 +33,7 @@ export function StreakRow({ meta, empty }: { meta: DayMeta; empty: boolean }) {
         flexWrap: 'wrap',
       }}
     >
-      {streaks && streaks.log.current > 0 ? (
+      {showStreak && streaks && streaks.log.current > 0 ? (
         <Link
           to="/more/achievements"
           style={{

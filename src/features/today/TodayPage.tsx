@@ -9,8 +9,7 @@ import { StreakRow } from './StreakRow';
 import { exerciseBonus } from '../../domain/met';
 import { ActivityCard } from './ActivityCard';
 import { DayFlow } from './DayFlow';
-import { DayHeader } from './DayHeader';
-import { SummaryCard } from './SummaryCard';
+import { DayHero } from './DayHero';
 import { useDay } from './useDay';
 import { WaterCard } from './WaterCard';
 import styles from './today.module.css';
@@ -32,12 +31,11 @@ export default function TodayPage() {
       style={{ paddingTop: '0' }}
       aria-label={ru.pages.today.title}
     >
-      <DayHeader />
       {day && (
         <>
+          <DayHero date={date} entries={day.entries} totals={dayTotals(day.entries)} goal={goal} />
           <Banners />
-          <StreakRow meta={day.meta} empty={day.entries.length === 0} />
-          <SummaryCard totals={dayTotals(day.entries)} goal={goal} />
+          {day.entries.length === 0 && <StreakRow meta={day.meta} empty showStreak={false} />}
           <Card title={ru.today.flowTitle}>
             <DayFlow entries={day.entries} />
           </Card>

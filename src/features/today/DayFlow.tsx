@@ -76,7 +76,7 @@ export function DayFlow({ entries }: { entries: Entry[] }) {
     const id = first.id;
     const expanded = open.has(id) || stack.length === 1;
     parts.push(
-      <div key={id} className={styles.stack}>
+      <div key={id} className={styles.stack} data-entry={id}>
         <span className={styles.stackTime}>{first.time}</span>
         <span className={styles.dot} aria-hidden="true" />
         {expanded ? (

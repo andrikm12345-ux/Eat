@@ -122,12 +122,16 @@ describe('workouts and exercise calories', () => {
     });
     await renderApp('/');
     expect(await screen.findByText(ru.activityCard.noGoalChange)).toBeVisible();
-    expect(screen.getByText(/^из\s+2\s?200\s+ккал$/)).toBeVisible();
+    expect(screen.getByText(ru.today.hero.kcalOf).parentElement).toHaveTextContent(/из\s+2\s?200/);
     const p = (await repos.profile.get())!;
     const { id: _i, createdAt: _c, updatedAt: _u, ...rest } = p;
     await repos.profile.save({ ...rest, exerciseCaloriesMode: 'full' });
     expect(await screen.findByText(ru.activityCard.goalBonus('300'))).toBeVisible();
-    await waitFor(() => expect(screen.getByText(/^из\s+2\s?500\s+ккал$/)).toBeVisible());
+    await waitFor(() =>
+      expect(screen.getByText(ru.today.hero.kcalOf).parentElement).toHaveTextContent(
+        /из\s+2\s?500/,
+      ),
+    );
   });
 });
 
