@@ -218,8 +218,8 @@ export const ru = {
       },
       notStarted: 'Не начат',
       noEntries: 'Нет записей',
-      left: (n: string) => `Ещё ${n}\u00A0ккал`,
-      over: (n: string) => `Перебор +${n}\u00A0ккал`,
+      left: (n: string) => `осталось ${n}\u00A0ккал`,
+      over: (n: string) => `перебор +${n}\u00A0ккал`,
       kcalOf: 'ккал из',
       slot: { breakfast: 'завтрак', lunch: 'обед', snack: 'перекус', dinner: 'ужин' },
       add: {

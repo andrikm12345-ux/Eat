@@ -109,9 +109,7 @@ export function DayHero({
         : h.noEntries
       : left === null
         ? t.noGoal
-        : over
-          ? h.over(formatKcal(-left))
-          : h.left(formatKcal(left));
+        : null; // with a goal the remainder is said once, under the totals
 
   const done =
     pins.every((p) => p.count > 0) ||
@@ -184,7 +182,7 @@ export function DayHero({
               {formatDateRu(date, 'd MMMM, EEEE')}
             </button>
           )}
-          <b className={over ? styles.statusOver : styles.status}>{status}</b>
+          {status && <b className={styles.status}>{status}</b>}
         </div>
         <button
           type="button"
@@ -234,7 +232,13 @@ export function DayHero({
 
       <p className={styles.kcal}>
         <b>{formatKcal(totals.kcal)}</b> <span className={styles.muted}>{h.kcalOf}</span>{' '}
-        <b>{goal ? formatKcal(goal.kcal) : '—'}</b>
+        <b>{goal ? formatKcal(goal.kcal) : '—'}</b>{' '}
+        <span className={styles.muted}>{ru.units.kcal}</span>
+        {left !== null && entries.length > 0 && (
+          <span className={`${styles.remain} ${over ? styles.overText : ''}`}>
+            {over ? h.over(formatKcal(-left)) : h.left(formatKcal(left))}
+          </span>
+        )}
       </p>
 
       {done ? (

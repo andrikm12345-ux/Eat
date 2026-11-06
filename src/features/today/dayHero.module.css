@@ -103,12 +103,11 @@
   font-size: var(--fs-5);
   color: var(--hero-status);
 }
-.statusOver,
 .overText {
   color: var(--hero-over) !important;
 }
-.status,
-.statusOver {
+
+.status {
   margin-top: 2px;
   font-size: var(--fs-5);
 }
@@ -289,4 +288,13 @@
   font-weight: 500;
   font-size: var(--fs-6);
   opacity: 0.8;
+}
+
+/* The remainder is its own line under the totals. */
+.remain {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-4);
+  font-weight: var(--fw-bold);
+  color: var(--hero-status);
 }
