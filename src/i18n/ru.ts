@@ -221,8 +221,6 @@ export const ru = {
       left: (n: string) => `Ещё ${n}\u00A0ккал`,
       over: (n: string) => `Перебор +${n}\u00A0ккал`,
       kcalOf: 'ккал из',
-      leftShort: (n: string) => `ещё ${n}`,
-      overShort: (n: string) => `перебор ${n}`,
       slot: { breakfast: 'завтрак', lunch: 'обед', snack: 'перекус', dinner: 'ужин' },
       add: {
         breakfast: 'Добавить завтрак',
@@ -231,7 +229,6 @@ export const ru = {
         dinner: 'Добавить ужин',
       },
       addFood: 'Добавить еду',
-      ctaLeft: (n: string) => `осталось ${n}\u00A0ккал`,
       ctaStart: 'начните день',
       share: 'Поделиться днём',
       shareSub: 'итоги дня',

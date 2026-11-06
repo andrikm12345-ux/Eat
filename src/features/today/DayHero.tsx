@@ -235,12 +235,6 @@ export function DayHero({
       <p className={styles.kcal}>
         <b>{formatKcal(totals.kcal)}</b> <span className={styles.muted}>{h.kcalOf}</span>{' '}
         <b>{goal ? formatKcal(goal.kcal) : '—'}</b>
-        {left !== null && (
-          <span className={over ? styles.overText : styles.muted}>
-            {' · '}
-            {over ? h.overShort(formatKcal(-left)) : h.leftShort(formatKcal(left))}
-          </span>
-        )}
       </p>
 
       {done ? (
@@ -251,13 +245,7 @@ export function DayHero({
       ) : (
         <button type="button" className={styles.cta} onClick={() => openAdd()}>
           {date === today && next ? h.add[next] : h.addFood}
-          <small>
-            {entries.length === 0
-              ? h.ctaStart
-              : left !== null && !over
-                ? h.ctaLeft(formatKcal(left))
-                : h.shareSub}
-          </small>
+          {entries.length === 0 && <small>{h.ctaStart}</small>}
         </button>
       )}
     </SkyHeader>
