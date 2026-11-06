@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Suspense, useCallback, useEffect } from 'react';
+import { Suspense, useCallback, useEffect, useRef } from 'react';
 import {
   Navigate,
   Outlet,
@@ -24,6 +24,8 @@ import { AchievementCard } from './AchievementCard';
 import { Confetti } from './Confetti';
 import { useOpenNotifications } from '../pwa/useOpenNotifications';
 import { Fab } from './Fab';
+import { useGoBack } from './useGoBack';
+import { useSwipeBack } from './useSwipeBack';
 import styles from './AppShell.module.css';
 
 /** Manifest shortcut actions (`/?action=…`) that open the add sheet. */
@@ -44,6 +46,8 @@ export function AppShell() {
   const addOpen = useUi((s) => s.addSheet.open);
   const openAdd = useUi((s) => s.openAdd);
   const setWeighOpen = useUi((s) => s.setWeighOpen);
+  const mainRef = useRef<HTMLElement>(null);
+  const goBack = useGoBack();
 
   const clearAction = useCallback(() => {
     setParams(
@@ -72,6 +76,13 @@ export function AppShell() {
     async () => !!(await repos.settings.get<string>(ACCOUNT.token, '')),
     [],
   );
+  // A swipe to the right anywhere goes back, except on the five tabs and the wizard screens.
+  const swipeBack =
+    !!signedIn &&
+    profile !== null &&
+    !MAIN_TABS.has(pathname) &&
+    !['/wizard', '/welcome'].includes(pathname);
+  useSwipeBack(mainRef, swipeBack, goBack);
   if (signedIn === undefined) return null;
   if (!signedIn) return <Navigate to="/welcome" replace />;
   if (profile === null) return <Navigate to="/wizard" replace />;
@@ -80,7 +91,7 @@ export function AppShell() {
     <>
       <div className={styles.scrim} aria-hidden="true" />
       <UpdateBanner />
-      <main className={styles.main}>
+      <main ref={mainRef} className={styles.main}>
         {!MAIN_TABS.has(pathname) && <BackBar />}
         <Suspense
           fallback={
