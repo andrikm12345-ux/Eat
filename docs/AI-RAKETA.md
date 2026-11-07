@@ -1,6 +1,6 @@
 # ИИ-настройки «Ракета» (быстрая рабочая версия)
 
-Кодовое слово: **Ракета**. Метка в git: `ai-raketa` (коммит `bacbb24`).
+Кодовое слово: **Ракета**. Ветка в git: `ai-raketa` (она указывает на коммит `bacbb24` и не меняется).
 Если после изменений ИИ снова «тупит», скажите «верни Ракету»: файлы ИИ возвращаются к этой версии.
 
 ## Что входит в «Ракету»
@@ -31,7 +31,7 @@
 
 Только код ИИ (оформление остаётся как есть):
 
-    git checkout ai-raketa -- server/sharedAi.ts server/deps.ts src/ai src/features/ai \
+    git checkout origin/ai-raketa -- server/sharedAi.ts server/deps.ts src/ai src/features/ai \
       src/services/mealParts.ts src/services/mealText.ts
     npm run build && npx vitest run   # потом commit и push
 
