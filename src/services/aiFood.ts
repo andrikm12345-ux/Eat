@@ -88,9 +88,8 @@ export async function mealToDraft(
     date: at.date,
     time: at.time,
     ...(res.notes ? { notes: res.notes } : {}),
-    ...(res.mealGuess
-      ? { mealLabel: res.mealGuess.charAt(0).toUpperCase() + res.mealGuess.slice(1) }
-      : {}),
+    // The AI's guess of the meal (from the food alone, without the time of day) is not used: it
+    // once called a 21:15 khachapuri "Завтрак". The meal follows the entry's time instead.
   };
 }
 

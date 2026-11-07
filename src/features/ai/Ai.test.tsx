@@ -186,7 +186,9 @@ describe('AI text flow', () => {
     await user.click(screen.getByRole('button', { name: ru.review.save }));
     await waitFor(() => expect(router.state.location.pathname).toBe('/'));
     const [e] = await repos.entries.byDate('2026-03-01');
-    expect(e).toMatchObject({ source: 'ai_text', mealLabel: 'Завтрак' });
+    expect(e).toMatchObject({ source: 'ai_text' });
+    // The AI's guess of the meal is not saved: the meal follows the time of the entry.
+    expect(e!.mealLabel).toBeUndefined();
     expect(e!.aiRunId).toBeTruthy();
     expect(e!.items[0]).toMatchObject({ confidence: 'medium', grams: 250 });
   });

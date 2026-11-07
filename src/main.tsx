@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router';
 import { ensureBaseFoods } from './db/baseFoods';
 import { repos } from './db/repos';
 import { routes } from './routes';
+import { clearAiMealLabels } from './services/cleanup';
 import { startAccountSync } from './services/sync';
 import { startTdeeSync } from './services/tdeeSync';
 import { startGamificationSync } from './services/gamificationSync';
@@ -23,6 +24,8 @@ const router = createBrowserRouter(routes);
 
 // Load the bundled food catalog into IndexedDB (once per catalog version).
 void ensureBaseFoods(repos).catch((e: unknown) => console.error('Base foods failed', e));
+// Old AI entries lose the meal name the AI guessed from the food alone.
+void clearAiMealLabels(repos).catch((e: unknown) => console.error('Label cleanup failed', e));
 // Adaptive TDEE + weekly check-in, recomputed on start and on data changes.
 startTdeeSync(repos);
 // Cloud sync while signed in to an account.

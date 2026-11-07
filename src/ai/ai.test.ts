@@ -364,11 +364,9 @@ describe('catalog matching', () => {
       { date: '2026-03-01', time: '13:00' },
       { entrySource: 'ai_photo', aiRunId: 'run1' },
     );
-    expect(d).toMatchObject({
-      mealLabel: 'Обед',
-      notes: 'масло предположено 10 г',
-      aiRunId: 'run1',
-    });
+    expect(d).toMatchObject({ notes: 'масло предположено 10 г', aiRunId: 'run1' });
+    // The AI's guess of the meal is not kept: the meal follows the time of the entry.
+    expect(d.mealLabel).toBeUndefined();
     expect(d.items[0]).toMatchObject({
       foodId: f.id,
       source: 'catalog',
