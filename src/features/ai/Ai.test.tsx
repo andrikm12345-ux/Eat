@@ -324,12 +324,15 @@ describe('AI text flow', () => {
     expect(await screen.findByRole('heading', { name: ru.review.title })).toBeVisible();
     const aiCall = f.mock.calls.find(([u]) => u !== '/api/search');
     const sent = JSON.stringify(aiCall);
-    // The catalog part is not sent to the AI, the others are.
-    expect(sent).not.toContain('гречка');
+    // The catalog part is not estimated by the AI (it is named only as already counted); the
+    // others are.
+    expect(sent).toContain('не повторяй: гречка 200 г');
+    expect(sent).not.toContain('- гречка');
     expect(sent).toContain('сырники');
     expect(sent).toContain('компот');
-    // One search per unresolved part (two), none for the catalog part.
-    expect(f.mock.calls.filter(([u]) => u === '/api/search')).toHaveLength(2);
+    // The web is searched only for the branded part ("сырники Домик"): not for the catalog part,
+    // not for the plain "компот".
+    expect(f.mock.calls.filter(([u]) => u === '/api/search')).toHaveLength(1);
     // Every item carries its own mark.
     expect(screen.getByText(ru.review.source.catalog)).toBeVisible();
     expect(screen.getByText(ru.review.source.web)).toBeVisible();

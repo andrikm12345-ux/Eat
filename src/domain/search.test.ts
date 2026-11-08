@@ -159,3 +159,15 @@ describe('bestMatch', () => {
     expect(bestMatch(index, '  ')).toBeNull();
   });
 });
+
+describe('word forms', () => {
+  it('knows the same word in another form', async () => {
+    const { stemOf, tokenScore } = await import('./search');
+    expect(stemOf('яйца')).toBe(stemOf('яйцо'));
+    expect(stemOf('вареных')).toBe(stemOf('вареное'));
+    expect(stemOf('сахара')).toBe(stemOf('сахар'));
+    expect(tokenScore('яйца', 'яйцо')).toBe(2.5);
+    expect(tokenScore('гречка', 'гречка')).toBe(3);
+    expect(tokenScore('мясо', 'масло')).toBe(0);
+  });
+});

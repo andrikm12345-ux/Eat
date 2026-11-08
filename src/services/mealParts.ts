@@ -21,11 +21,48 @@ const looksBranded = (raw: string) => /[A-Za-z«"“]/.test(raw) || /\s[А-ЯЁ]
 /** The part's quantity is stated (grams, volume or a count), so the catalog can answer alone. */
 const hasQuantity = (p: ParsedItem) => p.grams !== null || p.count !== null;
 
-/** Which parts to search for: branded ones first, then the rest in order, at most MAX_WEB_PARTS. */
+/**
+ * Which parts to search the web for: only branded ones (a brand or a title is what a catalog
+ * and the AI cannot know), at most MAX_WEB_PARTS. Ordinary food needs no reference, and every
+ * lookup makes the answer slower and the AI's message longer.
+ */
 export function pickWebParts(parts: ParsedItem[]): ParsedItem[] {
-  const branded = parts.filter((p) => looksBranded(p.raw));
-  const plain = parts.filter((p) => !looksBranded(p.raw));
-  return [...branded, ...plain].slice(0, MAX_WEB_PARTS);
+  return parts.filter((p) => looksBranded(p.raw)).slice(0, MAX_WEB_PARTS);
+}
+
+/** "мёдом", "сахаром", "маслом", "подливкой": one word in the instrumental case, no quantity. */
+const ADD_ON = /^[а-яё]+(?:ом|ем|ой|ей|ами|ями)$/iu;
+/** "салат из огурцов": the next fragment may be one more thing it is made of. */
+const MADE_FROM = /(?<!\p{L})из\s+\p{L}+$/iu;
+const PLURAL_FIRST = /^[а-яё]+(?:ов|ёв|ев|ей|ых|их)(?:\s|$)/iu;
+
+/** The fragment goes on the dish before it ("кофе с молоком" + "сахаром"). */
+export function continuesDish(prev: ParsedItem, p: ParsedItem): boolean {
+  if (hasQuantity(p)) return false;
+  const q = p.query.trim();
+  return ADD_ON.test(q) || (MADE_FROM.test(prev.query.trim()) && PLURAL_FIRST.test(q));
+}
+
+/**
+ * The parts the catalog could not answer, with add-ons glued to the dish before them, so the AI
+ * sees "кофе с молоком и сахаром" and not two unrelated lines "кофе с молоком" and "сахаром".
+ * A part is glued only to a neighbour that goes to the AI as well.
+ */
+export function groupAddOns(parts: ParsedItem[], rest: ReadonlySet<ParsedItem>): ParsedItem[] {
+  const out: ParsedItem[] = [];
+  parts.forEach((p, i) => {
+    if (!rest.has(p)) return;
+    const prev = parts[i - 1];
+    const last = out[out.length - 1];
+    if (prev && last && rest.has(prev) && continuesDish(prev, p)) {
+      out[out.length - 1] = {
+        ...last,
+        raw: `${last.raw.trim()} и ${p.raw.trim()}`,
+        query: `${last.query} ${p.query}`,
+      };
+    } else out.push(p);
+  });
+  return out;
 }
 
 /** Renumbers "[1] …" reference lines so numbers stay unique across several searches. */
@@ -33,23 +70,37 @@ export function renumber(text: string, offset: number): string {
   return text.replace(/^\[(\d+)\]/gm, (_m, n: string) => `[${Number(n) + offset}]`);
 }
 
-/** The AI message: the fragments the catalog could not answer, each with its own web reference. */
-export function partsMessage(parts: ParsedItem[], refs: Map<string, string>): string {
+/**
+ * The AI message: the fragments the catalog could not answer, each with its own web reference.
+ * With `whole` the AI also gets the full description (so an add-on like sugar or honey is read
+ * in its dish) and the list of what the catalog has already counted (so it is not repeated).
+ */
+export function partsMessage(
+  parts: ParsedItem[],
+  refs: Map<string, string>,
+  whole?: { text: string; done: string[] },
+): string {
   const lines = parts.map((p) => `- ${p.raw.trim()}`).join('\n');
+  const head = whole
+    ? `Приём пищи целиком: «${whole.text.trim()}».\n${
+        whole.done.length ? `Уже посчитано по базе, не повторяй: ${whole.done.join('; ')}.\n` : ''
+      }Оцени только эти позиции (добавки к блюду — сахар, мёд, масло, соус — относятся к блюду из описания):\n`
+    : '';
   const refText = parts
     .filter((p) => refs.has(p.raw))
     .map((p) => `Справка для «${p.query}»:\n${refs.get(p.raw) ?? ''}`)
     .join('\n\n');
-  if (!refText) return lines;
-  return `${lines}\n\nСправка из интернета (результаты поиска, могут быть неточными или относиться к другому продукту). Для каждого продукта: если справка относится именно к нему — возьми из неё калорийность и БЖУ на 100 г, поставь "source": "web" и "sourceRef": номер справки [N], из которой взял цифры; если нет — игнорируй её и поставь "source": "estimate".\n${refText}`;
+  if (!refText) return `${head}${lines}`;
+  return `${head}${lines}\n\nСправка из интернета (результаты поиска, могут быть неточными или относиться к другому продукту). Для каждого продукта: если справка относится именно к нему — возьми из неё калорийность и БЖУ на 100 г, поставь "source": "web" и "sourceRef": номер справки [N], из которой взял цифры; если нет — игнорируй её и поставь "source": "estimate".\n${refText}`;
 }
 
 /**
  * "Описать" by parts. Each fragment of the description goes the cheapest way that is exact:
  * 1. a fragment with a stated quantity that matches the catalog is taken from the catalog;
- * 2. the others are looked up on the web (a few, in parallel) and given to the AI, which
- *    estimates only them and says per item whether the numbers came from the web or are its
- *    own estimate.
+ * 2. the others (add-ons glued to their dish) go to the AI together with the whole description
+ *    and the list of what the catalog counted; only branded ones are looked up on the web
+ *    (a few, in parallel). The AI estimates only them and says per item whether the numbers
+ *    came from the web or are its own estimate.
  * With nothing parsed, the whole text goes to the AI as before. Throws when the AI fails
  * (the caller falls back to the local analysis).
  */
@@ -61,6 +112,7 @@ export async function analyzeMealByParts(
   const parts = parseMealText(text);
   const index = buildIndex(await r.foods.list());
   const fromCatalog: ReviewItem[] = [];
+  const done: string[] = [];
   const rest: ParsedItem[] = [];
   for (const p of parts) {
     // A quantity makes the catalog enough; without one only a near-exact name does ("банан"),
@@ -76,6 +128,7 @@ export async function analyzeMealByParts(
         source: 'catalog',
         confidence: hasQuantity(p) ? 'high' : 'medium',
       });
+      done.push(p.raw.trim());
     } else rest.push(p);
   }
 
@@ -91,8 +144,10 @@ export async function analyzeMealByParts(
   }
 
   // Nothing could be split: the whole description goes through as one fragment.
-  const todo: ParsedItem[] =
-    rest.length > 0 ? rest : [{ raw: text.trim(), query: text.trim(), grams: null, count: null }];
+  const split = rest.length > 0;
+  const todo: ParsedItem[] = split
+    ? groupAddOns(parts, new Set(rest))
+    : [{ raw: text.trim(), query: text.trim(), grams: null, count: null }];
   const toSearch = pickWebParts(todo);
   const found = await Promise.all(toSearch.map((p) => searchWeb(r, p.query)));
   const refs = new Map<string, string>();
@@ -108,7 +163,12 @@ export async function analyzeMealByParts(
     kind: 'text',
     vision: false,
     system: PROMPT_MEAL,
-    content: [{ type: 'text', text: partsMessage(todo, refs) }],
+    content: [
+      {
+        type: 'text',
+        text: partsMessage(todo, refs, split ? { text, done } : undefined),
+      },
+    ],
     validate: validateMeal,
   });
   const aiDraft = await mealToDraft(r, value, at, {

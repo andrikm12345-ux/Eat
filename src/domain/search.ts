@@ -56,9 +56,19 @@ export function editDistance(a: string, b: string, max: number): number {
   return prev[b.length] as number;
 }
 
+/** The stem of a word without its ending: "яйца" and "яйцо" → "яйц", "варёных" and "варёное" → "варен". */
+export function stemOf(w: string): string {
+  return w.length > 3 ? w.replace(/(?:[ыиоаеуюяь]?[йхмюеоая]|ь)$/u, '') : w;
+}
+
 /** How well one query token matches one name token (0 = no match). */
 export function tokenScore(q: string, t: string): number {
   if (t === q) return 3;
+  // The same word in another form (case, number, gender).
+  if (q.length > 3 && t.length > 3) {
+    const sq = stemOf(q);
+    if (sq.length >= 3 && sq === stemOf(t)) return 2.5;
+  }
   if (t.startsWith(q)) return 2;
   if (q.length >= 3 && t.includes(q)) return 1.5;
   // Typos are tolerated after the first letter (cheap pre-filter for speed).
