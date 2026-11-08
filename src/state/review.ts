@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import type { Confidence, EntrySource, LocalDate, LocalTime, Nutrients } from '../domain/types';
+import type { MemoryPart } from '../services/mealMemory';
 
-export type ReviewSource = 'ai' | 'web' | 'off' | 'catalog' | 'manual';
+/** `memory`: the user's own phrase, saved before ("как в прошлый раз"). */
+export type ReviewSource = 'ai' | 'web' | 'off' | 'catalog' | 'manual' | 'memory';
 
 export type ReviewItem = {
   key: string;
@@ -93,6 +95,8 @@ export type ReviewDraft = {
   sources?: { title: string; url: string }[];
   /** A scanned barcode the product was identified for: it is bound to the saved product. */
   barcode?: string;
+  /** The user's phrases and the items made from them: remembered on save. */
+  memory?: MemoryPart[];
 };
 
 type ReviewState = {

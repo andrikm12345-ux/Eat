@@ -3,6 +3,7 @@ import type { EntryItem } from '../domain/types';
 import { foodSearchKey, repos } from '../db/repos';
 import type { ReviewDraft, ReviewItem } from '../state/review';
 import { PIECE_LABEL } from './aiFood';
+import { rememberParts } from './mealMemory';
 
 /** The "1 шт" serving of an item (nothing while the weight of a piece is empty). */
 const pieceServings = (i: ReviewItem) =>
@@ -20,7 +21,7 @@ export async function saveReview(d: ReviewDraft, opts: { remember?: ReadonlySet<
   const keep = new Set(opts.remember);
   const bound = d.barcode && d.items.length === 1 ? d.barcode : undefined;
   if (bound && d.items[0]) keep.add(d.items[0].key);
-  return repos.db.transaction('rw', repos.db.entries, repos.db.foods, async () => {
+  const entry = await repos.db.transaction('rw', repos.db.entries, repos.db.foods, async () => {
     const foodIds = new Map<string, string>();
     for (const i of d.items) {
       if (i.foodId || !keep.has(i.key)) continue;
@@ -75,6 +76,9 @@ export async function saveReview(d: ReviewDraft, opts: { remember?: ReadonlySet<
     }
     return e;
   });
+  // The phrases of a described meal are remembered with what was saved for them.
+  if (d.memory?.length) await rememberParts(repos, d.memory, d.items);
+  return entry;
 }
 
 /** Keys of AI items the user has changed by hand (they become `manual`). */

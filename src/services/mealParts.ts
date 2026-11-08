@@ -7,6 +7,14 @@ import { bestMatch, buildIndex } from '../domain/search';
 import type { LocalDate, LocalTime } from '../domain/types';
 import { reviewKey, type ReviewDraft, type ReviewItem } from '../state/review';
 import { MATCH_THRESHOLD, mealToDraft } from './aiFood';
+import {
+  itemsFromMemory,
+  loadMemory,
+  mapItemsToParts,
+  partOf,
+  recall,
+  type MemoryPart,
+} from './mealMemory';
 import { searchWeb } from './webSearch';
 
 /** Without a stated quantity a catalog match must be almost exact. */
@@ -56,26 +64,42 @@ export function continuesDish(prev: ParsedItem, p: ParsedItem): boolean {
   );
 }
 
+/** A dish with the add-ons glued to it, and the fragments it was made of. */
+export type PartGroup = { part: ParsedItem; members: ParsedItem[] };
+
+/**
+ * Fragments with add-ons glued to the dish before them: "кофе с молоком" + "сахаром" →
+ * "кофе с молоком и сахаром". `include` limits it to some fragments (a fragment is glued only
+ * to a neighbour that is included too).
+ */
+export function groupParts(
+  parts: ParsedItem[],
+  include: ReadonlySet<ParsedItem> = new Set(parts),
+): PartGroup[] {
+  const out: PartGroup[] = [];
+  parts.forEach((p, i) => {
+    if (!include.has(p)) return;
+    const prev = parts[i - 1];
+    const last = out[out.length - 1];
+    if (prev && last && include.has(prev) && continuesDish(prev, p)) {
+      last.part = {
+        ...last.part,
+        raw: `${last.part.raw.trim()} и ${p.raw.trim()}`,
+        query: `${last.part.query} ${p.query}`,
+      };
+      last.members.push(p);
+    } else out.push({ part: p, members: [p] });
+  });
+  return out;
+}
+
 /**
  * The parts the catalog could not answer, with add-ons glued to the dish before them, so the AI
  * sees "кофе с молоком и сахаром" and not two unrelated lines "кофе с молоком" and "сахаром".
  * A part is glued only to a neighbour that goes to the AI as well.
  */
 export function groupAddOns(parts: ParsedItem[], rest: ReadonlySet<ParsedItem>): ParsedItem[] {
-  const out: ParsedItem[] = [];
-  parts.forEach((p, i) => {
-    if (!rest.has(p)) return;
-    const prev = parts[i - 1];
-    const last = out[out.length - 1];
-    if (prev && last && rest.has(prev) && continuesDish(prev, p)) {
-      out[out.length - 1] = {
-        ...last,
-        raw: `${last.raw.trim()} и ${p.raw.trim()}`,
-        query: `${last.query} ${p.query}`,
-      };
-    } else out.push(p);
-  });
-  return out;
+  return groupParts(parts, rest).map((g) => g.part);
 }
 
 /** Renumbers "[1] …" reference lines so numbers stay unique across several searches. */
@@ -124,15 +148,28 @@ export async function analyzeMealByParts(
 ): Promise<ReviewDraft> {
   const parts = parseMealText(text);
   const index = buildIndex(await r.foods.list());
-  const fromCatalog: ReviewItem[] = [];
+  const mem = await loadMemory(r);
+  const known: ReviewItem[] = [];
+  const memory: MemoryPart[] = [];
   const done: string[] = [];
   const rest: ParsedItem[] = [];
-  for (const p of parts) {
+  for (const g of groupParts(parts)) {
+    // A phrase saved before comes back as it was saved, without the AI.
+    const hit = recall(mem, g.part);
+    if (hit) {
+      const items = itemsFromMemory(hit, g.part);
+      known.push(...items);
+      memory.push(partOf(g.part, items));
+      done.push(g.part.raw.trim());
+      continue;
+    }
+    // A dish with add-ons goes to the AI whole; a plain fragment may be in the catalog.
+    const p = g.members.length === 1 ? g.part : null;
     // A quantity makes the catalog enough; without one only a near-exact name does ("банан"),
     // and the usual portion of that food is taken.
-    const m = bestMatch(index, p.query);
-    if (m && m.similarity >= (hasQuantity(p) ? MATCH_THRESHOLD : EXACT_THRESHOLD)) {
-      fromCatalog.push({
+    const m = p ? bestMatch(index, p.query) : null;
+    if (p && m && m.similarity >= (hasQuantity(p) ? MATCH_THRESHOLD : EXACT_THRESHOLD)) {
+      known.push({
         key: reviewKey(),
         name: m.item.name,
         grams: resolveGrams(p, m.item),
@@ -142,24 +179,25 @@ export async function analyzeMealByParts(
         confidence: hasQuantity(p) ? 'high' : 'medium',
       });
       done.push(p.raw.trim());
-    } else rest.push(p);
+    } else rest.push(g.part);
   }
 
-  // Everything is in the catalog: no AI and no web needed.
+  // Everything is remembered or in the catalog: no AI and no web needed.
   if (parts.length > 0 && rest.length === 0) {
     return {
-      items: fromCatalog,
+      items: known,
       entrySource: 'manual',
       analysis: 'local',
       date: at.date,
       time: at.time,
+      ...(memory.length ? { memory } : {}),
     };
   }
 
   // Nothing could be split: the whole description goes through as one fragment.
   const split = rest.length > 0;
   const todo: ParsedItem[] = split
-    ? groupAddOns(parts, new Set(rest))
+    ? rest
     : [{ raw: text.trim(), query: text.trim(), grams: null, count: null }];
   const toSearch = pickWebParts(todo);
   const found = await Promise.all(toSearch.map((p) => searchWeb(r, p.query)));
@@ -189,9 +227,13 @@ export async function analyzeMealByParts(
     aiRunId: runId,
     refs: sources,
   });
+  // Each phrase the AI answered is remembered on save (with the user's corrections).
+  const learned = split ? mapItemsToParts(todo, aiDraft.items) : [];
+  const allMemory = [...memory, ...learned];
   return {
     ...aiDraft,
-    items: [...fromCatalog, ...aiDraft.items],
+    items: [...known, ...aiDraft.items],
     ...(sources.length > 0 ? { sources } : {}),
+    ...(allMemory.length ? { memory: allMemory } : {}),
   };
 }

@@ -209,6 +209,18 @@ export const ru = {
     fiberOf: (v: string, goal: string) => `${v} из\u00A0${goal}\u00A0г`,
     completeHint: 'Помогает точнее рассчитать расход энергии',
     flowTitle: 'Поток дня',
+    topUp: {
+      title: 'Чем добрать норму',
+      left: (kcal: string, protein: string | null) =>
+        protein
+          ? `Осталось ${kcal}\u00A0ккал и ${protein}\u00A0г белка`
+          : `Осталось ${kcal}\u00A0ккал`,
+      hint: 'Из того, что вы обычно едите, в ваших обычных порциях.',
+      empty: 'Запишите ещё несколько приёмов пищи: здесь появятся идеи из того, что вы едите.',
+      add: 'Записать',
+      addLabel: (what: string) => `Записать: ${what}`,
+      macros: (kcal: string, protein: string) => `${kcal}\u00A0ккал · Б\u00A0${protein}`,
+    },
     hero: {
       greet: {
         morning: 'доброе утро,',
@@ -442,6 +454,7 @@ export const ru = {
       off: 'OFF',
       catalog: 'база',
       manual: 'вручную',
+      memory: 'как в прошлый раз',
     },
     confidence: {
       high: 'уверенность высокая',

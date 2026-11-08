@@ -208,3 +208,28 @@ describe('Diary', () => {
     expect(useUi.getState().date).toBe('2026-03-05');
   });
 });
+
+describe('Чем добрать норму', () => {
+  it('suggests usual foods for what is left and opens the check screen', async () => {
+    const d = today();
+    useUi.setState({ date: d });
+    const curd = await repos.foods.add({
+      name: 'Творог 5%',
+      per100g: { kcal: 121, protein: 17, fat: 5, carbs: 3 },
+      servings: [],
+      source: 'base',
+      verified: true,
+    });
+    for (const back of [1, 2, 3])
+      await logFood(repos, curd, 200, { date: addDays(d, -back), time: '18:00' });
+    // something eaten today, so the card appears
+    await logFood(repos, curd, 100, { date: d, time: '08:00' });
+    const user = userEvent.setup();
+    const { router } = await renderApp('/');
+    const card = (await screen.findByText(ru.today.topUp.title)).closest('section') as HTMLElement;
+    expect(within(card).getByText(/Осталось/)).toBeVisible();
+    await user.click(within(card).getAllByRole('button', { name: /Записать: Творог 5%/ })[0]!);
+    await waitFor(() => expect(router.state.location.pathname).toBe('/review'));
+    expect(await screen.findByText('Творог 5%')).toBeVisible();
+  });
+});

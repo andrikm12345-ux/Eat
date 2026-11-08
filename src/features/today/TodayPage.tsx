@@ -1,3 +1,4 @@
+import { toLocalDate } from '../../domain/dates';
 import { dayTotals } from '../../domain/day';
 import { ru } from '../../i18n/ru';
 import { useUi } from '../../state/ui';
@@ -11,11 +12,13 @@ import { ActivityCard } from './ActivityCard';
 import { DayFlow } from './DayFlow';
 import { DayHero } from './DayHero';
 import { useDay } from './useDay';
+import { TopUpCard } from './TopUpCard';
 import { WaterCard } from './WaterCard';
 import styles from './today.module.css';
 
 export default function TodayPage() {
   const date = useUi((s) => s.date);
+  const today = toLocalDate(new Date());
   const day = useDay(date);
   const bonus = day
     ? exerciseBonus(
@@ -39,6 +42,9 @@ export default function TodayPage() {
           <Card title={ru.today.flowTitle} tone="food">
             <DayFlow entries={day.entries} />
           </Card>
+          {goal && date === today && day.entries.length > 0 && (
+            <TopUpCard today={today} totals={dayTotals(day.entries)} goal={goal} />
+          )}
           <div className={styles.pair}>
             <TrendCard />
             <WaterCard meta={day.meta} goalMl={day.goal?.waterMl} />
