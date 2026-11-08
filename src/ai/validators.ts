@@ -62,6 +62,66 @@ function pieceInfo(it: Record<string, unknown>): { pieces?: number; pieceGrams?:
   return { pieces: n, pieceGrams: g };
 }
 
+/** Latin letters that look like Cyrillic ones, slipped into a Russian word ("ХачапуRи"). */
+const LOOKALIKE: Record<string, string> = {
+  a: 'а',
+  e: 'е',
+  o: 'о',
+  p: 'р',
+  c: 'с',
+  x: 'х',
+  y: 'у',
+  k: 'к',
+  m: 'м',
+  t: 'т',
+  b: 'в',
+  h: 'н',
+  r: 'р',
+  A: 'А',
+  E: 'Е',
+  O: 'О',
+  P: 'Р',
+  C: 'С',
+  X: 'Х',
+  Y: 'У',
+  K: 'К',
+  M: 'М',
+  T: 'Т',
+  B: 'В',
+  H: 'Н',
+  R: 'Р',
+};
+const QUANTITY =
+  /\s*,?\s*\d+(?:[.,]\d+)?\s*(?:кг|г|гр|грамм\p{L}*|мл|л|шт|ч\.?\s*л\.?|ст\.?\s*л\.?)(?!\p{L})\.?/giu;
+
+/**
+ * The AI's name of a food, tidied: a Latin letter inside a Russian word becomes Cyrillic, and the
+ * quantity it sometimes writes into the name ("Гречка варёная 200 г", "Сахар 2 ч.л.") goes.
+ */
+export function cleanName(name: string): string {
+  const fixed = name.replace(/\p{L}+/gu, (w) =>
+    /[а-яё]/iu.test(w) && /[a-z]/i.test(w)
+      ? // Inside a word the letter is small ("ХачапуRи" → "Хачапури"), at its start it stays.
+        w.replace(/[a-z]/gi, (c, i: number) => {
+          const ru = LOOKALIKE[c] ?? c;
+          return i > 0 ? ru.toLowerCase() : ru;
+        })
+      : w,
+  );
+  const short = fixed.replace(QUANTITY, '').replace(/\s+/g, ' ').trim();
+  return short || fixed.trim();
+}
+
+/** What to look the food up by: the name without "готовая" and a remark in brackets. */
+function hintOf(name: string): string {
+  const hint = cleanName(name)
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/(?<!\p{L})готов\p{L}*/giu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return hint || cleanName(name);
+}
+
 export function validateMeal(data: unknown): Valid<MealResult> {
   const errors: string[] = [];
   if (!isObj(data)) return { ok: false, errors: ['корень: нужен объект'] };
@@ -89,7 +149,7 @@ export function validateMeal(data: unknown): Valid<MealResult> {
       errors.push(`${p}.assumed: boolean`);
     if (n && typeof it.name === 'string' && num(it.grams)) {
       items.push({
-        name: it.name.trim(),
+        name: cleanName(it.name),
         grams: it.grams as number,
         per100g: n as MealItem['per100g'],
         confidence: (CONF.includes(it.confidence as Confidence)
@@ -107,10 +167,9 @@ export function validateMeal(data: unknown): Valid<MealResult> {
           ? { sourceRef: it.sourceRef }
           : {}),
         ...pieceInfo(it),
-        searchHint:
-          typeof it.searchHint === 'string' && it.searchHint.trim()
-            ? it.searchHint.trim()
-            : (it.name as string),
+        searchHint: hintOf(
+          typeof it.searchHint === 'string' && it.searchHint.trim() ? it.searchHint : it.name,
+        ),
       });
     }
   });

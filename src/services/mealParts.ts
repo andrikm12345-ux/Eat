@@ -23,9 +23,12 @@ const EXACT_THRESHOLD = 0.95;
 /** At most this many parts are looked up on the web per description (every lookup is a request). */
 export const MAX_WEB_PARTS = 3;
 
-/** Shops, chains and cafes people name in lower case ("из пятёрочки", "пятёрочка кафе"). */
+/**
+ * Shops, cafes and brands people write in Russian and in lower case ("пятёрочка кафе",
+ * "сникерс", "доширак"): a reference knows their real portion and values.
+ */
 const CHAINS =
-  /(?<!\p{L})(?:пят[её]рочк\p{L}*|магнит\p{L}*|вкусвилл\p{L}*|перекр[её]ст\p{L}*|ашан\p{L}*|дикси|самокат\p{L}*|окей|лента|ленту|ленте|азбук\p{L}*\s+вкуса|бургер\s*кинг|макдоналдс|макдональдс|ростикс|kfc|кфс|додо|subway|сабвей|кафе|столов\p{L}*|из магазина)(?!\p{L})/iu;
+  /(?<!\p{L})(?:пят[её]рочк\p{L}*|магнит\p{L}*|вкусвилл\p{L}*|перекр[её]ст\p{L}*|ашан\p{L}*|дикси|самокат\p{L}*|окей|лента|ленту|ленте|азбук\p{L}*\s+вкуса|бургер\s*кинг\p{L}*|макдоналдс\p{L}*|макдональдс\p{L}*|вкусно-и-точка|ростикс\p{L}*|kfc|кфс|додо|subway|сабвей|теремк\p{L}*|теремок|шоколадниц\p{L}*|крошк\p{L}*\s+картошк\p{L}*|старбакс\p{L}*|кофе\s*хауз\p{L}*|кафе|столов\p{L}*|из магазина|сникерс\p{L}*|марс|твикс\p{L}*|баунти|киткат|кит\s*кат|доширак\p{L}*|ролтон\p{L}*|роллтон\p{L}*|бигбон|биг\s*бон|лейс\p{L}*|читос\p{L}*|принглс\p{L}*|даниссимо|активиа|простоквашино|растишк\p{L}*|чудо|агуша)(?!\p{L})/iu;
 
 /** A brand, a title, a shop or a cafe in the fragment: what only a reference can tell. */
 const looksBranded = (raw: string) =>

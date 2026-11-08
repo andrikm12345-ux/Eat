@@ -57,7 +57,8 @@ describe('text helpers', () => {
   });
   it('match score requires every token and rewards exact/prefix keys', () => {
     const [ix] = buildIndex([item('1', 'Куриная грудка', { brand: 'Петелинка' })]);
-    expect(matchScore(['грудка', 'куриная'], 'грудка куриная', ix!)).toBe(3);
+    // The same words in another order are the same name.
+    expect(matchScore(['грудка', 'куриная'], 'грудка куриная', ix!)).toBe(5);
     expect(matchScore(['куриная', 'грудка'], 'куриная грудка', ix!)).toBe(5);
     expect(matchScore(['кур'], 'кур', ix!)).toBe(3);
     expect(matchScore(['петелинка'], 'петелинка', ix!)).toBe(3);

@@ -636,3 +636,31 @@ describe('OpenAI-compatible format', () => {
     expect(f).not.toHaveBeenCalled();
   });
 });
+
+describe('AI names are tidied', () => {
+  it('drops the quantity, fixes Latin lookalikes, looks up without "готовая"', async () => {
+    const { cleanName } = await import('./validators');
+    expect(cleanName('Гречка варёная 200 г')).toBe('Гречка варёная');
+    expect(cleanName('Сахар 2 ч.л.')).toBe('Сахар');
+    expect(cleanName('Капучино 300 мл')).toBe('Капучино');
+    expect(cleanName('ХачапуRи с сыром')).toBe('Хачапури с сыром');
+    expect(cleanName('Творог 5%')).toBe('Творог 5%');
+    expect(cleanName('Snickers')).toBe('Snickers');
+    const v = validateMeal({
+      items: [
+        {
+          name: 'Овсянка на молоке готовая 250 г',
+          grams: 250,
+          per100g: { kcal: 132, protein: 4, fat: 4, carbs: 20, fiber: 1 },
+          confidence: 'high',
+        },
+      ],
+      mealGuess: null,
+      notes: '',
+    });
+    expect(v.ok && v.value.items[0]).toMatchObject({
+      name: 'Овсянка на молоке готовая',
+      searchHint: 'Овсянка на молоке',
+    });
+  });
+});

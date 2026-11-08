@@ -94,3 +94,31 @@ describe('meal text parsing', () => {
     expect(parsePart('2 чудо с клубникой')).toMatchObject({ query: 'чудо с клубникой', count: 2 });
   });
 });
+
+describe('everyday phrasing (found by the description test run)', () => {
+  const one = (s: string) => parseMealText(s)[0]!;
+  it('a decimal comma is not a list comma', () => {
+    expect(parseMealText('пиво 0,5')).toHaveLength(1);
+    expect(one('пиво 0,5')).toMatchObject({ query: 'пиво', grams: 500 });
+    expect(parseMealText('гречка 200, курица 100')).toHaveLength(2);
+  });
+  it('"пол" is a half', () => {
+    expect(one('пол литра молока')).toMatchObject({ query: 'молока', grams: 500 });
+    expect(one('пол стакана кефира').grams).toBe(125);
+  });
+  it('a plain "ложка": teaspoon of sugar or honey, tablespoon of the rest', () => {
+    expect(one('2 ложки сахара').grams).toBe(10);
+    expect(one('ложка мёда').grams).toBe(8);
+    expect(one('три ложки сметаны').grams).toBe(45);
+  });
+  it('"стакан", "кусок" without a number is one', () => {
+    expect(one('кефир 1% стакан')).toMatchObject({ grams: 250 });
+    expect(one('сок апельсиновый стакан').grams).toBe(250);
+    expect(one('кусок пиццы')).toMatchObject({ query: 'пиццы', count: 1 });
+    expect(one('хлеб 2 куска').count).toBe(2);
+  });
+  it('a label before a colon is not food; "Вкусно и точка" is one name', () => {
+    expect(one('днём бизнес-ланч: суп').query).toBe('суп');
+    expect(parseMealText('бургер из Вкусно и точка')).toHaveLength(1);
+  });
+});

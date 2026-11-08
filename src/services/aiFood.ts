@@ -11,7 +11,7 @@ export const MATCH_THRESHOLD = 0.8;
 /** Label of the one-piece serving a food keeps (saved from the review screen). */
 export const PIECE_LABEL = '1 шт';
 const pieceServing = (f: Food): number | undefined =>
-  f.servings.find((s) => s.label === PIECE_LABEL)?.grams;
+  f.servings.find((s) => s.label === PIECE_LABEL || s.label === 'шт')?.grams;
 
 /**
  * Review draft from an AI meal estimate. Items whose `searchHint` matches a verified
@@ -40,7 +40,8 @@ export async function mealToDraft(
       assumed: it.assumed,
     };
     const m = bestMatch(index, it.searchHint) ?? bestMatch(index, it.name);
-    // The user's own "1 шт" of a remembered product wins over the AI's guess of one piece.
+    // The weight of one piece kept with the product (the user's own "1 шт" or the catalog's
+    // "шт", e.g. an egg without the shell) wins over the AI's guess.
     const own = m && m.similarity >= MATCH_THRESHOLD ? pieceServing(m.item) : undefined;
     const pieceGrams = own ?? it.pieceGrams;
     const piece = it.pieces && pieceGrams ? { grams: pieceGrams } : undefined;

@@ -29,6 +29,7 @@ const UNIT_RE = new RegExp(
       'столов\\p{L}*\\s+ложк\\p{L}*',
       'ч\\.?\\s*л',
       'чайн\\p{L}*\\s+ложк\\p{L}*',
+      'ложк\\p{L}*',
       'стакан\\p{L}*',
       'чашк\\p{L}*',
       'штук\\p{L}*',
@@ -57,27 +58,38 @@ const FACTORS: [RegExp, number | 'count'][] = [
   [/^ч\.?\s*л|^чайн/i, 5],
 ];
 
+/** "Ложка" without "чайная"/"столовая": a teaspoon of sugar or honey, a tablespoon of the rest. */
+const spoonGrams = (text: string) =>
+  /сахар|соль|соли/iu.test(text) ? 5 : /м[её]д|варень|джем|сироп/iu.test(text) ? 8 : 15;
+
 const FILLER =
   /(^|\s)(?:около|примерно|приблизительно|немного|ещё|еще|съел[аи]?|выпил[аи]?|поел[аи]?|на завтрак|на обед|на ужин|на перекус|утром|днём|вечером|сегодня)(?=\s|$)/giu;
 
 const clean = (s: string) =>
   s
+    // "днём бизнес-ланч: суп" → "суп": a label before a colon is not food.
+    .replace(/^[^:]{1,40}:\s*/u, '')
     .replace(FILLER, ' ')
     .replace(/\s+/g, ' ')
     .replace(/^[\s\-–—:.]+|[\s\-–—:.]+$/g, '')
     .replace(/^(?:и|с|со|на)\s+/iu, '')
     .trim();
 
-/** Splits on commas, semicolons, line breaks, " и ", " + ", " плюс ". */
+/**
+ * Splits on commas (not the decimal one in "0,5"), semicolons, line breaks, " и ", " + ",
+ * " плюс ". A name with "и" inside ("Вкусно и точка") stays whole.
+ */
 export function splitMeal(text: string): string[] {
   return text
-    .split(/[,;\n]+|\s+и\s+|\s+\+\s+|\s+плюс\s+/iu)
+    .replace(/вкусно\s+и\s+точка/giu, 'Вкусно-и-точка')
+    .split(/(?:(?<!\d),|,(?!\d))+|[;\n]+|\s+и\s+|\s+\+\s+|\s+плюс\s+/iu)
     .map((p) => p.trim())
     .filter(Boolean);
 }
 
 const WORD_NUMBERS: [RegExp, string][] = [
   [/полтора|полторы/, '1.5'],
+  [/пол|половина|половину|половинку/, '0.5'],
   [/пару|пара|пары/, '2'],
   [/один|одна|одно|одну/, '1'],
   [/два|две/, '2'],
@@ -97,11 +109,17 @@ export function numberWordsToDigits(s: string): string {
     const hit = WORD_NUMBERS.find(([re]) => new RegExp(`^(?:${re.source})$`, 'iu').test(w));
     return hit ? `${pre}${hit[1]}` : m;
   });
-  // "тарелку", "миска" without a number is one plate or bowl.
-  return withNumbers.replace(
-    /(^|\s)(тарелк\p{L}*|миск\p{L}*)(?=\s|$)/giu,
+  // "ложка мёда", "столовая ложка сметаны" without a number is one spoon.
+  const spoons = withNumbers.replace(
+    /(^|\s)((?:чайн\p{L}*|столов\p{L}*)\s+)?(ложк\p{L}*)(?=\s|$)/giu,
+    (m, pre: string, kind: string | undefined, w: string, offset: number) =>
+      /\d\s*$/.test(withNumbers.slice(0, offset + pre.length)) ? m : `${pre}1 ${kind ?? ''}${w}`,
+  );
+  // "тарелку", "миска", "стакан", "кусок" without a number is one of them.
+  return spoons.replace(
+    /(^|\s)(тарелк\p{L}*|миск\p{L}*|стакан\p{L}*|чашк\p{L}*|кусо[кч]\p{L}*|ломт\p{L}*|порци\p{L}*)(?=\s|$)/giu,
     (m, pre: string, w: string, offset: number) =>
-      /\d\s*$/.test(withNumbers.slice(0, offset + pre.length)) ? m : `${pre}1 ${w}`,
+      /\d\s*$/.test(spoons.slice(0, offset + pre.length)) ? m : `${pre}1 ${w}`,
   );
 }
 
@@ -124,7 +142,11 @@ export function parsePart(source: string): ParsedItem | null {
     if (!unit && /^\s*%/.test(source.slice(end))) continue;
     const n = Number((m[1] as string).replace(',', '.'));
     if (!Number.isFinite(n) || n <= 0) continue;
-    const factor = unit ? FACTORS.find(([re]) => re.test(unit.trim()))?.[1] : undefined;
+    const factor = !unit
+      ? undefined
+      : /^ложк/iu.test(unit.trim())
+        ? spoonGrams(source)
+        : FACTORS.find(([re]) => re.test(unit.trim()))?.[1];
     if (factor !== undefined && factor !== 'count') grams = n * factor;
     else if (!unit && !Number.isInteger(n) && LIQUID.test(source)) grams = n * 1000;
     else count = n;

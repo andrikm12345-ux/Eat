@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ensureBaseFoods, BASE_FOODS_SETTING } from '../db/baseFoods';
+import { isKcalInconsistent } from '../domain/nutrients';
 import { repos } from '../db/repos';
 import { copyDay, logFood, logQuick, recalcFromFoods, repeatNow, saveAsTemplate } from './entries';
 
@@ -103,5 +104,18 @@ describe('base foods', () => {
       expect(f.per100g.kcal).toBeLessThanOrEqual(902);
     }
     expect(new Set(data.foods.map((f) => f.id)).size).toBe(data.foods.length);
+  });
+
+  it('everyday Russian dishes: valid, own ids, calories agree with the macros', async () => {
+    const base = (await import('../data/baseFoods.json')).default;
+    const ru = (await import('../data/ruFoods.json')).default;
+    const ids = new Set(base.foods.map((f) => f.id));
+    for (const f of ru.foods) {
+      expect(ids.has(f.id)).toBe(false);
+      expect(f.id.startsWith('ru-')).toBe(true);
+      expect(isKcalInconsistent(f.per100g)).toBe(false);
+    }
+    await ensureBaseFoods(repos);
+    expect((await repos.foods.list()).some((f) => f.name === 'Борщ')).toBe(true);
   });
 });

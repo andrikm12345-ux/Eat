@@ -1,11 +1,35 @@
 import { resolveGrams, parseMealText, type ParsedItem } from '../domain/mealText';
-import { buildIndex, search } from '../domain/search';
+import { buildIndex, search, similarity, type IndexedItem } from '../domain/search';
 import type { Food, LocalDate, LocalTime } from '../domain/types';
 import type { Repos } from '../db/repos';
 import { reviewKey, type ReviewDraft, type ReviewItem } from '../state/review';
 import { itemsFromMemory, loadMemory, partOf, recall, type MemoryPart } from './mealMemory';
 import { groupParts } from './mealParts';
 import { cacheOffDraft, searchOff } from './off';
+
+/** Below this a catalog hit is a different food ("миска салата" → Caesar dressing). */
+const MIN_SIMILARITY = 0.35;
+const RAW = /крупа|сух|сыр(?:ой|ая|ые|ое)/iu;
+const COOKED = /варён|варен|на воде/iu;
+
+/**
+ * The catalog food for a fragment, or nothing when the best hit is too far. A grain without
+ * "сухая"/"крупа" in the words is the cooked one ("гречка 200 г" is a plate, not a dry pack).
+ */
+function pickLocal(
+  index: IndexedItem<Food>[],
+  byId: Map<string, IndexedItem<Food>>,
+  query: string,
+): Food | undefined {
+  const hits = search(index, query, { limit: 8 }).filter((f) => {
+    const ix = byId.get(f.id);
+    return !!ix && similarity(ix, query) >= MIN_SIMILARITY;
+  });
+  const top = hits[0];
+  if (top && RAW.test(top.name) && !RAW.test(query))
+    return hits.find((f) => COOKED.test(f.name)) ?? top;
+  return top;
+}
 
 /**
  * "Анализировать" without AI: split the text into foods and quantities; a phrase saved before
@@ -21,10 +45,11 @@ export async function analyzeMealLocally(
 ): Promise<ReviewDraft> {
   const parsed = parseMealText(text);
   const index = buildIndex(await r.foods.list());
+  const byId = new Map(index.map((ix) => [ix.item.id, ix]));
   const mem = await loadMemory(r);
   const memory: MemoryPart[] = [];
   const one = async (p: ParsedItem): Promise<ReviewItem> => {
-    const local: Food | undefined = search(index, p.query, { limit: 1 })[0];
+    const local = pickLocal(index, byId, p.query);
     if (local) {
       return {
         key: reviewKey(),

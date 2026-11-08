@@ -13,10 +13,23 @@ type BaseFile = {
  * Loads the bundled base catalog into IndexedDB when its version changed.
  * User stats (useCount, lastUsedAt, lastGrams) of existing rows are preserved.
  */
+/**
+ * The bundled catalog: the USDA base plus everyday Russian dishes (borscht, plov, curd 5%…),
+ * which the USDA has not. The version moves when either file changes.
+ */
+async function loadBundled(): Promise<BaseFile> {
+  const [base, ru] = await Promise.all([
+    import('../data/baseFoods.json'),
+    import('../data/ruFoods.json'),
+  ]);
+  const b = base.default as BaseFile;
+  const extra = ru.default as BaseFile;
+  return { version: b.version * 1000 + extra.version, foods: [...b.foods, ...extra.foods] };
+}
+
 export async function ensureBaseFoods(
   r: Repos,
-  load: () => Promise<BaseFile> = async () =>
-    (await import('../data/baseFoods.json')).default as BaseFile,
+  load: () => Promise<BaseFile> = loadBundled,
 ): Promise<boolean> {
   const current = await r.settings.get<number>(BASE_FOODS_SETTING, 0);
   const data = await load();

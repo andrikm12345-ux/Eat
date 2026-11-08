@@ -56,23 +56,37 @@ export function editDistance(a: string, b: string, max: number): number {
   return prev[b.length] as number;
 }
 
-/** The stem of a word without its ending: "яйца" and "яйцо" → "яйц", "варёных" and "варёное" → "варен". */
+/** Case, number and gender endings of Russian nouns and adjectives, the longest first. */
+const ENDINGS =
+  /(?:ого|его|ому|ему|ыми|ими|ами|ями|ая|яя|ое|ее|ые|ие|ый|ий|ой|ей|ых|их|ым|им|ую|юю|ом|ем|ам|ям|ах|ях|ов|ев|а|я|о|е|ы|и|у|ю|ь|й)$/u;
+
+/**
+ * The stem of a word without its ending: "яйца" and "яйцо" → "яйц", "варёных" and "варёное" →
+ * "варен", "апельсинового" and "апельсиновый" → "апельсинов", "мёда" → "мед".
+ */
 export function stemOf(w: string): string {
-  return w.length > 3 ? w.replace(/(?:[ыиоаеуюяь]?[йхмюеоая]|ь)$/u, '') : w;
+  return w.length > 3 ? w.replace(ENDINGS, '') : w;
 }
+
+/** The same words in another order: "Томатный сок" is "Сок томатный". */
+const sortedKey = (key: string) => key.split(' ').sort().join(' ');
+
+/** The name in stems: "тарелка борща" and "Борщ" share "борщ". */
+const stemKey = (key: string) => key.split(' ').map(stemOf).join(' ');
 
 /** How well one query token matches one name token (0 = no match). */
 export function tokenScore(q: string, t: string): number {
   if (t === q) return 3;
   // The same word in another form (case, number, gender).
-  if (q.length > 3 && t.length > 3) {
+  if (q.length >= 3 && t.length >= 3 && (q.length > 3 || t.length > 3)) {
     const sq = stemOf(q);
     if (sq.length >= 3 && sq === stemOf(t)) return 2.5;
   }
   if (t.startsWith(q)) return 2;
   if (q.length >= 3 && t.includes(q)) return 1.5;
-  // Typos are tolerated after the first letter (cheap pre-filter for speed).
-  if (q.length >= 4 && q.charCodeAt(0) === t.charCodeAt(0)) {
+  // Typos are tolerated after the first letter (cheap pre-filter for speed); not in short words,
+  // where one wrong letter makes another food ("плов" → "пломбир", "борщ" → "бородинский").
+  if (q.length >= 5 && q.charCodeAt(0) === t.charCodeAt(0)) {
     const max = q.length >= 7 ? 2 : 1;
     // Compare against the token prefix of similar length (typo while typing).
     const head = t.slice(0, q.length);
@@ -117,7 +131,8 @@ export function matchScore(
     sum += best;
   }
   let score = sum / qTokens.length;
-  if (ix.key === qKey) score += 2;
+  if (ix.key === qKey || sortedKey(ix.key) === sortedKey(qKey)) score += 2;
+  else if (stemKey(ix.key) === stemKey(qKey)) score += 1.5;
   else if (ix.key.startsWith(qKey)) score += 1;
   return score;
 }
@@ -155,10 +170,26 @@ export function search<T extends SearchItem>(
       const s = matchScore(v, v.join(' '), ix);
       if (s > text) text = s;
     }
-    if (text > 0) scored.push({ item: ix.item, score: text * 4 + usageBoost(ix.item, nowMs) });
+    // Fewer extra words in the name rank higher (numbers like "3,2%" do not count): "молока" is
+    // "Молоко 3,2%", not "Кофе с молоком" or "Миндальное молоко".
+    const words = variants[0]?.length ?? 1;
+    const nameWords = ix.tokens.filter((t) => /\p{L}/u.test(t)).length;
+    const fit = words / Math.max(words, nameWords);
+    if (text > 0)
+      scored.push({ item: ix.item, score: text * 4 + fit * 2 + usageBoost(ix.item, nowMs) });
   }
   scored.sort((a, b) => b.score - a.score || a.item.name.localeCompare(b.item.name, 'ru'));
   return scored.slice(0, limit).map((s) => s.item);
+}
+
+/** Similarity in [0, 1] of one indexed item to a hint (1 = exact name). */
+export function similarity<T extends SearchItem>(ix: IndexedItem<T>, hint: string): number {
+  const q = tokenize(hint);
+  if (!q.length) return 0;
+  const raw = matchScore(q, q.join(' '), ix);
+  if (!raw) return 0;
+  const coverage = q.length / Math.max(q.length, ix.tokens.length);
+  return Math.min(1, (raw / 5) * (0.5 + 0.5 * coverage));
 }
 
 /** Best verified match for a hint with similarity in [0, 1] (1 = exact name). */

@@ -1,0 +1,492 @@
+{
+  "version": 3,
+  "source": "Типичные значения из российских таблиц калорийности (готовые блюда, молочные продукты, напитки)",
+  "foods": [
+    {
+      "id": "ru-borsch",
+      "name": "Борщ",
+      "per100g": {
+        "kcal": 49,
+        "protein": 1.1,
+        "fat": 2.2,
+        "carbs": 6.1
+      },
+      "servings": [
+        {
+          "label": "порция",
+          "grams": 300
+        }
+      ]
+    },
+    {
+      "id": "ru-schi",
+      "name": "Щи из свежей капусты",
+      "per100g": {
+        "kcal": 32,
+        "protein": 0.8,
+        "fat": 2.0,
+        "carbs": 2.7
+      },
+      "servings": [
+        {
+          "label": "порция",
+          "grams": 300
+        }
+      ]
+    },
+    {
+      "id": "ru-solyanka",
+      "name": "Солянка мясная",
+      "per100g": {
+        "kcal": 69,
+        "protein": 4.5,
+        "fat": 4.8,
+        "carbs": 1.9
+      },
+      "servings": [
+        {
+          "label": "порция",
+          "grams": 300
+        }
+      ]
+    },
+    {
+      "id": "ru-plov",
+      "name": "Плов с мясом",
+      "per100g": {
+        "kcal": 185,
+        "protein": 6.8,
+        "fat": 8.5,
+        "carbs": 20.6
+      },
+      "servings": [
+        {
+          "label": "порция",
+          "grams": 250
+        }
+      ]
+    },
+    {
+      "id": "ru-pelmeni",
+      "name": "Пельмени магазинные варёные",
+      "per100g": {
+        "kcal": 248,
+        "protein": 11.9,
+        "fat": 12.4,
+        "carbs": 22.6
+      },
+      "servings": [
+        {
+          "label": "шт",
+          "grams": 12
+        }
+      ]
+    },
+    {
+      "id": "ru-vareniki-kart",
+      "name": "Вареники с картофелем",
+      "per100g": {
+        "kcal": 148,
+        "protein": 4.5,
+        "fat": 2.6,
+        "carbs": 26.8
+      },
+      "servings": [
+        {
+          "label": "шт",
+          "grams": 20
+        }
+      ]
+    },
+    {
+      "id": "ru-syrniki",
+      "name": "Сырники",
+      "per100g": {
+        "kcal": 220,
+        "protein": 15.7,
+        "fat": 9.6,
+        "carbs": 17.7
+      },
+      "servings": [
+        {
+          "label": "шт",
+          "grams": 65
+        }
+      ]
+    },
+    {
+      "id": "ru-olivie",
+      "name": "Салат оливье",
+      "per100g": {
+        "kcal": 198,
+        "protein": 5.5,
+        "fat": 16.5,
+        "carbs": 6.8
+      },
+      "servings": [
+        {
+          "label": "порция",
+          "grams": 150
+        }
+      ]
+    },
+    {
+      "id": "ru-vinegret",
+      "name": "Винегрет",
+      "per100g": {
+        "kcal": 79,
+        "protein": 1.6,
+        "fat": 4.6,
+        "carbs": 7.8
+      },
+      "servings": [
+        {
+          "label": "порция",
+          "grams": 150
+        }
+      ]
+    },
+    {
+      "id": "ru-salat-ovosh",
+      "name": "Салат из огурцов и помидоров с маслом",
+      "per100g": {
+        "kcal": 63,
+        "protein": 0.8,
+        "fat": 5.0,
+        "carbs": 3.6
+      },
+      "servings": [
+        {
+          "label": "порция",
+          "grams": 150
+        }
+      ]
+    },
+    {
+      "id": "ru-caesar",
+      "name": "Салат Цезарь с курицей",
+      "per100g": {
+        "kcal": 172,
+        "protein": 10,
+        "fat": 12,
+        "carbs": 6
+      },
+      "servings": [
+        {
+          "label": "порция",
+          "grams": 250
+        }
+      ]
+    },
+    {
+      "id": "ru-pure",
+      "name": "Картофельное пюре",
+      "per100g": {
+        "kcal": 107,
+        "protein": 2.5,
+        "fat": 4.2,
+        "carbs": 14.7
+      },
+      "servings": [
+        {
+          "label": "порция",
+          "grams": 200
+        }
+      ]
+    },
+    {
+      "id": "ru-kotleta-kur",
+      "name": "Котлета куриная",
+      "per100g": {
+        "kcal": 191,
+        "protein": 17.5,
+        "fat": 10.6,
+        "carbs": 6.4
+      },
+      "servings": [
+        {
+          "label": "шт",
+          "grams": 80
+        }
+      ]
+    },
+    {
+      "id": "ru-ovsyanka-moloko",
+      "name": "Овсянка на молоке",
+      "per100g": {
+        "kcal": 106,
+        "protein": 3.2,
+        "fat": 4.1,
+        "carbs": 14.2
+      },
+      "servings": [
+        {
+          "label": "порция",
+          "grams": 250
+        }
+      ]
+    },
+    {
+      "id": "ru-tvorog5",
+      "name": "Творог 5%",
+      "per100g": {
+        "kcal": 121,
+        "protein": 17.2,
+        "fat": 5.0,
+        "carbs": 1.8
+      },
+      "servings": []
+    },
+    {
+      "id": "ru-tvorog9",
+      "name": "Творог 9%",
+      "per100g": {
+        "kcal": 157,
+        "protein": 16.7,
+        "fat": 9.0,
+        "carbs": 2.0
+      },
+      "servings": []
+    },
+    {
+      "id": "ru-kefir25",
+      "name": "Кефир 2,5%",
+      "per100g": {
+        "kcal": 51,
+        "protein": 2.9,
+        "fat": 2.5,
+        "carbs": 4.0
+      },
+      "servings": [
+        {
+          "label": "стакан",
+          "grams": 250
+        }
+      ]
+    },
+    {
+      "id": "ru-kefir32",
+      "name": "Кефир 3,2%",
+      "per100g": {
+        "kcal": 57,
+        "protein": 2.9,
+        "fat": 3.2,
+        "carbs": 4.0
+      },
+      "servings": [
+        {
+          "label": "стакан",
+          "grams": 250
+        }
+      ]
+    },
+    {
+      "id": "ru-ryazhenka",
+      "name": "Ряженка 4%",
+      "per100g": {
+        "kcal": 66,
+        "protein": 2.8,
+        "fat": 4.0,
+        "carbs": 4.6
+      },
+      "servings": [
+        {
+          "label": "стакан",
+          "grams": 250
+        }
+      ]
+    },
+    {
+      "id": "ru-smetana15",
+      "name": "Сметана 15%",
+      "per100g": {
+        "kcal": 157,
+        "protein": 2.6,
+        "fat": 15.0,
+        "carbs": 3.0
+      },
+      "servings": [
+        {
+          "label": "ст. л.",
+          "grams": 20
+        }
+      ]
+    },
+    {
+      "id": "ru-smetana10",
+      "name": "Сметана 10%",
+      "per100g": {
+        "kcal": 114,
+        "protein": 3.0,
+        "fat": 10.0,
+        "carbs": 2.9
+      },
+      "servings": [
+        {
+          "label": "ст. л.",
+          "grams": 20
+        }
+      ]
+    },
+    {
+      "id": "ru-cappuccino",
+      "name": "Капучино",
+      "per100g": {
+        "kcal": 37,
+        "protein": 1.9,
+        "fat": 1.9,
+        "carbs": 3.0
+      },
+      "servings": [
+        {
+          "label": "чашка",
+          "grams": 300
+        }
+      ]
+    },
+    {
+      "id": "ru-latte",
+      "name": "Латте",
+      "per100g": {
+        "kcal": 44,
+        "protein": 2.4,
+        "fat": 2.2,
+        "carbs": 3.6
+      },
+      "servings": [
+        {
+          "label": "стакан",
+          "grams": 350
+        }
+      ]
+    },
+    {
+      "id": "ru-kofe-moloko",
+      "name": "Кофе с молоком",
+      "per100g": {
+        "kcal": 14,
+        "protein": 0.8,
+        "fat": 0.7,
+        "carbs": 1.1
+      },
+      "servings": [
+        {
+          "label": "чашка",
+          "grams": 250
+        }
+      ]
+    },
+    {
+      "id": "ru-kompot",
+      "name": "Компот из сухофруктов",
+      "per100g": {
+        "kcal": 60,
+        "protein": 0.3,
+        "fat": 0,
+        "carbs": 14.7
+      },
+      "servings": [
+        {
+          "label": "стакан",
+          "grams": 250
+        }
+      ]
+    },
+    {
+      "id": "ru-mors",
+      "name": "Морс клюквенный",
+      "per100g": {
+        "kcal": 41,
+        "protein": 0.1,
+        "fat": 0,
+        "carbs": 10.2
+      },
+      "servings": [
+        {
+          "label": "стакан",
+          "grams": 250
+        }
+      ]
+    },
+    {
+      "id": "ru-gamburger",
+      "name": "Гамбургер",
+      "per100g": {
+        "kcal": 250,
+        "protein": 12.6,
+        "fat": 9.8,
+        "carbs": 28
+      },
+      "servings": [
+        {
+          "label": "шт",
+          "grams": 110
+        }
+      ]
+    },
+    {
+      "id": "ru-shaurma-kur",
+      "name": "Шаурма с курицей",
+      "per100g": {
+        "kcal": 221,
+        "protein": 11,
+        "fat": 11,
+        "carbs": 19.5
+      },
+      "servings": [
+        {
+          "label": "шт",
+          "grams": 300
+        }
+      ]
+    },
+    {
+      "id": "ru-cheburek",
+      "name": "Чебурек",
+      "per100g": {
+        "kcal": 279,
+        "protein": 8.5,
+        "fat": 17,
+        "carbs": 23
+      },
+      "servings": [
+        {
+          "label": "шт",
+          "grams": 120
+        }
+      ]
+    },
+    {
+      "id": "ru-pirozhok-kart",
+      "name": "Пирожок жареный с картофелем",
+      "per100g": {
+        "kcal": 239,
+        "protein": 5,
+        "fat": 11,
+        "carbs": 30
+      },
+      "servings": [
+        {
+          "label": "шт",
+          "grams": 80
+        }
+      ]
+    },
+    {
+      "id": "ru-samsa-kur",
+      "name": "Самса с курицей",
+      "per100g": {
+        "kcal": 332,
+        "protein": 10,
+        "fat": 20,
+        "carbs": 28
+      },
+      "servings": [
+        {
+          "label": "шт",
+          "grams": 120
+        }
+      ]
+    }
+  ]
+}
