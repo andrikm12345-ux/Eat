@@ -15,15 +15,20 @@ const EXACT_THRESHOLD = 0.95;
 /** At most this many parts are looked up on the web per description (every lookup is a request). */
 export const MAX_WEB_PARTS = 3;
 
-/** A brand or a title in the fragment (Latin letters, quotes, a capitalised word inside). */
-const looksBranded = (raw: string) => /[A-Za-z«"“]/.test(raw) || /\s[А-ЯЁ][а-яё]{2,}/.test(raw);
+/** Shops, chains and cafes people name in lower case ("из пятёрочки", "пятёрочка кафе"). */
+const CHAINS =
+  /(?<!\p{L})(?:пят[её]рочк\p{L}*|магнит\p{L}*|вкусвилл\p{L}*|перекр[её]ст\p{L}*|ашан\p{L}*|дикси|самокат\p{L}*|окей|лента|ленту|ленте|азбук\p{L}*\s+вкуса|бургер\s*кинг|макдоналдс|макдональдс|ростикс|kfc|кфс|додо|subway|сабвей|кафе|столов\p{L}*|из магазина)(?!\p{L})/iu;
+
+/** A brand, a title, a shop or a cafe in the fragment: what only a reference can tell. */
+const looksBranded = (raw: string) =>
+  /[A-Za-z«"“]/.test(raw) || /\s[А-ЯЁ][а-яё]{2,}/.test(raw) || CHAINS.test(raw);
 
 /** The part's quantity is stated (grams, volume or a count), so the catalog can answer alone. */
 const hasQuantity = (p: ParsedItem) => p.grams !== null || p.count !== null;
 
 /**
- * Which parts to search the web for: only branded ones (a brand or a title is what a catalog
- * and the AI cannot know), at most MAX_WEB_PARTS. Ordinary food needs no reference, and every
+ * Which parts to search the web for: only branded ones (a brand, a title, a shop or a cafe is
+ * what a catalog and the AI cannot know), at most MAX_WEB_PARTS. Ordinary food needs no reference, and every
  * lookup makes the answer slower and the AI's message longer.
  */
 export function pickWebParts(parts: ParsedItem[]): ParsedItem[] {
@@ -32,6 +37,10 @@ export function pickWebParts(parts: ParsedItem[]): ParsedItem[] {
 
 /** "мёдом", "сахаром", "маслом", "подливкой": one word in the instrumental case, no quantity. */
 const ADD_ON = /^[а-яё]+(?:ом|ем|ой|ей|ами|ями)$/iu;
+/** "ветчиной пятёрочка кафе": starts with such a word and goes on. */
+const ADD_ON_FIRST = /^[а-яё]+(?:ом|ем|ой|ей|ами|ями)\s/iu;
+/** The dish before already has "с …": "хачапури с сыром" and then "ветчиной …". */
+const WITH_BEFORE = /(?<!\p{L})(?:с|со)\s+\p{L}+$/iu;
 /** "салат из огурцов": the next fragment may be one more thing it is made of. */
 const MADE_FROM = /(?<!\p{L})из\s+\p{L}+$/iu;
 const PLURAL_FIRST = /^[а-яё]+(?:ов|ёв|ев|ей|ых|их)(?:\s|$)/iu;
@@ -40,7 +49,11 @@ const PLURAL_FIRST = /^[а-яё]+(?:ов|ёв|ев|ей|ых|их)(?:\s|$)/iu;
 export function continuesDish(prev: ParsedItem, p: ParsedItem): boolean {
   if (hasQuantity(p)) return false;
   const q = p.query.trim();
-  return ADD_ON.test(q) || (MADE_FROM.test(prev.query.trim()) && PLURAL_FIRST.test(q));
+  return (
+    ADD_ON.test(q) ||
+    (ADD_ON_FIRST.test(q) && WITH_BEFORE.test(prev.query.trim())) ||
+    (MADE_FROM.test(prev.query.trim()) && PLURAL_FIRST.test(q))
+  );
 }
 
 /**

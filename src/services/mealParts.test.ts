@@ -44,6 +44,25 @@ describe('meal parts', () => {
     expect(groupAddOns(counted, new Set(counted))).toHaveLength(2);
   });
 
+  it('knows a shop or a cafe written in lower case and keeps the filling with its dish', () => {
+    const parts = parseMealText(
+      'Хачапури с сыром и ветчиной пятёрочка кафе, самса с курицей пятёрочка кафе, чай с двумя ложками сахара, стакан томатного сока',
+    );
+    const todo = groupAddOns(parts, new Set(parts));
+    expect(todo.map((p) => p.raw)).toEqual([
+      'Хачапури с сыром и ветчиной пятёрочка кафе',
+      'самса с курицей пятёрочка кафе',
+      'чай с двумя ложками сахара',
+      'стакан томатного сока',
+    ]);
+    // the web is searched for the two items from the shop, not for the tea and the juice
+    expect(pickWebParts(todo).map((p) => p.raw)).toEqual([
+      'Хачапури с сыром и ветчиной пятёрочка кафе',
+      'самса с курицей пятёрочка кафе',
+    ]);
+    expect(pickWebParts(parseMealText('булочка из Магнита, суп'))).toHaveLength(1);
+  });
+
   it('gives the AI the whole description and what the catalog already counted', () => {
     const msg = partsMessage(parseMealText('кофе с молоком'), new Map(), {
       text: 'гречка 200 г, кофе с молоком',

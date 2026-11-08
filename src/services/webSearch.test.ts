@@ -29,7 +29,7 @@ describe('helpers', () => {
   it('query steers to nutrition facts and is cut', () => {
     const q = searchQuery('  Жар   Свежар  ' + 'x'.repeat(300));
     expect(q.startsWith('Жар Свежар xxx')).toBe(true);
-    expect(q.endsWith('калорийность БЖУ на 100 г состав')).toBe(true);
+    expect(q.endsWith('калорийность БЖУ на 100 г вес 1 шт')).toBe(true);
     expect(q.length).toBeLessThan(260);
   });
   it('formats hits for the AI and passes the description through when there are none', () => {

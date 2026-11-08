@@ -15,9 +15,9 @@ export const hostOf = (url: string): string => {
   }
 };
 
-/** The query: what the user described, with words that steer to nutrition facts. */
+/** The query: what the user described, with words that steer to nutrition facts and the weight of one piece. */
 export const searchQuery = (description: string): string =>
-  `${description.replace(/\s+/g, ' ').trim().slice(0, 200)} калорийность БЖУ на 100 г состав`;
+  `${description.replace(/\s+/g, ' ').trim().slice(0, 200)} калорийность БЖУ на 100 г вес 1 шт`;
 
 /** Reference text for the AI built from search hits. */
 /** A slow model reads the whole reference before it answers: few hits, short excerpts. */
