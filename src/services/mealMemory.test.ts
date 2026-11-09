@@ -120,7 +120,10 @@ describe('meal memory', () => {
       { ...ai[0]!, grams: 120, per100g: n(572, 18, 37, 40), source: 'manual' as const },
       ai[1]!,
     ];
-    await saveReview({ items: saved, entrySource: 'ai_text', analysis: 'ai', ...at, memory });
+    await saveReview(
+      { items: saved, entrySource: 'ai_text', analysis: 'ai', ...at, memory },
+      { remember: new Set() },
+    );
 
     // No AI is configured in tests: had it been asked, this would throw.
     const next = await analyzeMealByParts(repos, text, at);
@@ -133,5 +136,19 @@ describe('meal memory', () => {
     const quick = await analyzeMealLocally(repos, text, at, { online: false });
     expect(quick.items[0]).toMatchObject({ grams: 120, source: 'memory' });
     expect(quick.memory).toHaveLength(2);
+  });
+
+  it('with remembering switched off nothing is remembered', async () => {
+    const text = 'самса с курицей пятёрочка кафе';
+    const all = parseMealText(text);
+    const ai = [item('Самса с курицей', 120, 360)];
+    await saveReview({
+      items: ai,
+      entrySource: 'ai_text',
+      analysis: 'ai',
+      ...at,
+      memory: mapItemsToParts(all, ai),
+    });
+    expect(await loadMemory(repos)).toEqual({});
   });
 });

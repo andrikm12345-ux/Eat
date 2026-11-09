@@ -286,7 +286,6 @@ function Wizard({ initial, editing, today }: { initial: Draft; editing: boolean;
 
         {name === 'body' && (
           <>
-            <Notice tone="info">{t.bodyIntro}</Notice>
             <NumberField
               label={t.neck}
               suffix={ru.units.cm}

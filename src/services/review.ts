@@ -14,7 +14,8 @@ const nutrientsOf = (i: ReviewItem) => scaleNutrients(i.per100g, i.grams);
 /**
  * Persists reviewed items as one diary entry. Items whose key is in `remember` are the
  * user's corrections of an AI estimate: they are kept as own verified foods, so the next
- * estimate of the same dish starts from the corrected values.
+ * estimate of the same dish starts from the corrected values. Without `remember` (the person
+ * switched remembering off) neither the foods nor the described phrases are remembered.
  */
 export async function saveReview(d: ReviewDraft, opts: { remember?: ReadonlySet<string> } = {}) {
   // A product identified for a scanned barcode is always kept, so the next scan finds it.
@@ -76,8 +77,9 @@ export async function saveReview(d: ReviewDraft, opts: { remember?: ReadonlySet<
     }
     return e;
   });
-  // The phrases of a described meal are remembered with what was saved for them.
-  if (d.memory?.length) await rememberParts(repos, d.memory, d.items);
+  // The phrases of a described meal are remembered with what was saved for them, unless the
+  // person switched "Запомнить мои поправки" off (then nothing is remembered).
+  if (d.memory?.length && opts.remember) await rememberParts(repos, d.memory, d.items);
   return entry;
 }
 
