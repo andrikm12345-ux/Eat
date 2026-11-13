@@ -99,4 +99,9 @@ describe('meal parts', () => {
     expect(web?.sources).toHaveLength(3);
     expect(web?.text.length).toBeLessThan(1300);
   });
+
+  it('knows more chains in lower case', () => {
+    for (const t of ['пицца с курицей из жар свежар', 'пицца папа джонс', 'суши вок ролл'])
+      expect(pickWebParts(parseMealText(t)), t).toHaveLength(1);
+  });
 });
