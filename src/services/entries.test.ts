@@ -119,3 +119,13 @@ describe('base foods', () => {
     expect((await repos.foods.list()).some((f) => f.name === 'Борщ')).toBe(true);
   });
 });
+
+describe('drinks in the everyday catalog', () => {
+  it('cola is 42 kcal per 100 g, so a 0,4 l glass is about 168 kcal', async () => {
+    const ru = (await import('../data/ruFoods.json')).default;
+    const cola = ru.foods.find((f) => f.name === 'Кола Добрый')!;
+    expect(cola.per100g.kcal).toBe(42);
+    expect((cola.per100g.kcal * 400) / 100).toBeCloseTo(168);
+    expect(cola.servings.find((s) => s.label.startsWith('средний'))?.grams).toBe(400);
+  });
+});
