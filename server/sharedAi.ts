@@ -4,6 +4,8 @@ import { json, readJson } from './http.js';
 import type { Deps, SharedAiEnv } from './types.js';
 
 export const MAX_AI_BYTES = 4 * 1024 * 1024;
+/** A text request is cut after this long and repeated once (two tries fit in the 90 s limit). */
+const TRY_MS = 38_000;
 const CONFIG_PATH = 'config/ai.json';
 
 /** Administrator-editable overrides stored next to the environment defaults. */
@@ -121,9 +123,8 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
     chat_template_kwargs: { enable_thinking: false },
   };
   const maxTokens = Math.min(Number(body.max_tokens) || 4000, body.vision ? 6000 : 4000);
-  const signal = AbortSignal.timeout(87_000);
   const url = `${cfg.baseUrl.replace(/\/+$/, '')}/chat/completions`;
-  const send = (extra: object) =>
+  const send = (extra: object, signal: AbortSignal) =>
     (d.fetchImpl ?? fetch)(url, {
       method: 'POST',
       headers: { authorization: `Bearer ${cfg.apiKey}`, 'content-type': 'application/json' },
@@ -132,26 +133,54 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
       // The limit covers reading the answer too, which is where a slow model usually stalls.
       signal,
     });
+  /** One try of at most `limitMs`, with the repeat without the "don't think" flags if needed. */
+  const attempt = async (limitMs: number) => {
+    const signal = AbortSignal.timeout(limitMs);
+    let up = await send(noThinking, signal);
+    let text = await up.text();
+    let without = false;
+    if (up.status === 400 || up.status === 422) {
+      without = true;
+      up = await send({}, signal);
+      text = await up.text();
+    }
+    return { up, text, without };
+  };
+  // The model usually answers in 5-15 s, but now and then a request just hangs. A text request
+  // that gets no answer in TRY_MS is cut and sent once more (a hung one rarely hangs twice);
+  // a photo takes longer, so it gets one long try.
+  const isTimeout = (e: unknown) => (e as { name?: string } | null)?.name === 'TimeoutError';
   let upstream: Response;
   let answer: string;
-  let withoutExtras = false;
+  let withoutExtras: boolean;
+  let retried = false;
   try {
-    upstream = await send(noThinking);
-    answer = await upstream.text();
-    if (upstream.status === 400 || upstream.status === 422) {
-      withoutExtras = true;
-      upstream = await send({});
-      answer = await upstream.text();
+    let r;
+    try {
+      r = await attempt(body.vision ? 87_000 : TRY_MS);
+    } catch (e) {
+      // A DOMException is not always an Error instance, so only the name is checked.
+      if (!isTimeout(e) || body.vision) throw e;
+      retried = true;
+      note('timeout, retrying', undefined, {}, false);
+      r = await attempt(TRY_MS);
     }
+    upstream = r.up;
+    answer = r.text;
+    withoutExtras = r.without;
   } catch (e) {
-    // A DOMException is not always an Error instance, so only the name is checked.
-    const timedOut = (e as { name?: string } | null)?.name === 'TimeoutError';
+    const timedOut = isTimeout(e);
     note(timedOut ? 'timeout' : 'unreachable');
     return timedOut
       ? json({ error: 'ai_upstream_timeout' }, 504)
       : json({ error: 'ai_upstream_unreachable' }, 502);
   }
-  note('done', upstream.status, usageOf(answer), withoutExtras);
+  note(
+    'done',
+    upstream.status,
+    { ...usageOf(answer), ...(retried ? { retriedAfterTimeout: true } : {}) },
+    withoutExtras,
+  );
   // Pass the service's status and body through: the client already understands them
   // (402 balance, 429 limits, 400 images not supported…). The key never appears in them.
   return new Response(answer, {

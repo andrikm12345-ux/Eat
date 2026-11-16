@@ -144,6 +144,40 @@ describe('shared AI chat', () => {
     expect(await res.json()).toEqual({ error: 'ai_upstream_timeout' });
   });
 
+  it('a hung text request is cut and repeated once; a photo gets one long try', async () => {
+    let calls = 0;
+    const retry = setup({}, async () => {
+      calls++;
+      if (calls === 1)
+        throw new DOMException('The operation was aborted due to timeout', 'TimeoutError');
+      return okReply();
+    });
+    const token = await signUp(retry.d, 'ivan');
+    const res = await aiChat(retry.d, post(token, msgs));
+    expect(res.status).toBe(200);
+    expect(calls).toBe(2);
+
+    let photoCalls = 0;
+    const photo = setup({}, async () => {
+      photoCalls++;
+      throw new DOMException('The operation was aborted due to timeout', 'TimeoutError');
+    });
+    const t2 = await signUp(photo.d, 'petr');
+    const r2 = await aiChat(photo.d, post(t2, { ...msgs, vision: true }));
+    expect(r2.status).toBe(504);
+    expect(photoCalls).toBe(1);
+
+    // two timeouts in a row: still a clean 504
+    let twice = 0;
+    const hung = setup({}, async () => {
+      twice++;
+      throw new DOMException('The operation was aborted due to timeout', 'TimeoutError');
+    });
+    const t3 = await signUp(hung.d, 'olga');
+    expect((await aiChat(hung.d, post(t3, msgs))).status).toBe(504);
+    expect(twice).toBe(2);
+  });
+
   it('passes the service errors through (balance, images) and reports an unreachable service', async () => {
     const paid = setup(
       {},
