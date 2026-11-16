@@ -164,7 +164,7 @@ Vercel Functions, **11 из 12** возможных на тарифе Hobby (л�
 
 - Сервис и модель по умолчанию: TokenHarbor (`https://tokenharbor.ai/v1`, формат OpenAI),
   модель `mimo-v2.6-flash:free`. В продакшене для текста сейчас `deepseek-v4.1-flash:free`
-  (`AI_MODEL_TEXT` в Vercel; ответы за 3–5 с), для фото — `mimo-v2.6-flash:free`. Заменяется переменными `AI_BASE_URL`, `AI_MODEL_TEXT`,
+  (`AI_MODEL_TEXT` в Vercel; ответы за 3–5 с), для фото — тоже `deepseek-v4.1-flash:free` (`AI_MODEL_VISION`; ответы за ~3,5 с, откат — `mimo-v2.6-flash:free`). Заменяется переменными `AI_BASE_URL`, `AI_MODEL_TEXT`,
   `AI_MODEL_VISION` или администратором в приложении.
 - К запросу добавляются флаги «не думай» (`reasoning_effort`, `thinking`, `enable_thinking`, …): при
   ответе 400/422 запрос повторяется без них. Потолок ответа 4000 токенов (текст) / 6000 (фото).
