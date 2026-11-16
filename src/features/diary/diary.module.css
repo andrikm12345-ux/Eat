@@ -25,6 +25,8 @@
   place-items: center;
   cursor: pointer;
   font-variant-numeric: tabular-nums;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
   animation: cell-in 0.4s var(--ease-spring) both;
   transition: transform 0.15s ease;
 }
@@ -45,17 +47,17 @@
   border-color: var(--hero-text);
 }
 .close {
-  background: var(--sky-accent);
-  color: var(--sky-accent-ink);
-  box-shadow: 0 0 0 3px rgb(182 233 142 / 0.25);
+  background: #7fdc6a;
+  color: #0f3a07;
 }
+/* Three clearly different hues: green (on target), blue (under), coral (over). */
 .below {
-  background: #ffe08a;
-  color: #4a3505;
+  background: #8ec8ff;
+  color: #06284a;
 }
 .above {
-  background: #ffae78;
-  color: #4a2105;
+  background: #ff7a6b;
+  color: #4a0d06;
 }
 .legend {
   display: flex;
@@ -88,14 +90,14 @@ ul.days {
   background: var(--border-strong);
 }
 .days .close {
-  background: #6cc24a;
+  background: #4fb83a;
   box-shadow: none;
 }
 .days .below {
-  background: #f2c33d;
+  background: #4a9de8;
 }
 .days .above {
-  background: #f08a4b;
+  background: #ee5a4a;
 }
 @media (prefers-reduced-motion: reduce) {
   .cell {
