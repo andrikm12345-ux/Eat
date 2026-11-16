@@ -3,10 +3,11 @@ import type { RouteObject } from 'react-router';
 import { AppShell } from './ui/AppShell';
 import { ErrorPage } from './ui/ErrorPage';
 import TodayPage from './features/today/TodayPage';
+import { loadScreen } from './pwa/staleChunk';
 
 // "Today" is eager so the home screen paints instantly; other tabs are lazy chunks.
 const lazyPage = (load: () => Promise<{ default: ComponentType }>) => async () => ({
-  Component: (await load()).default,
+  Component: (await loadScreen(load)).default,
 });
 
 export const routes: RouteObject[] = [
