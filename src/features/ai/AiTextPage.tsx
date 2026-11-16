@@ -5,6 +5,7 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { analyzeMealLocally } from '../../services/localMeal';
 import { analyzeMealByParts } from '../../services/mealParts';
+import { clearPending, markDescribing, rememberPending } from '../../services/describeResume';
 import { offerAiUpgrade } from './upgrade';
 import { useReview } from '../../state/review';
 import { Button, Card, LinkButton, Notice } from '../../ui/kit';
@@ -39,7 +40,24 @@ export default function AiTextPage() {
           // By parts: the catalog first, then the web and the AI only for what is left.
           // The AI may take over a minute: if it is not done in AI_WAIT_MS, the quick catalog
           // result is shown and the AI's answer is offered when it arrives.
+          // Kept until the AI is done, so a minimised or reloaded app can finish the job.
+          markDescribing(true);
+          await rememberPending(repos, {
+            text,
+            date: target.date,
+            time: target.time,
+            at: Date.now(),
+          });
           const aiRun = analyzeMealByParts(repos, text, target);
+          void aiRun
+            .then(
+              () => undefined,
+              () => undefined,
+            )
+            .then(() => {
+              markDescribing(false);
+              void clearPending(repos);
+            });
           const waited = await Promise.race([
             aiRun.then((draft) => ({ draft })),
             new Promise<{ draft: null }>((resolve) =>

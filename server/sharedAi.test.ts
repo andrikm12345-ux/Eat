@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { userIdFor } from './auth.js';
 import { register } from './handlers.js';
 import { aiChat, aiConfigGet, aiConfigPut, aiStatus, MAX_AI_BYTES } from './sharedAi.js';
 import type { Deps, Store } from './types.js';
@@ -294,5 +295,80 @@ describe('wiring', () => {
       baseUrl: 'https://tokenharbor.ai/v1',
     });
     vi.unstubAllEnvs();
+  });
+
+  describe('jobs: the reply survives a lost connection', () => {
+    const withJob = (token: string, jobId: string, extra: object = {}) =>
+      post(token, { ...msgs, jobId, ...extra });
+    const status = (token: string, job: string) =>
+      new Request(`http://x/api/ai/status?job=${job}`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
+
+    it('keeps the reply, hands it back at once and does not spend the quota twice', async () => {
+      const { d, calls } = setup();
+      const token = await signUp(d, 'ivan');
+      expect((await aiChat(d, withJob(token, 'job-aaaa-1'))).status).toBe(200);
+      expect(calls).toHaveLength(1);
+      // the app asks for it by the id: ready
+      const st = (await (await aiStatus(d, status(token, 'job-aaaa-1'))).json()) as {
+        job: string;
+        code: number;
+        body: string;
+      };
+      expect(st).toMatchObject({ job: 'done', code: 200 });
+      expect(JSON.parse(st.body).choices[0].message.content).toBe('hi');
+      // asking again with the same id: the same reply, no new call to the service
+      const again = await aiChat(d, withJob(token, 'job-aaaa-1'));
+      expect(again.status).toBe(200);
+      expect(await again.json()).toEqual({ choices: [{ message: { content: 'hi' } }] });
+      expect(calls).toHaveLength(1);
+      // another id is another request
+      await aiChat(d, withJob(token, 'job-aaaa-2'));
+      expect(calls).toHaveLength(2);
+    });
+
+    it('a request still running is reported as such; a dead one is forgotten', async () => {
+      const { d } = setup();
+      const token = await signUp(d, 'ivan');
+      const id = 'job-run-001';
+      await d.store.put(
+        `ai-jobs/${userIdFor(d.secret, 'ivan')}/${id}.json`,
+        JSON.stringify({ status: 'running', at: Date.now() }),
+      );
+      d.now = () => Date.now();
+      const pending = await aiChat(d, withJob(token, id));
+      expect(pending.status).toBe(202);
+      expect(await pending.json()).toEqual({ pending: true });
+      expect(await (await aiStatus(d, status(token, id))).json()).toEqual({ job: 'pending' });
+      // after 100 s nobody is working on it any more
+      d.now = () => Date.now() + 101_000;
+      expect(await (await aiStatus(d, status(token, id))).json()).toEqual({ job: 'none' });
+    });
+
+    it('a failed request leaves nothing behind (the next try runs again)', async () => {
+      let n = 0;
+      const { d, calls } = setup({}, async () => {
+        n++;
+        if (n === 1) throw new TypeError('network');
+        return okReply();
+      });
+      const token = await signUp(d, 'ivan');
+      expect((await aiChat(d, withJob(token, 'job-fail-01'))).status).toBe(502);
+      expect(await (await aiStatus(d, status(token, 'job-fail-01'))).json()).toEqual({
+        job: 'none',
+      });
+      expect((await aiChat(d, withJob(token, 'job-fail-01'))).status).toBe(200);
+      expect(calls).toHaveLength(2);
+    });
+
+    it('other people cannot read it; a bad id is refused', async () => {
+      const { d } = setup();
+      const a = await signUp(d, 'ivan');
+      const b = await signUp(d, 'petr');
+      await aiChat(d, withJob(a, 'job-mine-01'));
+      expect(await (await aiStatus(d, status(b, 'job-mine-01'))).json()).toEqual({ job: 'none' });
+      expect((await aiStatus(d, status(a, 'no'))).status).toBe(400);
+    });
   });
 });

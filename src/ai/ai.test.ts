@@ -664,3 +664,56 @@ describe('AI names are tidied', () => {
     });
   });
 });
+
+describe('a reply is picked up after the connection broke (shared AI job)', () => {
+  const shared = {
+    apiKey: '',
+    model: 'm',
+    system: 's',
+    messages: [{ role: 'user' as const, content: 'hi' }],
+    proxyToken: 'tok',
+    jobId: 'job-test-0001',
+    retryDelayMs: 0,
+  };
+  const ready = JSON.stringify({ choices: [{ message: { content: 'picked' } }] });
+
+  it('asks the server for the reply by its id and uses it', async () => {
+    const urls: string[] = [];
+    const f = vi.fn(async (url: string, init?: RequestInit) => {
+      urls.push(url);
+      if (url === '/api/ai/chat') {
+        expect(JSON.parse(init?.body as string)).toMatchObject({ jobId: 'job-test-0001' });
+        throw new TypeError('Load failed');
+      }
+      return new Response(JSON.stringify({ job: 'done', code: 200, body: ready }));
+    });
+    const r = await callClaude({ ...shared, fetchImpl: f as unknown as typeof fetch });
+    expect(r.text).toBe('picked');
+    expect(urls[0]).toBe('/api/ai/chat');
+    expect(urls[1]).toContain('/api/ai/status?job=job-test-0001');
+  });
+
+  it('waits while the server is still working, then takes the reply', async () => {
+    let polls = 0;
+    const f = vi.fn(async (url: string) => {
+      if (url === '/api/ai/chat') return new Response('{"pending":true}', { status: 202 });
+      polls++;
+      return new Response(
+        JSON.stringify(polls < 2 ? { job: 'pending' } : { job: 'done', code: 200, body: ready }),
+      );
+    });
+    const r = await callClaude({ ...shared, fetchImpl: f as unknown as typeof fetch });
+    expect(r.text).toBe('picked');
+    expect(polls).toBe(2);
+  });
+
+  it('nothing on the server: it is a plain "no connection"', async () => {
+    const f = vi.fn(async (url: string) => {
+      if (url === '/api/ai/chat') throw new TypeError('Load failed');
+      return new Response(JSON.stringify({ job: 'none' }));
+    });
+    await expect(
+      callClaude({ ...shared, fetchImpl: f as unknown as typeof fetch }),
+    ).rejects.toMatchObject({ kind: 'offline' });
+  });
+});

@@ -53,7 +53,43 @@ export async function session(
 export async function aiStatus(d: Deps, req: Request): Promise<Response> {
   const s = await session(d, req);
   if (!s) return json({ error: 'unauthorized' }, 401);
+  // ?job=<id> → what became of a request the app sent before it was minimised or lost its
+  // connection: still running, finished (with the reply) or unknown.
+  const job = new URL(req.url).searchParams.get('job');
+  if (job) {
+    if (!JOB_ID.test(job)) return json({ error: 'bad_request' }, 400);
+    const rec = await readJob(d, s.userId, job);
+    if (!rec) return json({ job: 'none' });
+    return json(
+      rec.status === 'running'
+        ? { job: 'pending' }
+        : { job: 'done', code: rec.code, body: rec.body },
+    );
+  }
   return json({ available: available(await effective(d)), admin: s.admin });
+}
+
+/** An id the app makes up for a request, so the same request can be found again. */
+const JOB_ID = /^[A-Za-z0-9_-]{8,80}$/;
+/** A finished reply is kept this long; a request still "running" after RUNNING_MS has died. */
+const JOB_KEEP_MS = 20 * 60 * 1000;
+const RUNNING_MS = 100 * 1000;
+type Running = { status: 'running'; at: number };
+type Done = { status: 'done'; at: number; code: number; body: string };
+type Job = Running | Done | { status: 'failed'; at: number };
+const jobPath = (userId: string, id: string) => `ai-jobs/${userId}/${id}.json`;
+
+async function readJob(d: Deps, userId: string, id: string): Promise<Running | Done | null> {
+  const text = await d.store.get(jobPath(userId, id));
+  if (!text) return null;
+  try {
+    const j = JSON.parse(text) as Job;
+    const age = d.now() - j.at;
+    if (j.status === 'running') return age < RUNNING_MS ? j : null;
+    return j.status === 'done' && age < JOB_KEEP_MS ? j : null; // failed: as if none
+  } catch {
+    return null;
+  }
 }
 
 const dayOf = (now: number) => new Date(now).toISOString().slice(0, 10);
@@ -88,8 +124,24 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
   if (!body || !Array.isArray(body.messages) || body.messages.length === 0)
     return json({ error: 'bad_request' }, 400);
 
+  // A request with a job id can be asked for again after the app was minimised or lost its
+  // connection: a finished reply is handed back at once (no second quota, no second call), one
+  // that is still running is reported as such.
+  const jobId = typeof body.jobId === 'string' && JOB_ID.test(body.jobId) ? body.jobId : null;
+  if (jobId) {
+    const known = await readJob(d, s.userId, jobId);
+    if (known?.status === 'done')
+      return new Response(known.body, {
+        status: known.code,
+        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+      });
+    if (known?.status === 'running') return json({ pending: true }, 202);
+  }
+
   if (!s.admin && !(await takeQuota(d, s.userId, cfg.dailyLimit)))
     return json({ error: 'ai_daily_limit', limit: cfg.dailyLimit }, 429);
+  if (jobId)
+    await d.store.put(jobPath(s.userId, jobId), JSON.stringify({ status: 'running', at: d.now() }));
 
   const model = body.vision ? cfg.modelVision : cfg.modelText;
   const started = d.now();
@@ -171,6 +223,11 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
   } catch (e) {
     const timedOut = isTimeout(e);
     note(timedOut ? 'timeout' : 'unreachable');
+    if (jobId)
+      await d.store.put(
+        jobPath(s.userId, jobId),
+        JSON.stringify({ status: 'failed', at: d.now() }),
+      );
     return timedOut
       ? json({ error: 'ai_upstream_timeout' }, 504)
       : json({ error: 'ai_upstream_unreachable' }, 502);
@@ -183,6 +240,12 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
   );
   // Pass the service's status and body through: the client already understands them
   // (402 balance, 429 limits, 400 images not supported…). The key never appears in them.
+  // Keep a good reply for the app to pick up (it may have lost the connection meanwhile).
+  if (jobId && upstream.status === 200 && answer.length < 200_000)
+    await d.store.put(
+      jobPath(s.userId, jobId),
+      JSON.stringify({ status: 'done', at: d.now(), code: 200, body: answer }),
+    );
   return new Response(answer, {
     status: upstream.status,
     headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },

@@ -5,6 +5,7 @@ import { ensureBaseFoods } from './db/baseFoods';
 import { repos } from './db/repos';
 import { routes } from './routes';
 import { clearAiMealLabels } from './services/cleanup';
+import { startDescribeResume } from './services/describeResume';
 import { startAccountSync } from './services/sync';
 import { startTdeeSync } from './services/tdeeSync';
 import { startGamificationSync } from './services/gamificationSync';
@@ -32,6 +33,9 @@ startTdeeSync(repos);
 startAccountSync(repos);
 // Achievements, streak celebrations and the app icon badge.
 startGamificationSync(repos);
+
+// A description left unfinished (the app was minimised or reloaded) is finished and announced.
+startDescribeResume(repos, (path) => void router.navigate(path));
 
 // "Сегодня" follows the calendar when the app stays open overnight.
 startTodayWatcher();

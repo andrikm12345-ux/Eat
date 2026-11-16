@@ -15,6 +15,7 @@ import {
   recall,
   type MemoryPart,
 } from './mealMemory';
+import { jobIdFor } from './jobId';
 import { searchWeb } from './webSearch';
 
 /** Without a stated quantity a catalog match must be almost exact. */
@@ -224,6 +225,7 @@ export async function analyzeMealByParts(
       },
     ],
     validate: validateMeal,
+    jobId: jobIdFor(text),
   });
   const aiDraft = await mealToDraft(r, value, at, {
     entrySource: 'ai_text',

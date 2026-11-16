@@ -17,6 +17,11 @@ export type RunOptions<T> = {
   fetchImpl?: typeof fetch;
   retryDelayMs?: number;
   timeoutMs?: number;
+  /**
+   * An id of this request (the same text gives the same id). With the shared AI the reply is
+   * kept on the server by it, so it survives the app being minimised or reloaded.
+   */
+  jobId?: string;
 };
 
 /** Request copy for the log: images replaced by size placeholders, never the key. */
@@ -66,6 +71,8 @@ export async function runAi<T>(r: Repos, o: RunOptions<T>): Promise<{ value: T; 
         format: cfg.format,
         vision: o.vision,
         ...(shared ? { proxyToken } : {}),
+        // Each try has its own id: the second one asks something else (what was wrong).
+        ...(shared && o.jobId ? { jobId: `${o.jobId}-${attempt}` } : {}),
         model,
         system: o.system,
         messages,

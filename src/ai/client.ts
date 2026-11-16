@@ -75,6 +75,11 @@ export type CallOptions = {
   proxyToken?: string;
   /** Picks the vision model on the server in proxy mode. */
   vision?: boolean;
+  /**
+   * Proxy mode: an id for this request. If the app is minimised or loses the connection while it
+   * runs, the reply is picked up from the server by this id instead of being lost.
+   */
+  jobId?: string;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
   /** Delay before the single retry (ms); doubled for each attempt. */
@@ -164,6 +169,42 @@ function errorFor(status: number, body: string, proxy = false): AiError {
   return new AiError('badRequest', `Запрос отклонён (${status}): ${body.slice(0, 200)}`, status);
 }
 
+const POLL_MS = 2000;
+
+/** Waits out the pause between two checks; false when the request was given up meanwhile. */
+const pause = (ms: number, signal: AbortSignal) =>
+  new Promise<boolean>((resolve) => {
+    const t = setTimeout(() => resolve(!signal.aborted), ms);
+    signal.addEventListener('abort', () => (clearTimeout(t), resolve(false)), { once: true });
+  });
+
+/**
+ * Asks the server for the reply of a request that was sent earlier (by its job id), until it is
+ * ready, gone or the request's own time is up. The reply is returned as a Response, so the
+ * caller reads it exactly like a direct answer.
+ */
+async function pickUp(o: CallOptions, signal: AbortSignal): Promise<Response | null> {
+  const f = o.fetchImpl ?? fetch;
+  for (let i = 0; !signal.aborted; i++) {
+    if (i > 0 && !(await pause(POLL_MS, signal))) return null;
+    try {
+      const res = await f(`/api/ai/status?job=${encodeURIComponent(o.jobId ?? '')}`, {
+        headers: { authorization: `Bearer ${o.proxyToken}` },
+        signal,
+      });
+      if (!res.ok) return null;
+      const j = (await res.json()) as { job?: string; code?: number; body?: string };
+      if (j.job === 'done' && typeof j.body === 'string')
+        return new Response(j.body, { status: j.code ?? 200 });
+      if (j.job !== 'pending') return null;
+    } catch {
+      // still no connection: try again until the time is up
+      if (signal.aborted) return null;
+    }
+  }
+  return null;
+}
+
 async function once(o: CallOptions): Promise<CallResult> {
   const ctrl = new AbortController();
   const limitMs = o.timeoutMs ?? (o.vision ? AI_VISION_TIMEOUT_MS : AI_TIMEOUT_MS);
@@ -175,6 +216,7 @@ async function once(o: CallOptions): Promise<CallResult> {
     const body = proxy
       ? {
           vision: !!o.vision,
+          ...(o.jobId ? { jobId: o.jobId } : {}),
           // Reasoning models spend part of the budget on thinking: leave room for the answer.
           max_tokens: o.maxTokens ?? 8000,
           messages: toOpenAiMessages(o.system, o.messages),
@@ -205,8 +247,18 @@ async function once(o: CallOptions): Promise<CallResult> {
     } catch {
       if (ctrl.signal.aborted)
         throw new AiError('timeout', `ИИ не ответил за ${Math.round(limitMs / 1000)} секунд`);
-      throw new AiError('offline', 'Нет связи с сервисом ИИ');
+      // The connection broke (the app was minimised, the network blinked): the server may have
+      // finished the request all the same.
+      const picked = proxy && o.jobId ? await pickUp(o, ctrl.signal) : null;
+      if (!picked) {
+        if (ctrl.signal.aborted)
+          throw new AiError('timeout', `ИИ не ответил за ${Math.round(limitMs / 1000)} секунд`);
+        throw new AiError('offline', 'Нет связи с сервисом ИИ');
+      }
+      res = picked;
     }
+    // The same request is already being worked on (we asked again after coming back).
+    if (res.status === 202 && proxy && o.jobId) res = (await pickUp(o, ctrl.signal)) ?? res;
     if (!res.ok) throw errorFor(res.status, await res.text().catch(() => ''), proxy);
     const raw = (await res.json()) as unknown;
     const text = format === 'openai' ? openAiText(raw) : anthropicText(raw);
