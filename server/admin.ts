@@ -74,3 +74,38 @@ export async function adminUsers(d: Deps, req: Request): Promise<Response> {
   users.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
   return json({ users });
 }
+
+/** Only accounts the assistant made while testing carry this login prefix. */
+export const TEST_LOGIN_PREFIX = 'claude-test-';
+
+/**
+ * DELETE (administrator only) → removes every account whose login starts with `claude-test-`
+ * together with its data. Nobody else can be removed this way, and never the caller.
+ */
+export async function adminRemoveTestUsers(d: Deps, req: Request): Promise<Response> {
+  const s = await session(d, req);
+  if (!s) return json({ error: 'unauthorized' }, 401);
+  if (!s.admin) return json({ error: 'forbidden' }, 403);
+  if (!d.store.list || !d.store.remove) return json({ error: 'unsupported' }, 501);
+  const ids = (await d.store.list('meta/')).map((p) =>
+    p.slice('meta/'.length).replace(/\.json$/, ''),
+  );
+  let removed = 0;
+  for (const uid of ids) {
+    if (uid === s.userId) continue;
+    const meta = parse<Meta>(await d.store.get(`meta/${uid}.json`));
+    if (!meta?.login?.startsWith(TEST_LOGIN_PREFIX)) continue;
+    for (const path of [
+      `meta/${uid}.json`,
+      `creds/${uid}.json`,
+      `attempts/${uid}-`,
+      `users/${uid}.json`,
+      `usage/${uid}/`,
+      `search-usage/${uid}/`,
+      `ai-jobs/${uid}/`,
+    ])
+      await d.store.remove(path);
+    removed++;
+  }
+  return json({ removed });
+}

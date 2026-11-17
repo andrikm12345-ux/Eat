@@ -48,3 +48,19 @@ export const loadAdminUsers = async (r: Repos) => {
 /** Administrator: one account's diary (read only). */
 export const loadAdminDiary = (r: Repos, id: string) =>
   call<AdminDiary>(r, `?id=${encodeURIComponent(id)}`);
+
+/** Administrator: removes the accounts made for testing (login starts with claude-test-). */
+export async function removeTestUsers(r: Repos): Promise<number | null> {
+  const session = await getSession(r);
+  if (!session) return null;
+  try {
+    const res = await fetch('/api/admin', {
+      method: 'DELETE',
+      headers: { authorization: `Bearer ${session.token}` },
+    });
+    if (!res.ok) return null;
+    return ((await res.json()) as { removed?: number }).removed ?? 0;
+  } catch {
+    return null;
+  }
+}

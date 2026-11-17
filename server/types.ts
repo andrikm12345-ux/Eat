@@ -4,6 +4,8 @@ export interface Store {
   put(path: string, body: string): Promise<void>;
   /** Paths that start with `prefix` (optional: only the admin view needs it). */
   list?(prefix: string): Promise<string[]>;
+  /** Deletes every file whose path starts with `prefix` (only the admin clean-up needs it). */
+  remove?(prefix: string): Promise<number>;
 }
 
 export type Deps = {

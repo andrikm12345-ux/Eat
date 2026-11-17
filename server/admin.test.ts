@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adminUsers } from './admin.js';
+import { adminRemoveTestUsers, adminUsers } from './admin.js';
 import { getSync, login, putSync, register } from './handlers.js';
 import { parseUserLabels } from './deps.js';
 import { userIdFor } from './auth.js';
@@ -12,6 +12,11 @@ function memoryStore(): Store & { data: Map<string, string> } {
     get: async (p) => data.get(p) ?? null,
     put: async (p, b) => void data.set(p, b),
     list: async (prefix) => [...data.keys()].filter((k) => k.startsWith(prefix)),
+    remove: async (prefix) => {
+      const hit = [...data.keys()].filter((k) => k.startsWith(prefix));
+      hit.forEach((k) => data.delete(k));
+      return hit.length;
+    },
   };
 }
 
@@ -169,5 +174,33 @@ describe('personal button texts', () => {
     expect(
       parseUserLabels(JSON.stringify({ a: { weigh: 'x'.repeat(100) } })).a?.weigh,
     ).toHaveLength(30);
+  });
+});
+
+describe('removing test accounts', () => {
+  const del = (token?: string) =>
+    new Request('http://x', {
+      method: 'DELETE',
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+    });
+
+  it('removes only claude-test-* accounts and their data, and only for the administrator', async () => {
+    const d = setup();
+    const admin = await signUp(d, 'blackjack');
+    const user = await signUp(d, 'ivan');
+    await signUp(d, 'claude-test-1a2b3c');
+    await signUp(d, 'claude-test-ffffff');
+    const store = d.store as ReturnType<typeof memoryStore>;
+    const testId = userIdFor(SECRET, 'claude-test-1a2b3c');
+    store.data.set(`usage/${testId}/2026-11-01.json`, '{}');
+    store.data.set(`ai-jobs/${testId}/j.json`, '{}');
+
+    expect((await adminRemoveTestUsers(d, del())).status).toBe(401);
+    expect((await adminRemoveTestUsers(d, del(user))).status).toBe(403);
+    const res = await adminRemoveTestUsers(d, del(admin));
+    expect(await res.json()).toEqual({ removed: 2 });
+    expect([...store.data.keys()].some((k) => k.includes(testId))).toBe(false);
+    const left = (await (await adminUsers(d, get(admin))).json()) as { users: { login: string }[] };
+    expect(left.users.map((u) => u.login).sort()).toEqual(['blackjack', 'ivan']);
   });
 });

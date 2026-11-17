@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
-import { loadAdminUsers, type AdminUser } from '../../services/adminView';
+import { loadAdminUsers, removeTestUsers, type AdminUser } from '../../services/adminView';
 import { BackBar } from '../../ui/BackBar';
 import { IconChevron } from '../../ui/icons';
-import { Notice } from '../../ui/kit';
+import { Button, Notice } from '../../ui/kit';
+import { toast } from '../../state/ui';
 import { Loading } from '../../ui/states';
 import styles from './admin.module.css';
 import wizard from '../onboarding/Wizard.module.css';
@@ -20,17 +21,22 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let alive = true;
-    void loadAdminUsers(repos).then((r) => {
-      if (!alive) return;
+  const reload = () =>
+    loadAdminUsers(repos).then((r) => {
       if (r.ok) setUsers(r.data);
       else setError(r.reason === 'forbidden' ? t.forbidden : t.loadError);
     });
-    return () => {
-      alive = false;
-    };
+
+  useEffect(() => {
+    void reload();
   }, []);
+
+  const cleanTests = async () => {
+    if (!window.confirm(t.cleanConfirm)) return;
+    const n = await removeTestUsers(repos);
+    toast({ text: n === null ? t.cleanFail : t.cleaned(n) });
+    if (n !== null) await reload();
+  };
 
   return (
     <div className={wizard.wrap}>
@@ -60,6 +66,11 @@ export default function AdminUsersPage() {
                 </li>
               ))}
             </ul>
+            {users.some((u) => u.login?.startsWith('claude-test-')) && (
+              <Button variant="danger" block onClick={() => void cleanTests()}>
+                {t.cleanTests}
+              </Button>
+            )}
             <p className={styles.muted}>{t.readOnly}</p>
           </>
         )}
