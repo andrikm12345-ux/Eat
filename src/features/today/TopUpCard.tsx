@@ -33,7 +33,7 @@ export function TopUpCard({
 }) {
   const navigate = useNavigate();
   const setDraft = useReview((s) => s.setDraft);
-  const history = useLiveQuery(() => repos.entries.inRange(addDays(today, -60), today), [today]);
+  const history = useLiveQuery(() => repos.entries.inRange(addDays(today, -365), today), [today]);
   const leftKcal = Math.round(goal.kcal - totals.kcal);
   const leftProtein = Math.max(0, Math.round(goal.protein - totals.protein));
   const ideas = useMemo(

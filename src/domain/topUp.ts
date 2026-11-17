@@ -78,7 +78,10 @@ export function topUps(
   n = 3,
 ): TopUp[] {
   if (left.kcal < 100) return [];
-  const pool = habits.slice(0, 24);
+  // Foods eaten more than once come first: a one-off (a whole carton of a milkshake) is not a
+  // habit. With too few repeated foods everything in the diary is used.
+  const repeated = habits.filter((h) => h.uses >= 2);
+  const pool = (repeated.length >= 6 ? repeated : habits).slice(0, 30);
   const maxUses = Math.max(1, ...pool.map((h) => h.uses));
   const options: (TopUp & { score: number })[] = [];
   const consider = (items: Habit[]) => {
@@ -89,7 +92,7 @@ export function topUps(
     const protein = left.protein > 5 ? Math.min(total.protein, left.protein) / left.protein : 0;
     const usual = items.reduce((s, h) => s + h.uses, 0) / (items.length * maxUses);
     const score =
-      left.protein > 5 ? fill * 0.5 + protein * 0.4 + usual * 0.1 : fill * 0.85 + usual * 0.15;
+      left.protein > 5 ? fill * 0.4 + protein * 0.3 + usual * 0.3 : fill * 0.7 + usual * 0.3;
     options.push({ items, total, score });
   };
   pool.forEach((a, i) => {
