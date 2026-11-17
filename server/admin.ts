@@ -76,10 +76,10 @@ export async function adminUsers(d: Deps, req: Request): Promise<Response> {
 }
 
 /** Only accounts the assistant made while testing carry this login prefix. */
-export const TEST_LOGIN_PREFIX = 'claude-test-';
+export const TEST_LOGIN_PREFIX = 'claude-test';
 
 /**
- * DELETE (administrator only) → removes every account whose login starts with `claude-test-`
+ * DELETE (administrator only) → removes every account whose login starts with `claude-test`
  * together with its data. Nobody else can be removed this way, and never the caller.
  */
 export async function adminRemoveTestUsers(d: Deps, req: Request): Promise<Response> {

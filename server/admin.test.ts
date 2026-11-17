@@ -190,6 +190,7 @@ describe('removing test accounts', () => {
     const user = await signUp(d, 'ivan');
     await signUp(d, 'claude-test-1a2b3c');
     await signUp(d, 'claude-test-ffffff');
+    await signUp(d, 'claude-test2');
     const store = d.store as ReturnType<typeof memoryStore>;
     const testId = userIdFor(SECRET, 'claude-test-1a2b3c');
     store.data.set(`usage/${testId}/2026-11-01.json`, '{}');
@@ -198,7 +199,7 @@ describe('removing test accounts', () => {
     expect((await adminRemoveTestUsers(d, del())).status).toBe(401);
     expect((await adminRemoveTestUsers(d, del(user))).status).toBe(403);
     const res = await adminRemoveTestUsers(d, del(admin));
-    expect(await res.json()).toEqual({ removed: 2 });
+    expect(await res.json()).toEqual({ removed: 3 });
     expect([...store.data.keys()].some((k) => k.includes(testId))).toBe(false);
     const left = (await (await adminUsers(d, get(admin))).json()) as { users: { login: string }[] };
     expect(left.users.map((u) => u.login).sort()).toEqual(['blackjack', 'ivan']);

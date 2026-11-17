@@ -66,7 +66,7 @@ export default function AdminUsersPage() {
                 </li>
               ))}
             </ul>
-            {users.some((u) => u.login?.startsWith('claude-test-')) && (
+            {users.some((u) => u.login?.startsWith('claude-test')) && (
               <Button variant="danger" block onClick={() => void cleanTests()}>
                 {t.cleanTests}
               </Button>
