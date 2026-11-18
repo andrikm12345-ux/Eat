@@ -188,7 +188,8 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
   /** One try of at most `limitMs`, with the repeat without the "don't think" flags if needed. */
   const attempt = async (limitMs: number) => {
     const signal = AbortSignal.timeout(limitMs);
-    let up = await send(noThinking, signal);
+    // A photo is read, not invented: no randomness (dropped with the other flags if refused).
+    let up = await send(body.vision ? { ...noThinking, temperature: 0 } : noThinking, signal);
     let text = await up.text();
     let without = false;
     if (up.status === 400 || up.status === 422) {
