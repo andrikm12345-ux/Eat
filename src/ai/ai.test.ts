@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { repos } from '../db/repos';
-import { labelToDraft, mealToDraft, mealToIngredients } from '../services/aiFood';
+import { labelToDraft, mealToDraft, mealToIngredients, mergeLabelReads } from '../services/aiFood';
 import { swapAlt } from '../state/review';
 import {
   AiError,
@@ -444,6 +444,36 @@ describe('catalog matching', () => {
     });
     expect(fine.draft.per100g.kcal).toBe(69.6);
     expect(fine.warnings).toEqual([]);
+  });
+});
+
+describe('several reads of one label', () => {
+  const read = (kcal: number, sugar: number | undefined, protein = 2.9) => ({
+    name: 'Коктейль',
+    brand: null,
+    barcode: null,
+    per100g: { kcal, protein, fat: 2, carbs: 10, ...(sugar === undefined ? {} : { sugar }) },
+    serving: null,
+    confidence: 'high' as const,
+    warnings: [],
+  });
+
+  it('a misread number is outvoted by the other reads', () => {
+    const m = mergeLabelReads([read(59, 9.8), read(69.6, 5.8), read(69.6, 5.8, 2.5)]);
+    expect(m.per100g).toMatchObject({ kcal: 69.6, protein: 2.9, sugar: 5.8 });
+  });
+
+  it('an optional number needs at least half of the reads', () => {
+    expect(
+      mergeLabelReads([read(70, 5.8), read(70, undefined), read(70, undefined)]).per100g,
+    ).not.toHaveProperty('sugar');
+    expect(mergeLabelReads([read(70, undefined)]).per100g.kcal).toBe(70);
+  });
+
+  it('calories 15 % under the macros are replaced on a label read', () => {
+    const r = labelToDraft(read(59, 5.8));
+    expect(r.draft.per100g.kcal).toBe(69.6);
+    expect(r.warnings[0]).toContain('считались по БЖУ');
   });
 });
 

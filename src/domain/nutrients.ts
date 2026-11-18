@@ -14,13 +14,13 @@ export const ATWATER_TOLERANCE = 0.2;
  * True when declared kcal and Atwater kcal differ by more than 20 %
  * ("данные продукта противоречивы"). Tiny values (< 20 kcal both) are ignored.
  */
-export function isKcalInconsistent(n: Nutrients): boolean {
+export function isKcalInconsistent(n: Nutrients, tolerance = ATWATER_TOLERANCE): boolean {
   const calc = atwaterKcal(n);
   const declared = n.kcal;
   if (!(declared > 0) && !(calc > 0)) return false;
   if (Math.max(declared, calc) < 20) return false;
   const base = Math.max(declared, calc);
-  return Math.abs(declared - calc) / base > ATWATER_TOLERANCE;
+  return Math.abs(declared - calc) / base > tolerance;
 }
 
 /** Fills kcal from Atwater when it is missing (NaN/undefined/negative). */

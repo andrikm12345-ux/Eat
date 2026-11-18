@@ -7,7 +7,7 @@ import type { FoodDraft } from '../../domain/off';
 import type { Nutrients } from '../../domain/types';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
-import { labelToDraft, mealToDraft } from '../../services/aiFood';
+import { labelToDraft, mealToDraft, mergeLabelReads } from '../../services/aiFood';
 import { logFood } from '../../services/entries';
 import { checkLabelWithOff } from '../../services/offCheck';
 import { useReview } from '../../state/review';
@@ -53,18 +53,36 @@ function AiPhotoInner() {
     setError(null);
     try {
       const images = await toImageBlocks(files);
-      const { value, runId } = await runAi(repos, {
-        kind: 'photo',
+      const options = {
+        kind: 'photo' as const,
         vision: true,
         system: PROMPT_PHOTO,
         content: [
           ...images,
-          { type: 'text', text: note.trim() ? `Уточнение: ${note.trim()}` : 'Что на фото?' },
+          {
+            type: 'text' as const,
+            text: note.trim() ? `Уточнение: ${note.trim()}` : 'Что на фото?',
+          },
         ],
         validate: validatePhoto,
-      });
+      };
+      const { value, runId } = await runAi(repos, options);
       if (value.kind === 'label') {
-        const read = labelToDraft(value.label, barcode);
+        // One digit is easy to misread (5,8 → 9,8): read the label twice more at once and
+        // keep, for every number, what the reads agree on. A failed extra read is ignored.
+        const more = await Promise.all(
+          [0, 1].map(() =>
+            runAi(repos, options).then(
+              (r) => r.value,
+              () => null,
+            ),
+          ),
+        );
+        const labels = [
+          value.label,
+          ...more.flatMap((v) => (v && v.kind === 'label' ? [v.label] : [])),
+        ];
+        const read = labelToDraft(mergeLabelReads(labels), barcode);
         // A known barcode: compare with Open Food Facts (a short extra wait, never an error).
         const check = await checkLabelWithOff(read.draft).catch(() => null);
         setProduct({

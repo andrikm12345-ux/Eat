@@ -101,6 +101,41 @@ const isHundredGrams = (s: { label: string; grams: number }) =>
 /** "Пицца No2" → "Пицца №2": a Latin "No" before a number is the numero sign. */
 export const tidyName = (s: string): string => s.replace(/\bNo\.?\s?(?=\d)/g, '№').trim();
 
+/** A printed label's calories follow protein/fat/carbs closely: more than 10 % apart is a misread. */
+const LABEL_KCAL_TOLERANCE = 0.1;
+
+const medianOf = (xs: number[]) => {
+  const s = [...xs].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? (s[m] as number) : ((s[m - 1] as number) + (s[m] as number)) / 2;
+};
+
+/**
+ * Several reads of the same label: every number is the median of the reads that have it (an
+ * optional number needs at least half of the reads), so one misread digit is outvoted.
+ * Name, brand, barcode and serving come from the first read that has them.
+ */
+export function mergeLabelReads(reads: readonly LabelResult[]): LabelResult {
+  const first = reads[0] as LabelResult;
+  if (reads.length < 2) return first;
+  const per100g: Record<string, number> = {};
+  const keys = new Set(reads.flatMap((r) => Object.keys(r.per100g)));
+  for (const k of keys) {
+    const xs = reads
+      .map((r) => (r.per100g as Record<string, number | undefined>)[k])
+      .filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
+    if (xs.length >= Math.ceil(reads.length / 2)) per100g[k] = medianOf(xs);
+  }
+  return {
+    ...first,
+    name: reads.find((r) => r.name)?.name ?? null,
+    brand: reads.find((r) => r.brand)?.brand ?? null,
+    barcode: reads.find((r) => r.barcode)?.barcode ?? null,
+    serving: reads.find((r) => r.serving)?.serving ?? null,
+    per100g: per100g as LabelResult['per100g'],
+  };
+}
+
 /** Product draft from a label read (per 100 g), with warnings incl. Atwater check. */
 export function labelToDraft(
   res: LabelResult,
@@ -111,7 +146,7 @@ export function labelToDraft(
   // The model reads the protein / fat / carbs well but sometimes takes kilojoules for kcal or
   // guesses the calories. When they clearly disagree with the macros, the macros win (and the
   // person is told what the model had read).
-  if (isKcalInconsistent(per100g)) {
+  if (isKcalInconsistent(per100g, LABEL_KCAL_TOLERANCE)) {
     const read = per100g.kcal;
     per100g = { ...per100g, kcal: Math.round(atwaterKcal(per100g) * 10) / 10 };
     warnings.push(
