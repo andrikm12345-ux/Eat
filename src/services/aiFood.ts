@@ -1,5 +1,5 @@
 import { bestMatch, buildIndex } from '../domain/search';
-import { isKcalInconsistent, withKcal } from '../domain/nutrients';
+import { atwaterKcal, isKcalInconsistent, withKcal } from '../domain/nutrients';
 import type { Food, LocalDate, LocalTime } from '../domain/types';
 import type { Repos } from '../db/repos';
 import { reviewKey, type ReviewDraft, type ReviewItem } from '../state/review';
@@ -106,10 +106,18 @@ export function labelToDraft(
   res: LabelResult,
   barcode?: string,
 ): { draft: FoodDraft; warnings: string[] } {
-  const per100g = withKcal(res.per100g);
+  let per100g = withKcal(res.per100g);
   const warnings = [...res.warnings];
-  if (isKcalInconsistent(per100g))
-    warnings.push('Калории не сходятся с БЖУ больше чем на 20 % — проверьте значения.');
+  // The model reads the protein / fat / carbs well but sometimes takes kilojoules for kcal or
+  // guesses the calories. When they clearly disagree with the macros, the macros win (and the
+  // person is told what the model had read).
+  if (isKcalInconsistent(per100g)) {
+    const read = per100g.kcal;
+    per100g = { ...per100g, kcal: Math.round(atwaterKcal(per100g) * 10) / 10 };
+    warnings.push(
+      `Калории считались по БЖУ: ИИ прочитал ${Math.round(read)} ккал, а по белкам, жирам и углеводам выходит ${Math.round(per100g.kcal)}. Сверьте с упаковкой.`,
+    );
+  }
   if (res.confidence === 'low')
     warnings.push('Низкая уверенность распознавания — сверьте с упаковкой.');
   return {

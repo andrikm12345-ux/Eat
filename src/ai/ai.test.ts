@@ -418,6 +418,32 @@ describe('catalog matching', () => {
     );
     expect(r.draft).toMatchObject({ name: '', brand: 'Б', barcode: '4600', servings: [] });
     expect(r.warnings).toHaveLength(2);
+    expect(r.draft.per100g.kcal).toBe(89);
+  });
+
+  it('a label where kilojoules were read as kcal gets its calories from the macros', () => {
+    const base = {
+      name: 'Коктейль',
+      brand: null,
+      barcode: null,
+      serving: null,
+      confidence: 'high' as const,
+      warnings: [],
+    };
+    for (const kcal of [295.3, 49]) {
+      const r = labelToDraft({
+        ...base,
+        per100g: { kcal, protein: 2.9, fat: 2, carbs: 10, sugar: 5.8 },
+      });
+      expect(r.draft.per100g.kcal).toBe(69.6);
+      expect(r.warnings[0]).toContain('считались по БЖУ');
+    }
+    const fine = labelToDraft({
+      ...base,
+      per100g: { kcal: 69.6, protein: 2.9, fat: 2, carbs: 10 },
+    });
+    expect(fine.draft.per100g.kcal).toBe(69.6);
+    expect(fine.warnings).toEqual([]);
   });
 });
 
