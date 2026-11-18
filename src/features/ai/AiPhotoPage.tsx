@@ -4,10 +4,12 @@ import { PROMPT_PHOTO } from '../../ai/prompts';
 import { runAi } from '../../ai/run';
 import { validatePhoto } from '../../ai/validators';
 import type { FoodDraft } from '../../domain/off';
+import type { Nutrients } from '../../domain/types';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { labelToDraft, mealToDraft } from '../../services/aiFood';
 import { logFood } from '../../services/entries';
+import { checkLabelWithOff } from '../../services/offCheck';
 import { useReview } from '../../state/review';
 import { toast } from '../../state/ui';
 import { Button, LinkButton, Notice, TextField } from '../../ui/kit';
@@ -40,7 +42,11 @@ function AiPhotoInner() {
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [product, setProduct] = useState<{ draft: FoodDraft; warnings: string[] } | null>(null);
+  const [product, setProduct] = useState<{
+    draft: FoodDraft;
+    warnings: string[];
+    alt?: Nutrients;
+  } | null>(null);
 
   async function go() {
     setBusy(true);
@@ -58,7 +64,14 @@ function AiPhotoInner() {
         validate: validatePhoto,
       });
       if (value.kind === 'label') {
-        setProduct(labelToDraft(value.label, barcode));
+        const read = labelToDraft(value.label, barcode);
+        // A known barcode: compare with Open Food Facts (a short extra wait, never an error).
+        const check = await checkLabelWithOff(read.draft).catch(() => null);
+        setProduct({
+          ...read,
+          ...(check ? { warnings: [...read.warnings, check.note] } : {}),
+          ...(check?.alt ? { alt: check.alt } : {}),
+        });
       } else {
         setDraft(
           await mealToDraft(repos, value.meal, target, { entrySource: 'ai_photo', aiRunId: runId }),
@@ -79,7 +92,22 @@ function AiPhotoInner() {
         {product.warnings.map((w) => (
           <Notice key={w}>{w}</Notice>
         ))}
+        {product.alt && (
+          <Button
+            variant="secondary"
+            onClick={() =>
+              setProduct({
+                ...product,
+                draft: { ...product.draft, per100g: product.alt as Nutrients },
+                warnings: product.warnings.filter((w) => !w.startsWith('Open Food Facts')),
+              })
+            }
+          >
+            {t.photo.takeOff}
+          </Button>
+        )}
         <FoodForm
+          key={`${product.draft.per100g.kcal}-${product.draft.per100g.protein}`}
           initial={product.draft}
           saveLabel={log ? ru.foods.saveAndLog : ru.foods.save}
           logger={{
