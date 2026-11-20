@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { checkDish, dishTotals, type CheckedIngredient } from '../../domain/cook';
+import { amountText, checkDish, dishTotals, type CheckedIngredient } from '../../domain/cook';
 import { formatGrams, formatKcal } from '../../domain/format';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
@@ -26,10 +26,7 @@ const STATUS_CLASS: Record<CheckedIngredient['status'], string> = {
   optional: styles.sOptional ?? '',
 };
 
-function amountOf(i: CheckedIngredient, servings: number) {
-  const grams = `${g1(i.grams * servings)} г`;
-  return i.pieces ? `${t.pieces(g1(i.pieces * servings))} · ${grams}` : grams;
-}
+const amountOf = (i: CheckedIngredient, servings: number) => amountText(i, servings);
 
 function haveOf(i: CheckedIngredient) {
   if (!i.have) return null;

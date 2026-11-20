@@ -9,6 +9,7 @@ import {
 import type { ContentBlock } from '../ai/client';
 import { runAi } from '../ai/run';
 import {
+  amountText,
   dishTotals,
   isBasic,
   pickDishes,
@@ -179,9 +180,7 @@ export async function suggestDishes(r: Repos, req: CookRequest): Promise<CookRes
 export async function loadSteps(r: Repos, dish: CookDish, servings: number): Promise<CookSteps> {
   const list = dish.resolved
     .map((i) => {
-      const g = Math.round(i.grams * servings);
-      const pcs = i.pieces ? ` (${Math.round(i.pieces * servings * 10) / 10} шт)` : '';
-      return `${i.name} — ${g} г${pcs}${i.optional ? ', по желанию' : ''}`;
+      return `${i.name} — ${amountText(i, servings)}${i.optional ? ', по желанию' : ''}`;
     })
     .join('; ');
   const text = `Блюдо: ${dish.idea.name}. Порций: ${servings}. Время всего: около ${dish.idea.minutes} мин.\nИнгредиенты: ${list}.`;

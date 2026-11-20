@@ -606,6 +606,36 @@ export function pickDishes(
   return { shown, rejected };
 }
 
+/** Weight of one egg: a hen's egg without the shell, a quail's. */
+const EGG_GRAMS = 55;
+const QUAIL_EGG_GRAMS = 12;
+
+/**
+ * Eggs are counted in pieces, not grams. The AI sometimes gives only grams: then the pieces are
+ * worked out here (halves at the least), so the recipe says "2 шт" and the amount check compares
+ * pieces with pieces. Other products are left as they are.
+ */
+export function withPieces<
+  T extends { name: string; grams: number; pieces?: number; pieceGrams?: number },
+>(ing: T): T {
+  if (ing.pieces && ing.pieceGrams) return ing;
+  if (!/(^|\s)яйц/iu.test(ing.name) || /желт|белок/iu.test(ing.name)) return ing;
+  const each = /перепел/iu.test(ing.name) ? QUAIL_EGG_GRAMS : EGG_GRAMS;
+  const pieces = Math.max(0.5, Math.round((ing.grams / each) * 2) / 2);
+  return { ...ing, pieces, pieceGrams: each, grams: pieces * each };
+}
+
+const num1 = (v: number) => String(Math.round(v * 10) / 10).replace('.', ',');
+
+/** "2 шт (110 г)" for countable products, "220 г" for the rest; `servings` scales it. */
+export function amountText(
+  ing: { grams: number; pieces?: number | undefined },
+  servings = 1,
+): string {
+  const grams = `${num1(ing.grams * servings)}\u00a0г`;
+  return ing.pieces ? `${num1(ing.pieces * servings)}\u00a0шт (${grams})` : grams;
+}
+
 /** Totals of a dish for `servings` servings from per-100 g values of its ingredients. */
 export function dishTotals(
   ingredients: readonly { grams: number; per100g: Nutrients }[],

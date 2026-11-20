@@ -184,7 +184,7 @@ describe('«Что приготовить»', () => {
     expect(
       await screen.findByText(`${t.status.short} · ${t.haveAmount(t.pieces('2'))}`),
     ).toBeVisible();
-    expect(screen.getByText(`${t.pieces('4')} · 220 г`)).toBeVisible();
+    expect(screen.getByText(`${t.pieces('4')} (220 г)`)).toBeVisible();
   });
 
   it('the form is remembered between visits', async () => {

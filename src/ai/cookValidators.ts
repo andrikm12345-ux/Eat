@@ -1,4 +1,4 @@
-import type { Difficulty, DishIdea, DishIngredient } from '../domain/cook';
+import { withPieces, type Difficulty, type DishIdea, type DishIngredient } from '../domain/cook';
 import type { Nutrients } from '../domain/types';
 import { cleanName, isObj, num, per100, pieceInfo, type Valid } from './validators';
 
@@ -15,13 +15,13 @@ function ingredient(v: unknown, path: string, errors: string[]): DishIngredient 
     errors.push(`${path}.grams: число 1–3000`);
   const n = per100(v.per100g, `${path}.per100g`, errors, ['kcal', 'protein', 'fat', 'carbs'], []);
   if (!name || !n || !num(v.grams) || !((v.grams as number) > 0)) return null;
-  return {
+  return withPieces({
     name,
     grams: v.grams as number,
     per100g: n as Nutrients,
     ...pieceInfo(v),
     ...(v.optional === true ? { optional: true } : {}),
-  };
+  });
 }
 
 /**

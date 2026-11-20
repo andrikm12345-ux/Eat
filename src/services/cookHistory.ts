@@ -1,5 +1,6 @@
 import type { CookSteps } from '../ai/cookValidators';
 import type { Repos } from '../db/repos';
+import { amountText } from '../domain/cook';
 import type { CookDish, CookResult } from './cook';
 import type { CookForm } from '../state/cook';
 
@@ -100,7 +101,7 @@ export async function recordCookRecipe(
   entry.recipes.push({
     name: dish.idea.name,
     servings,
-    ingredients: dish.resolved.map((i) => `${i.name} ${round1(i.grams * servings)} г`),
+    ingredients: dish.resolved.map((i) => `${i.name} ${amountText(i, servings)}`),
     steps: steps.steps.map((s) => (s.minutes ? `${s.text} (${s.minutes} мин)` : s.text)),
     tip: steps.tip,
   });

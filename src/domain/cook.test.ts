@@ -7,6 +7,8 @@ import {
   pickDishes,
   productKey,
   rejectReason,
+  amountText,
+  withPieces,
   sameDish,
   type CookFilters,
   type DishIdea,
@@ -263,5 +265,36 @@ describe('the same dish twice', () => {
     expect(
       sameDish(d('Омлет с сыром', ['Яйцо', 'Сыр']), d('Курица с сыром', ['Курица', 'Сыр'])),
     ).toBe(false);
+  });
+});
+
+describe('eggs in pieces', () => {
+  it('grams from the AI become pieces; other products and given pieces stay', () => {
+    expect(withPieces(ing('Яйцо куриное', 110))).toMatchObject({
+      pieces: 2,
+      pieceGrams: 55,
+      grams: 110,
+    });
+    expect(withPieces(ing('Яйца', 100))).toMatchObject({ pieces: 2, grams: 110 });
+    expect(withPieces(ing('Яйцо', 20))).toMatchObject({ pieces: 0.5, grams: 27.5 });
+    expect(withPieces(ing('Яйца перепелиные', 60))).toMatchObject({ pieces: 5, pieceGrams: 12 });
+    const given = ing('Яйцо', 120, { pieces: 3, pieceGrams: 40 });
+    expect(withPieces(given)).toBe(given);
+    expect(withPieces(ing('Желток яичный', 30))).not.toHaveProperty('pieces');
+    expect(withPieces(ing('Мука', 50))).not.toHaveProperty('pieces');
+  });
+
+  it('shows pieces with the weight, scaled by servings', () => {
+    const egg = withPieces(ing('Яйцо куриное', 110));
+    expect(amountText(egg).replaceAll('\u00a0', ' ')).toBe('2 шт (110 г)');
+    expect(amountText(egg, 2).replaceAll('\u00a0', ' ')).toBe('4 шт (220 г)');
+    expect(amountText(ing('Мука', 33.33)).replaceAll('\u00a0', ' ')).toBe('33,3 г');
+  });
+
+  it('the amount check works in pieces for eggs given only in grams', () => {
+    const pantry = parsePantry('яйца 3 шт');
+    const omelet = dish('Омлет', [withPieces(ing('Яйцо куриное', 110))]);
+    expect(checkDish(omelet, pantry, F).short).toEqual([]);
+    expect(checkDish(omelet, pantry, { ...F, servings: 2 }).short).toEqual(['Яйцо куриное']);
   });
 });
