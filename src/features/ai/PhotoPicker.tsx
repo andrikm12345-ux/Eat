@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { ru } from '../../i18n/ru';
-import styles from '../add/add.module.css';
+import { PhotoSource } from '../../ui/PhotoSource';
 
 /** Selects up to `max` image files and shows thumbnails. */
 export function PhotoPicker({
@@ -48,27 +48,12 @@ export function PhotoPicker({
         </div>
       )}
       {files.length < max && (
-        <label
-          className={styles.input}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-          }}
-        >
-          {label}
-          <input
-            type="file"
-            accept="image/*"
-            multiple={max > 1}
-            hidden
-            data-testid="photo-input"
-            onChange={(e) =>
-              onChange([...files, ...Array.from(e.target.files ?? [])].slice(0, max))
-            }
-          />
-        </label>
+        <PhotoSource
+          label={label}
+          multiple={max > 1}
+          testId="photo-input"
+          onFiles={(picked) => onChange([...files, ...picked].slice(0, max))}
+        />
       )}
     </div>
   );

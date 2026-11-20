@@ -16,9 +16,10 @@ import {
 import { recordCookSearch } from '../../services/cookHistory';
 import { COOK_FORM_SETTING, DEFAULT_COOK_FORM, useCook, type CookForm } from '../../state/cook';
 import { toast } from '../../state/ui';
-import { IconCamera, IconClock, IconClose } from '../../ui/icons';
+import { IconClock, IconClose } from '../../ui/icons';
 import { Button, Card, Chips, Notice, Segmented, Switch, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
+import { PhotoSource } from '../../ui/PhotoSource';
 import addStyles from '../add/add.module.css';
 import { useAddTarget } from '../add/addTarget';
 import { AiGate } from '../ai/AiGate';
@@ -242,21 +243,12 @@ function CookInner() {
           </ul>
         )}
         <p className={styles.hint}>{t.pantryHint}</p>
-        <label className={`${styles.photo} ${photoBusy ? styles.photoBusy : ''}`}>
-          <IconCamera width={20} height={20} />
-          <span>{photoBusy ? t.photoBusy : t.photo}</span>
-          <input
-            type="file"
-            accept="image/*"
-            data-testid="cook-photo"
-            disabled={photoBusy}
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              e.target.value = '';
-              if (f) void addPhoto(f);
-            }}
-          />
-        </label>
+        <PhotoSource
+          label={t.photo}
+          busy={photoBusy ? t.photoBusy : null}
+          testId="cook-photo"
+          onFiles={(f) => f[0] && void addPhoto(f[0])}
+        />
       </Card>
 
       <Card title={t.conditions} tone="sun">

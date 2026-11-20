@@ -110,9 +110,13 @@ describe('AI without a key', () => {
     vi.stubGlobal('fetch', f);
     const user = userEvent.setup();
     await renderApp('/add/barcode');
-    await screen.findByRole('button', { name: ru.barcode.photoButton });
+    // Two ways: the camera (opens it directly) and the gallery.
+    const group = await screen.findByRole('group', { name: ru.barcode.photoButton });
+    expect(within(group).getByText(ru.photoSource.camera)).toBeVisible();
+    expect(screen.getByTestId('barcode-photo-camera')).toHaveAttribute('capture', 'environment');
+    expect(screen.getByTestId('barcode-photo')).not.toHaveAttribute('capture');
     const file = new File(['x'], 'code.jpg', { type: 'image/jpeg' });
-    await user.upload(screen.getByTestId('barcode-photo'), file);
+    await user.upload(screen.getByTestId('barcode-photo-camera'), file);
     expect(await screen.findByText(ru.barcode.notFound('4810268055577'))).toBeVisible();
     expect(f.mock.calls.some(([u]) => String(u).includes('4810268055577'))).toBe(true);
   });

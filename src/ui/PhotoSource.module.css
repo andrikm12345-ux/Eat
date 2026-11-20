@@ -1,0 +1,63 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-3);
+}
+.label {
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+}
+.row {
+  display: grid;
+  /* Side by side when both fit, one under the other on a narrow screen (never a broken line). */
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: var(--sp-2);
+}
+.btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: var(--tap);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: 16px;
+  background: var(--btn-soft, var(--surface));
+  box-shadow: var(--field-shadow);
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-5);
+  white-space: nowrap;
+  text-align: center;
+  cursor: pointer;
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn:focus-within {
+  outline: 2px solid var(--picked);
+  outline-offset: 2px;
+}
+.btn input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.off {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.busy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: var(--fw-semibold);
+}

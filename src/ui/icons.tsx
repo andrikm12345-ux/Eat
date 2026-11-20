@@ -81,6 +81,13 @@ export const IconCamera = mk(
     <circle cx="12" cy="12.5" r="3.5" />
   </>,
 );
+export const IconImage = mk(
+  <>
+    <rect x="4" y="5" width="16" height="14" rx="2" />
+    <circle cx="9" cy="10" r="1.5" />
+    <path d="M20 16l-5-5-7 8" />
+  </>,
+);
 export const IconTag = mk(
   <>
     <path d="M3 12V4h8l9 9-8 8z" />

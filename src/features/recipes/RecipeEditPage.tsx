@@ -15,6 +15,7 @@ import { toast } from '../../state/ui';
 import { BottomSheet } from '../../ui/BottomSheet';
 import { Button, Card, NumberField, Row, Stat, TextField } from '../../ui/kit';
 import { Page } from '../../ui/Page';
+import { PhotoSource } from '../../ui/PhotoSource';
 import { FoodSearch } from '../add/SearchPage';
 import styles from '../add/add.module.css';
 import { Loading } from '../../ui/states';
@@ -281,24 +282,7 @@ function PhotoInput({
           }}
         />
       )}
-      <label
-        className={styles.input}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          marginBottom: 'var(--sp-3)',
-        }}
-      >
-        {label}
-        <input
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={(e) => e.target.files?.[0] && void onFile(e.target.files[0])}
-        />
-      </label>
+      <PhotoSource label={label} onFiles={(f) => f[0] && void onFile(f[0])} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { formatDateRu, toLocalDate } from '../../domain/dates';
 import type { BlobRecord } from '../../domain/types';
 import { repos } from '../../db/repos';
@@ -9,7 +9,7 @@ import { toast } from '../../state/ui';
 import { BottomSheet } from '../../ui/BottomSheet';
 import { Button } from '../../ui/kit';
 import { Page } from '../../ui/Page';
-import listStyles from '../add/add.module.css';
+import { PhotoSource } from '../../ui/PhotoSource';
 import styles from './progress.module.css';
 import { EmptyState } from '../../ui/states';
 
@@ -45,11 +45,10 @@ export default function PhotosPage() {
     [],
   );
   const [open, setOpen] = useState<BlobRecord | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
   const openUrl = useObjectUrl(open?.blob);
 
-  async function add(files: FileList | null) {
-    for (const file of Array.from(files ?? [])) {
+  async function add(files: File[]) {
+    for (const file of files) {
       try {
         const blob = await compressImage(file, 1280, 0.82);
         await repos.blobs.create({
@@ -66,33 +65,8 @@ export default function PhotosPage() {
 
   return (
     <Page title={t.title}>
-      <label
-        className={listStyles.input}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 'var(--sp-3)',
-          cursor: 'pointer',
-        }}
-      >
-        {t.add}
-        <input
-          ref={fileInput}
-          type="file"
-          accept="image/*"
-          multiple
-          hidden
-          onChange={(e) => void add(e.target.files)}
-        />
-      </label>
-      {photos?.length === 0 && (
-        <EmptyState
-          kind="photos"
-          text={t.empty}
-          action={{ label: t.add, onClick: () => fileInput.current?.click() }}
-        />
-      )}
+      <PhotoSource label={t.add} multiple onFiles={(f) => void add(f)} />
+      {photos?.length === 0 && <EmptyState kind="photos" text={t.empty} />}
       <div className={styles.photos}>
         {photos?.map((p) => (
           <Thumb key={p.id} rec={p} onOpen={() => setOpen(p)} />

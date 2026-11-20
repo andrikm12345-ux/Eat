@@ -29,6 +29,10 @@ export const ru = {
       cook: 'Что приготовить',
     },
   },
+  photoSource: {
+    camera: 'Сделать фото',
+    gallery: 'Из галереи',
+  },
   cook: {
     title: 'Что приготовить',
     dishTitle: 'Рецепт',
