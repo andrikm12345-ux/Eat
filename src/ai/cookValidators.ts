@@ -1,4 +1,11 @@
-import { withPieces, type Difficulty, type DishIdea, type DishIngredient } from '../domain/cook';
+import {
+  EQUIPMENT,
+  withPieces,
+  type Difficulty,
+  type DishIdea,
+  type DishIngredient,
+  type Equipment,
+} from '../domain/cook';
 import type { Nutrients } from '../domain/types';
 import { cleanName, isObj, num, per100, pieceInfo, type Valid } from './validators';
 
@@ -22,6 +29,12 @@ function ingredient(v: unknown, path: string, errors: string[]): DishIngredient 
     ...pieceInfo(v),
     ...(v.optional === true ? { optional: true } : {}),
   });
+}
+
+/** The kitchen equipment a dish needs (unknown words are dropped). */
+function equipmentOf(v: unknown): Equipment[] {
+  if (!Array.isArray(v)) return [];
+  return [...new Set(v.filter((x): x is Equipment => EQUIPMENT.includes(x as Equipment)))];
 }
 
 /**
@@ -66,6 +79,7 @@ export function validateCookIdeas(data: unknown): Valid<DishIdea[]> {
       (d.portionGrams as number) <= 3000
         ? { portionGrams: Math.round(d.portionGrams as number) }
         : {}),
+      ...(equipmentOf(d.equipment).length ? { equipment: equipmentOf(d.equipment) } : {}),
       ingredients,
     });
   });

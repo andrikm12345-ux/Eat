@@ -35,7 +35,10 @@ export type CookHistoryEntry = {
   id: string;
   at: string;
   pantry: string;
-  conditions: Pick<CookForm, 'basics' | 'noBuy' | 'maxMinutes' | 'meal' | 'servings' | 'wishes'>;
+  conditions: Pick<CookForm, 'basics' | 'noBuy' | 'maxMinutes' | 'meal' | 'servings' | 'wishes'> & {
+    /** Older records have none. */
+    equipment?: CookForm['equipment'];
+  };
   dishes: CookHistoryDish[];
   /** How many proposals did not pass the check. */
   rejected: number;
@@ -71,6 +74,7 @@ export async function recordCookSearch(
       meal: form.meal,
       servings: form.servings,
       wishes: form.wishes.trim().slice(0, 200),
+      equipment: form.equipment,
     },
     dishes: result.dishes.map((d) => ({
       name: d.idea.name,

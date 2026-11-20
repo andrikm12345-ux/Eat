@@ -30,12 +30,24 @@ export type DishIngredient = {
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 /** A dish the AI proposed: ingredients per one serving. */
+/** What a dish needs to be cooked on. A cold dish needs nothing. */
+export type Equipment = 'stove' | 'oven' | 'airfryer' | 'multicooker' | 'microwave';
+export const EQUIPMENT: readonly Equipment[] = [
+  'stove',
+  'oven',
+  'airfryer',
+  'multicooker',
+  'microwave',
+];
+
 export type DishIdea = {
   name: string;
   minutes: number;
   difficulty: Difficulty;
   /** Weight of one ready serving on the plate (drained cooking water not included). */
   portionGrams?: number;
+  /** What it is cooked on (empty or missing: nothing special). */
+  equipment?: Equipment[];
   ingredients: DishIngredient[];
 };
 
@@ -51,7 +63,8 @@ export type CheckedIngredient = DishIngredient & {
   have?: { grams?: number; pieces?: number };
 };
 
-export type RejectReason = 'main' | 'tooMany' | 'noBuy' | 'unused' | 'time' | 'duplicate';
+export type RejectReason =
+  'main' | 'tooMany' | 'noBuy' | 'unused' | 'time' | 'equipment' | 'duplicate';
 
 export type CheckedDish = {
   idea: DishIdea;
@@ -76,6 +89,8 @@ export type CookFilters = {
   /** Salt, pepper, sugar, oil, water, dry spices are at home. */
   basics: boolean;
   servings: number;
+  /** What there is in the kitchen; missing = anything goes. */
+  equipment?: readonly Equipment[];
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -474,6 +489,8 @@ export const MAX_MISSING = 2;
 /** Why a dish is not offered (null = it is). */
 export function rejectReason(d: CheckedDish, f: CookFilters): RejectReason | null {
   if (f.maxMinutes !== null && d.idea.minutes > f.maxMinutes) return 'time';
+  const have = f.equipment;
+  if (have && d.idea.equipment?.some((e) => !have.includes(e))) return 'equipment';
   if (d.usedPantry === 0) return 'unused';
   if (d.mainMissing) return 'main';
   if (f.noBuy && (d.missing.length > 0 || d.short.length > 0)) return 'noBuy';

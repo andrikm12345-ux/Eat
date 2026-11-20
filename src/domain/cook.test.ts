@@ -10,6 +10,7 @@ import {
   amountText,
   legacyIngredientLine,
   mealForTime,
+  EQUIPMENT,
   withPieces,
   sameDish,
   type CookFilters,
@@ -320,5 +321,52 @@ describe('the meal by the time of day', () => {
     expect([at('16:00'), at('21:59')]).toEqual(['dinner', 'dinner']);
     expect([at('22:00'), at('02:10')]).toEqual(['snack', 'snack']);
     expect(at('05:00')).toBe('breakfast');
+  });
+});
+
+describe('kitchen equipment', () => {
+  const pantry = parsePantry('курица 500 г, картофель, лук');
+  const baked = {
+    ...dish('Курица запечённая', [ing('Курица', 200), ing('Картофель', 150)]),
+    equipment: ['oven' as const],
+  };
+  const pan = {
+    ...dish('Курица жареная', [ing('Курица', 200), ing('Лук', 40)]),
+    equipment: ['stove' as const],
+  };
+  const cold = dish('Салат', [ing('Картофель', 100), ing('Лук', 20)]);
+
+  it('a dish that needs equipment there is not is dropped; with no equipment given anything goes', () => {
+    const none = { ...F, equipment: ['stove' as const, 'microwave' as const] };
+    expect(rejectReason(checkDish(baked, pantry, none), none)).toBe('equipment');
+    expect(rejectReason(checkDish(pan, pantry, none), none)).toBeNull();
+    expect(rejectReason(checkDish(cold, pantry, none), none)).toBeNull();
+    // every piece of equipment a dish needs must be there
+    const both = {
+      ...dish('Курица в духовке и на плите', [ing('Курица', 200)]),
+      equipment: ['stove' as const, 'oven' as const],
+    };
+    expect(rejectReason(checkDish(both, pantry, none), none)).toBe('equipment');
+    expect(
+      rejectReason(checkDish(both, pantry, F), {
+        ...F,
+        equipment: [...EQUIPMENT],
+      }),
+    ).toBeNull();
+    expect(rejectReason(checkDish(baked, pantry, F), F)).toBeNull();
+  });
+
+  it('pickDishes reports the reason', () => {
+    const { shown, rejected } = pickDishes(
+      [baked, pan],
+      pantry,
+      { ...F, equipment: ['stove'] },
+      null,
+      () => n(100),
+    );
+    expect(shown.map((d) => d.idea.name)).toEqual(['Курица жареная']);
+    expect(rejected).toEqual([
+      expect.objectContaining({ name: 'Курица запечённая', reason: 'equipment' }),
+    ]);
   });
 });

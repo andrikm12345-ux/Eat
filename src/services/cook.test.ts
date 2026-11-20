@@ -76,6 +76,7 @@ describe('cooking service', () => {
         servings: 2,
         meal: 'dinner',
         wishes: 'без свинины',
+        equipment: ['stove', 'microwave'],
         left: { kcal: 640, protein: 35 },
       },
       ['Борщ (нет: Свёкла)'],
@@ -87,6 +88,7 @@ describe('cooking service', () => {
     expect(text).toContain('ужин');
     expect(text).toContain('Ничего не докупать');
     expect(text).toContain('без свинины');
+    expect(text).toContain('Есть: плита, микроволновка. Нет: духовка, аэрогриль, мультиварка');
     expect(text).toContain('640 ккал и 35 г белка');
     expect(text).toContain('Не предлагай: Борщ (нет: Свёкла)');
   });

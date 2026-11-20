@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { mealForTime, parsePantry, pantryText } from '../../domain/cook';
+import { EQUIPMENT, mealForTime, parsePantry, pantryText, type Equipment } from '../../domain/cook';
 import { dayTotals } from '../../domain/day';
 import { formatGrams, formatKcal } from '../../domain/format';
 import { exerciseBonus } from '../../domain/met';
@@ -80,6 +80,9 @@ export function DishCard({
         <span className={styles.meta}>
           <IconClock width={16} height={16} />
           {t.minutes(dish.idea.minutes)} · {t.difficulty[dish.idea.difficulty]}
+          {dish.idea.equipment?.length
+            ? ` · ${dish.idea.equipment.map((e) => t.equip[e].toLowerCase()).join(', ')}`
+            : ''}
         </span>
         <span className={styles.nutr}>
           {t.nutrition(formatKcal(n.kcal), g1(n.protein), g1(n.fat), g1(n.carbs))}{' '}
@@ -187,6 +190,7 @@ function CookInner() {
         noBuy: form.noBuy,
         maxMinutes: form.maxMinutes,
         servings: form.servings,
+        equipment: form.equipment,
         meal: form.meal,
         wishes: form.wishes,
         left,
@@ -267,6 +271,28 @@ function CookInner() {
           checked={form.noBuy}
           onChange={(v) => patch({ noBuy: v })}
         />
+        <p className={styles.label}>{t.equipment}</p>
+        <div className={styles.gear} role="group" aria-label={t.equipment}>
+          {EQUIPMENT.map((e: Equipment) => {
+            const on = form.equipment.includes(e);
+            return (
+              <button
+                key={e}
+                type="button"
+                aria-pressed={on}
+                className={`${styles.gearBtn} ${on ? styles.gearOn : ''}`}
+                onClick={() =>
+                  patch({
+                    equipment: on ? form.equipment.filter((x) => x !== e) : [...form.equipment, e],
+                  })
+                }
+              >
+                {t.equip[e]}
+              </button>
+            );
+          })}
+        </div>
+        <p className={styles.hint}>{t.equipmentHint}</p>
         <p className={styles.label}>{t.time}</p>
         <Segmented
           label={t.time}

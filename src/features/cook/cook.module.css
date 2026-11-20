@@ -56,6 +56,31 @@
   background: var(--surface-2);
 }
 
+/* Kitchen equipment: several can be on */
+.gear {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.gearBtn {
+  min-height: var(--tap);
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-pill);
+  border: 2px solid transparent;
+  background: var(--field-bg);
+  box-shadow: var(--field-shadow);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-5);
+  cursor: pointer;
+}
+.gearOn {
+  background: var(--sky-accent);
+  border-color: var(--picked);
+  color: var(--sky-accent-ink);
+  font-weight: var(--fw-bold);
+}
+
 /* Results */
 .results {
   margin-top: var(--sp-4);

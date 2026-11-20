@@ -23,6 +23,7 @@ import {
   type DayLeft,
   type DishIdea,
   type DishIngredient,
+  type Equipment,
   type PantryItem,
   type RankedDish,
   type RejectReason,
@@ -69,6 +70,14 @@ const MEAL_TEXT: Record<MealKind, string> = {
   snack: 'перекус',
 };
 
+const EQUIPMENT_TEXT: Record<Equipment, string> = {
+  stove: 'плита',
+  oven: 'духовка',
+  airfryer: 'аэрогриль',
+  multicooker: 'мультиварка',
+  microwave: 'микроволновка',
+};
+
 const amount = (p: PantryItem) =>
   p.grams !== null ? ` ${Math.round(p.grams)} г` : p.count !== null ? ` ${p.count} шт` : '';
 
@@ -83,6 +92,17 @@ export function ideasMessage(req: CookRequest, avoid: readonly string[] = []): s
   lines.push(`Порций: ${req.servings}.`);
   if (req.maxMinutes) lines.push(`Время: не больше ${req.maxMinutes} минут.`);
   if (req.meal !== 'any') lines.push(`Приём пищи: ${MEAL_TEXT[req.meal]}.`);
+  if (req.equipment) {
+    const have = req.equipment.map((e) => EQUIPMENT_TEXT[e]);
+    const none = (Object.keys(EQUIPMENT_TEXT) as Equipment[])
+      .filter((e) => !req.equipment?.includes(e))
+      .map((e) => EQUIPMENT_TEXT[e]);
+    lines.push(
+      `Есть: ${have.length ? have.join(', ') : 'только нарезка и холодные блюда'}.${
+        none.length ? ` Нет: ${none.join(', ')} — блюда, которым это нужно, не предлагай.` : ''
+      }`,
+    );
+  }
   if (req.noBuy) lines.push('Ничего не докупать: только эти продукты и базовые.');
   if (req.wishes.trim()) lines.push(`Пожелания: ${req.wishes.trim().slice(0, 200)}.`);
   if (req.left && req.left.kcal >= 150)

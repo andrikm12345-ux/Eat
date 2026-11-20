@@ -279,4 +279,53 @@ describe('«Что приготовить»', () => {
     await renderApp('/cook?date=2026-11-20&time=19:30', { seed: false });
     expect(await screen.findByRole('radio', { name: t.meals.dinner })).toBeChecked();
   });
+
+  it('equipment is chosen with switches, remembered, and a dish needing what is missing is not shown', async () => {
+    await setup();
+    const baked = {
+      dishes: [
+        {
+          name: 'Курица запечённая',
+          minutes: 40,
+          difficulty: 'easy',
+          equipment: ['oven'],
+          ingredients: [{ name: 'Куриное филе', grams: 200, per100g: n(113, 23.6, 1.9, 0.4) }],
+        },
+        {
+          name: 'Курица жареная',
+          minutes: 20,
+          difficulty: 'easy',
+          equipment: ['stove'],
+          ingredients: [{ name: 'Куриное филе', grams: 200, per100g: n(113, 23.6, 1.9, 0.4) }],
+        },
+      ],
+    };
+    ai(baked);
+    const user = userEvent.setup();
+    const first = await renderApp('/cook?date=2026-11-20&time=19:00');
+    const oven = await screen.findByRole('button', { name: t.equip.oven });
+    expect(oven).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: t.equip.airfryer })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    await user.click(oven); // no oven
+    expect(oven).toHaveAttribute('aria-pressed', 'false');
+    await user.type(screen.getByRole('textbox', { name: t.pantryLabel }), 'курица 500 г');
+    await user.click(screen.getByRole('button', { name: t.go }));
+    const list = await screen.findByRole('region', { name: t.resultsTitle });
+    expect(within(list).getByRole('button', { name: /Курица жареная/ })).toHaveTextContent('плита');
+    expect(within(list).queryByRole('button', { name: /Курица запечённая/ })).toBeNull();
+    await new Promise((r) => setTimeout(r, 500));
+    first.unmount();
+    await renderApp('/cook?date=2026-11-20&time=19:00', { seed: false });
+    expect(await screen.findByRole('button', { name: t.equip.oven })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    expect(screen.getByRole('button', { name: t.equip.stove })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
 });

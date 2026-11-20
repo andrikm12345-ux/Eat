@@ -11,6 +11,12 @@ function conditions(c: CookHistoryEntry['conditions']): string {
   const parts = [t.cookCond.servings(c.servings)];
   if (c.maxMinutes) parts.push(t.cookCond.time(c.maxMinutes));
   if (c.meal !== 'any') parts.push(ru.cook.meals[c.meal].toLowerCase());
+  if (c.equipment)
+    parts.push(
+      t.cookCond.equipment(
+        c.equipment.map((e) => ru.cook.equip[e].toLowerCase()).join(', ') || 'нет',
+      ),
+    );
   if (c.noBuy) parts.push(t.cookCond.noBuy);
   if (!c.basics) parts.push(t.cookCond.noBasics);
   if (c.wishes) parts.push(t.cookCond.wishes(c.wishes));

@@ -33,3 +33,14 @@ describe('answer with dishes', () => {
     expect(validateCookIdeas({}).ok).toBe(false);
   });
 });
+
+describe('equipment of a dish', () => {
+  it('keeps the known kinds once, drops the rest; missing means nothing special', () => {
+    const r = validateCookIdeas({
+      dishes: [dish({ equipment: ['oven', 'oven', 'stove', 'таймер'] }), dish({ name: 'Салат' })],
+    });
+    expect(r.ok && r.value.map((d) => d.equipment)).toEqual([['oven', 'stove'], undefined]);
+    const bad = validateCookIdeas({ dishes: [dish({ equipment: 'oven' })] });
+    expect(bad.ok && bad.value[0]).not.toHaveProperty('equipment');
+  });
+});

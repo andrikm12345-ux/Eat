@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { CookSteps } from '../ai/cookValidators';
-import type { PantryItem } from '../domain/cook';
+import type { Equipment, PantryItem } from '../domain/cook';
 import type { CookDish, CookResult, MealKind } from '../services/cook';
 
 /** What the person set on the «Что приготовить» screen (kept between visits). */
@@ -12,6 +12,8 @@ export type CookForm = {
   meal: MealKind;
   servings: number;
   wishes: string;
+  /** What there is in the kitchen. */
+  equipment: Equipment[];
 };
 
 export const COOK_FORM_SETTING = 'cookForm';
@@ -24,6 +26,7 @@ export const DEFAULT_COOK_FORM: CookForm = {
   meal: 'any',
   servings: 1,
   wishes: '',
+  equipment: ['stove', 'oven', 'microwave'],
 };
 
 type CookState = {
