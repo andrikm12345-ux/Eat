@@ -1,6 +1,7 @@
 import type { Repos } from '../db/repos';
 import type { DayMeta, Entry, Goal, Profile, Weight } from '../domain/types';
 import { getSession } from './account';
+import type { CookHistoryEntry } from './cookHistory';
 
 export type AdminUser = {
   id: string;
@@ -9,11 +10,15 @@ export type AdminUser = {
   lastLogin: number | null;
   lastSync: string | null;
   entries: number;
+  /** Searches in «Что приготовить» (older servers do not send it). */
+  cookSearches?: number;
   me: boolean;
 };
 
 export type AdminDiary = {
   login: string | null;
+  /** «Что приготовить»: what was written in and what the AI gave back. */
+  cook?: CookHistoryEntry[];
   exportedAt: string | null;
   profile: Profile | null;
   goals: Goal[];

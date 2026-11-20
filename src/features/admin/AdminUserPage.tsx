@@ -11,6 +11,7 @@ import { BackBar } from '../../ui/BackBar';
 import { IconBack, IconChevron } from '../../ui/icons';
 import { Card, Notice, Stat } from '../../ui/kit';
 import { Loading } from '../../ui/states';
+import { AdminCookHistory } from './AdminCookHistory';
 import styles from './admin.module.css';
 import wizard from '../onboarding/Wizard.module.css';
 import { useGoBack } from '../../ui/useGoBack';
@@ -174,6 +175,7 @@ export default function AdminUserPage() {
                 </div>
               ))}
             </Card>
+            <AdminCookHistory history={diary.cook ?? []} />
             <p className={styles.muted}>{t.readOnly}</p>
           </>
         )}

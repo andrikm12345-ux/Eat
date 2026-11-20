@@ -205,3 +205,38 @@ describe('removing test accounts', () => {
     expect(left.users.map((u) => u.login).sort()).toEqual(['blackjack', 'ivan']);
   });
 });
+
+describe('«Что приготовить» in the administrator view', () => {
+  it('shows what a person wrote in and what the AI gave back, to the administrator only', async () => {
+    const d = setup();
+    const admin = await signUp(d, 'blackjack');
+    const user = await signUp(d, 'ivan');
+    const history = [
+      { id: 'h1', at: '2026-11-20T10:00:00.000Z', pantry: 'творог, мука', dishes: [] },
+    ];
+    await putSync(
+      d,
+      new Request('http://x', {
+        method: 'PUT',
+        headers: { authorization: `Bearer ${user}` },
+        body: JSON.stringify({
+          format: 'dnevnik-backup',
+          tables: {
+            settings: [
+              { key: 'cookHistory', value: history, updatedAt: '2026-11-20T10:00:00.000Z' },
+            ],
+          },
+        }),
+      }),
+    );
+    const id = userIdFor(SECRET, 'ivan');
+    expect((await adminUsers(d, get(user, `?id=${id}`))).status).toBe(403);
+    const one = (await (await adminUsers(d, get(admin, `?id=${id}`))).json()) as { cook: unknown };
+    expect(one.cook).toEqual(history);
+    const list = (await (await adminUsers(d, get(admin))).json()) as {
+      users: { login: string; cookSearches: number }[];
+    };
+    expect(list.users.find((u) => u.login === 'ivan')?.cookSearches).toBe(1);
+    expect(list.users.find((u) => u.login === 'blackjack')?.cookSearches).toBe(0);
+  });
+});

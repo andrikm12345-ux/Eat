@@ -60,6 +60,9 @@ export default function AdminUsersPage() {
                       <span className={styles.sub}>{t.registered(when(u.createdAt))}</span>
                       <span className={styles.sub}>{t.lastLogin(when(u.lastLogin))}</span>
                       <span className={styles.sub}>{t.entriesCount(u.entries)}</span>
+                      {u.cookSearches ? (
+                        <span className={styles.sub}>{t.cookCount(u.cookSearches)}</span>
+                      ) : null}
                     </span>
                     <IconChevron className={styles.chevron} />
                   </Link>

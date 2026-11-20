@@ -5,6 +5,7 @@ import { formatGrams, formatKcal } from '../../domain/format';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { dishToDraft, loadSteps, saveDishAsRecipe } from '../../services/cook';
+import { recordCookRecipe } from '../../services/cookHistory';
 import { useCook } from '../../state/cook';
 import { useReview } from '../../state/review';
 import { toast } from '../../state/ui';
@@ -67,6 +68,10 @@ export default function CookDishPage() {
     loadSteps(repos, dish, result?.servings ?? 1).then(
       (s) => {
         if (alive) putSteps(dish.idea.name, s);
+        if (result?.searchId)
+          void recordCookRecipe(repos, result.searchId, dish, result.servings, s).catch(
+            () => undefined,
+          );
       },
       (e: Error) => {
         if (alive) setError(e.message);

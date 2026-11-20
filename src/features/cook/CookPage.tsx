@@ -13,6 +13,7 @@ import {
   type CookDish,
   type MealKind,
 } from '../../services/cook';
+import { recordCookSearch } from '../../services/cookHistory';
 import { COOK_FORM_SETTING, DEFAULT_COOK_FORM, useCook, type CookForm } from '../../state/cook';
 import { toast } from '../../state/ui';
 import { IconCamera, IconClock, IconClose } from '../../ui/icons';
@@ -186,7 +187,15 @@ function CookInner() {
         wishes: form.wishes,
         left,
       });
-      setResult({ ...res, pantry, servings: form.servings, basics: form.basics });
+      // Remembered for the history (and the administrator): a failure here never hides the result.
+      const searchId = await recordCookSearch(repos, form, res).catch(() => undefined);
+      setResult({
+        ...res,
+        pantry,
+        servings: form.servings,
+        basics: form.basics,
+        ...(searchId ? { searchId } : {}),
+      });
       requestAnimationFrame(() =>
         resultsRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }),
       );

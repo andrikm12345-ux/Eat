@@ -113,3 +113,11 @@
   gap: var(--sp-3);
   font-weight: var(--fw-semibold);
 }
+
+.cookSteps {
+  margin: var(--sp-1) 0;
+  padding-left: var(--sp-4);
+  color: var(--text-muted);
+  font-size: var(--fs-6);
+  line-height: 1.45;
+}

@@ -17,6 +17,13 @@ const parse = <T>(text: string | null): T | null => {
 
 const alive = (rows: Row[] | undefined) => (rows ?? []).filter((r) => !r.deletedAt);
 
+/** «Что приготовить» history the app keeps in its settings (src/services/cookHistory.ts). */
+const COOK_HISTORY = 'cookHistory';
+function cookHistory(snap: Snapshot | null): unknown[] {
+  const row = alive(snap?.tables?.settings).find((r) => r.key === COOK_HISTORY);
+  return Array.isArray(row?.value) ? (row.value as unknown[]) : [];
+}
+
 /**
  * GET (administrator only) → every account: login, registered, last sign-in, last sync, number
  * of meal entries. With ?id=<account> → that account's diary (read only), and the look is logged.
@@ -50,6 +57,7 @@ export async function adminUsers(d: Deps, req: Request): Promise<Response> {
       entries: alive(t.entries),
       weights: alive(t.weights),
       dayMeta: alive(t.dayMeta),
+      cook: cookHistory(snap),
     });
   }
 
@@ -67,6 +75,7 @@ export async function adminUsers(d: Deps, req: Request): Promise<Response> {
         lastLogin: Math.max(meta.lastLogin ?? 0, meta.lastSeen ?? 0) || null,
         lastSync: snap?.exportedAt ?? null,
         entries: alive(snap?.tables?.entries).length,
+        cookSearches: cookHistory(snap).length,
         me: uid === s.userId,
       };
     }),

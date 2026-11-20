@@ -28,7 +28,15 @@ export const DEFAULT_COOK_FORM: CookForm = {
 
 type CookState = {
   /** The last search: its pantry and servings go with the result. */
-  result: (CookResult & { pantry: PantryItem[]; servings: number; basics: boolean }) | null;
+  result:
+    | (CookResult & {
+        pantry: PantryItem[];
+        servings: number;
+        basics: boolean;
+        /** The history record of this search (the opened recipes are added to it). */
+        searchId?: string;
+      })
+    | null;
   /** The dish opened on the recipe screen. */
   dish: CookDish | null;
   /** Steps already written, by dish name and servings. */
