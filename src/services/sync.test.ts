@@ -208,6 +208,33 @@ describe('sync', () => {
     document.dispatchEvent(new Event('visibilitychange'));
     stop();
   });
+
+  it('a change made while a sync is running is not lost', async () => {
+    await signIn();
+    const real = globalThis.fetch;
+    let slowPut = true;
+    let wrote: Promise<unknown> | null = null;
+    vi.stubGlobal('fetch', async (url: string, init?: RequestInit) => {
+      if (init?.method === 'PUT' && slowPut) {
+        slowPut = false;
+        // The person records something while the first upload is on its way.
+        wrote = repos.weights.create({
+          date: '2026-10-31',
+          time: '07:00',
+          kg: 81.3,
+          source: 'manual',
+        });
+        await wrote;
+      }
+      return real(url, init);
+    });
+    const stop = startAccountSync(repos, 20);
+    await repos.weights.create({ date: '2026-10-30', time: '07:00', kg: 80.1, source: 'manual' });
+    await waitFor(() => expect([...files.values()].join('')).toContain('80.1'), { timeout: 3000 });
+    await waitFor(() => expect([...files.values()].join('')).toContain('81.3'), { timeout: 3000 });
+    stop();
+    expect(wrote).not.toBeNull();
+  });
 });
 
 describe('recovery', () => {

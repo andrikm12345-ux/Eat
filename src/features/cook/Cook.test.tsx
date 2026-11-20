@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AI_KEYS } from '../../ai/settings';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
+import { loadCookHistory } from '../../services/cookHistory';
 import { useCook } from '../../state/cook';
 import { renderApp } from '../../test/renderApp';
 
@@ -138,6 +139,13 @@ describe('«Что приготовить»', () => {
     expect(await screen.findByText(STEPS.steps[0]!.text)).toBeVisible();
     expect(screen.getByText(STEPS.tip)).toBeVisible();
     expect(calls.filter((c) => c === 'steps')).toHaveLength(1);
+    // The search and the opened recipe are in the history (it goes to the cloud with the diary).
+    await waitFor(async () => {
+      const [h] = await loadCookHistory(repos);
+      expect(h?.pantry).toBe('яйца 4 шт, помидоры, курица 500 г, рис, морковь');
+      expect(h?.dishes.map((d) => d.name)).toContain('Омлет с помидорами');
+      expect(h?.recipes.map((r) => r.name)).toEqual(['Омлет с помидорами']);
+    });
 
     await user.click(screen.getByRole('button', { name: t.save }));
     await waitFor(async () => expect(await repos.recipes.list()).toHaveLength(1));

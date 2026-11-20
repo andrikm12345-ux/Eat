@@ -34,6 +34,14 @@ export async function buildSnapshot(r: Repos): Promise<Backup> {
 
 const stripTables = (b: Backup) => JSON.stringify(b.tables);
 
+/** The tables as they were when this device last matched the cloud (null: not yet). */
+let lastSynced: string | null = null;
+
+/** Something changed on this device after the last sync (e.g. while that sync was running). */
+export async function changedSinceSync(r: Repos): Promise<boolean> {
+  return lastSynced !== null && stripTables(await buildSnapshot(r)) !== lastSynced;
+}
+
 /** Two-way merge with the cloud copy: pull, merge by `updatedAt`, push if anything differs. */
 export async function syncNow(r: Repos): Promise<SyncResult> {
   const session = await getSession(r);
@@ -75,6 +83,7 @@ export async function syncNow(r: Repos): Promise<SyncResult> {
       if (!put.ok) return { ok: false, reason: 'server' };
       pushed = true;
     }
+    lastSynced = stripTables(snapshot);
     await r.settings.set(ACCOUNT.lastSync, new Date().toISOString());
     return { ok: true, pulled, pushed };
   } catch {
@@ -121,7 +130,9 @@ export function startAccountSync(r: Repos, delayMs = 4000): () => void {
     running = true;
     try {
       if (await getSession(r)) {
-        await syncNow(r);
+        const res = await syncNow(r);
+        // A change made while this sync was running (it was not in the snapshot) goes up too.
+        if (res.ok && (await changedSinceSync(r))) again = true;
         await refreshSharedAi(r);
       }
     } finally {
