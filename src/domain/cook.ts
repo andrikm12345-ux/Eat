@@ -556,8 +556,18 @@ export function sameDish(a: DishIdea, b: DishIdea): boolean {
   const na = dishNouns(a);
   const nb = dishNouns(b);
   if (na.length && nb.length) return na.some((x) => nb.includes(x));
-  // A name made only of products ("Курица с рисом"): the same products make the same dish.
-  return productKey(a.name).join(' ') === productKey(b.name).join(' ');
+  // A name made of products ("Макароны с фаршем и томатной пастой", "Макароны по-флотски с
+  // фаршем"): two products of the dish named in both make it the same dish.
+  const pa = nameProducts(a);
+  const pb = nameProducts(b);
+  const common = pa.filter((x) => pb.includes(x)).length;
+  return common >= 2 || (common > 0 && common === pa.length && common === pb.length);
+}
+
+/** The dish's own products that its name mentions. */
+function nameProducts(idea: DishIdea): string[] {
+  const products = new Set(idea.ingredients.flatMap((i) => productKey(i.name)));
+  return productKey(idea.name).filter((k) => products.has(k));
 }
 
 /**

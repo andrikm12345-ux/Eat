@@ -240,4 +240,28 @@ describe('the same dish twice', () => {
     ).toBe(false);
     expect(sameDish(d('Омлет', ['Яйцо']), d('Яичница', ['Яйцо']))).toBe(false);
   });
+  it('names made of products', () => {
+    const pasta = ['Макароны', 'Фарш говяжий', 'Томатная паста', 'Сыр', 'Лук'];
+    expect(
+      sameDish(
+        d('Макароны с фаршем и томатной пастой', pasta),
+        d('Макароны с сыром и фаршем', pasta),
+      ),
+    ).toBe(true);
+    expect(sameDish(d('Макароны по-флотски с фаршем', pasta), d('Макароны с фаршем', pasta))).toBe(
+      true,
+    );
+    expect(
+      sameDish(d('Курица с рисом', ['Курица', 'Рис']), d('Рис с курицей', ['Рис', 'Курица'])),
+    ).toBe(true);
+    expect(
+      sameDish(d('Запеканка макаронная с фаршем и сыром', pasta), d('Макароны с фаршем', pasta)),
+    ).toBe(false);
+    expect(
+      sameDish(d('Макароны с сыром', ['Макароны', 'Сыр']), d('Курица с сыром', ['Курица', 'Сыр'])),
+    ).toBe(false);
+    expect(
+      sameDish(d('Омлет с сыром', ['Яйцо', 'Сыр']), d('Курица с сыром', ['Курица', 'Сыр'])),
+    ).toBe(false);
+  });
 });
