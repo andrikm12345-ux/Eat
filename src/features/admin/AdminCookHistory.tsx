@@ -62,7 +62,7 @@ export function AdminCookHistory({
             </div>
             {list.map((h) => (
               <div key={h.id} className={styles.meal}>
-                <div className={styles.mealHead}>
+                <div className={`${styles.mealHead} ${styles.cookHead}`}>
                   <span>{new Date(h.at).toLocaleString('ru-RU')}</span>
                   <Button
                     variant="text"

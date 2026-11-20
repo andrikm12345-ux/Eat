@@ -135,3 +135,8 @@
 .cookDay strong::first-letter {
   text-transform: uppercase;
 }
+
+/* The date of a search and its «Удалить» sit on one line, centred. */
+.cookHead {
+  align-items: center;
+}
