@@ -7,6 +7,7 @@ import {
   pickDishes,
   productKey,
   rejectReason,
+  sameDish,
   type CookFilters,
   type DishIdea,
   type DishIngredient,
@@ -207,5 +208,36 @@ describe('ranking', () => {
     const big = (i: DishIdea) => (i.name === 'Курица с рисом' ? n(900, 40) : n(300, 20));
     const { shown } = pickDishes(ideas, pantry, F, { kcal: 500, protein: 30 }, big);
     expect(shown.map((d) => d.idea.name).indexOf('Курица с рисом')).toBeGreaterThan(0);
+  });
+});
+
+describe('the same dish twice', () => {
+  const d = (name: string, ings: string[]) =>
+    dish(
+      name,
+      ings.map((x) => ing(x, 100)),
+    );
+  const syrniki = d('Творожные сырники с бананом', ['Творог', 'Банан', 'Мука', 'Яйцо']);
+  it('one dish under two names', () => {
+    expect(sameDish(syrniki, d('Сырники со сметаной', ['Творог', 'Мука', 'Яйцо', 'Сметана']))).toBe(
+      true,
+    );
+    expect(sameDish(d('Омлет', ['Яйцо']), d('Омлет с помидорами', ['Яйцо', 'Помидор']))).toBe(true);
+    expect(sameDish(d('Плов с курицей', ['Курица', 'Рис']), d('Плов', ['Рис', 'Говядина']))).toBe(
+      true,
+    );
+  });
+  it('different dishes from the same products', () => {
+    expect(
+      sameDish(syrniki, d('Творожная запеканка с бананом', ['Творог', 'Банан', 'Яйцо', 'Мука'])),
+    ).toBe(false);
+    expect(sameDish(syrniki, d('Ленивые вареники', ['Творог', 'Мука', 'Яйцо']))).toBe(false);
+    expect(
+      sameDish(
+        d('Рис с овощами и яйцом', ['Рис', 'Морковь', 'Яйцо']),
+        d('Куриное филе с рисом и овощами', ['Куриное филе', 'Рис', 'Морковь']),
+      ),
+    ).toBe(false);
+    expect(sameDish(d('Омлет', ['Яйцо']), d('Яичница', ['Яйцо']))).toBe(false);
   });
 });

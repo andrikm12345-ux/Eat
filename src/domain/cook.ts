@@ -509,15 +509,55 @@ export function scoreDish(
   return s;
 }
 
-/** The same dish twice ("Омлет" and "Омлет с сыром" count once: the better one stays). */
-const dishKey = (name: string) => productKey(name);
-function sameDish(a: string, b: string): boolean {
-  const ka = dishKey(a);
-  const kb = dishKey(b);
-  if (!ka.length || !kb.length) return false;
-  if (ka.join(' ') === kb.join(' ')) return true;
-  const [short, long] = ka.length <= kb.length ? [ka, kb] : [kb, ka];
-  return short.length === 1 && long[0] === short[0];
+/** Words of a dish name that say nothing about which dish it is. */
+const GENERIC_DISH_WORDS = new Set(
+  [
+    'овощи',
+    'овощами',
+    'овощей',
+    'зелень',
+    'зеленью',
+    'соус',
+    'соусом',
+    'соусе',
+    'гарнир',
+    'гарниром',
+    'специями',
+    'по',
+    'домашний',
+  ].map(key),
+);
+const ADJECTIVE = /(?:ый|ий|ой|ая|яя|ое|ее|ые|ие|ого|его|ую|юю|ых|их|ым|им)$/u;
+
+/**
+ * What the dish IS, from its name: the words that are neither its products, nor adjectives, nor
+ * generic ("Творожные сырники с бананом" → сырник; "Плов с курицей" → плов).
+ */
+export function dishNouns(idea: DishIdea): string[] {
+  const products = new Set(idea.ingredients.flatMap((i) => productKey(i.name)));
+  const words = tokenize(idea.name).filter(
+    (w) => !/\d/.test(w) && !STOP.has(w) && !DESCRIPTORS.has(w) && w.length > 1,
+  );
+  const out: string[] = [];
+  for (const w of words) {
+    if (w.length > 3 && ADJECTIVE.test(w)) continue;
+    const k = CANON.get(key(w)) ?? key(w);
+    if (products.has(k) || GENERIC_DISH_WORDS.has(k) || out.includes(k)) continue;
+    out.push(k);
+  }
+  return out;
+}
+
+/**
+ * The same dish twice: "Омлет" and "Омлет с сыром", "Творожные сырники с бананом" and "Сырники со
+ * сметаной" are one dish (the better one stays); "Сырники" and "Запеканка" are two.
+ */
+export function sameDish(a: DishIdea, b: DishIdea): boolean {
+  const na = dishNouns(a);
+  const nb = dishNouns(b);
+  if (na.length && nb.length) return na.some((x) => nb.includes(x));
+  // A name made only of products ("Курица с рисом"): the same products make the same dish.
+  return productKey(a.name).join(' ') === productKey(b.name).join(' ');
 }
 
 /**
@@ -547,7 +587,7 @@ export function pickDishes(
   ok.sort((a, b) => b.score - a.score);
   const shown: RankedDish[] = [];
   for (const d of ok) {
-    if (shown.some((s) => sameDish(s.idea.name, d.idea.name))) {
+    if (shown.some((s) => sameDish(s.idea, d.idea))) {
       rejected.push({ name: d.idea.name, reason: 'duplicate', missing: d.missing });
       continue;
     }
