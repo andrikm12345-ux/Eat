@@ -40,6 +40,8 @@ export function validateCookIdeas(data: unknown): Valid<DishIdea[]> {
       errors.push(`${p}: нужен объект`);
       return;
     }
+    // The AI itself says it is not a real, known dish: it is not offered.
+    if (d.classic === false) return;
     const name = typeof d.name === 'string' ? d.name.trim() : '';
     if (!name) local.push(`${p}.name: нужна строка`);
     const minutes = num(d.minutes) ? Math.round(d.minutes as number) : NaN;
@@ -109,4 +111,14 @@ export function validateFridge(data: unknown): Valid<FridgeItem[]> {
     return [{ name: cleanName(x.name).slice(0, 60), grams, count }];
   });
   return { ok: true, value: items.slice(0, 40) };
+}
+
+/** Numbers (from 1) of the dish names the editor calls made up. */
+export function validateCookVerify(data: unknown): Valid<number[]> {
+  if (!isObj(data) || !Array.isArray(data.fake))
+    return { ok: false, errors: ['fake: нужен массив номеров'] };
+  return {
+    ok: true,
+    value: data.fake.filter((x): x is number => Number.isInteger(x) && x >= 1 && x <= 50),
+  };
 }

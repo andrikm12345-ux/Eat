@@ -70,13 +70,19 @@ const STEPS = {
 };
 
 /** The AI: dishes for the pantry request, steps for a recipe request. */
-function ai(ideas: unknown = IDEAS) {
+function ai(ideas: unknown = IDEAS, verify: unknown = { fake: [] }) {
   const calls: string[] = [];
   const fn = vi.fn(async (_url: string, init?: RequestInit) => {
     const body = JSON.parse(String(init?.body ?? '{}')) as { system?: string };
     const system = body.system ?? '';
-    calls.push(system.includes('по шагам') ? 'steps' : 'ideas');
-    const obj = system.includes('по шагам') ? STEPS : ideas;
+    const kind = system.includes('по шагам')
+      ? 'steps'
+      : system.includes('редактор кулинарной книги')
+        ? 'verify'
+        : 'ideas';
+    calls.push(kind);
+    if (kind === 'verify' && verify === 'fail') return new Response('{}', { status: 400 });
+    const obj = kind === 'steps' ? STEPS : kind === 'verify' ? verify : ideas;
     return new Response(
       JSON.stringify({
         content: [{ type: 'text', text: JSON.stringify(obj) }],
@@ -126,7 +132,7 @@ describe('«Что приготовить»', () => {
     const list = await screen.findByRole('region', { name: t.resultsTitle });
     // Борщ needs beef (its base) that is not at home: it is not offered, and as only two dishes
     // passed, the AI was asked once more.
-    await waitFor(() => expect(calls).toEqual(['ideas', 'ideas']));
+    await waitFor(() => expect(calls).toEqual(['ideas', 'verify', 'ideas', 'verify']));
     expect(within(list).queryByText('Борщ')).toBeNull();
     const omelet = within(list).getByRole('button', { name: /Омлет с помидорами/ });
     expect(omelet).toHaveTextContent(t.haveAll);
@@ -211,5 +217,32 @@ describe('«Что приготовить»', () => {
     await renderApp('/');
     await user.click((await screen.findAllByRole('button', { name: ru.add.fab }))[0]!);
     expect(await screen.findByRole('button', { name: ru.add.tiles.cook })).toBeVisible();
+  });
+
+  it('a dish the editor calls made up is not shown; without the check all dishes stay', async () => {
+    await setup();
+    // "Курица с рисом" (the second of the three) is called made up.
+    ai(IDEAS, { fake: [2] });
+    const user = userEvent.setup();
+    const first = await renderApp('/cook?date=2026-11-20&time=19:00');
+    await user.type(
+      await screen.findByRole('textbox', { name: t.pantryLabel }),
+      'яйца 4 шт, помидоры, курица 500 г, рис, морковь',
+    );
+    await user.click(screen.getByRole('button', { name: t.go }));
+    const list = await screen.findByRole('region', { name: t.resultsTitle });
+    expect(within(list).getByRole('button', { name: /Омлет с помидорами/ })).toBeVisible();
+    expect(within(list).queryByRole('button', { name: /Курица с рисом/ })).toBeNull();
+
+    first.unmount();
+    useCook.setState({ result: null, dish: null, steps: {} });
+    ai(IDEAS, 'fail');
+    await renderApp('/cook?date=2026-11-20&time=19:00', { seed: false });
+    const field = await screen.findByRole('textbox', { name: t.pantryLabel });
+    await user.clear(field);
+    await user.type(field, 'яйца 4 шт, помидоры, курица 500 г, рис, морковь');
+    await user.click(screen.getByRole('button', { name: t.go }));
+    const again = await screen.findByRole('region', { name: t.resultsTitle });
+    expect(within(again).getByRole('button', { name: /Курица с рисом/ })).toBeVisible();
   });
 });

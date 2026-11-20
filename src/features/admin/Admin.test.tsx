@@ -246,6 +246,8 @@ describe('administrator view', () => {
     expect(await screen.findByText('продукты s-today1')).toBeVisible();
     const buttons = screen.getAllByRole('button', { name: ru.admin.cookDeleteDay });
     expect(buttons).toHaveLength(2); // one per day
+    // And one on every search, so a single one can be removed too.
+    expect(screen.getAllByRole('button', { name: /^Удалить подборку/ })).toHaveLength(3);
     // Declining the question deletes nothing.
     await user.click(buttons[0]!);
     expect(posts).toHaveLength(0);
@@ -255,9 +257,14 @@ describe('administrator view', () => {
     await waitFor(() => expect(screen.queryByText('продукты s-today1')).toBeNull());
     expect(posts).toEqual([{ id: 'aaaaaaaaaaaaaaaa', hide: ['s-today1', 's-today2'] }]);
     expect(screen.getByText('продукты s-old001')).toBeVisible();
+    // A single search: its own button.
+    await user.click(screen.getByRole('button', { name: /^Удалить подборку/ }));
+    expect(confirm).toHaveBeenLastCalledWith(ru.admin.cookDeleteConfirm);
+    await waitFor(() => expect(screen.queryByText('продукты s-old001')).toBeNull());
+    expect(posts[1]).toEqual({ id: 'aaaaaaaaaaaaaaaa', hide: ['s-old001'] });
     // Undo from the message.
-    await user.click(await screen.findByRole('button', { name: ru.common.undo }));
-    expect(await screen.findByText('продукты s-today1')).toBeVisible();
-    expect(posts[1]).toEqual({ id: 'aaaaaaaaaaaaaaaa', unhide: ['s-today1', 's-today2'] });
+    await user.click((await screen.findAllByRole('button', { name: ru.common.undo })).at(-1)!);
+    expect(await screen.findByText('продукты s-old001')).toBeVisible();
+    expect(posts[2]).toEqual({ id: 'aaaaaaaaaaaaaaaa', unhide: ['s-old001'] });
   });
 });

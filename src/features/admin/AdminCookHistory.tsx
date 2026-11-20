@@ -25,8 +25,8 @@ const dayOf = (iso: string) => {
 };
 
 /**
- * What the person wrote into «Что приготовить» and what the AI gave back, by day. «Удалить за
- * день» removes that day from the administrator's view only: the person's own data stays.
+ * What the person wrote into «Что приготовить» and what the AI gave back, by day. «Удалить» (a search
+ * or the whole day) removes it from the administrator's view only: the person's data stays.
  */
 export function AdminCookHistory({
   history,
@@ -64,6 +64,13 @@ export function AdminCookHistory({
               <div key={h.id} className={styles.meal}>
                 <div className={styles.mealHead}>
                   <span>{new Date(h.at).toLocaleString('ru-RU')}</span>
+                  <Button
+                    variant="text"
+                    aria-label={t.cookDelete(new Date(h.at).toLocaleString('ru-RU'))}
+                    onClick={() => hide([h.id], t.cookDeleteConfirm)}
+                  >
+                    {t.cookDeleteDay}
+                  </Button>
                 </div>
                 <span className={styles.sub}>
                   <strong>{t.cookPantry}:</strong> {h.pantry}

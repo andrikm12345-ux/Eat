@@ -1,7 +1,13 @@
-import { PROMPT_COOK_IDEAS, PROMPT_COOK_STEPS, PROMPT_FRIDGE } from '../ai/cookPrompts';
+import {
+  PROMPT_COOK_IDEAS,
+  PROMPT_COOK_STEPS,
+  PROMPT_COOK_VERIFY,
+  PROMPT_FRIDGE,
+} from '../ai/cookPrompts';
 import {
   validateCookIdeas,
   validateCookSteps,
+  validateCookVerify,
   validateFridge,
   type CookSteps,
   type FridgeItem,
@@ -125,6 +131,28 @@ export function resolveIngredient(
 export const perServing = (resolved: readonly ResolvedIngredient[]): Nutrients =>
   dishTotals(resolved, 1);
 
+/**
+ * A second, short question to the AI: which of these names are made up ("Яйцо в соевом соусе",
+ * "Кефир с сахаром")? A proposal that sounds like a dish but is not one cannot be recognised by
+ * the app itself. If the question fails, all dishes stay (a missing check must not hide them).
+ */
+export async function withoutMadeUp(r: Repos, ideas: DishIdea[]): Promise<DishIdea[]> {
+  if (ideas.length === 0) return ideas;
+  try {
+    const { value } = await runAi(r, {
+      kind: 'cook',
+      vision: false,
+      system: PROMPT_COOK_VERIFY,
+      content: [{ type: 'text', text: ideas.map((d, i) => `${i + 1}. ${d.name}`).join('\n') }],
+      validate: validateCookVerify,
+    });
+    const fake = new Set(value);
+    return ideas.filter((_, i) => !fake.has(i + 1));
+  } catch {
+    return ideas;
+  }
+}
+
 /** Asks the AI for dishes, checks them against the pantry and ranks them. */
 export async function suggestDishes(r: Repos, req: CookRequest): Promise<CookResult> {
   const index = buildIndex(await r.foods.list());
@@ -147,7 +175,7 @@ export async function suggestDishes(r: Repos, req: CookRequest): Promise<CookRes
       validate: validateCookIdeas,
       jobId: jobIdFor(`cook:${text}`),
     });
-    return value;
+    return withoutMadeUp(r, value);
   };
   let ideas = await ask([]);
   let picked = pickDishes(ideas, req.pantry, req, req.left, (i) => perServing(resolve(i)));
