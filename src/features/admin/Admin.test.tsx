@@ -1,4 +1,5 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
@@ -192,5 +193,71 @@ describe('administrator view', () => {
     );
     await renderApp('/admin');
     expect(await screen.findByText(ru.admin.cookCount(4))).toBeVisible();
+  });
+
+  it('«Удалить» removes a day of «Что приготовить» (asks first) and can be undone', async () => {
+    await signIn(true);
+    const entry = (id: string, at: string) => ({
+      id,
+      at,
+      pantry: `продукты ${id}`,
+      conditions: {
+        basics: true,
+        noBuy: false,
+        maxMinutes: null,
+        meal: 'any',
+        servings: 1,
+        wishes: '',
+      },
+      dishes: [],
+      rejected: 0,
+      recipes: [],
+    });
+    let hidden: string[] = [];
+    const posts: unknown[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_url: string, init?: RequestInit) => {
+        if (init?.method === 'POST') {
+          const body = JSON.parse(String(init.body)) as { hide?: string[]; unhide?: string[] };
+          posts.push(body);
+          hidden = [...hidden.filter((x) => !body.unhide?.includes(x)), ...(body.hide ?? [])];
+          return Response.json({ hidden: hidden.length });
+        }
+        return Response.json({
+          login: 'ivan',
+          exportedAt: null,
+          profile: null,
+          goals: [],
+          entries: [],
+          weights: [],
+          dayMeta: [],
+          cook: [
+            entry('s-today1', '2026-11-20T10:00:00.000Z'),
+            entry('s-today2', '2026-11-20T11:00:00.000Z'),
+            entry('s-old001', '2026-11-18T10:00:00.000Z'),
+          ].filter((e) => !hidden.includes(e.id)),
+        });
+      }),
+    );
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValue(true);
+    const user = userEvent.setup();
+    await renderApp('/admin/aaaaaaaaaaaaaaaa');
+    expect(await screen.findByText('продукты s-today1')).toBeVisible();
+    const buttons = screen.getAllByRole('button', { name: ru.admin.cookDeleteDay });
+    expect(buttons).toHaveLength(2); // one per day
+    // Declining the question deletes nothing.
+    await user.click(buttons[0]!);
+    expect(posts).toHaveLength(0);
+    // The newest day first; it has two searches.
+    await user.click(screen.getAllByRole('button', { name: ru.admin.cookDeleteDay })[0]!);
+    expect(confirm).toHaveBeenLastCalledWith(ru.admin.cookDeleteDayConfirm(2));
+    await waitFor(() => expect(screen.queryByText('продукты s-today1')).toBeNull());
+    expect(posts).toEqual([{ id: 'aaaaaaaaaaaaaaaa', hide: ['s-today1', 's-today2'] }]);
+    expect(screen.getByText('продукты s-old001')).toBeVisible();
+    // Undo from the message.
+    await user.click(await screen.findByRole('button', { name: ru.common.undo }));
+    expect(await screen.findByText('продукты s-today1')).toBeVisible();
+    expect(posts[1]).toEqual({ id: 'aaaaaaaaaaaaaaaa', unhide: ['s-today1', 's-today2'] });
   });
 });

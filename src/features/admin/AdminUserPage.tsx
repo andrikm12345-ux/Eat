@@ -6,8 +6,10 @@ import { formatGrams, formatKcal, formatKg } from '../../domain/format';
 import { goalFor } from '../../domain/goals';
 import { sumNutrients } from '../../domain/nutrients';
 import { ru } from '../../i18n/ru';
-import { loadAdminDiary, type AdminDiary } from '../../services/adminView';
+import { hideCookSearches, loadAdminDiary, type AdminDiary } from '../../services/adminView';
+import { toast } from '../../state/ui';
 import { BackBar } from '../../ui/BackBar';
+import { ToastHost } from '../../ui/ToastHost';
 import { IconBack, IconChevron } from '../../ui/icons';
 import { Card, Notice, Stat } from '../../ui/kit';
 import { Loading } from '../../ui/states';
@@ -41,6 +43,27 @@ export default function AdminUserPage() {
     };
   }, [id]);
 
+  /** Hides searches in this view (the person keeps them) and offers to bring them back. */
+  async function hideCook(ids: string[]) {
+    if (!(await hideCookSearches(repos, id, { hide: ids }))) {
+      toast({ text: t.cookDeleteFail });
+      return;
+    }
+    const r = await loadAdminDiary(repos, id);
+    if (r.ok) setDiary(r.data);
+    toast({
+      text: t.cookDeleted(ids.length),
+      action: {
+        label: ru.common.undo,
+        run: async () => {
+          await hideCookSearches(repos, id, { unhide: ids });
+          const back = await loadAdminDiary(repos, id);
+          if (back.ok) setDiary(back.data);
+        },
+      },
+    });
+  }
+
   const view = useMemo(() => {
     if (!diary) return null;
     const dayEntries = diary.entries
@@ -66,6 +89,7 @@ export default function AdminUserPage() {
   return (
     <div className={wizard.wrap}>
       <BackBar title={diary?.login ?? t.unknownLogin} bleed />
+      <ToastHost />
       <h1 className={wizard.srTitle}>{diary?.login ?? t.unknownLogin}</h1>
       <div className={wizard.body}>
         {error && <Notice>{error}</Notice>}
@@ -175,7 +199,7 @@ export default function AdminUserPage() {
                 </div>
               ))}
             </Card>
-            <AdminCookHistory history={diary.cook ?? []} />
+            <AdminCookHistory history={diary.cook ?? []} onHide={(ids) => void hideCook(ids)} />
             <p className={styles.muted}>{t.readOnly}</p>
           </>
         )}

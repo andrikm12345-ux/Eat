@@ -4,6 +4,7 @@ import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
 import { loadAdminUsers, removeTestUsers, type AdminUser } from '../../services/adminView';
 import { BackBar } from '../../ui/BackBar';
+import { ToastHost } from '../../ui/ToastHost';
 import { IconChevron } from '../../ui/icons';
 import { Button, Notice } from '../../ui/kit';
 import { toast } from '../../state/ui';
@@ -41,6 +42,7 @@ export default function AdminUsersPage() {
   return (
     <div className={wizard.wrap}>
       <BackBar title={t.title} bleed />
+      <ToastHost />
       <h1 className={wizard.srTitle}>{t.title}</h1>
       <div className={wizard.body}>
         {error && <Notice>{error}</Notice>}

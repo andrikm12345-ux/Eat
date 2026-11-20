@@ -69,3 +69,23 @@ export async function removeTestUsers(r: Repos): Promise<number | null> {
     return null;
   }
 }
+
+/** Administrator: hides «Что приготовить» searches of an account in this view (or brings them back). */
+export async function hideCookSearches(
+  r: Repos,
+  id: string,
+  change: { hide?: string[]; unhide?: string[] },
+): Promise<boolean> {
+  const session = await getSession(r);
+  if (!session) return false;
+  try {
+    const res = await fetch('/api/admin', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${session.token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ id, ...change }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

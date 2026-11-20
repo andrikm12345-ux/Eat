@@ -8,6 +8,7 @@ import {
   productKey,
   rejectReason,
   amountText,
+  legacyIngredientLine,
   withPieces,
   sameDish,
   type CookFilters,
@@ -296,5 +297,16 @@ describe('eggs in pieces', () => {
     const omelet = dish('Омлет', [withPieces(ing('Яйцо куриное', 110))]);
     expect(checkDish(omelet, pantry, F).short).toEqual([]);
     expect(checkDish(omelet, pantry, { ...F, servings: 2 }).short).toEqual(['Яйцо куриное']);
+  });
+});
+
+describe('old history lines', () => {
+  it('eggs saved in grams are shown in pieces, the rest is untouched', () => {
+    const t = (l: string) => legacyIngredientLine(l).replaceAll('\u00a0', ' ');
+    expect(t('Яйцо куриное 220 г')).toBe('Яйцо куриное 4 шт (220 г)');
+    expect(t('Яйца 110\u00a0г')).toBe('Яйца 2 шт (110 г)');
+    expect(t('Яйцо куриное 2 шт (110 г)')).toBe('Яйцо куриное 2 шт (110 г)');
+    expect(t('Куриное филе 200 г')).toBe('Куриное филе 200 г');
+    expect(t('Соль')).toBe('Соль');
   });
 });

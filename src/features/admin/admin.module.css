@@ -121,3 +121,17 @@
   font-size: var(--fs-6);
   line-height: 1.45;
 }
+.cookDay {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0 var(--sp-1);
+}
+/* "20 ноября, пятница": only the first letter is a capital. */
+.cookDay strong {
+  display: block;
+}
+.cookDay strong::first-letter {
+  text-transform: uppercase;
+}

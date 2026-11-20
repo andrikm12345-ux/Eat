@@ -19,9 +19,19 @@ const alive = (rows: Row[] | undefined) => (rows ?? []).filter((r) => !r.deleted
 
 /** «Что приготовить» history the app keeps in its settings (src/services/cookHistory.ts). */
 const COOK_HISTORY = 'cookHistory';
-function cookHistory(snap: Snapshot | null): unknown[] {
+/** Searches the administrator removed from HIS view (the person's own data is not touched). */
+const hiddenPath = (uid: string) => `admin/cook-hidden/${uid}.json`;
+const HIDE_ID = /^[\w-]{4,40}$/;
+
+async function readHidden(d: Deps, uid: string): Promise<string[]> {
+  const v = parse<{ ids?: unknown }>(await d.store.get(hiddenPath(uid)));
+  return Array.isArray(v?.ids) ? v.ids.filter((x): x is string => typeof x === 'string') : [];
+}
+
+function cookHistory(snap: Snapshot | null, hidden: readonly string[] = []): unknown[] {
   const row = alive(snap?.tables?.settings).find((r) => r.key === COOK_HISTORY);
-  return Array.isArray(row?.value) ? (row.value as unknown[]) : [];
+  const all = Array.isArray(row?.value) ? (row.value as { id?: unknown }[]) : [];
+  return all.filter((h) => !(typeof h?.id === 'string' && hidden.includes(h.id)));
 }
 
 /**
@@ -57,7 +67,7 @@ export async function adminUsers(d: Deps, req: Request): Promise<Response> {
       entries: alive(t.entries),
       weights: alive(t.weights),
       dayMeta: alive(t.dayMeta),
-      cook: cookHistory(snap),
+      cook: cookHistory(snap, await readHidden(d, id)),
     });
   }
 
@@ -75,7 +85,7 @@ export async function adminUsers(d: Deps, req: Request): Promise<Response> {
         lastLogin: Math.max(meta.lastLogin ?? 0, meta.lastSeen ?? 0) || null,
         lastSync: snap?.exportedAt ?? null,
         entries: alive(snap?.tables?.entries).length,
-        cookSearches: cookHistory(snap).length,
+        cookSearches: cookHistory(snap, await readHidden(d, uid)).length,
         me: uid === s.userId,
       };
     }),
@@ -117,4 +127,32 @@ export async function adminRemoveTestUsers(d: Deps, req: Request): Promise<Respo
     removed++;
   }
   return json({ removed });
+}
+
+/**
+ * POST (administrator only) {id, hide?: [searchId], unhide?: [searchId]} → hides «Что приготовить»
+ * searches of that account in the administrator's view, or brings them back. The account's own
+ * data and the diary are not touched, so a hidden search does not come back with the next sync.
+ */
+export async function adminCookHide(d: Deps, req: Request): Promise<Response> {
+  const s = await session(d, req);
+  if (!s) return json({ error: 'unauthorized' }, 401);
+  if (!s.admin) return json({ error: 'forbidden' }, 403);
+  let body: { id?: unknown; hide?: unknown; unhide?: unknown };
+  try {
+    body = (await req.json()) as typeof body;
+  } catch {
+    return json({ error: 'bad_request' }, 400);
+  }
+  if (typeof body.id !== 'string' || !/^[0-9a-f]{8,64}$/.test(body.id))
+    return json({ error: 'bad_id' }, 400);
+  const ids = (v: unknown) =>
+    Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && HIDE_ID.test(x)) : [];
+  const hide = ids(body.hide).slice(0, 200);
+  const unhide = new Set(ids(body.unhide).slice(0, 200));
+  const next = [...new Set([...(await readHidden(d, body.id)), ...hide])]
+    .filter((x) => !unhide.has(x))
+    .slice(-2000);
+  await d.store.put(hiddenPath(body.id), JSON.stringify({ ids: next }));
+  return json({ hidden: next.length });
 }

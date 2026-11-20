@@ -636,6 +636,21 @@ export function amountText(
   return ing.pieces ? `${num1(ing.pieces * servings)}\u00a0шт (${grams})` : grams;
 }
 
+/**
+ * An ingredient line saved before eggs were counted in pieces ("Яйцо куриное 220 г") shown the
+ * new way ("Яйцо куриное 4 шт (220 г)"). Any other line is returned as it is.
+ */
+export function legacyIngredientLine(line: string): string {
+  const m = /^(.*?)\s+(\d+(?:[.,]\d+)?)[\s\u00a0]г$/u.exec(line);
+  if (!m) return line;
+  const grams = Number((m[2] as string).replace(',', '.'));
+  const egg: { name: string; grams: number; pieces?: number; pieceGrams?: number } = withPieces({
+    name: m[1] as string,
+    grams,
+  });
+  return egg.pieces ? `${m[1]} ${amountText(egg)}` : line;
+}
+
 /** Totals of a dish for `servings` servings from per-100 g values of its ingredients. */
 export function dishTotals(
   ingredients: readonly { grams: number; per100g: Nutrients }[],

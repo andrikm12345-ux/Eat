@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adminRemoveTestUsers, adminUsers } from './admin.js';
+import { adminCookHide, adminRemoveTestUsers, adminUsers } from './admin.js';
 import { getSync, login, putSync, register } from './handlers.js';
 import { parseUserLabels } from './deps.js';
 import { userIdFor } from './auth.js';
@@ -238,5 +238,73 @@ describe('«Что приготовить» in the administrator view', () => {
     };
     expect(list.users.find((u) => u.login === 'ivan')?.cookSearches).toBe(1);
     expect(list.users.find((u) => u.login === 'blackjack')?.cookSearches).toBe(0);
+  });
+});
+
+describe('deleting «Что приготовить» days in the administrator view', () => {
+  const h = (id: string) => ({ id, at: '2026-11-20T10:00:00.000Z', pantry: id, dishes: [] });
+  const send = (d: Deps, token: string, body: unknown) =>
+    adminCookHide(
+      d,
+      new Request('http://x/api/admin', {
+        method: 'POST',
+        headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      }),
+    );
+  const upload = (d: Deps, token: string, history: unknown[]) =>
+    putSync(
+      d,
+      new Request('http://x', {
+        method: 'PUT',
+        headers: { authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          format: 'dnevnik-backup',
+          tables: { settings: [{ key: 'cookHistory', value: history }] },
+        }),
+      }),
+    );
+
+  it('removes searches from the administrator view only; they stay gone after the person syncs again', async () => {
+    const d = setup();
+    const admin = await signUp(d, 'blackjack');
+    const user = await signUp(d, 'ivan');
+    await upload(d, user, [h('s-aaaa'), h('s-bbbb'), h('s-cccc')]);
+    const id = userIdFor(SECRET, 'ivan');
+    const view = async () =>
+      (
+        (await (await adminUsers(d, get(admin, `?id=${id}`))).json()) as { cook: { id: string }[] }
+      ).cook.map((x) => x.id);
+    expect(await view()).toEqual(['s-aaaa', 's-bbbb', 's-cccc']);
+
+    expect((await send(d, user, { id, hide: ['s-aaaa'] })).status).toBe(403);
+    expect((await send(d, admin, { id: 'zz', hide: ['s-aaaa'] })).status).toBe(400);
+    expect(await (await send(d, admin, { id, hide: ['s-aaaa', 's-bbbb', '../x'] })).json()).toEqual(
+      {
+        hidden: 2,
+      },
+    );
+    expect(await view()).toEqual(['s-cccc']);
+    // The person's phone sends its whole history again: the removed days do not come back.
+    await upload(d, user, [h('s-aaaa'), h('s-bbbb'), h('s-cccc'), h('s-dddd')]);
+    expect(await view()).toEqual(['s-cccc', 's-dddd']);
+    // The person's own data is intact.
+    const own = (await (
+      await getSync(d, new Request('http://x', { headers: { authorization: `Bearer ${user}` } }))
+    ).json()) as {
+      tables: { settings: { value: unknown[] }[] };
+    };
+    expect(own.tables.settings[0]!.value).toHaveLength(4);
+    // The count in the list follows the view; "undo" brings them back.
+    const count = async () =>
+      (
+        (await (await adminUsers(d, get(admin))).json()) as {
+          users: { login: string; cookSearches: number }[];
+        }
+      ).users.find((u) => u.login === 'ivan')!.cookSearches;
+    expect(await count()).toBe(2);
+    await send(d, admin, { id, unhide: ['s-aaaa'] });
+    expect(await view()).toEqual(['s-aaaa', 's-cccc', 's-dddd']);
+    expect(await count()).toBe(3);
   });
 });
