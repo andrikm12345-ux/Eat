@@ -303,7 +303,6 @@ export default function AccountPage() {
               {error && <Notice>{error}</Notice>}
               {info && <Notice tone="info">{info}</Notice>}
               {mode === 'signUp' && <p>{t.noReset}</p>}
-              {mode === 'signUp' && <p>{t.adminSees}</p>}
               <Button
                 block
                 type="submit"
