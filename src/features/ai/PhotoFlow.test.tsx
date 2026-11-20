@@ -161,4 +161,20 @@ describe('combined photo screen (flag on)', () => {
     await user.click(screen.getByRole('button', { name: ru.ai.photo.go }));
     expect(await screen.findByText(/Ключ API не принят/)).toBeVisible();
   });
+
+  it('a tap on a thumbnail opens the photo; the cross in its corner removes it', async () => {
+    await setup();
+    const user = userEvent.setup();
+    await renderApp('/add/ai-photo?date=2026-03-01&time=13:00');
+    await user.upload(await screen.findByTestId('photo-input'), [
+      new File(['a'], 'a.jpg', { type: 'image/jpeg' }),
+      new File(['b'], 'b.jpg', { type: 'image/jpeg' }),
+    ]);
+    await user.click(screen.getByRole('button', { name: `${ru.ai.photo.open} 1` }));
+    expect(await screen.findByText(ru.ai.photo.viewTitle(1, 2))).toBeVisible();
+    // Opening removes nothing.
+    expect(screen.getAllByRole('button', { name: /^Открыть фото/ })).toHaveLength(2);
+    await user.click(screen.getByRole('button', { name: `${ru.ai.photo.remove} 2` }));
+    expect(screen.getAllByRole('button', { name: /^Открыть фото/ })).toHaveLength(1);
+  });
 });

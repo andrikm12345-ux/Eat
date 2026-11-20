@@ -939,6 +939,8 @@ export const ru = {
       takeOff: 'Взять значения из Open Food Facts',
       productSaved: 'Продукт сохранён в «Мои продукты»',
       remove: 'Убрать фото',
+      open: 'Открыть фото',
+      viewTitle: (n: number, of: number) => `Фото ${n} из ${of}`,
       note: 'Уточнение (необязательно)',
       notePlaceholder: 'Например: без масла, половину не доел',
       go: 'Распознать',
