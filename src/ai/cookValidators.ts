@@ -26,7 +26,7 @@ function ingredient(v: unknown, path: string, errors: string[]): DishIngredient 
 
 /**
  * Dishes proposed for the pantry. A broken dish is left out (the others are still useful); the
- * answer fails only when no dish is usable, so the AI is asked once more.
+ * answer fails only when dishes came but none of them is usable, so the AI is asked once more.
  */
 export function validateCookIdeas(data: unknown): Valid<DishIdea[]> {
   if (!isObj(data) || !Array.isArray(data.dishes))
@@ -69,9 +69,9 @@ export function validateCookIdeas(data: unknown): Valid<DishIdea[]> {
       ingredients,
     });
   });
-  return out.length
-    ? { ok: true, value: out }
-    : { ok: false, errors: errors.length ? errors : ['dishes: пусто'] };
+  // "Nothing real can be cooked from this" is an answer too (an empty list, or every dish marked
+  // as not real): it is not a broken format. Only dishes that were broken make the answer fail.
+  return out.length || errors.length === 0 ? { ok: true, value: out } : { ok: false, errors };
 }
 
 export type CookSteps = { steps: { text: string; minutes: number }[]; tip: string };

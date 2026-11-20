@@ -245,4 +245,24 @@ describe('«Что приготовить»', () => {
     const again = await screen.findByRole('region', { name: t.resultsTitle });
     expect(within(again).getByRole('button', { name: /Курица с рисом/ })).toBeVisible();
   });
+
+  it('"no real dish from this" is an answer, not an error; an old list does not stay under a new search', async () => {
+    await setup();
+    ai(IDEAS);
+    const user = userEvent.setup();
+    await renderApp('/cook?date=2026-11-20&time=19:00');
+    await user.type(
+      await screen.findByRole('textbox', { name: t.pantryLabel }),
+      'яйца 4 шт, помидоры, курица 500 г, рис, морковь',
+    );
+    await user.click(screen.getByRole('button', { name: t.go }));
+    expect(await screen.findByRole('region', { name: t.resultsTitle })).toBeVisible();
+
+    // Now the AI says there is nothing real to cook (an empty list).
+    ai({ dishes: [] });
+    await user.click(screen.getByRole('button', { name: t.go }));
+    expect(await screen.findByText(t.nothing)).toBeVisible();
+    expect(screen.queryByText(ru.ai.error('ИИ вернул данные в неверном формате'))).toBeNull();
+    expect(screen.queryByRole('button', { name: /Омлет с помидорами/ })).toBeNull();
+  });
 });

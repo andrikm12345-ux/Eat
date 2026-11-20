@@ -177,6 +177,8 @@ function CookInner() {
     if (!form || pantry.length === 0) return;
     setBusy(true);
     setError(null);
+    // The old list must not stay under a new search (or under its error).
+    setResult(null);
     try {
       const res = await suggestDishes(repos, {
         pantry,
