@@ -52,6 +52,9 @@
 .t-recipe {
   background: var(--tone-weight);
 }
+.t-cook {
+  background: var(--tone-activity);
+}
 .tile {
   animation: rise 0.35s var(--ease-out) both;
 }

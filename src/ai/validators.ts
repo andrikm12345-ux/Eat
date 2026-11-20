@@ -6,8 +6,9 @@ import type { Confidence } from '../domain/types';
 export type Valid<T> = { ok: true; value: T } | { ok: false; errors: string[] };
 
 type Obj = Record<string, unknown>;
-const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
-const num = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+export const isObj = (v: unknown): v is Obj =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
+export const num = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
 const CONF: Confidence[] = ['high', 'medium', 'low'];
 
 export type MealItem = {
@@ -29,7 +30,7 @@ export type MealItem = {
 };
 export type MealResult = { items: MealItem[]; mealGuess: string | null; notes: string };
 
-function per100(
+export function per100(
   v: unknown,
   path: string,
   errors: string[],
@@ -54,7 +55,7 @@ function per100(
 }
 
 /** Pieces are a convenience: broken values are dropped instead of failing the whole answer. */
-function pieceInfo(it: Record<string, unknown>): { pieces?: number; pieceGrams?: number } {
+export function pieceInfo(it: Record<string, unknown>): { pieces?: number; pieceGrams?: number } {
   const n = it.pieces;
   const g = it.pieceGrams;
   if (typeof n !== 'number' || typeof g !== 'number') return {};

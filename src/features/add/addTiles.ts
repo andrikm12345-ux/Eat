@@ -6,6 +6,7 @@ import {
   IconBook,
   IconCamera,
   IconCopy,
+  IconPot,
   IconRepeat,
   IconSearch,
   IconText,
@@ -32,6 +33,7 @@ export const ADD_TILES = [
   { key: 'repeat', path: '/add/repeat', Icon: IconRepeat },
   { key: 'template', path: '/add/template', Icon: IconCopy },
   { key: 'recipe', path: '/add/recipe', Icon: IconBook },
+  { key: 'cook', path: '/cook', manual: '/recipes', Icon: IconPot },
 ] as const satisfies readonly {
   key: string;
   path: string | null;

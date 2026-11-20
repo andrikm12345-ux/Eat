@@ -9,6 +9,7 @@ import {
   IconDatabase,
   IconDownload,
   IconInfo,
+  IconPot,
   IconPulse,
   IconSpark,
   IconTag,
@@ -31,6 +32,7 @@ export const MORE_GROUPS: { title: string; items: MenuItem[] }[] = [
     items: [
       { key: 'foods', to: '/foods', Icon: IconTag, tone: 'sun' },
       { key: 'recipes', to: '/recipes', Icon: IconBook, tone: 'mint' },
+      { key: 'cook', to: '/cook', Icon: IconPot, tone: 'activity' },
       { key: 'templates', to: '/templates', Icon: IconCopy, tone: 'rose' },
     ],
   },

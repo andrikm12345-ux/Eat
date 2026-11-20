@@ -95,6 +95,8 @@ export const routes: RouteObject[] = [
       { path: 'data/csv', lazy: lazyPage(() => import('./features/data/CsvImportPage')) },
       { path: 'add/ai-text', lazy: lazyPage(() => import('./features/ai/AiTextPage')) },
       { path: 'add/ai-photo', lazy: lazyPage(() => import('./features/ai/AiPhotoPage')) },
+      { path: 'cook', lazy: lazyPage(() => import('./features/cook/CookPage')) },
+      { path: 'cook/dish', lazy: lazyPage(() => import('./features/cook/CookDishPage')) },
       { path: 'more/ai', lazy: lazyPage(() => import('./features/ai/AiSettingsPage')) },
       {
         path: 'more/achievements',

@@ -8,7 +8,8 @@ import { habitsFrom, topUps, type TopUp } from '../../domain/topUp';
 import type { Goal, Nutrients } from '../../domain/types';
 import { ru } from '../../i18n/ru';
 import { reviewKey, useReview } from '../../state/review';
-import { Button, Card } from '../../ui/kit';
+import { Button, Card, LinkButton } from '../../ui/kit';
+import { addQs } from '../add/addTarget';
 import styles from './today.module.css';
 
 const t = ru.today.topUp;
@@ -92,6 +93,9 @@ export function TopUpCard({
           <p className={styles.topUpHint}>{t.hint}</p>
         </>
       )}
+      <LinkButton to={`/cook${addQs(today)}`} variant="text">
+        {ru.cook.fromTopUp}
+      </LinkButton>
     </Card>
   );
 }

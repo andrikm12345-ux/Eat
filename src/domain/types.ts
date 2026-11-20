@@ -209,7 +209,7 @@ export type Achievement = BaseRecord & { id: string; unlockedAt: IsoDateTime; pr
 
 export type AiRun = BaseRecord & {
   id: string;
-  kind: 'photo' | 'text' | 'label' | 'weekly';
+  kind: 'photo' | 'text' | 'label' | 'weekly' | 'cook';
   model: string;
   /** Never contains the API key. */
   request: object;

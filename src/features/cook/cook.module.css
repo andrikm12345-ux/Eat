@@ -1,0 +1,304 @@
+/* «Что приготовить»: the pantry, the list of dishes and one recipe. */
+.pantry {
+  min-height: 110px;
+  padding: var(--sp-3);
+  resize: vertical;
+  font: inherit;
+}
+.hint {
+  color: var(--text-muted);
+  font-size: var(--fs-6);
+  margin: var(--sp-2) 0;
+}
+.muted {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.label {
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+  margin: var(--sp-3) 0 var(--sp-1);
+}
+
+/* Parsed products */
+.chips {
+  list-style: none;
+  margin: var(--sp-2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 4px 4px var(--sp-3);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: var(--field-shadow);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
+}
+.chipX {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.chipX:active {
+  background: var(--surface-2);
+}
+
+/* Photo of the fridge */
+.photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: var(--tap);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--field-shadow);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+}
+.photo input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.photoBusy {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* Results */
+.results {
+  margin-top: var(--sp-4);
+}
+.resultsTitle {
+  font-size: var(--fs-4);
+  margin: 0 0 var(--sp-2);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.dish {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: var(--sp-3) var(--sp-4);
+  border: none;
+  border-radius: var(--radius);
+  background: var(--tone-food, var(--surface));
+  box-shadow: var(--shadow-card);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  animation: rise 0.35s var(--ease-out) both;
+}
+.dish:active {
+  transform: scale(0.98);
+}
+.dishName {
+  font-size: var(--fs-4);
+  font-weight: 800;
+  line-height: 1.2;
+}
+.meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: var(--fs-6);
+  margin: 0;
+}
+.nutr {
+  font-size: var(--fs-5);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  margin: var(--sp-1) 0;
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.badge {
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
+}
+.ok,
+.fit {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.warn {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+.over {
+  background: var(--over-soft);
+  color: var(--over-text);
+}
+
+/* Recipe */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+  font-weight: var(--fw-semibold);
+}
+.stepper button {
+  width: var(--tap);
+  height: var(--tap);
+  border: none;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--field-shadow);
+  color: var(--text);
+  font-size: var(--fs-3);
+  cursor: pointer;
+}
+.stepper button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.ings {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ing {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) 0;
+}
+.ing + .ing {
+  border-top: 1px solid var(--border);
+}
+.dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.sHave {
+  background: var(--success);
+}
+.sBasic {
+  background: color-mix(in srgb, var(--success) 45%, transparent);
+}
+.sShort {
+  background: var(--over);
+}
+.sMissing {
+  background: var(--danger);
+}
+.sOptional {
+  background: var(--border-strong);
+}
+.ingName {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-weight: var(--fw-semibold);
+}
+.ingSub {
+  color: var(--text-muted);
+  font-size: var(--fs-6);
+  font-weight: 400;
+}
+.ingAmount {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-5);
+  text-align: right;
+}
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.step {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+}
+.stepNo {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--btn-main, var(--accent));
+  color: var(--btn-main-ink, var(--text));
+  font-weight: 800;
+  font-size: var(--fs-6);
+}
+.stepText {
+  flex: 1;
+  line-height: 1.45;
+}
+.stepTime {
+  display: inline-block;
+  margin-left: var(--sp-2);
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+.tip {
+  margin: var(--sp-3) 0 0;
+  padding: var(--sp-3);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+.back {
+  align-self: center;
+  padding: var(--sp-2);
+  color: var(--link, var(--text-muted));
+  font-weight: var(--fw-semibold);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dish {
+    animation: none;
+  }
+}
