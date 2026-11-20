@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { parsePantry, pantryText } from '../../domain/cook';
+import { mealForTime, parsePantry, pantryText } from '../../domain/cook';
 import { dayTotals } from '../../domain/day';
 import { formatGrams, formatKcal } from '../../domain/format';
 import { exerciseBonus } from '../../domain/met';
@@ -131,12 +131,13 @@ function CookInner() {
   useEffect(() => {
     let alive = true;
     void repos.settings.get<CookForm>(COOK_FORM_SETTING, DEFAULT_COOK_FORM).then((f) => {
-      if (alive) setForm({ ...DEFAULT_COOK_FORM, ...f });
+      // The meal follows the time of day each time the screen opens (a change by hand stays).
+      if (alive) setForm({ ...DEFAULT_COOK_FORM, ...f, meal: mealForTime(target.time) });
     });
     return () => {
       alive = false;
     };
-  }, []);
+  }, [target.time]);
   useEffect(() => {
     if (!form) return;
     const id = setTimeout(() => void repos.settings.set(COOK_FORM_SETTING, form), 400);

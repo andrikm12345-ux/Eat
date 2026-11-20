@@ -606,6 +606,15 @@ export function pickDishes(
   return { shown, rejected };
 }
 
+/**
+ * The meal to suggest dishes for at a time of day ("HH:MM"): breakfast from 5 to 11, lunch until 16,
+ * dinner until 22, the rest of the night only a snack.
+ */
+export function mealForTime(time: string): 'breakfast' | 'lunch' | 'dinner' | 'snack' {
+  const [h = 12] = time.split(':').map(Number);
+  return h < 5 ? 'snack' : h < 11 ? 'breakfast' : h < 16 ? 'lunch' : h < 22 ? 'dinner' : 'snack';
+}
+
 /** Weight of one egg: a hen's egg without the shell, a quail's. */
 const EGG_GRAMS = 55;
 const QUAIL_EGG_GRAMS = 12;

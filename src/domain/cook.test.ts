@@ -9,6 +9,7 @@ import {
   rejectReason,
   amountText,
   legacyIngredientLine,
+  mealForTime,
   withPieces,
   sameDish,
   type CookFilters,
@@ -308,5 +309,16 @@ describe('old history lines', () => {
     expect(t('Яйцо куриное 2 шт (110 г)')).toBe('Яйцо куриное 2 шт (110 г)');
     expect(t('Куриное филе 200 г')).toBe('Куриное филе 200 г');
     expect(t('Соль')).toBe('Соль');
+  });
+});
+
+describe('the meal by the time of day', () => {
+  it('breakfast, lunch, dinner, a late snack', () => {
+    const at = (t: string) => mealForTime(t);
+    expect([at('06:30'), at('10:59')]).toEqual(['breakfast', 'breakfast']);
+    expect([at('11:00'), at('15:59')]).toEqual(['lunch', 'lunch']);
+    expect([at('16:00'), at('21:59')]).toEqual(['dinner', 'dinner']);
+    expect([at('22:00'), at('02:10')]).toEqual(['snack', 'snack']);
+    expect(at('05:00')).toBe('breakfast');
   });
 });

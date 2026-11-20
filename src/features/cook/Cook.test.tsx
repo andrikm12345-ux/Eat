@@ -265,4 +265,18 @@ describe('«Что приготовить»', () => {
     expect(screen.queryByText(ru.ai.error('ИИ вернул данные в неверном формате'))).toBeNull();
     expect(screen.queryByRole('button', { name: /Омлет с помидорами/ })).toBeNull();
   });
+
+  it('the meal follows the time of day; a change by hand stays while the screen is open', async () => {
+    await setup();
+    const user = userEvent.setup();
+    const first = await renderApp('/cook?date=2026-11-20&time=08:15');
+    expect(await screen.findByRole('radio', { name: t.meals.breakfast })).toBeChecked();
+    await user.click(screen.getByRole('radio', { name: t.meals.snack }));
+    expect(screen.getByRole('radio', { name: t.meals.snack })).toBeChecked();
+    await new Promise((r) => setTimeout(r, 500));
+    first.unmount();
+    // Next visit in the evening: the saved "snack" does not stick, the time decides.
+    await renderApp('/cook?date=2026-11-20&time=19:30', { seed: false });
+    expect(await screen.findByRole('radio', { name: t.meals.dinner })).toBeChecked();
+  });
 });
