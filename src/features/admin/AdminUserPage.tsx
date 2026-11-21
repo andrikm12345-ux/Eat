@@ -199,7 +199,11 @@ export default function AdminUserPage() {
                 </div>
               ))}
             </Card>
-            <AdminCookHistory history={diary.cook ?? []} onHide={(ids) => void hideCook(ids)} />
+            <AdminCookHistory
+              history={diary.cook ?? []}
+              date={date}
+              onHide={(ids) => void hideCook(ids)}
+            />
             <p className={styles.muted}>{t.readOnly}</p>
           </>
         )}

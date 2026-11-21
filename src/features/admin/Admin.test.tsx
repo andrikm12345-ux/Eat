@@ -14,6 +14,14 @@ async function signIn(admin: boolean) {
 
 afterEach(() => vi.unstubAllGlobals());
 
+/** A moment of a local day `back` days ago ("today" is what the admin page opens on). */
+const dayAt = (back: number, hour: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - back);
+  d.setHours(hour, 0, 0, 0);
+  return d.toISOString();
+};
+
 describe('administrator view', () => {
   it('the entry is on the account screen for the administrator only', async () => {
     await signIn(false);
@@ -119,7 +127,7 @@ describe('administrator view', () => {
           cook: [
             {
               id: 'h1',
-              at: '2026-11-20T10:00:00.000Z',
+              at: dayAt(0, 10),
               pantry: 'творог 400 г, мука, банан',
               conditions: {
                 basics: true,
@@ -233,9 +241,9 @@ describe('administrator view', () => {
           weights: [],
           dayMeta: [],
           cook: [
-            entry('s-today1', '2026-11-20T10:00:00.000Z'),
-            entry('s-today2', '2026-11-20T11:00:00.000Z'),
-            entry('s-old001', '2026-11-18T10:00:00.000Z'),
+            entry('s-today1', dayAt(0, 10)),
+            entry('s-today2', dayAt(0, 11)),
+            entry('s-old001', dayAt(2, 10)),
           ].filter((e) => !hidden.includes(e.id)),
         });
       }),
@@ -244,27 +252,37 @@ describe('administrator view', () => {
     const user = userEvent.setup();
     await renderApp('/admin/aaaaaaaaaaaaaaaa');
     expect(await screen.findByText('продукты s-today1')).toBeVisible();
-    const buttons = screen.getAllByRole('button', { name: ru.admin.cookDeleteDay });
-    expect(buttons).toHaveLength(2); // one per day
-    // And one on every search, so a single one can be removed too.
-    expect(screen.getAllByRole('button', { name: /^Удалить подборку/ })).toHaveLength(3);
+    // Only the chosen day (today): another day's search is not mixed in.
+    expect(screen.queryByText('продукты s-old001')).toBeNull();
+    const dayButtons = screen.getAllByRole('button', { name: ru.admin.cookDeleteDay });
+    expect(dayButtons).toHaveLength(1); // one for the day
+    // And one on every search of the day, so a single one can be removed too.
+    expect(screen.getAllByRole('button', { name: /^Удалить подборку/ })).toHaveLength(2);
     // Declining the question deletes nothing.
-    await user.click(buttons[0]!);
+    await user.click(dayButtons[0]!);
     expect(posts).toHaveLength(0);
-    // The newest day first; it has two searches.
-    await user.click(screen.getAllByRole('button', { name: ru.admin.cookDeleteDay })[0]!);
+    // The day has two searches.
+    await user.click(screen.getByRole('button', { name: ru.admin.cookDeleteDay }));
     expect(confirm).toHaveBeenLastCalledWith(ru.admin.cookDeleteDayConfirm(2));
     await waitFor(() => expect(screen.queryByText('продукты s-today1')).toBeNull());
     expect(posts).toEqual([{ id: 'aaaaaaaaaaaaaaaa', hide: ['s-today1', 's-today2'] }]);
-    expect(screen.getByText('продукты s-old001')).toBeVisible();
-    // A single search: its own button.
-    await user.click(screen.getByRole('button', { name: /^Удалить подборку/ }));
-    expect(confirm).toHaveBeenLastCalledWith(ru.admin.cookDeleteConfirm);
-    await waitFor(() => expect(screen.queryByText('продукты s-old001')).toBeNull());
-    expect(posts[1]).toEqual({ id: 'aaaaaaaaaaaaaaaa', hide: ['s-old001'] });
+    // The day is empty now, the person still has searches on other days.
+    expect(await screen.findByText(ru.admin.cookNoDay)).toBeVisible();
     // Undo from the message.
     await user.click((await screen.findAllByRole('button', { name: ru.common.undo })).at(-1)!);
+    expect(await screen.findByText('продукты s-today1')).toBeVisible();
+    expect(posts[1]).toEqual({ id: 'aaaaaaaaaaaaaaaa', unhide: ['s-today1', 's-today2'] });
+    // A single search: its own button.
+    await user.click(screen.getAllByRole('button', { name: /^Удалить подборку/ })[0]!);
+    expect(confirm).toHaveBeenLastCalledWith(ru.admin.cookDeleteConfirm);
+    await waitFor(() => expect(screen.queryByText('продукты s-today1')).toBeNull());
+    expect(posts[2]).toEqual({ id: 'aaaaaaaaaaaaaaaa', hide: ['s-today1'] });
+    expect(screen.getByText('продукты s-today2')).toBeVisible();
+    // Going two days back shows that day's search, and not today's.
+    await user.click(screen.getByRole('button', { name: ru.admin.prevDay }));
+    expect(await screen.findByText(ru.admin.cookNoDay)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: ru.admin.prevDay }));
     expect(await screen.findByText('продукты s-old001')).toBeVisible();
-    expect(posts[2]).toEqual({ id: 'aaaaaaaaaaaaaaaa', unhide: ['s-old001'] });
+    expect(screen.queryByText('продукты s-today2')).toBeNull();
   });
 });

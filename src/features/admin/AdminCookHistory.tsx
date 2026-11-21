@@ -31,23 +31,29 @@ const dayOf = (iso: string) => {
 };
 
 /**
- * What the person wrote into «Что приготовить» and what the AI gave back, by day. «Удалить» (a search
- * or the whole day) removes it from the administrator's view only: the person's data stays.
+ * What the person wrote into «Что приготовить» and what the AI gave back on the chosen day (the
+ * same day as the diary above). «Удалить» (a search or the whole day) removes it from the
+ * administrator's view only: the person's data stays.
  */
 export function AdminCookHistory({
   history,
+  date,
   onHide,
 }: {
   history: CookHistoryEntry[];
+  /** The day chosen on the page: "2026-11-20". */
+  date: string;
   onHide: (ids: string[]) => void;
 }) {
-  const days = [...new Set(history.map((h) => dayOf(h.at)))].sort().reverse();
+  const days = history.some((h) => dayOf(h.at) === date) ? [date] : [];
   const hide = (ids: string[], confirm: string) => {
     if (window.confirm(confirm)) onHide(ids);
   };
   return (
     <Card title={t.cookTitle}>
-      {history.length === 0 && <p className={styles.muted}>{t.cookNone}</p>}
+      {days.length === 0 && (
+        <p className={styles.muted}>{history.length === 0 ? t.cookNone : t.cookNoDay}</p>
+      )}
       {days.map((day) => {
         const list = history.filter((h) => dayOf(h.at) === day);
         return (
