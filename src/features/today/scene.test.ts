@@ -26,11 +26,16 @@ describe('the day scene', () => {
   it('meals by label first, then by time', () => {
     expect(slotOf({ time: '08:00' })).toBe('breakfast');
     expect(slotOf({ time: '13:00' })).toBe('lunch');
-    expect(slotOf({ time: '17:30' })).toBe('snack');
-    expect(slotOf({ time: '20:00' })).toBe('dinner');
+    // After lunch comes dinner, not a snack (the same division as «Что приготовить»).
+    expect(slotOf({ time: '17:30' })).toBe('dinner');
+    expect(slotOf({ time: '21:59' })).toBe('dinner');
+    expect(slotOf({ time: '22:30' })).toBe('snack');
+    expect(slotOf({ time: '03:00' })).toBe('snack');
     expect(slotOf({ time: '20:00', mealLabel: 'Перекус' })).toBe('snack');
     expect(slotNow(9)).toBe('breakfast');
-    expect(slotNow(20)).toBe('dinner');
+    expect(slotNow(13)).toBe('lunch');
+    expect(slotNow(17)).toBe('dinner');
+    expect(slotNow(23)).toBe('snack');
   });
 
   it('pins: one per meal, counted, at the first entry time, never on top of each other', () => {
@@ -39,6 +44,7 @@ describe('the day scene', () => {
       { id: 'b', time: '09:00' },
       { id: 'c', time: '13:20' },
     ]);
+    expect(pins.map((p) => p.slot)).toEqual(['breakfast', 'lunch', 'dinner', 'snack']);
     expect(pins.map((p) => p.count)).toEqual([2, 1, 0, 0]);
     expect(pins[0]).toMatchObject({ time: '08:10', firstId: 'a' });
     expect(pins[0]!.pos).toBeCloseTo(linePos(8 * 60 + 10));

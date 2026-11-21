@@ -1,5 +1,7 @@
 // The "scene" of the day card: sky colours by the time of day, the season, meal slots.
 
+import { mealForTime } from '../../domain/cook';
+
 export type Sky = { top: string; mid: string; bottom: string; dark: boolean; stars: number };
 
 /** Sky colours at given hours; the colour between two of them is blended. */
@@ -61,13 +63,14 @@ export const greetingAt = (hours: number): Greeting =>
         : 'night';
 
 export type Slot = 'breakfast' | 'lunch' | 'snack' | 'dinner';
-export const SLOTS: Slot[] = ['breakfast', 'lunch', 'snack', 'dinner'];
+/** In the order of the day: the snack is the late one, after dinner (the same as «Что приготовить»). */
+export const SLOTS: Slot[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 /** Where an empty slot sits on the day line (minutes since midnight). */
 const SLOT_DEFAULT: Record<Slot, number> = {
   breakfast: 8 * 60,
   lunch: 13 * 60,
-  snack: 17 * 60,
-  dinner: 20 * 60,
+  dinner: 19 * 60,
+  snack: 22 * 60 + 30,
 };
 const LABEL_SLOT: Record<string, Slot> = {
   Завтрак: 'breakfast',
@@ -81,12 +84,14 @@ const minutes = (time: string) => {
   return (h ?? 0) * 60 + (m ?? 0);
 };
 
-/** The meal an entry belongs to: its label when it names a meal, else its time. */
+/**
+ * The meal an entry belongs to: its label when it names a meal, else its time: breakfast until 11,
+ * lunch until 16, dinner until 22, a snack at night.
+ */
 export function slotOf(e: { time: string; mealLabel?: string | undefined }): Slot {
   const byLabel = e.mealLabel ? LABEL_SLOT[e.mealLabel] : undefined;
   if (byLabel) return byLabel;
-  const m = minutes(e.time);
-  return m < 11 * 60 ? 'breakfast' : m < 16 * 60 ? 'lunch' : m < 19 * 60 ? 'snack' : 'dinner';
+  return mealForTime(e.time);
 }
 
 /** The day line runs from 06:00 to 24:00. */
@@ -131,5 +136,4 @@ export function dayPins(
 }
 
 /** Which meal "now" is, for the add button. */
-export const slotNow = (hours: number): Slot =>
-  hours < 11 ? 'breakfast' : hours < 16 ? 'lunch' : hours < 19 ? 'snack' : 'dinner';
+export const slotNow = (hours: number): Slot => mealForTime(`${hours}:00`);
