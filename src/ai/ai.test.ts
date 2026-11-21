@@ -13,6 +13,7 @@ import {
   messagesUrl,
   modelsUrl,
   normalizeBase,
+  renewal,
   supportsEffort,
 } from './client';
 import { extractFirstJson } from './json';
@@ -194,6 +195,26 @@ describe('client', () => {
     });
     expect(supportsEffort('claude-haiku-4-5')).toBe(false);
     expect(headers('k')['content-type']).toBe('application/json');
+  });
+
+  it('the free allowance used up: says until when, and does not retry', async () => {
+    const body = JSON.stringify({
+      error: {
+        message:
+          "You've used this period's free allowance. Your next rolling 7-day period starts on 21 Nov 2026 at 21:39 UTC. Use the paid model to keep going.",
+      },
+    });
+    const f = vi.fn(async () => new Response(body, { status: 429 }));
+    const err = await callClaude({ ...opts, fetchImpl: f }).catch((e) => e as AiError);
+    expect(err).toBeInstanceOf(AiError);
+    expect((err as AiError).kind).toBe('quota');
+    expect((err as AiError).message).toMatch(
+      /бесплатный лимит ИИ закончился, обновится 2[12] ноября/,
+    );
+    expect(f).toHaveBeenCalledTimes(1);
+    // The time is the person's local one; an unknown text just gives no date.
+    expect(renewal(body)).toMatch(/^, обновится \d+ ноября в\u00a0\d\d:\d\d$/);
+    expect(renewal('nothing here')).toBe('');
   });
 
   it('retries once on 429/5xx, then fails', async () => {

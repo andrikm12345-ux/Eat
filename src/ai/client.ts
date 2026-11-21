@@ -39,6 +39,8 @@ export type AiErrorKind =
   | 'timeout'
   | 'auth'
   | 'rate'
+  /** The free allowance of the AI service is used up until a given time: no use retrying. */
+  | 'quota'
   | 'server'
   | 'badRequest'
   | 'refusal'
@@ -136,6 +138,20 @@ export function toOpenAiMessages(system: string, messages: Message[]) {
   ];
 }
 
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+/** ", обновится 22 ноября в 00:39" from "…next rolling 7-day period starts on 21 Nov 2026 at 21:39 UTC". */
+export function renewal(body: string): string {
+  const m = /starts on (\d{1,2}) ([A-Za-z]{3})[a-z]* (\d{4}) at (\d{2}):(\d{2}) UTC/.exec(body);
+  const month = m ? MONTHS.indexOf((m[2] as string).toLowerCase()) : -1;
+  if (!m || month < 0) return '';
+  const at = new Date(Date.UTC(Number(m[3]), month, Number(m[1]), Number(m[4]), Number(m[5])));
+  if (Number.isNaN(at.getTime())) return '';
+  const day = at.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+  const time = at.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  return `, обновится ${day} в\u00a0${time}`;
+}
+
 function errorFor(status: number, body: string, proxy = false): AiError {
   if (proxy) {
     if (status === 401)
@@ -152,6 +168,8 @@ function errorFor(status: number, body: string, proxy = false): AiError {
       'на балансе ИИ-сервиса недостаточно средств — пополните его или выберите бесплатную модель в «ИИ-настройках»',
       status,
     );
+  if (status === 429 && /free allowance/i.test(body))
+    return new AiError('quota', `бесплатный лимит ИИ закончился${renewal(body)}`);
   if (status === 429)
     return new AiError('rate', 'Слишком много запросов к ИИ, попробуйте позже', status);
   if (status === 529 || status >= 500)

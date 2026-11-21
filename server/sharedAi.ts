@@ -233,6 +233,10 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
       ? json({ error: 'ai_upstream_timeout' }, 504)
       : json({ error: 'ai_upstream_unreachable' }, 502);
   }
+  // The service refused (429 the free allowance is used up, 402, 5xx…): the job is over, it must
+  // not stay "running" (the app's second try would be told "still running" and wait for nothing).
+  if (jobId && upstream.status !== 200)
+    await d.store.put(jobPath(s.userId, jobId), JSON.stringify({ status: 'failed', at: d.now() }));
   note(
     'done',
     upstream.status,

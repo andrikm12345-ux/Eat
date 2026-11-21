@@ -346,6 +346,28 @@ describe('wiring', () => {
       expect(await (await aiStatus(d, status(token, id))).json()).toEqual({ job: 'none' });
     });
 
+    it('a refusal of the service (429) does not leave the job running: the second try is answered at once', async () => {
+      let n = 0;
+      const { d, calls } = setup({}, async () => {
+        n++;
+        return new Response(
+          JSON.stringify({ error: { message: "You've used this period's free allowance." } }),
+          { status: 429 },
+        );
+      });
+      const token = await signUp(d, 'ivan');
+      const first = await aiChat(d, withJob(token, 'job-quota-01'));
+      expect(first.status).toBe(429);
+      expect(await (await aiStatus(d, status(token, 'job-quota-01'))).json()).toEqual({
+        job: 'none',
+      });
+      // the app's second try: the service is asked again and refuses again, not "still running"
+      const second = await aiChat(d, withJob(token, 'job-quota-01'));
+      expect(second.status).toBe(429);
+      expect(calls).toHaveLength(2);
+      expect(n).toBe(2);
+    });
+
     it('a failed request leaves nothing behind (the next try runs again)', async () => {
       let n = 0;
       const { d, calls } = setup({}, async () => {
