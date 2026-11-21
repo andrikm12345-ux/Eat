@@ -99,6 +99,22 @@ describe('administrator view', () => {
               time: '08:30',
               items: [{ name: 'Овсянка', grams: 200, nutrients: n(500) }],
               totals: n(500),
+              source: 'ai_photo',
+            },
+            {
+              id: 'e2',
+              date,
+              time: '13:00',
+              items: [{ name: 'Суп', grams: 300, nutrients: n(200) }],
+              totals: n(200),
+              source: 'manual',
+            },
+            {
+              id: 'e3',
+              date,
+              time: '19:00',
+              items: [{ name: 'Чай', grams: 200, nutrients: n(2) }],
+              totals: n(2),
             },
           ],
           weights: [],
@@ -108,7 +124,11 @@ describe('administrator view', () => {
     );
     await renderApp('/admin/aaaaaaaaaaaaaaaa');
     expect(await screen.findByText(/Овсянка/)).toBeVisible();
-    expect(screen.getByText(/Осталось: 1\s?500/)).toBeVisible();
+    expect(screen.getByText(/Осталось: 1\s?298/)).toBeVisible();
+    // How each record was added: the photo one is marked, the others say how too.
+    expect(screen.getByText(ru.admin.source.ai_photo)).toBeVisible();
+    expect(screen.getByText(ru.admin.source.manual)).toBeVisible();
+    expect(screen.getByText(ru.admin.sourceUnknown)).toBeVisible();
   });
 
   it('shows what a person wrote into «Что приготовить» and what the AI gave back', async () => {

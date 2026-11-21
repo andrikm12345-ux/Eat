@@ -186,6 +186,11 @@ export default function AdminUserPage() {
                     <span>
                       {e.time}
                       {e.mealLabel ? ` · ${e.mealLabel}` : ''}
+                      <span
+                        className={`${styles.source} ${e.source === 'ai_photo' ? styles.sourcePhoto : ''}`}
+                      >
+                        {t.source[e.source] ?? t.sourceUnknown}
+                      </span>
                     </span>
                     <span>{unit(formatKcal(e.totals.kcal), ru.units.kcal)}</span>
                   </div>

@@ -140,3 +140,20 @@
 .cookHead {
   align-items: center;
 }
+
+/* How a record was added: a small tag by its time; photos stand out. */
+.source {
+  display: inline-block;
+  margin-left: var(--sp-2);
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-semibold);
+  vertical-align: middle;
+}
+.sourcePhoto {
+  background: var(--accent-soft);
+  color: var(--accent);
+}

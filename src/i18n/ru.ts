@@ -1161,6 +1161,17 @@ export const ru = {
     forbidden: 'Этот раздел доступен только администратору.',
     loadError: 'Не удалось загрузить. Проверьте интернет и попробуйте ещё раз.',
     unknownLogin: 'логин неизвестен',
+    /** How a record was added (shown next to it in the administrator view). */
+    source: {
+      ai_photo: 'по фото',
+      ai_text: 'описание словами',
+      barcode: 'штрихкод',
+      manual: 'вручную',
+      template: 'из шаблона',
+      repeat: 'повтор',
+      quick: 'быстрые ккал',
+    },
+    sourceUnknown: 'способ не указан',
     cookDeleteDay: 'Удалить',
     cookDelete: (at: string) => `Удалить подборку ${at}`,
     cookDeleteConfirm:
