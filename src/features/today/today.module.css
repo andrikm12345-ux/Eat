@@ -237,6 +237,20 @@
   flex: 1;
   padding: 0 var(--sp-2);
 }
+/*
+ * The day's list scrolls inside a box of limited height, so the card keeps its size however many
+ * entries there are. The box reaches the card's padding on both sides: the times and the "+"
+ * buttons sit left of the line and must not be cut off.
+ */
+.flowScroll {
+  max-height: min(52vh, 420px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-inline: calc(-1 * var(--sp-4));
+  padding-inline: var(--sp-4);
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
 .flow {
   position: relative;
   padding-left: 48px;

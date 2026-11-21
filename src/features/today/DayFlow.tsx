@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { toLocalDate } from '../../domain/dates';
 import { entryTitle, groupStacks, minutesToTime, timeToMinutes } from '../../domain/day';
@@ -114,10 +114,29 @@ export function DayFlow({ entries }: { entries: Entry[] }) {
     });
   }
 
+  // The list has its own scroll inside a box of limited height: many entries do not stretch the
+  // card. Today opens at the latest entries; another day from its start.
+  const scroller = useRef<HTMLDivElement>(null);
+  const today = nowMin !== null;
+  useEffect(() => {
+    const el = scroller.current;
+    if (el) el.scrollTop = today ? el.scrollHeight : 0;
+  }, [today, date]);
+  // A newly added entry is brought into view if it is not.
+  const freshId = list.find((e) => isFresh(e.id))?.id;
+  useEffect(() => {
+    if (!freshId) return;
+    scroller.current
+      ?.querySelector(`[data-entry="${freshId}"], [data-row="${freshId}"]`)
+      ?.scrollIntoView?.({ block: 'nearest' });
+  }, [freshId]);
+
   return (
     <>
       {entries.length === 0 && <p className={styles.empty}>{t.empty}</p>}
-      <div className={styles.flow}>{parts}</div>
+      <div className={styles.flowScroll} ref={scroller} data-testid="day-flow">
+        <div className={styles.flow}>{parts}</div>
+      </div>
       <EntryActions entry={menu} onClose={() => setMenu(null)} />
     </>
   );
@@ -170,6 +189,7 @@ function EntryRow({
   return (
     <div
       className={`${styles.rowWrap} ${leaving ? styles.leaving : ''} ${fresh ? styles.fresh : ''}`}
+      data-row={entry.id}
     >
       {sw.dx !== 0 && (
         <div className={styles.swipeBg} aria-hidden="true">

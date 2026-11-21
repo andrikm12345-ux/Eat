@@ -30,12 +30,24 @@ describe('the day scene', () => {
     expect(slotOf({ time: '17:30' })).toBe('dinner');
     expect(slotOf({ time: '21:59' })).toBe('dinner');
     expect(slotOf({ time: '22:30' })).toBe('snack');
-    expect(slotOf({ time: '03:00' })).toBe('snack');
+    // The night hours are the start of the same day, not a snack at its end.
+    expect(slotOf({ time: '03:10' })).toBe('breakfast');
     expect(slotOf({ time: '20:00', mealLabel: 'Перекус' })).toBe('snack');
     expect(slotNow(9)).toBe('breakfast');
     expect(slotNow(13)).toBe('lunch');
     expect(slotNow(17)).toBe('dinner');
     expect(slotNow(23)).toBe('snack');
+    expect(slotNow(2)).toBe('breakfast');
+  });
+
+  it('a night entry sits at the start of the line, before the morning one', () => {
+    const pins = dayPins([
+      { id: 'n', time: '03:10' },
+      { id: 'm', time: '07:10' },
+    ]);
+    expect(pins[0]).toMatchObject({ slot: 'breakfast', count: 2, time: '03:10', firstId: 'n' });
+    expect(pins[0]!.pos).toBe(0);
+    expect(pins.slice(1).every((p) => p.count === 0)).toBe(true);
   });
 
   it('pins: one per meal, counted, at the first entry time, never on top of each other', () => {

@@ -58,7 +58,9 @@ export function useSwipe(h: {
             clearTimer();
             return;
           }
-          if (Math.abs(mx) > 10) {
+          // A sideways swipe is clearly sideways: a finger starting a vertical scroll drifts a bit
+          // to the side first, and that must stay a scroll.
+          if (Math.abs(mx) > 14 && Math.abs(mx) > Math.abs(my) * 2) {
             st.horizontal = true;
             clearTimer();
             setDragging(true);

@@ -1,7 +1,5 @@
 // The "scene" of the day card: sky colours by the time of day, the season, meal slots.
 
-import { mealForTime } from '../../domain/cook';
-
 export type Sky = { top: string; mid: string; bottom: string; dark: boolean; stars: number };
 
 /** Sky colours at given hours; the colour between two of them is blended. */
@@ -85,13 +83,17 @@ const minutes = (time: string) => {
 };
 
 /**
- * The meal an entry belongs to: its label when it names a meal, else its time: breakfast until 11,
- * lunch until 16, dinner until 22, a snack at night.
+ * The meal of a time of day on the day line: breakfast until 11 (the night hours belong to the
+ * start of the same calendar day), lunch until 16, dinner until 22, a late snack after that.
  */
+const slotAtMinutes = (m: number): Slot =>
+  m < 11 * 60 ? 'breakfast' : m < 16 * 60 ? 'lunch' : m < 22 * 60 ? 'dinner' : 'snack';
+
+/** The meal an entry belongs to: its label when it names a meal, else its time. */
 export function slotOf(e: { time: string; mealLabel?: string | undefined }): Slot {
   const byLabel = e.mealLabel ? LABEL_SLOT[e.mealLabel] : undefined;
   if (byLabel) return byLabel;
-  return mealForTime(e.time);
+  return slotAtMinutes(minutes(e.time));
 }
 
 /** The day line runs from 06:00 to 24:00. */
@@ -136,4 +138,4 @@ export function dayPins(
 }
 
 /** Which meal "now" is, for the add button. */
-export const slotNow = (hours: number): Slot => mealForTime(`${hours}:00`);
+export const slotNow = (hours: number): Slot => slotAtMinutes(hours * 60);

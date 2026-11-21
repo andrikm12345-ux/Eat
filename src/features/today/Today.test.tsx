@@ -232,4 +232,20 @@ describe('Чем добрать норму', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/review'));
     expect(await screen.findByText('Творог 5%')).toBeVisible();
   });
+
+  it('all entries of the day are inside the flow scrolling box (the card does not stretch)', async () => {
+    useUi.setState({ date: today() });
+    const f = await oats();
+    for (const t of ['03:10', '07:10', '08:00', '09:30', '12:00', '13:20', '15:00', '18:44']) {
+      await logFood(repos, f, 50, { date: today(), time: t });
+    }
+    await renderApp('/');
+    const box = await screen.findByTestId('day-flow');
+    await waitFor(() => expect(within(box).getAllByText(/Овсяные хлопья/)).toHaveLength(8));
+    // The earliest entry (03:10) comes first on the flow, before the morning one.
+    const times = within(box)
+      .getAllByText(/^\d\d:\d\d$/)
+      .map((e) => e.textContent);
+    expect(times.slice(0, 2)).toEqual(['03:10', '07:10']);
+  });
 });
