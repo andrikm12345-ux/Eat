@@ -62,15 +62,28 @@ export function FoodForm({
     if (typeof v === 'number' && !(k in per100g)) per100g[k] = v;
   }
   const inconsistent = val('kcal') !== null && isKcalInconsistent(per100g);
-  const validServings = servings.filter(
-    (s) => s.label.trim() && s.grams && s.grams > 0,
-  ) as Serving[];
+  // A serving needs grams. Without a name it is called "порция" (it used to be dropped silently);
+  // a named serving without grams stops the saving and says so.
+  const withGrams = servings.filter((s) => s.grams && s.grams > 0);
+  const validServings: Serving[] = withGrams.map((s, i) => ({
+    label: s.label.trim() || (i === 0 ? t.servingDefault : `${t.servingDefault} ${i + 1}`),
+    grams: s.grams as number,
+  }));
+  const noGrams = servings.find((s) => s.label.trim() && !(s.grams && s.grams > 0));
   const nameOk = name.trim().length > 0;
   const kcalOk = kcal >= 0 && kcal <= 900;
   const macrosOk = macros.protein + macros.fat + macros.carbs <= 100.5;
-  const valid = nameOk && kcalOk && macrosOk;
+  const valid = nameOk && kcalOk && macrosOk && !noGrams;
   /** What is missing, said under the disabled save button. */
-  const problem = !nameOk ? t.needName : !kcalOk ? t.kcalRange : !macrosOk ? t.macrosRange : null;
+  const problem = !nameOk
+    ? t.needName
+    : !kcalOk
+      ? t.kcalRange
+      : !macrosOk
+        ? t.macrosRange
+        : noGrams
+          ? t.servingNeedsGrams(noGrams.label.trim())
+          : null;
   const portion = scaleNutrients(per100g, grams ?? 0);
   const gramsOk = grams !== null && grams > 0 && grams < 5000;
   const code = barcode.trim();

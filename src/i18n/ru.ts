@@ -440,6 +440,8 @@ export const ru = {
     servings: 'Порции',
     servingLabel: 'Название порции',
     servingGrams: 'Граммы',
+    servingDefault: 'порция',
+    servingNeedsGrams: (name: string) => `У порции «${name}» не указаны граммы.`,
     addServing: 'Добавить порцию',
     removeServing: 'Убрать порцию',
     save: 'Сохранить продукт',
