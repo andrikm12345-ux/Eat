@@ -66,7 +66,7 @@ export const ru = {
     meals: { any: 'Любой', breakfast: 'Завтрак', lunch: 'Обед', dinner: 'Ужин', snack: 'Перекус' },
     servings: 'Порций',
     wishes: 'Пожелания (необязательно)',
-    wishesPlaceholder: 'без свинины, не острое, без лактозы',
+    wishesPlaceholder: 'не острое, без лактозы, без орехов',
     left: (kcal: string, protein: string) =>
       `На сегодня осталось ${kcal} ккал и ${protein} г белка — подберу порции под это.`,
     go: 'Подобрать блюда',
