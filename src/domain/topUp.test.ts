@@ -252,4 +252,21 @@ describe('top up the day', () => {
     for (const o of ideas) for (const h of o.items) count.set(h.name, (count.get(h.name) ?? 0) + 1);
     for (const n of count.values()) expect(n).toBeLessThanOrEqual(2);
   });
+
+  it('gaining: own usual portions are never made bigger, only shop foods', () => {
+    const own: Habit[] = [
+      { name: 'Сок мультифрукт', grams: 940, per100g: per(45, 0.5), uses: 6 },
+      { name: 'Гречка с курицей', grams: 300, per100g: per(120, 8), uses: 5 },
+    ];
+    const ideas = topUps(own, { kcal: 1800, protein: 65, fat: 16, carbs: 349 }, 8, {
+      hour: 14,
+      goalType: 'gain',
+    });
+    expect(ideas.length).toBeGreaterThan(0);
+    for (const o of ideas)
+      for (const h of o.items) {
+        if (h.name === 'Сок мультифрукт') expect(h.grams).toBe(940);
+        if (h.name === 'Гречка с курицей') expect(h.grams).toBe(300);
+      }
+  });
 });

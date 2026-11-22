@@ -375,12 +375,17 @@ export function topUps(
     };
     // Gaining: the usual portion may be a bit bigger (one and a half, two) to eat what is left.
     const scales = ctx.goalType === 'gain' ? [1, 1.5, 2] : [1];
+    // Only the simple shop foods get bigger portions: the person's own usual portion is theirs
+    // (a litre of juice doubled is not an idea). A bigger one needs at least one shop food.
     const scaled = (items: Habit[]) =>
-      scales.forEach((k) =>
+      scales.forEach((k) => {
+        if (k > 1 && !items.some((h) => h.store)) return;
         consider(
-          k === 1 ? items : items.map((h) => ({ ...h, grams: Math.round((h.grams * k) / 5) * 5 })),
-        ),
-      );
+          k === 1
+            ? items
+            : items.map((h) => (h.store ? { ...h, grams: Math.round((h.grams * k) / 5) * 5 } : h)),
+        );
+      });
     pool.forEach((a, i) => {
       scaled([a]);
       pool.slice(i + 1).forEach((b, j) => {
