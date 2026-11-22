@@ -209,5 +209,19 @@ describe('top up the day', () => {
         topUps([], { kcal: 60, protein: 0 }, 3, { goalType: 'lose', storeOnly: true }),
       ).toEqual([]);
     });
+
+    it('protein first and fat far below the limit', () => {
+      const best = topUps([], { kcal: 600, protein: 60, fat: 15, carbs: 80 }, 3, {
+        hour: 21,
+        goalType: 'lose',
+        storeOnly: true,
+        maxMinutes: 5,
+      });
+      // at least 80% of the calories come from... protein-rich food: lots of protein per calorie
+      expect(best[0]!.total.protein * 4).toBeGreaterThan(best[0]!.total.kcal * 0.6);
+      // not at the fat limit
+      expect(best[0]!.total.fat).toBeLessThan(15 * 0.5);
+      expect(best[0]!.total.protein).toBeGreaterThan(40);
+    });
   });
 });

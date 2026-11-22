@@ -349,7 +349,19 @@ export function topUps(
         : left.protein > 5
           ? fill * 0.4 + protein * 0.3 + usual * 0.3
           : fill * 0.7 + usual * 0.3;
-      options.push({ items, total, minutes, score: base + lean * leanWeight + useFat });
+      // Losing: protein first (it keeps you full), as much as it gives per calorie too; fat as far
+      // below the limit as possible; filling the calories left up to the brim does not matter.
+      const proteinNeed =
+        left.protein > 5 ? Math.min(total.protein, left.protein * 1.3) / left.protein : 0;
+      const density = Math.min(1, (total.protein * 4) / Math.max(total.kcal, 1));
+      const loseScore =
+        proteinNeed * 0.45 + density * 0.25 + lean * 0.2 + fill * 0.05 + usual * 0.05;
+      options.push({
+        items,
+        total,
+        minutes,
+        score: lose ? loseScore : base + lean * leanWeight + useFat,
+      });
     };
     // Gaining: the usual portion may be a bit bigger (one and a half, two) to eat what is left.
     const scales = ctx.goalType === 'gain' ? [1, 1.5, 2] : [1];
