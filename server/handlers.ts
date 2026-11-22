@@ -55,9 +55,25 @@ export async function userOf(d: Deps, req: Request): Promise<string | null> {
   const token = bearer(req);
   const info = token ? sessionInfo(d.secret, token, d.now()) : null;
   if (!info) return null;
-  const creds = await readCreds(d, info.userId);
+  const creds = (await readCreds(d, info.userId)) ?? (await restoreAccount(d, req, info.userId));
   if (!creds || info.issuedAt < (creds.sessionsFrom ?? 0)) return null;
   return info.userId;
+}
+
+/**
+ * After the storage was replaced, a valid signed session (our secret made it) of an account the
+ * new storage does not know recreates the account, with no password: the owner stays signed in
+ * and sets a new password later. Only while `restoreUntil` is open. Someone who registered the
+ * same login first is not affected: that account exists and ignores older sessions.
+ */
+async function restoreAccount(d: Deps, req: Request, userId: string): Promise<Credentials | null> {
+  if (!d.restoreUntil || d.now() > d.restoreUntil) return null;
+  const creds: Credentials = { salt: '', hash: '', restored: true };
+  await d.store.put(credPath(userId), JSON.stringify(creds));
+  const login = normalizeLogin(req.headers.get('x-account-login') ?? '');
+  if (isValidLogin(login) && userIdFor(d.secret, login) === userId)
+    await touchMeta(d, userId, login, true);
+  return creds;
 }
 
 const SEEN_EVERY_MS = 10 * 60 * 1000;
@@ -119,9 +135,12 @@ export async function register(d: Deps, req: Request): Promise<Response> {
   const userId = userIdFor(d.secret, c.login);
   if (await readCreds(d, userId)) return json({ error: 'taken' }, 409);
   const { creds, recoveryCode } = await newAccount(c.password);
-  await d.store.put(credPath(userId), JSON.stringify(creds));
+  // Sessions issued before this moment belong to nobody: an old token of the same login (from
+  // before the storage was replaced) must not open a newly registered account.
+  const now = d.now();
+  await d.store.put(credPath(userId), JSON.stringify({ ...creds, sessionsFrom: now }));
   await touchMeta(d, userId, c.login, true);
-  return json({ token: createSession(d.secret, userId, d.now()), login: c.login, recoveryCode });
+  return json({ token: createSession(d.secret, userId, now), login: c.login, recoveryCode });
 }
 
 export const MAX_FAILURES = 8;
@@ -268,6 +287,24 @@ export async function changePassword(d: Deps, req: Request): Promise<Response> {
   return json({ ok: true, token: createSession(d.secret, userId, now) });
 }
 
+/**
+ * POST {newPassword} (signed in, restored account only) → sets the first password and issues the
+ * recovery code. Devices stay signed in. A normal account changes its password the usual way.
+ */
+export async function setRestoredPassword(d: Deps, req: Request): Promise<Response> {
+  const userId = await userOf(d, req);
+  if (!userId) return json({ error: 'unauthorized' }, 401);
+  const creds = await readCreds(d, userId);
+  if (!creds?.restored) return json({ error: 'not_restored' }, 409);
+  const body = await readJson(req);
+  const next = String(body?.newPassword ?? '');
+  if (!isValidPassword(next)) return json({ error: 'bad_password' }, 400);
+  const fresh = await newAccount(next);
+  const { restored: _gone, ...rest } = creds;
+  await d.store.put(credPath(userId), JSON.stringify({ ...rest, ...fresh.creds }));
+  return json({ ok: true, recoveryCode: fresh.recoveryCode });
+}
+
 const dataPath = (userId: string) => `users/${userId}.json`;
 
 /** GET → the stored snapshot (or {empty:true}). */
@@ -283,6 +320,8 @@ export async function getSync(d: Deps, req: Request): Promise<Response> {
   const extra: Record<string, string> = mine
     ? { 'x-ui-labels': encodeURIComponent(JSON.stringify(mine)) }
     : {};
+  // A restored account has no password yet: the app asks the owner to set one.
+  if ((await readCreds(d, userId))?.restored) extra['x-account-restored'] = '1';
   return text
     ? new Response(text, {
         status: 200,

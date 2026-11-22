@@ -529,6 +529,11 @@ describe('changing the password signs the other devices out', () => {
     const { d } = deps();
     await register(d, creds('ivan', 'password1'));
     const uid = userIdFor(SECRET, 'ivan');
+    // An account made before sessions were dated has no "sessions from" mark (a new
+    // registration sets one, so older tokens of the same login are refused).
+    const path = `creds/${uid}.json`;
+    const { sessionsFrom: _s, ...old } = JSON.parse((await d.store.get(path)) as string);
+    await d.store.put(path, JSON.stringify(old));
     // The old shape: user|expiry, signed the same way.
     const { createHmac } = await import('node:crypto');
     const payload = `${uid}|${T0 + SESSION_TTL_MS}`;

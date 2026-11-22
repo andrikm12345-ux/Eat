@@ -7,6 +7,7 @@ import {
   ACCOUNT,
   changeAccountPassword,
   createRecoveryCode,
+  setRestoredPassword,
   loginAccount,
   registerAccount,
   resetAccount,
@@ -30,13 +31,14 @@ export default function AccountPage() {
   useSwipeBack(true, useGoBack());
   const navigate = useNavigate();
   const session = useLiveQuery(async () => {
-    const [login, token, last, admin] = await Promise.all([
+    const [login, token, last, admin, restored] = await Promise.all([
       repos.settings.get<string>(ACCOUNT.login, ''),
       repos.settings.get<string>(ACCOUNT.token, ''),
       repos.settings.get<string>(ACCOUNT.lastSync, ''),
       repos.settings.get<boolean>(ACCOUNT.aiAdmin, false),
+      repos.settings.get<boolean>(ACCOUNT.restored, false),
     ]);
-    return { login, signedIn: !!token, last, admin };
+    return { login, signedIn: !!token, last, admin, restored };
   }, []);
   const [params] = useSearchParams();
   const [mode, setMode] = useState<'signIn' | 'signUp' | 'reset'>(
@@ -171,70 +173,104 @@ export default function AccountPage() {
               </Button>
             )}
             <p>{t.signOutHint}</p>
-            <Card title={t.changeTitle}>
-              <TextField
-                label={t.currentPassword}
-                type={show ? 'text' : 'password'}
-                autoComplete="current-password"
-                value={oldPw}
-                onChange={setOldPw}
-              />
-              <TextField
-                label={t.newPassword}
-                hint={t.passwordHint}
-                type={show ? 'text' : 'password'}
-                autoComplete="new-password"
-                value={newPw}
-                onChange={setNewPw}
-              />
-              <Switch label={t.showPassword} checked={show} onChange={setShow} />
-              <Button
-                block
-                variant="secondary"
-                disabled={busy || !oldPw || !newPw}
-                onClick={async () => {
-                  setBusy(true);
-                  setError(null);
-                  setInfo(null);
-                  const r = await changeAccountPassword(repos, oldPw, newPw);
-                  setBusy(false);
-                  if ('error' in r) return setError(message(r.error));
-                  setOldPw('');
-                  setNewPw('');
-                  setInfo(t.changed);
-                }}
-              >
-                {t.changeGo}
-              </Button>
-            </Card>
-            <Card title={t.newCodeTitle}>
-              <p>{t.newCodeHint}</p>
-              <TextField
-                label={t.password}
-                type={show ? 'text' : 'password'}
-                autoComplete="current-password"
-                value={password}
-                onChange={setPassword}
-              />
-              <Switch label={t.showPassword} checked={show} onChange={setShow} />
-              <Button
-                block
-                variant="secondary"
-                disabled={busy || !password}
-                onClick={async () => {
-                  setBusy(true);
-                  setError(null);
-                  setInfo(null);
-                  const r = await createRecoveryCode(repos, password);
-                  setBusy(false);
-                  if ('error' in r) return setError(message(r.error));
-                  setPassword('');
-                  setNewCode(r.recoveryCode);
-                }}
-              >
-                {t.newCodeGo}
-              </Button>
-            </Card>
+            {session.restored && (
+              <Card title={t.restoredTitle}>
+                <p>{t.restoredText}</p>
+                <TextField
+                  label={t.newPassword}
+                  hint={t.passwordHint}
+                  type={show ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={newPw}
+                  onChange={setNewPw}
+                />
+                <Switch label={t.showPassword} checked={show} onChange={setShow} />
+                <Button
+                  block
+                  disabled={busy || !newPw}
+                  onClick={async () => {
+                    setBusy(true);
+                    setError(null);
+                    setInfo(null);
+                    const r = await setRestoredPassword(repos, newPw);
+                    setBusy(false);
+                    if ('error' in r) return setError(message(r.error));
+                    setNewPw('');
+                    setNewCode(r.recoveryCode);
+                  }}
+                >
+                  {t.restoredGo}
+                </Button>
+              </Card>
+            )}
+            {!session.restored && (
+              <Card title={t.changeTitle}>
+                <TextField
+                  label={t.currentPassword}
+                  type={show ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  value={oldPw}
+                  onChange={setOldPw}
+                />
+                <TextField
+                  label={t.newPassword}
+                  hint={t.passwordHint}
+                  type={show ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={newPw}
+                  onChange={setNewPw}
+                />
+                <Switch label={t.showPassword} checked={show} onChange={setShow} />
+                <Button
+                  block
+                  variant="secondary"
+                  disabled={busy || !oldPw || !newPw}
+                  onClick={async () => {
+                    setBusy(true);
+                    setError(null);
+                    setInfo(null);
+                    const r = await changeAccountPassword(repos, oldPw, newPw);
+                    setBusy(false);
+                    if ('error' in r) return setError(message(r.error));
+                    setOldPw('');
+                    setNewPw('');
+                    setInfo(t.changed);
+                  }}
+                >
+                  {t.changeGo}
+                </Button>
+              </Card>
+            )}
+            {!session.restored && (
+              <Card title={t.newCodeTitle}>
+                <p>{t.newCodeHint}</p>
+                <TextField
+                  label={t.password}
+                  type={show ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={setPassword}
+                />
+                <Switch label={t.showPassword} checked={show} onChange={setShow} />
+                <Button
+                  block
+                  variant="secondary"
+                  disabled={busy || !password}
+                  onClick={async () => {
+                    setBusy(true);
+                    setError(null);
+                    setInfo(null);
+                    const r = await createRecoveryCode(repos, password);
+                    setBusy(false);
+                    if ('error' in r) return setError(message(r.error));
+                    setPassword('');
+                    setNewCode(r.recoveryCode);
+                  }}
+                >
+                  {t.newCodeGo}
+                </Button>
+              </Card>
+            )}
             <Button block variant="secondary" onClick={() => void signOut(repos)}>
               {t.signOut}
             </Button>

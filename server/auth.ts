@@ -45,6 +45,11 @@ export type Credentials = Secret & {
   sessionsFrom?: number;
   /** Hash of the one-time recovery code (accounts created before recovery existed lack it). */
   recovery?: Secret;
+  /**
+   * The account was recreated from a signed session after the storage was replaced: it has no
+   * password until the owner sets one (it cannot be guessed: the hash is empty).
+   */
+  restored?: boolean;
 };
 
 const derive = (value: string, salt: string) =>

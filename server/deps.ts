@@ -1,5 +1,6 @@
 import { randomDelayMs } from './auth.js';
 import { blobStore } from './blobStore.js';
+import { redisConfigFromEnv, redisStore } from './redisStore.js';
 import type { Deps } from './types.js';
 
 /**
@@ -32,7 +33,15 @@ export function envDeps(): Deps {
   if (!secret || secret.length < 32) throw new Error('AUTH_SECRET is not configured');
   return {
     secret,
-    store: blobStore,
+    // Upstash Redis when connected (KV_REST_API_*), else the private Blob store.
+    store: (() => {
+      const redis = redisConfigFromEnv(process.env);
+      return redis ? redisStore(redis) : blobStore;
+    })(),
+    // Accounts of old sessions may be restored after a storage move, until this moment (ms).
+    ...(Number(process.env.RESTORE_UNTIL) > 0
+      ? { restoreUntil: Number(process.env.RESTORE_UNTIL) }
+      : {}),
     now: () => Date.now(),
     signupOpen: process.env.SIGNUP_DISABLED !== '1',
     failDelayMs: randomDelayMs,

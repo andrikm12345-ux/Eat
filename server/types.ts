@@ -24,6 +24,11 @@ export type Deps = {
   adminLogins?: string[];
   /** Personal button texts set by the administrator: login → { key: text } (USER_LABELS). */
   userLabels?: Record<string, Record<string, string>>;
+  /**
+   * After the storage was replaced, an account that is missing there is recreated (without a
+   * password) from a valid signed token until this moment (ms). Absent = never.
+   */
+  restoreUntil?: number;
   /** For tests: replaces fetch when calling the AI service. */
   fetchImpl?: typeof fetch;
 };

@@ -2,6 +2,8 @@ import { SCHEMA_V1, type TableName } from '../db/db';
 import type { Repos } from '../db/repos';
 import { BASE_FOODS_SETTING } from '../db/baseFoods';
 import { ACCOUNT, getSession, signOut } from './account';
+import { ru } from '../i18n/ru';
+import { toast } from '../state/ui';
 import { refreshSharedAi } from './sharedAi';
 import { exportJson, importJson, isSecretSetting, parseBackup, type Backup } from './backup';
 
@@ -59,6 +61,12 @@ export async function syncNow(r: Repos): Promise<SyncResult> {
     }
     if (!res.ok) return { ok: false, reason: 'server' };
     await storeLabels(r, res.headers.get('x-ui-labels'));
+    // The server recreated this account after a storage move: it has no password yet.
+    const restored = res.headers.get('x-account-restored') === '1';
+    if (restored !== (await r.settings.get<boolean>(ACCOUNT.restored, false))) {
+      await r.settings.set(ACCOUNT.restored, restored);
+      if (restored) toast({ text: ru.account.restoredToast, durationMs: 12000 });
+    }
     const body = await res.text();
     let pulled = 0;
     let remoteTables: string | null = null;

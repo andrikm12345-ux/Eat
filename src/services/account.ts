@@ -15,6 +15,8 @@ export const ACCOUNT = {
   owner: 'accountDataOwner',
   /** Personal button texts the administrator set for this account (from the server). */
   labels: 'accountLabels',
+  /** The server recreated this account after a storage move and it has no password yet. */
+  restored: 'accountRestored',
 } as const;
 
 /** What a failed reply means for the user: wrong secret, or locked for a while. */
@@ -146,6 +148,32 @@ export async function changeAccountPassword(
     // The server signed every other device out and issued a new token for this one.
     if (data.token) await r.settings.set(ACCOUNT.token, data.token);
     return { ok: true };
+  }
+  if (data.error === 'bad_password') return { error: 'bad_password' };
+  return { error: failure(res.status) };
+}
+
+/** Sets the first password of a restored account (no current password exists yet). */
+export async function setRestoredPassword(
+  r: Repos,
+  newPassword: string,
+): Promise<{ recoveryCode: string } | { error: AccountError }> {
+  const session = await getSession(r);
+  if (!session) return { error: 'wrong_credentials' };
+  let res: Response;
+  try {
+    res = await fetch('/api/auth/set-password', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${session.token}` },
+      body: JSON.stringify({ newPassword }),
+    });
+  } catch {
+    return { error: 'network' };
+  }
+  const data = (await res.json().catch(() => ({}))) as Reply;
+  if (res.ok && data.recoveryCode) {
+    await r.settings.set(ACCOUNT.restored, false);
+    return { recoveryCode: data.recoveryCode };
   }
   if (data.error === 'bad_password') return { error: 'bad_password' };
   return { error: failure(res.status) };
