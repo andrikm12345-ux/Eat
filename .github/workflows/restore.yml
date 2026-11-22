@@ -1,0 +1,40 @@
+# Manual restore of one backup into the storage (GitHub → Actions → Restore → Run workflow, day = the
+# folder name in the `backups` branch, e.g. 2026-11-29). The server decrypts the files and writes them.
+name: Restore
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: 'Backup day (folder in the backups branch), e.g. 2026-11-29'
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    env:
+      SITE: https://dnevnik-theta.vercel.app
+      DAY: ${{ inputs.day }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: backups
+
+      - name: Restore
+        run: |
+          set -euo pipefail
+          case "$DAY" in [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) ;; *) echo "bad day"; exit 1;; esac
+          test -d "data/$DAY" || { echo "no backup for $DAY"; exit 1; }
+          jwt() {
+            curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=dnevnik-backup" | jq -r .value
+          }
+          for f in data/$DAY/*.json; do
+            out=$(curl -sS -m 120 -X POST -H "Authorization: Bearer $(jwt)" \
+              -H 'content-type: application/json' --data-binary @"$f" "$SITE/api/backup")
+            echo "$f: $out"
+            echo "$out" | jq -e '.ok == true' >/dev/null
+          done

@@ -1,5 +1,7 @@
 # Weekly encrypted backup of the storage into the `backups` branch (see README, «Резервные копии»).
-# The files are AES-256-GCM encrypted by the server; only the server (it holds AUTH_SECRET) can read them.
+# No secret is shared: the job proves who it is with the identity token GitHub gives it (OIDC), the
+# server checks GitHub's signature. The files are AES-256-GCM encrypted by the server, which holds
+# the key (derived from AUTH_SECRET): nobody else can read them.
 name: Backup
 on:
   schedule:
@@ -8,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 concurrency: backup
 
@@ -15,20 +18,17 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     env:
-      BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
       SITE: https://dnevnik-theta.vercel.app
     steps:
-      - name: No token, nothing to do
-        if: env.BACKUP_TOKEN == ''
-        run: echo "Secret BACKUP_TOKEN is not set: skipping."
-
       - uses: actions/checkout@v4
-        if: env.BACKUP_TOKEN != ''
 
       - name: Back up
-        if: env.BACKUP_TOKEN != ''
         run: |
           set -euo pipefail
+          jwt() {
+            curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=dnevnik-backup" | jq -r .value
+          }
           git config user.name "backup-bot"
           git config user.email "backup-bot@users.noreply.github.com"
           if git ls-remote --exit-code --heads origin backups >/dev/null 2>&1; then
@@ -46,7 +46,7 @@ jobs:
           for p in $parts; do
             name=$(echo "$p" | tr '/' '_')
             code=$(curl -sS -m 120 -o "data/$day/$name.json" -w '%{http_code}' \
-              -H "Authorization: Bearer $BACKUP_TOKEN" "$SITE/api/backup?prefix=$p")
+              -H "Authorization: Bearer $(jwt)" "$SITE/api/backup?prefix=$p")
             if [ "$code" != "200" ]; then echo "part $p answered $code"; exit 1; fi
           done
           # keep the last 8 backups (about two months)

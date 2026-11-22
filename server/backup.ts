@@ -1,21 +1,19 @@
-import {
-  createCipheriv,
-  createDecipheriv,
-  hkdfSync,
-  randomBytes,
-  timingSafeEqual,
-} from 'node:crypto';
+import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from 'node:crypto';
+import { fromWorkflow, verifyGithubToken } from './githubOidc.js';
 import { bearer, json } from './http.js';
 import type { Deps } from './types.js';
 
 /**
  * Encrypted backup of the storage. The key is derived from AUTH_SECRET (the server has it; it is
  * never shown, so only this server can read a backup back). A scheduled job (GitHub Actions)
- * pulls the parts with BACKUP_TOKEN and keeps them in a branch; restoring goes the other way,
+ * pulls the parts (proving itself with GitHub's identity token) and keeps them in a branch; restoring goes the other way,
  * through this server.
  *
+ * No shared secret: the job proves who it is with the identity token GitHub gives it (OIDC):
+ * `backup.yml` of this repository on main may read, `restore.yml` may write.
+ *
  * GET  /api/backup?prefix=creds/  → {v, at, prefix, iv, data}  (AES-256-GCM of {path: text})
- * POST /api/backup  <that JSON>   → writes the paths back (same token)
+ * POST /api/backup  <that JSON>   → writes the paths back
  */
 const ALLOWED = ['creds/', 'meta/', 'users/', 'admin/', 'usage/', 'search-usage/'] as const;
 /** Backups skip short-lived things (counters of wrong passwords, AI jobs, audit, health). */
@@ -54,18 +52,14 @@ export function open(secret: string, s: Sealed): Record<string, string> {
   return JSON.parse(text) as Record<string, string>;
 }
 
-const authorized = (token: string | undefined, req: Request) => {
-  const given = bearer(req);
-  if (!token || token.length < 24 || !given) return false;
-  const a = Buffer.from(given);
-  const b = Buffer.from(token);
-  return a.length === b.length && timingSafeEqual(a, b);
-};
-
-export async function backup(d: Deps, req: Request, token: string | undefined): Promise<Response> {
-  // Not configured (no BACKUP_TOKEN): the endpoint does not exist.
-  if (!token) return json({ error: 'not_found' }, 404);
-  if (!authorized(token, req)) return json({ error: 'unauthorized' }, 401);
+export async function backup(d: Deps, req: Request, repo: string): Promise<Response> {
+  const token = bearer(req);
+  const claims = token ? await verifyGithubToken(token, d.fetchImpl ?? fetch, d.now()) : null;
+  if (!claims) return json({ error: 'unauthorized' }, 401);
+  // Reading: the weekly job (or a manual run of it). Writing: only the restore job.
+  const mayRead = fromWorkflow(claims, repo, 'backup.yml', ['schedule', 'workflow_dispatch']);
+  const mayWrite = fromWorkflow(claims, repo, 'restore.yml', ['workflow_dispatch']);
+  if (!(req.method === 'GET' ? mayRead : mayWrite)) return json({ error: 'forbidden' }, 403);
   if (!d.store.list) return json({ error: 'unsupported' }, 501);
 
   if (req.method === 'GET') {
