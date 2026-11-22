@@ -1172,6 +1172,8 @@ export const ru = {
       repeat: 'повтор',
       quick: 'быстрые ккал',
     },
+    /** Saved before «по базе» had its own mark: it cannot be told from a really manual one. */
+    sourceOldManual: 'вручную или по базе',
     sourceUnknown: 'способ не указан',
     cookDeleteDay: 'Удалить',
     cookDelete: (at: string) => `Удалить подборку ${at}`,

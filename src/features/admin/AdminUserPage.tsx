@@ -20,6 +20,13 @@ import { useGoBack } from '../../ui/useGoBack';
 import { useSwipeBack } from '../../ui/useSwipeBack';
 
 const t = ru.admin;
+
+/** Records saved before this moment have no «описание словами · по базе»: it was saved as «вручную». */
+const BY_BASE_SINCE = '2026-11-22T12:00:00Z';
+const sourceLabel = (e: { source?: string; createdAt?: string }) => {
+  if (e.source === 'manual' && (e.createdAt ?? '') < BY_BASE_SINCE) return t.sourceOldManual;
+  return (e.source && t.source[e.source as keyof typeof t.source]) || t.sourceUnknown;
+};
 const NB = ' ';
 const unit = (value: string, u: string) => `${value}${NB}${u}`;
 
@@ -189,7 +196,7 @@ export default function AdminUserPage() {
                       <span
                         className={`${styles.source} ${e.source === 'ai_photo' ? styles.sourcePhoto : ''}`}
                       >
-                        {t.source[e.source] ?? t.sourceUnknown}
+                        {sourceLabel(e)}
                       </span>
                     </span>
                     <span>{unit(formatKcal(e.totals.kcal), ru.units.kcal)}</span>

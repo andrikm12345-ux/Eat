@@ -108,6 +108,16 @@ describe('administrator view', () => {
               items: [{ name: 'Суп', grams: 300, nutrients: n(200) }],
               totals: n(200),
               source: 'manual',
+              createdAt: '2026-11-30T10:00:00.000Z',
+            },
+            {
+              id: 'e6',
+              date,
+              time: '14:00',
+              items: [{ name: 'Яблоко', grams: 150, nutrients: n(0) }],
+              totals: n(0),
+              source: 'manual',
+              createdAt: '2026-11-20T10:00:00.000Z',
             },
             {
               id: 'e3',
@@ -143,7 +153,9 @@ describe('administrator view', () => {
     expect(screen.getByText(/Осталось: 1\s?298/)).toBeVisible();
     // How each record was added: the photo one is marked, the others say how too.
     expect(screen.getByText(ru.admin.source.ai_photo)).toBeVisible();
+    // Really manual (after the change) and an old one that could also be «по базе».
     expect(screen.getByText(ru.admin.source.manual)).toBeVisible();
+    expect(screen.getByText(ru.admin.sourceOldManual)).toBeVisible();
     expect(screen.getByText(ru.admin.sourceUnknown)).toBeVisible();
     // «Описать словами»: counted by the catalog (no AI) and by the AI are told apart.
     expect(screen.getByText(ru.admin.source.text)).toBeVisible();
