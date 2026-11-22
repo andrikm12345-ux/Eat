@@ -12,6 +12,8 @@ export type Habit = {
   uses: number;
   /** A simple product from the shop list, not something from the person's own diary. */
   store?: boolean;
+  /** Minutes to get it ready to eat (0 = eat as it is). Only known for the shop list. */
+  minutes?: number;
 };
 
 /** What kind of food it is, for the time-of-day and "already eaten today" rules. */
@@ -41,33 +43,122 @@ const n = (kcal: number, protein: number, fat: number, carbs: number): Nutrients
   carbs,
 });
 export const STORE_FOODS: readonly Habit[] = [
-  { name: 'Кефир 1%', grams: 250, per100g: n(40, 3.4, 1, 4), uses: 0, store: true },
-  { name: 'Греческий йогурт 2%', grams: 150, per100g: n(73, 9, 2, 4), uses: 0, store: true },
-  { name: 'Треска запечённая', grams: 200, per100g: n(98, 21.5, 1, 0), uses: 0, store: true },
-  { name: 'Минтай отварной', grams: 200, per100g: n(72, 16, 0.9, 0), uses: 0, store: true },
-  { name: 'Тунец в собственном соку', grams: 120, per100g: n(96, 21, 1, 0), uses: 0, store: true },
-  { name: 'Креветки варёные', grams: 150, per100g: n(95, 20, 1.8, 0), uses: 0, store: true },
-  { name: 'Кальмар отварной', grams: 150, per100g: n(98, 18, 2.2, 2), uses: 0, store: true },
-  { name: 'Тофу', grams: 150, per100g: n(76, 8.1, 4.8, 1.9), uses: 0, store: true },
+  { name: 'Кефир 1%', grams: 250, per100g: n(40, 3.4, 1, 4), uses: 0, store: true, minutes: 0 },
+  {
+    name: 'Греческий йогурт 2%',
+    grams: 150,
+    per100g: n(73, 9, 2, 4),
+    uses: 0,
+    store: true,
+    minutes: 0,
+  },
+  {
+    name: 'Скир (высокобелковый йогурт)',
+    grams: 150,
+    per100g: n(63, 11, 0.2, 4),
+    uses: 0,
+    store: true,
+    minutes: 0,
+  },
+  {
+    name: 'Тунец в собственном соку',
+    grams: 120,
+    per100g: n(96, 21, 1, 0),
+    uses: 0,
+    store: true,
+    minutes: 0,
+  },
+  {
+    name: 'Крабовые палочки',
+    grams: 120,
+    per100g: n(95, 6, 1, 15),
+    uses: 0,
+    store: true,
+    minutes: 0,
+  },
+  {
+    name: 'Креветки варёные',
+    grams: 150,
+    per100g: n(95, 20, 1.8, 0),
+    uses: 0,
+    store: true,
+    minutes: 3,
+  },
+  {
+    name: 'Кальмар отварной',
+    grams: 150,
+    per100g: n(98, 18, 2.2, 2),
+    uses: 0,
+    store: true,
+    minutes: 5,
+  },
+  { name: 'Тофу', grams: 150, per100g: n(76, 8.1, 4.8, 1.9), uses: 0, store: true, minutes: 3 },
   {
     name: 'Салат из огурцов и помидоров',
     grams: 250,
     per100g: n(17, 0.8, 0.1, 3),
     uses: 0,
     store: true,
+    minutes: 5,
   },
-  { name: 'Яблоко', grams: 150, per100g: n(52, 0.3, 0.2, 14), uses: 0, store: true },
-  { name: 'Хлебцы цельнозерновые', grams: 30, per100g: n(300, 10, 2.5, 55), uses: 0, store: true },
-  { name: 'Гречка варёная', grams: 200, per100g: n(110, 4, 1, 21), uses: 0, store: true },
-  { name: 'Творог 2%', grams: 180, per100g: n(103, 18, 2, 3), uses: 0, store: true },
+  {
+    name: 'Огурцы свежие',
+    grams: 200,
+    per100g: n(15, 0.8, 0.1, 3),
+    uses: 0,
+    store: true,
+    minutes: 0,
+  },
+  { name: 'Яблоко', grams: 150, per100g: n(52, 0.3, 0.2, 14), uses: 0, store: true, minutes: 0 },
+  {
+    name: 'Хлебцы цельнозерновые',
+    grams: 30,
+    per100g: n(300, 10, 2.5, 55),
+    uses: 0,
+    store: true,
+    minutes: 0,
+  },
+  {
+    name: 'Гречка варёная',
+    grams: 200,
+    per100g: n(110, 4, 1, 21),
+    uses: 0,
+    store: true,
+    minutes: 15,
+  },
+  {
+    name: 'Минтай отварной',
+    grams: 200,
+    per100g: n(72, 16, 0.9, 0),
+    uses: 0,
+    store: true,
+    minutes: 20,
+  },
+  {
+    name: 'Треска запечённая',
+    grams: 200,
+    per100g: n(98, 21.5, 1, 0),
+    uses: 0,
+    store: true,
+    minutes: 25,
+  },
+  { name: 'Творог 2%', grams: 180, per100g: n(103, 18, 2, 3), uses: 0, store: true, minutes: 0 },
   {
     name: 'Куриная грудка отварная',
     grams: 150,
     per100g: n(137, 29.8, 1.8, 0.5),
     uses: 0,
     store: true,
+    minutes: 20,
   },
-  { name: 'Яйца варёные', grams: 110, per100g: n(143, 12.9, 9.9, 0.7), uses: 0, store: true },
+  {
+    name: 'Яйца варёные',
+    grams: 110,
+    per100g: n(143, 12.9, 9.9, 0.7),
+    uses: 0,
+    store: true,
+    minutes: 12,
+  },
 ];
 
 /** What the moment and the day so far rule out. */
@@ -77,13 +168,17 @@ export type TopUpContext = {
   /** Names of what was already eaten today (not suggested again; eggs/curd as a kind). */
   eatenToday?: readonly string[];
   goalType?: GoalType;
+  /** Only the shop list ("what to buy"), not the person's own foods. */
+  storeOnly?: boolean;
+  /** At most this many minutes of getting the food ready, all items together. */
+  maxMinutes?: number | null;
 };
 
 export const isEvening = (hour: number | undefined) =>
   hour !== undefined && (hour >= 19 || hour < 5);
 
 /** One idea for the rest of the day: one or two habits. */
-export type TopUp = { items: Habit[]; total: Nutrients };
+export type TopUp = { items: Habit[]; total: Nutrients; minutes: number };
 
 const median = (xs: number[]) => {
   const s = [...xs].sort((a, b) => a - b);
@@ -165,7 +260,7 @@ export function topUps(
     if (!h.store && h.uses < 2 && h.grams > 400) return false;
     return true;
   };
-  const own = habits.filter(allowed);
+  const own = ctx.storeOnly ? [] : habits.filter(allowed);
   const shop = STORE_FOODS.filter(allowed);
   // Foods eaten more than once come first: a one-off (a whole carton of a milkshake) is not a
   // habit. With too few repeated foods everything in the diary is used.
@@ -176,6 +271,8 @@ export function topUps(
   const build = (fatLimit: boolean) => {
     options.length = 0;
     const consider = (items: Habit[]) => {
+      const minutes = items.reduce((m, h) => m + (h.minutes ?? 0), 0);
+      if (ctx.maxMinutes != null && minutes > ctx.maxMinutes) return;
       const total = sumNutrients(items.map((h) => scaleNutrients(h.per100g, h.grams)));
       // Not over the calories left (a small margin), and worth eating.
       if (total.kcal > left.kcal * 1.05 + 20 || total.kcal < Math.min(150, left.kcal * 0.35))
@@ -189,7 +286,7 @@ export function topUps(
       const lean = fatLeft === undefined ? 0 : 1 - Math.min(1, total.fat / Math.max(fatLeft, 5));
       const base =
         left.protein > 5 ? fill * 0.4 + protein * 0.3 + usual * 0.3 : fill * 0.7 + usual * 0.3;
-      options.push({ items, total, score: base + lean * 0.15 });
+      options.push({ items, total, minutes, score: base + lean * 0.15 });
     };
     pool.forEach((a, i) => {
       consider([a]);
@@ -207,7 +304,7 @@ export function topUps(
     const names = o.items.map((h) => h.name);
     if (names.every((x) => seen.has(x))) continue;
     names.forEach((x) => seen.add(x));
-    picked.push({ items: o.items, total: o.total });
+    picked.push({ items: o.items, total: o.total, minutes: o.minutes });
   }
   return picked;
 }

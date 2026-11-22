@@ -240,6 +240,27 @@ describe('Чем добрать норму', () => {
     expect(await screen.findByText('Рис с овощами')).toBeVisible();
   });
 
+  it('«Что докупить» opens from the card and offers foods that need no cooking', async () => {
+    const d = today();
+    useUi.setState({ date: d });
+    const porridge = await repos.foods.add({
+      name: 'Каша овсяная',
+      per100g: { kcal: 100, protein: 3, fat: 1, carbs: 20 },
+      servings: [],
+      source: 'base',
+      verified: true,
+    });
+    await logFood(repos, porridge, 100, { date: d, time: '08:00' });
+    const user = userEvent.setup();
+    await renderApp('/');
+    const card = (await screen.findByText(ru.today.topUp.title)).closest('section') as HTMLElement;
+    await user.click(within(card).getByRole('link', { name: ru.today.topUp.buy }));
+    await user.click(await screen.findByRole('radio', { name: ru.buy.time.none }));
+    expect(screen.getByRole('radio', { name: ru.buy.time.none })).toBeChecked();
+    expect((await screen.findAllByText(/без готовки/)).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /^Записать:/ }).length).toBeGreaterThan(0);
+  });
+
   it('all entries of the day are inside the flow scrolling box (the card does not stretch)', async () => {
     useUi.setState({ date: today() });
     const f = await oats();

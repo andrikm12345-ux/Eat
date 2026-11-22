@@ -107,6 +107,9 @@ export function TopUpCard({
           </p>
         </>
       )}
+      <LinkButton to={`/buy${addQs(today)}`} variant="text">
+        {t.buy}
+      </LinkButton>
       <LinkButton to={`/cook${addQs(today)}`} variant="text">
         {ru.cook.fromTopUp}
       </LinkButton>

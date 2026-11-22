@@ -107,4 +107,29 @@ describe('top up the day', () => {
       expect(names(ideas)).not.toContain('Молочный напиток');
     });
   });
+
+  describe('what to buy: only the shop list, within the time for cooking', () => {
+    it('after work: nothing that needs cooking, and no own foods', () => {
+      const own: Habit[] = [{ name: 'Рис с овощами', grams: 200, per100g: per(120, 4), uses: 9 }];
+      const ideas = topUps(own, { kcal: 600, protein: 60, fat: 5 }, 5, {
+        hour: 20,
+        storeOnly: true,
+        maxMinutes: 5,
+      });
+      expect(ideas.length).toBeGreaterThan(0);
+      for (const o of ideas) {
+        expect(o.minutes).toBeLessThanOrEqual(5);
+        expect(o.items.every((h) => h.store)).toBe(true);
+      }
+    });
+
+    it('with more time, things that are cooked can come', () => {
+      const ideas = topUps([], { kcal: 600, protein: 60, fat: 20 }, 8, {
+        hour: 14,
+        storeOnly: true,
+        maxMinutes: null,
+      });
+      expect(ideas.some((o) => o.minutes > 15)).toBe(true);
+    });
+  });
 });
