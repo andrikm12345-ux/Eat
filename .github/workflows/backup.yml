@@ -1,0 +1,56 @@
+# Daily encrypted backup of the storage into the `backups` branch (see README, «Резервные копии»).
+# The files are AES-256-GCM encrypted by the server; only the server (it holds AUTH_SECRET) can read them.
+name: Backup
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: backup
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
+      SITE: https://dnevnik-theta.vercel.app
+    steps:
+      - name: No token, nothing to do
+        if: env.BACKUP_TOKEN == ''
+        run: echo "Secret BACKUP_TOKEN is not set: skipping."
+
+      - uses: actions/checkout@v4
+        if: env.BACKUP_TOKEN != ''
+
+      - name: Back up
+        if: env.BACKUP_TOKEN != ''
+        run: |
+          set -euo pipefail
+          git config user.name "backup-bot"
+          git config user.email "backup-bot@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin backups >/dev/null 2>&1; then
+            git fetch origin backups
+            git checkout -B backups origin/backups
+          else
+            git checkout --orphan backups
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          day=$(date -u +%F)
+          rm -rf "data/$day"
+          mkdir -p "data/$day"
+          parts="creds/ meta/ admin/ usage/ search-usage/"
+          for h in 0 1 2 3 4 5 6 7 8 9 a b c d e f; do parts="$parts users/$h"; done
+          for p in $parts; do
+            name=$(echo "$p" | tr '/' '_')
+            code=$(curl -sS -m 120 -o "data/$day/$name.json" -w '%{http_code}' \
+              -H "Authorization: Bearer $BACKUP_TOKEN" "$SITE/api/backup?prefix=$p")
+            if [ "$code" != "200" ]; then echo "part $p answered $code"; exit 1; fi
+          done
+          # keep the last 30 days
+          ls -1d data/* | head -n -30 | xargs -r rm -rf
+          git add data
+          git commit -m "backup $day"
+          git push origin backups

@@ -71,5 +71,10 @@
     "api/ai/chat.ts": {
       "maxDuration": 90
     }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "backups": false
+    }
   }
 }
