@@ -1,9 +1,9 @@
-# Daily encrypted backup of the storage into the `backups` branch (see README, «Резервные копии»).
+# Weekly encrypted backup of the storage into the `backups` branch (see README, «Резервные копии»).
 # The files are AES-256-GCM encrypted by the server; only the server (it holds AUTH_SECRET) can read them.
 name: Backup
 on:
   schedule:
-    - cron: '17 3 * * *'
+    - cron: '17 3 * * 0'
   workflow_dispatch:
 
 permissions:
@@ -49,8 +49,8 @@ jobs:
               -H "Authorization: Bearer $BACKUP_TOKEN" "$SITE/api/backup?prefix=$p")
             if [ "$code" != "200" ]; then echo "part $p answered $code"; exit 1; fi
           done
-          # keep the last 30 days
-          ls -1d data/* | head -n -30 | xargs -r rm -rf
+          # keep the last 8 backups (about two months)
+          ls -1d data/* | head -n -8 | xargs -r rm -rf
           git add data
           git commit -m "backup $day"
           git push origin backups
