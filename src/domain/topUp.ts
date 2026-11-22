@@ -17,18 +17,22 @@ export type Habit = {
 };
 
 /** What kind of food it is, for the time-of-day and "already eaten today" rules. */
-export type FoodKind = 'egg' | 'curd' | 'meat' | 'sweet' | 'other';
+export type FoodKind = 'egg' | 'curd' | 'meat' | 'sweet' | 'drink' | 'other';
 
 const EGG = /яйц|омлет|яичниц/;
 const CURD = /творог|творож|сырник/;
 const MEAT =
   /куриц|курин|цыпл|говяд|свинин|свиной|индейк|телят|баранин|мяс|колбас|сосиск|сарделк|ветчин|бекон|фарш|котлет|бургер|шашлык|стейк|печенк|печень\b|тушенк|грудк|окорок|шницел|наггетс|пельмен|хинкал|шаурм|шаверм|салями|буженин/;
 const SWEET =
-  /торт|пирожн|конфет|шоколад|мороженое|пломбир|печенье|вафл|булочк|круассан|пончик|десерт|зефир|халва|варенье|коктейль/;
+  /торт|пирожн|конфет|шоколад|мороженое|пломбир|печенье|вафл|булочк|круассан|пончик|десерт|зефир|халва|варенье/;
+// Sweet drinks: «Сок…» (but not «в собственном соку»), nectar, lemonade, cocktails, cola...
+const DRINK =
+  /(?:^|[\s«"])сок(?:[\s«"]|$)|нектар|напиток|коктейл|лимонад|морс|компот|кола\b|газиров|смузи|квас|энергетик/;
 
 export function kindOf(name: string): FoodKind {
   const n = normalizeSearch(name);
   if (EGG.test(n)) return 'egg';
+  if (DRINK.test(n)) return 'drink';
   if (CURD.test(n)) return 'curd';
   if (MEAT.test(n)) return 'meat';
   if (SWEET.test(n)) return 'sweet';
@@ -295,6 +299,8 @@ export function topUps(
     // Before sleep: nothing heavy (meat), and curd is a morning food.
     if (evening && (k === 'meat' || k === 'curd' || k === 'egg')) return false;
     if (evening && k === 'sweet' && ctx.goalType === 'lose') return false;
+    // Losing: no sweet drinks (juice, milkshake) as a way to fill the day.
+    if (k === 'drink' && ctx.goalType === 'lose') return false;
     // A one-off big portion (a litre of a milkshake) is not a habit.
     if (!h.store && h.uses < 2 && h.grams > 400) return false;
     return true;
@@ -310,6 +316,8 @@ export function topUps(
   const build = (fatLimit: boolean) => {
     options.length = 0;
     const consider = (items: Habit[]) => {
+      // One drink at most in an idea: two juices and a milkshake is not a meal.
+      if (items.filter((h) => kindOf(h.name) === 'drink').length > 1) return;
       const minutes = items.reduce((m, h) => m + (h.minutes ?? 0), 0);
       if (ctx.maxMinutes != null && minutes > ctx.maxMinutes) return;
       const total = sumNutrients(items.map((h) => scaleNutrients(h.per100g, h.grams)));
@@ -327,7 +335,7 @@ export function topUps(
       // Fat and carbs left for the day are limits too: strict when losing, a little slack when
       // keeping, fat only a bit when gaining, carbs free when gaining.
       const fatLeft = left.fat === undefined ? undefined : Math.max(0, left.fat);
-      const fatSlack = lose ? 0 : fatLeft === undefined ? 0 : fatLeft * (gain ? 0.15 : 0.1) + 5;
+      const fatSlack = lose ? 1 : fatLeft === undefined ? 0 : fatLeft * (gain ? 0.15 : 0.1) + 5;
       if (fatLimit && fatLeft !== undefined && total.fat > fatLeft + fatSlack) return;
       const carbsLeft = left.carbs === undefined ? undefined : Math.max(0, left.carbs);
       const carbsSlack = lose ? 0 : carbsLeft === undefined ? 0 : carbsLeft * 0.1 + 5;

@@ -269,4 +269,41 @@ describe('top up the day', () => {
         if (h.name === 'Гречка с курицей') expect(h.grams).toBe(300);
       }
   });
+
+  describe('drinks', () => {
+    const own: Habit[] = [
+      { name: 'Сок мультифрукт', grams: 940, per100g: per(46, 0.5), uses: 6 },
+      { name: 'Сок апельсиновый', grams: 330, per100g: per(45, 0.7), uses: 3 },
+      { name: 'Молочный коктейль', grams: 300, per100g: per(75, 3), uses: 3 },
+    ];
+    const left = { kcal: 1100, protein: 48, fat: 40, carbs: 268 };
+
+    it('knows a drink, but not «в собственном соку»', () => {
+      expect(kindOf('Сок мультифрукт')).toBe('drink');
+      expect(kindOf('Напиток сокосодержащий «Апельсиновое манго»')).toBe('drink');
+      expect(kindOf('Коктейль молочный «Малиновый пломбир»')).toBe('drink');
+      expect(kindOf('Тунец в собственном соку')).toBe('other');
+    });
+
+    it('losing: no drinks at all', () => {
+      const ideas = topUps(own, left, 8, { hour: 14, goalType: 'lose' });
+      for (const o of ideas) for (const h of o.items) expect(kindOf(h.name)).not.toBe('drink');
+    });
+
+    it('others: at most one drink in an idea', () => {
+      const ideas = topUps(own, left, 8, { hour: 14, goalType: 'gain' });
+      for (const o of ideas)
+        expect(o.items.filter((h) => kindOf(h.name) === 'drink').length).toBeLessThanOrEqual(1);
+    });
+
+    it('losing with no fat left: light shop foods, not an empty card', () => {
+      const ideas = topUps([], { kcal: 1135, protein: 48, fat: 0, carbs: 268 }, 3, {
+        hour: 18,
+        goalType: 'lose',
+        storeOnly: true,
+      });
+      expect(ideas.length).toBeGreaterThan(0);
+      for (const o of ideas) expect(o.total.fat).toBeLessThanOrEqual(1);
+    });
+  });
 });
