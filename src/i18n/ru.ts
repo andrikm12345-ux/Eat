@@ -119,15 +119,21 @@ export const ru = {
     title: 'Что докупить',
     noGoal: 'Сначала задайте цель: тогда будет понятно, сколько ещё можно съесть.',
     full: 'На сегодня норма уже набрана: докупать нечего.',
-    left: (kcal: string, protein: string | null, noFat: string | null) =>
-      [`Осталось ${kcal}\u00A0ккал`, protein ? `${protein}\u00A0г белка` : null, noFat]
+    left: (kcal: string, protein: string | null, fat: string | null, carbs: string | null) =>
+      [
+        `Осталось ${kcal}\u00A0ккал`,
+        protein ? `${protein}\u00A0г белка` : null,
+        fat,
+        carbs ? `${carbs}\u00A0г углеводов` : null,
+      ]
         .filter(Boolean)
         .join(', '),
+    fatLeft: (g: string) => `${g}\u00A0г жиров`,
     noFat: 'жиров почти не осталось',
     timeLabel: 'Сколько времени на готовку',
     time: { none: 'Без готовки', quick: 'До 15\u00A0мин', any: 'Любое' },
-    macros: (kcal: string, protein: string, fat: string) =>
-      `${kcal}\u00A0ккал · Б\u00A0${protein} · Ж\u00A0${fat}`,
+    macros: (kcal: string, protein: string, fat: string, carbs: string) =>
+      `${kcal}\u00A0ккал · Б\u00A0${protein} · Ж\u00A0${fat} · У\u00A0${carbs}`,
     noCook: 'без готовки',
     cook: (minutes: number) => `готовка около ${minutes}\u00A0мин`,
     add: 'Записать',
@@ -322,10 +328,15 @@ export const ru = {
     flowTitle: 'Поток дня',
     topUp: {
       title: 'Чем добрать норму',
-      left: (kcal: string, protein: string | null) =>
-        protein
-          ? `Осталось ${kcal}\u00A0ккал и ${protein}\u00A0г белка`
-          : `Осталось ${kcal}\u00A0ккал`,
+      left: (kcal: string, protein: string | null, fat: string | null, carbs: string | null) =>
+        [
+          `Осталось ${kcal}\u00A0ккал`,
+          protein ? `${protein}\u00A0г белка` : null,
+          fat ? `${fat}\u00A0г жиров` : null,
+          carbs ? `${carbs}\u00A0г углеводов` : null,
+        ]
+          .filter(Boolean)
+          .join(', '),
       hint: 'Из того, что вы обычно едите, в ваших обычных порциях.',
       hintStore: 'Из того, что вы едите, и простых продуктов, которые легко купить.',
       hintEvening: 'Вечером без мяса и творога: лёгкое перед сном.',
@@ -333,7 +344,8 @@ export const ru = {
       empty: 'Запишите ещё несколько приёмов пищи: здесь появятся идеи из того, что вы едите.',
       add: 'Записать',
       addLabel: (what: string) => `Записать: ${what}`,
-      macros: (kcal: string, protein: string) => `${kcal}\u00A0ккал · Б\u00A0${protein}`,
+      macros: (kcal: string, protein: string, fat: string, carbs: string) =>
+        `${kcal}\u00A0ккал · Б\u00A0${protein} · Ж\u00A0${fat} · У\u00A0${carbs}`,
     },
     hero: {
       greet: {

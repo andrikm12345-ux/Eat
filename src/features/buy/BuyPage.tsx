@@ -105,7 +105,12 @@ export default function BuyPage() {
             {t.left(
               formatKcal(left.kcal),
               left.protein > 5 ? formatGrams(left.protein) : null,
-              left.fat <= 5 && left.goalType !== 'gain' ? t.noFat : null,
+              left.fat <= 5 && left.goalType !== 'gain'
+                ? t.noFat
+                : left.fat > 0
+                  ? t.fatLeft(formatGrams(left.fat))
+                  : null,
+              left.carbs > 0 ? formatGrams(left.carbs) : null,
             )}
           </p>
           <Segmented value={time} options={TIME_OPTIONS} onChange={setTime} label={t.timeLabel} />
@@ -124,6 +129,7 @@ export default function BuyPage() {
                           formatKcal(o.total.kcal),
                           formatGrams(o.total.protein),
                           formatGrams(o.total.fat),
+                          formatGrams(o.total.carbs),
                         )}
                         {' · '}
                         {o.minutes <= 5 ? t.noCook : t.cook(o.minutes)}

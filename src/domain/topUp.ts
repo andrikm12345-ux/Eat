@@ -354,13 +354,23 @@ export function topUps(
       const proteinNeed =
         left.protein > 5 ? Math.min(total.protein, left.protein * 1.3) / left.protein : 0;
       const density = Math.min(1, (total.protein * 4) / Math.max(total.kcal, 1));
+      // Carbs: as few as possible when losing (within the limit), welcome when gaining.
+      const carbsRoom =
+        carbsLeft === undefined ? 0 : Math.min(1, total.carbs / Math.max(carbsLeft, 10));
+      const leanCarbs = carbsLeft === undefined ? 0 : 1 - carbsRoom;
+      const useCarbs = gain && carbsLeft !== undefined && carbsLeft > 10 ? carbsRoom * 0.1 : 0;
       const loseScore =
-        proteinNeed * 0.45 + density * 0.25 + lean * 0.2 + fill * 0.05 + usual * 0.05;
+        proteinNeed * 0.45 +
+        density * 0.2 +
+        lean * 0.15 +
+        leanCarbs * 0.1 +
+        fill * 0.05 +
+        usual * 0.05;
       options.push({
         items,
         total,
         minutes,
-        score: lose ? loseScore : base + lean * leanWeight + useFat,
+        score: lose ? loseScore : base + lean * leanWeight + useFat + useCarbs,
       });
     };
     // Gaining: the usual portion may be a bit bigger (one and a half, two) to eat what is left.

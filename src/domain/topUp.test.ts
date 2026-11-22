@@ -224,4 +224,19 @@ describe('top up the day', () => {
       expect(best[0]!.total.protein).toBeGreaterThan(40);
     });
   });
+
+  describe('carbs follow the goal', () => {
+    const left = { kcal: 800, protein: 50, fat: 40, carbs: 120 };
+    const run = (goalType: 'lose' | 'gain') =>
+      topUps([], left, 3, { hour: 14, goalType, storeOnly: true, maxMinutes: null });
+
+    it('losing: carbs of the best idea are low, and never over the limit', () => {
+      for (const o of run('lose')) expect(o.total.carbs).toBeLessThanOrEqual(left.carbs);
+      expect(run('lose')[0]!.total.carbs).toBeLessThan(left.carbs * 0.3);
+    });
+
+    it('gaining: carbs are welcome, more than when losing', () => {
+      expect(run('gain')[0]!.total.carbs).toBeGreaterThan(run('lose')[0]!.total.carbs + 20);
+    });
+  });
 });

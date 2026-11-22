@@ -83,7 +83,12 @@ export function TopUpCard({
   return (
     <Card title={t.title} tone="mint">
       <p className={styles.topUpLeft}>
-        {t.left(formatKcal(left.kcal), left.protein > 5 ? formatGrams(left.protein) : null)}
+        {t.left(
+          formatKcal(left.kcal),
+          left.protein > 5 ? formatGrams(left.protein) : null,
+          leftFat !== undefined && leftFat > 0 ? formatGrams(leftFat) : null,
+          leftCarbs !== undefined && leftCarbs > 0 ? formatGrams(leftCarbs) : null,
+        )}
       </p>
       {ideas.length === 0 ? (
         <p className={styles.topUpHint}>{t.empty}</p>
@@ -97,7 +102,12 @@ export function TopUpCard({
                   <span className={styles.topUpMain}>
                     <span className={styles.topUpName}>{what}</span>
                     <span className={styles.topUpMacros}>
-                      {t.macros(formatKcal(o.total.kcal), formatGrams(o.total.protein))}
+                      {t.macros(
+                        formatKcal(o.total.kcal),
+                        formatGrams(o.total.protein),
+                        formatGrams(o.total.fat),
+                        formatGrams(o.total.carbs),
+                      )}
                     </span>
                   </span>
                   <Button variant="secondary" aria-label={t.addLabel(what)} onClick={() => log(o)}>
