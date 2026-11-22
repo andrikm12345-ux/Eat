@@ -82,12 +82,12 @@ export function TopUpCard({
 
   return (
     <Card title={t.title} tone="mint">
-      <p className={styles.topUpLeft}>
-        {t.left(
-          formatKcal(left.kcal),
-          left.protein > 5 ? formatGrams(left.protein) : null,
-          leftFat !== undefined && leftFat > 0 ? formatGrams(leftFat) : null,
-          leftCarbs !== undefined && leftCarbs > 0 ? formatGrams(leftCarbs) : null,
+      <p className={styles.topUpLeft}>{t.left(formatKcal(left.kcal))}</p>
+      <p className={styles.topUpLeftBju}>
+        {t.bju(
+          formatGrams(left.protein),
+          formatGrams(Math.max(0, leftFat ?? 0)),
+          formatGrams(Math.max(0, leftCarbs ?? 0)),
         )}
       </p>
       {ideas.length === 0 ? (
@@ -101,14 +101,14 @@ export function TopUpCard({
                 <li key={what} className={styles.topUpRow}>
                   <span className={styles.topUpMain}>
                     <span className={styles.topUpName}>{what}</span>
-                    <span className={styles.topUpMacros}>
-                      {t.kcalLine(formatKcal(o.total.kcal))}
-                    </span>
                     <span className={styles.topUpBju}>
-                      {t.bju(
-                        formatGrams(Math.round(o.total.protein)),
-                        formatGrams(Math.round(o.total.fat)),
-                        formatGrams(Math.round(o.total.carbs)),
+                      {t.kcalBju(
+                        formatKcal(o.total.kcal),
+                        t.bjuShort(
+                          formatGrams(Math.round(o.total.protein)),
+                          formatGrams(Math.round(o.total.fat)),
+                          formatGrams(Math.round(o.total.carbs)),
+                        ),
                       )}
                     </span>
                   </span>

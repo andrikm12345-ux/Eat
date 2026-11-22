@@ -101,16 +101,12 @@ export default function BuyPage() {
         <Notice>{t.full}</Notice>
       ) : (
         <Card title={t.title} tone="mint">
-          <p className={styles.topUpLeft}>
-            {t.left(
-              formatKcal(left.kcal),
-              left.protein > 5 ? formatGrams(left.protein) : null,
-              left.fat <= 5 && left.goalType !== 'gain'
-                ? t.noFat
-                : left.fat > 0
-                  ? t.fatLeft(formatGrams(left.fat))
-                  : null,
-              left.carbs > 0 ? formatGrams(left.carbs) : null,
+          <p className={styles.topUpLeft}>{t.left(formatKcal(left.kcal))}</p>
+          <p className={styles.topUpLeftBju}>
+            {t.bju(
+              formatGrams(left.protein),
+              formatGrams(Math.max(0, left.fat)),
+              formatGrams(Math.max(0, left.carbs)),
             )}
           </p>
           <Segmented value={time} options={TIME_OPTIONS} onChange={setTime} label={t.timeLabel} />
@@ -124,18 +120,18 @@ export default function BuyPage() {
                   <li key={what} className={styles.topUpRow}>
                     <span className={styles.topUpMain}>
                       <span className={styles.topUpName}>{what}</span>
-                      <span className={styles.topUpMacros}>
-                        {t.kcalLine(
+                      <span className={styles.topUpBju}>
+                        {t.kcalBju(
                           formatKcal(o.total.kcal),
-                          o.minutes <= 5 ? t.noCook : t.cook(o.minutes),
+                          t.bjuShort(
+                            formatGrams(Math.round(o.total.protein)),
+                            formatGrams(Math.round(o.total.fat)),
+                            formatGrams(Math.round(o.total.carbs)),
+                          ),
                         )}
                       </span>
-                      <span className={styles.topUpBju}>
-                        {t.bju(
-                          formatGrams(Math.round(o.total.protein)),
-                          formatGrams(Math.round(o.total.fat)),
-                          formatGrams(Math.round(o.total.carbs)),
-                        )}
+                      <span className={styles.topUpPrep}>
+                        {o.minutes <= 5 ? t.noCook : t.cook(o.minutes)}
                       </span>
                     </span>
                     <Button

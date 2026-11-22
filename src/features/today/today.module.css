@@ -611,8 +611,20 @@
 
 /* "Чем добрать норму" */
 .topUpLeft {
-  margin: 0 0 var(--sp-2);
+  margin: 0;
   font-weight: var(--fw-semibold);
+}
+.topUpLeftBju {
+  margin: 2px 0 var(--sp-2);
+  font-size: var(--fs-5);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.topUpPrep {
+  font-size: var(--fs-6);
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 .topUpList {
   list-style: none;
