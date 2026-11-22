@@ -11,7 +11,7 @@ import { toast } from '../../state/ui';
 import { BackBar } from '../../ui/BackBar';
 import { ToastHost } from '../../ui/ToastHost';
 import { IconBack, IconChevron } from '../../ui/icons';
-import { Card, Notice, Stat } from '../../ui/kit';
+import { Card, Notice } from '../../ui/kit';
 import { Loading } from '../../ui/states';
 import { AdminCookHistory } from './AdminCookHistory';
 import styles from './admin.module.css';
@@ -147,18 +147,23 @@ export default function AdminUserPage() {
                 <p className={styles.muted}>{t.goalNone}</p>
               )}
               <div className={styles.stats}>
-                <Stat
-                  label="Б"
-                  value={`${formatGrams(view.totals.protein)}${view.goal ? ` / ${formatGrams(view.goal.protein)}` : ''}`}
-                />
-                <Stat
-                  label="Ж"
-                  value={`${formatGrams(view.totals.fat)}${view.goal ? ` / ${formatGrams(view.goal.fat)}` : ''}`}
-                />
-                <Stat
-                  label="У"
-                  value={`${formatGrams(view.totals.carbs)}${view.goal ? ` / ${formatGrams(view.goal.carbs)}` : ''}`}
-                />
+                {(
+                  [
+                    ['Б', view.totals.protein, view.goal?.protein],
+                    ['Ж', view.totals.fat, view.goal?.fat],
+                    ['У', view.totals.carbs, view.goal?.carbs],
+                  ] as const
+                ).map(([label, eaten, goal]) => (
+                  <div key={label} className={styles.macro}>
+                    <span className={styles.macroLabel}>{label}</span>
+                    <span className={styles.macroValue}>
+                      {formatGrams(Math.round(eaten))}
+                      {goal !== undefined && (
+                        <span className={styles.macroGoal}> / {formatGrams(Math.round(goal))}</span>
+                      )}
+                    </span>
+                  </div>
+                ))}
               </div>
               {(view.weight || view.water > 0) && (
                 <p className={styles.muted}>
