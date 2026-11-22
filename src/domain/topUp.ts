@@ -159,6 +159,45 @@ export const STORE_FOODS: readonly Habit[] = [
     store: true,
     minutes: 12,
   },
+  { name: 'Банан', grams: 120, per100g: n(89, 1.1, 0.3, 23), uses: 0, store: true, minutes: 0 },
+  { name: 'Миндаль', grams: 30, per100g: n(579, 21, 50, 22), uses: 0, store: true, minutes: 0 },
+  {
+    name: 'Арахисовая паста',
+    grams: 30,
+    per100g: n(588, 25, 50, 20),
+    uses: 0,
+    store: true,
+    minutes: 0,
+  },
+  {
+    name: 'Лосось слабосолёный',
+    grams: 100,
+    per100g: n(202, 22, 12, 0),
+    uses: 0,
+    store: true,
+    minutes: 0,
+  },
+  { name: 'Кефир 3,2%', grams: 250, per100g: n(59, 2.9, 3.2, 4), uses: 0, store: true, minutes: 0 },
+  {
+    name: 'Греческий йогурт 5%',
+    grams: 150,
+    per100g: n(97, 9, 5, 4),
+    uses: 0,
+    store: true,
+    minutes: 0,
+  },
+  {
+    name: 'Хлеб цельнозерновой',
+    grams: 60,
+    per100g: n(250, 9, 3, 45),
+    uses: 0,
+    store: true,
+    minutes: 0,
+  },
+  { name: 'Гранола', grams: 50, per100g: n(450, 10, 18, 60), uses: 0, store: true, minutes: 0 },
+  { name: 'Курага', grams: 40, per100g: n(240, 3.4, 0.5, 55), uses: 0, store: true, minutes: 0 },
+  { name: 'Авокадо', grams: 100, per100g: n(160, 2, 15, 9), uses: 0, store: true, minutes: 0 },
+  { name: 'Творог 9%', grams: 180, per100g: n(159, 16, 9, 3), uses: 0, store: true, minutes: 0 },
 ];
 
 /** What the moment and the day so far rule out. */
@@ -277,20 +316,48 @@ export function topUps(
       // Not over the calories left (a small margin), and worth eating.
       if (total.kcal > left.kcal * 1.05 + 20 || total.kcal < Math.min(150, left.kcal * 0.35))
         return;
-      // The fat left for the day is a limit too ("жиров уже не надо").
+      const gain = ctx.goalType === 'gain';
+      // Far more protein than is needed is not a plan either.
+      if (left.protein > 5 && total.protein > left.protein * 1.6 + 10) return;
+      // Gaining: worth eating only if it brings a good part of what is still to eat.
+      if (gain && left.kcal >= 400 && total.kcal < left.kcal * 0.45) return;
+      // The fat left for the day is a limit too ("жиров уже не надо"), softer when gaining.
       const fatLeft = left.fat === undefined ? undefined : Math.max(0, left.fat);
-      if (fatLimit && fatLeft !== undefined && total.fat > fatLeft * 1.1 + 5) return;
+      const fatSlack = fatLeft === undefined ? 0 : fatLeft * (gain ? 0.15 : 0.1) + 5;
+      if (fatLimit && fatLeft !== undefined && total.fat > fatLeft + fatSlack) return;
       const fill = total.kcal / left.kcal;
       const protein = left.protein > 5 ? Math.min(total.protein, left.protein) / left.protein : 0;
       const usual = items.reduce((s, h) => s + h.uses, 0) / (items.length * maxUses);
       const lean = fatLeft === undefined ? 0 : 1 - Math.min(1, total.fat / Math.max(fatLeft, 5));
-      const base =
-        left.protein > 5 ? fill * 0.4 + protein * 0.3 + usual * 0.3 : fill * 0.7 + usual * 0.3;
-      options.push({ items, total, minutes, score: base + lean * 0.15 });
+      // Losing: lean food first. Keeping: a little. Gaining: calories and protein first, and
+      // the fat left to use is welcome, not to be avoided.
+      const leanWeight = ctx.goalType === 'lose' ? 0.15 : ctx.goalType === 'gain' ? 0 : 0.05;
+      const useFat =
+        gain && fatLeft !== undefined && fatLeft > 10 ? Math.min(1, total.fat / fatLeft) * 0.1 : 0;
+      const base = gain
+        ? left.protein > 5
+          ? fill * 0.5 + protein * 0.25 + usual * 0.25
+          : fill * 0.75 + usual * 0.25
+        : left.protein > 5
+          ? fill * 0.4 + protein * 0.3 + usual * 0.3
+          : fill * 0.7 + usual * 0.3;
+      options.push({ items, total, minutes, score: base + lean * leanWeight + useFat });
     };
+    // Gaining: the usual portion may be a bit bigger (one and a half, two) to eat what is left.
+    const scales = ctx.goalType === 'gain' ? [1, 1.5, 2] : [1];
+    const scaled = (items: Habit[]) =>
+      scales.forEach((k) =>
+        consider(
+          k === 1 ? items : items.map((h) => ({ ...h, grams: Math.round((h.grams * k) / 5) * 5 })),
+        ),
+      );
     pool.forEach((a, i) => {
-      consider([a]);
-      pool.slice(i + 1).forEach((b) => consider([a, b]));
+      scaled([a]);
+      pool.slice(i + 1).forEach((b, j) => {
+        scaled([a, b]);
+        // A meal of three: when gaining there is a lot to eat.
+        if (ctx.goalType === 'gain') pool.slice(i + 2 + j).forEach((c) => scaled([a, b, c]));
+      });
     });
   };
   build(true);

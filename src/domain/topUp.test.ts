@@ -132,4 +132,41 @@ describe('top up the day', () => {
       expect(ideas.some((o) => o.minutes > 15)).toBe(true);
     });
   });
+
+  describe('follows the goal', () => {
+    const run = (goalType: 'lose' | 'maintain' | 'gain') =>
+      topUps([], { kcal: 900, protein: 50, fat: 40 }, 3, {
+        hour: 21,
+        goalType,
+        storeOnly: true,
+        maxMinutes: 5,
+      });
+
+    it('gaining: eats most of what is left, fat is not avoided, no meat before sleep', () => {
+      const best = run('gain')[0]!;
+      expect(best.total.kcal).toBeGreaterThan(900 * 0.8);
+      expect(best.total.kcal).toBeLessThanOrEqual(900 * 1.05 + 20);
+      expect(best.total.fat).toBeLessThanOrEqual(40 * 1.15 + 5);
+      expect(best.items.some((h) => kindOf(h.name) === 'meat')).toBe(false);
+    });
+
+    it('losing brings less calories and less fat than gaining', () => {
+      expect(run('lose')[0]!.total.kcal).toBeLessThan(run('gain')[0]!.total.kcal);
+      expect(run('lose')[0]!.total.fat).toBeLessThan(run('gain')[0]!.total.fat);
+    });
+
+    it('gaining may take a bigger portion, losing never does', () => {
+      const grams = (g: 'lose' | 'gain') => run(g).flatMap((o) => o.items.map((h) => h.grams));
+      expect(grams('gain').some((x) => x >= 300 || x === 60 || x === 100)).toBe(true);
+      const usual = new Set(
+        topUps([], { kcal: 900, protein: 50, fat: 40 }, 30, {
+          hour: 21,
+          storeOnly: true,
+          maxMinutes: 5,
+        }).flatMap((o) => o.items.map((h) => `${h.name}${h.grams}`)),
+      );
+      for (const o of run('lose'))
+        for (const h of o.items) expect(usual.has(`${h.name}${h.grams}`)).toBe(true);
+    });
+  });
 });

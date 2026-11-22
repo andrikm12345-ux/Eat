@@ -99,7 +99,7 @@ export default function BuyPage() {
             {t.left(
               formatKcal(left.kcal),
               left.protein > 5 ? formatGrams(left.protein) : null,
-              left.fat <= 5 ? t.noFat : null,
+              left.fat <= 5 && left.goalType !== 'gain' ? t.noFat : null,
             )}
           </p>
           <Segmented value={time} options={TIME_OPTIONS} onChange={setTime} label={t.timeLabel} />
@@ -136,7 +136,7 @@ export default function BuyPage() {
             </ul>
           )}
           <p className={styles.topUpHint}>
-            {t.hint}
+            {t.hint[left?.goalType ?? 'maintain']}
             {isEvening(hour) ? ` ${t.hintEvening}` : ''}
           </p>
         </Card>
