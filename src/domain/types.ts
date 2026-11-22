@@ -115,7 +115,15 @@ export type EntryItem = {
 };
 
 export type EntrySource =
-  'manual' | 'barcode' | 'ai_photo' | 'ai_text' | 'template' | 'repeat' | 'quick';
+  | 'manual'
+  | 'barcode'
+  | 'ai_photo'
+  | 'ai_text'
+  /** «Описать словами» counted by the catalog and memory, without the AI. */
+  | 'text'
+  | 'template'
+  | 'repeat'
+  | 'quick';
 
 export type Entry = BaseRecord & {
   id: string;

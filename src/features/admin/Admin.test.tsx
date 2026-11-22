@@ -116,6 +116,22 @@ describe('administrator view', () => {
               items: [{ name: 'Чай', grams: 200, nutrients: n(2) }],
               totals: n(2),
             },
+            {
+              id: 'e4',
+              date,
+              time: '20:00',
+              items: [{ name: 'Мандарин', grams: 46, nutrients: n(0) }],
+              totals: n(0),
+              source: 'text',
+            },
+            {
+              id: 'e5',
+              date,
+              time: '21:00',
+              items: [{ name: 'Банан', grams: 100, nutrients: n(0) }],
+              totals: n(0),
+              source: 'ai_text',
+            },
           ],
           weights: [],
           dayMeta: [],
@@ -129,6 +145,9 @@ describe('administrator view', () => {
     expect(screen.getByText(ru.admin.source.ai_photo)).toBeVisible();
     expect(screen.getByText(ru.admin.source.manual)).toBeVisible();
     expect(screen.getByText(ru.admin.sourceUnknown)).toBeVisible();
+    // «Описать словами»: counted by the catalog (no AI) and by the AI are told apart.
+    expect(screen.getByText(ru.admin.source.text)).toBeVisible();
+    expect(screen.getByText(ru.admin.source.ai_text)).toBeVisible();
   });
 
   it('shows what a person wrote into «Что приготовить» and what the AI gave back', async () => {

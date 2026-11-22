@@ -128,12 +128,15 @@ describe('meal memory', () => {
     // No AI is configured in tests: had it been asked, this would throw.
     const next = await analyzeMealByParts(repos, text, at);
     expect(next.analysis).toBe('local');
+    // Counted without the AI, but still described in words (the administrator sees it so).
+    expect(next.entrySource).toBe('text');
     expect(next.items.map((i) => [i.name, i.grams, i.per100g.kcal, i.source])).toEqual([
       ['Хачапури с сыром и ветчиной', 120, 572, 'memory'],
       ['Самса с курицей', 130, 300, 'memory'],
     ]);
     // the quick result without the AI knows it too
     const quick = await analyzeMealLocally(repos, text, at, { online: false });
+    expect(quick.entrySource).toBe('text');
     expect(quick.items[0]).toMatchObject({ grams: 120, source: 'memory' });
     expect(quick.memory).toHaveLength(2);
   });

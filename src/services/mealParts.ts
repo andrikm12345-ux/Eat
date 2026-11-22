@@ -190,7 +190,7 @@ export async function analyzeMealByParts(
   if (parts.length > 0 && rest.length === 0) {
     return {
       items: known,
-      entrySource: 'manual',
+      entrySource: 'text',
       analysis: 'local',
       date: at.date,
       time: at.time,

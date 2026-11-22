@@ -100,7 +100,7 @@ export async function analyzeMealLocally(
   const items = perGroup.flat();
   return {
     items,
-    entrySource: 'manual',
+    entrySource: 'text',
     analysis: 'local',
     date: at.date,
     time: at.time,

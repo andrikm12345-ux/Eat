@@ -1164,7 +1164,8 @@ export const ru = {
     /** How a record was added (shown next to it in the administrator view). */
     source: {
       ai_photo: 'по фото',
-      ai_text: 'описание словами',
+      ai_text: 'описание словами · ИИ',
+      text: 'описание словами · по базе',
       barcode: 'штрихкод',
       manual: 'вручную',
       template: 'из шаблона',
