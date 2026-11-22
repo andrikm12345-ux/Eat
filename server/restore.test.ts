@@ -183,3 +183,23 @@ describe('Redis store (Upstash REST)', () => {
     expect(redisConfigFromEnv({})).toBeNull();
   });
 });
+
+describe('health check', () => {
+  it('ok while the storage answers, 503 when it fails (blocked, over its limit)', async () => {
+    const { health } = await import('./health.js');
+    const ok = await health(deps());
+    expect(ok.status).toBe(200);
+    expect(await ok.json()).toEqual({ ok: true });
+    const broken = deps({
+      store: {
+        get: async () => {
+          throw new Error('403 Forbidden');
+        },
+        put: async () => undefined,
+      },
+    });
+    const bad = await health(broken);
+    expect(bad.status).toBe(503);
+    expect(await bad.json()).toEqual({ ok: false });
+  });
+});
