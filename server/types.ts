@@ -22,6 +22,8 @@ export type Deps = {
   search?: { apiKey: string; dailyLimit: number };
   /** Logins of administrators (they edit the shared AI settings). */
   adminLogins?: string[];
+  /** Logins of people who used the app before a storage move (KNOWN_LOGINS): the administrator sees who has not come back yet. */
+  knownLogins?: string[];
   /** Personal button texts set by the administrator: login → { key: text } (USER_LABELS). */
   userLabels?: Record<string, Record<string, string>>;
   /**

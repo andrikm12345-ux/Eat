@@ -1236,6 +1236,8 @@ export const ru = {
       equipment: (list: string) => `техника: ${list}`,
       wishes: (w: string) => `пожелания: ${w}`,
     },
+    pending: (list: string) =>
+      `Ещё не заходили после переезда: ${list}. Пусть откроют приложение, и аккаунт появится здесь.`,
     cleanTests: 'Удалить тестовые аккаунты (claude-test…)',
     cleanConfirm:
       'Удалить все аккаунты с логином claude-test… вместе с их данными? Остальные не затрагиваются.',

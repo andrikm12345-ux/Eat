@@ -87,6 +87,21 @@ describe('administrator view of the accounts', () => {
     expect(users.find((u) => u.login === 'blackjack')!.me).toBe(true);
   });
 
+  it('names the people known from before a storage move who have not come back yet', async () => {
+    const d = { ...setup(), knownLogins: ['ivan', 'defeni', 'qwerty'] };
+    const admin = await signUp(d, 'blackjack');
+    await signUp(d, 'ivan');
+    const res = await adminUsers(d, get(admin));
+    const { pending } = (await res.json()) as { pending: string[] };
+    expect(pending).toEqual(['defeni', 'qwerty']);
+    // nothing configured: nothing is shown
+    const plain = setup();
+    const a2 = await signUp(plain, 'blackjack');
+    expect(
+      ((await (await adminUsers(plain, get(a2))).json()) as { pending: string[] }).pending,
+    ).toEqual([]);
+  });
+
   it('returns one diary without deleted rows and logs the look', async () => {
     const d = setup();
     const admin = await signUp(d, 'blackjack');

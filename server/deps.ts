@@ -49,6 +49,10 @@ export function envDeps(): Deps {
       .split(',')
       .map((l) => l.trim().toLowerCase())
       .filter(Boolean),
+    knownLogins: (process.env.KNOWN_LOGINS ?? '')
+      .split(',')
+      .map((l) => l.trim().toLowerCase())
+      .filter(Boolean),
     userLabels: parseUserLabels(process.env.USER_LABELS),
     ...(process.env.SEARCH_API_KEY
       ? {

@@ -59,6 +59,16 @@ describe('administrator view', () => {
     expect(screen.getByText(ru.admin.entriesCount(3))).toBeVisible();
   });
 
+  it('says who has not opened the app since the storage move', async () => {
+    await signIn(true);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Response.json({ users: [], pending: ['defeni', 'qwerty'] })),
+    );
+    await renderApp('/admin');
+    expect(await screen.findByText(ru.admin.pending('defeni, qwerty'))).toBeVisible();
+  });
+
   it('a non-administrator gets the closed message', async () => {
     await signIn(false);
     vi.stubGlobal(

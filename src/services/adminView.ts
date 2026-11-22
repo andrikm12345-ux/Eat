@@ -46,8 +46,10 @@ async function call<T>(r: Repos, query = ''): Promise<AdminResult<T>> {
 
 /** Administrator: every account. */
 export const loadAdminUsers = async (r: Repos) => {
-  const res = await call<{ users: AdminUser[] }>(r);
-  return res.ok ? ({ ok: true, data: res.data.users } as const) : res;
+  const res = await call<{ users: AdminUser[]; pending?: string[] }>(r);
+  return res.ok
+    ? ({ ok: true, data: res.data.users, pending: res.data.pending ?? [] } as const)
+    : res;
 };
 
 /** Administrator: one account's diary (read only). */

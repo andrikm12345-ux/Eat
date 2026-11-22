@@ -1,3 +1,4 @@
+import { userIdFor } from './auth.js';
 import { session } from './sharedAi.js';
 import { json } from './http.js';
 import type { Deps } from './types.js';
@@ -91,7 +92,10 @@ export async function adminUsers(d: Deps, req: Request): Promise<Response> {
     }),
   );
   users.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
-  return json({ users });
+  // People known from before a storage move who have not opened the app since.
+  const here = new Set(ids);
+  const pending = (d.knownLogins ?? []).filter((l) => !here.has(userIdFor(d.secret, l)));
+  return json({ users, pending });
 }
 
 /** Only accounts the assistant made while testing carry this login prefix. */
