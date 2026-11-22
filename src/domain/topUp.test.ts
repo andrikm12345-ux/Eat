@@ -239,4 +239,17 @@ describe('top up the day', () => {
       expect(run('gain')[0]!.total.carbs).toBeGreaterThan(run('lose')[0]!.total.carbs + 20);
     });
   });
+
+  it('a choice: eight ideas, each food at most twice', () => {
+    const ideas = topUps([], { kcal: 900, protein: 65, fat: 16, carbs: 300 }, 8, {
+      hour: 14,
+      goalType: 'gain',
+      storeOnly: true,
+      maxMinutes: 5,
+    });
+    expect(ideas.length).toBeGreaterThanOrEqual(6);
+    const count = new Map<string, number>();
+    for (const o of ideas) for (const h of o.items) count.set(h.name, (count.get(h.name) ?? 0) + 1);
+    for (const n of count.values()) expect(n).toBeLessThanOrEqual(2);
+  });
 });

@@ -397,10 +397,16 @@ export function topUps(
   options.sort((a, b) => b.score - a.score);
   const picked: TopUp[] = [];
   const seen = new Set<string>();
+  const used = new Map<string, number>();
   const take = (o: (typeof options)[number]) => {
     const names = o.items.map((h) => h.name);
     if (names.every((x) => seen.has(x))) return;
-    names.forEach((x) => seen.add(x));
+    // A choice, not one food in every idea: each food comes at most twice.
+    if (names.some((x) => (used.get(x) ?? 0) >= 2)) return;
+    names.forEach((x) => {
+      seen.add(x);
+      used.set(x, (used.get(x) ?? 0) + 1);
+    });
     picked.push({ items: o.items, total: o.total, minutes: o.minutes });
   };
   // Losing: the best idea first, then lighter ones (not more than 70% of what is left): if

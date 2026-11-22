@@ -646,6 +646,12 @@
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
+.topUpBju {
+  font-size: var(--fs-6);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .topUpRow > button {
   flex: none;
   min-height: 40px;

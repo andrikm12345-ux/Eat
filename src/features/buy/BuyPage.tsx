@@ -61,7 +61,7 @@ export default function BuyPage() {
         ? topUps(
             [],
             { kcal: left.kcal, protein: left.protein, fat: left.fat, carbs: left.carbs },
-            5,
+            8,
             {
               hour,
               eatenToday: left.eatenToday,
@@ -125,14 +125,17 @@ export default function BuyPage() {
                     <span className={styles.topUpMain}>
                       <span className={styles.topUpName}>{what}</span>
                       <span className={styles.topUpMacros}>
-                        {t.macros(
+                        {t.kcalLine(
                           formatKcal(o.total.kcal),
-                          formatGrams(o.total.protein),
-                          formatGrams(o.total.fat),
-                          formatGrams(o.total.carbs),
+                          o.minutes <= 5 ? t.noCook : t.cook(o.minutes),
                         )}
-                        {' · '}
-                        {o.minutes <= 5 ? t.noCook : t.cook(o.minutes)}
+                      </span>
+                      <span className={styles.topUpBju}>
+                        {t.bju(
+                          formatGrams(Math.round(o.total.protein)),
+                          formatGrams(Math.round(o.total.fat)),
+                          formatGrams(Math.round(o.total.carbs)),
+                        )}
                       </span>
                     </span>
                     <Button

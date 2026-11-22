@@ -102,11 +102,13 @@ export function TopUpCard({
                   <span className={styles.topUpMain}>
                     <span className={styles.topUpName}>{what}</span>
                     <span className={styles.topUpMacros}>
-                      {t.macros(
-                        formatKcal(o.total.kcal),
-                        formatGrams(o.total.protein),
-                        formatGrams(o.total.fat),
-                        formatGrams(o.total.carbs),
+                      {t.kcalLine(formatKcal(o.total.kcal))}
+                    </span>
+                    <span className={styles.topUpBju}>
+                      {t.bju(
+                        formatGrams(Math.round(o.total.protein)),
+                        formatGrams(Math.round(o.total.fat)),
+                        formatGrams(Math.round(o.total.carbs)),
                       )}
                     </span>
                   </span>

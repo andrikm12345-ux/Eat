@@ -132,8 +132,9 @@ export const ru = {
     noFat: 'жиров почти не осталось',
     timeLabel: 'Сколько времени на готовку',
     time: { none: 'Без готовки', quick: 'До 15\u00A0мин', any: 'Любое' },
-    macros: (kcal: string, protein: string, fat: string, carbs: string) =>
-      `${kcal}\u00A0ккал · Б\u00A0${protein} · Ж\u00A0${fat} · У\u00A0${carbs}`,
+    kcalLine: (kcal: string, prep: string) => `${kcal}\u00A0ккал · ${prep}`,
+    bju: (protein: string, fat: string, carbs: string) =>
+      `Б\u00A0${protein} · Ж\u00A0${fat} · У\u00A0${carbs}`,
     noCook: 'без готовки',
     cook: (minutes: number) => `готовка около ${minutes}\u00A0мин`,
     add: 'Записать',
@@ -344,8 +345,9 @@ export const ru = {
       empty: 'Запишите ещё несколько приёмов пищи: здесь появятся идеи из того, что вы едите.',
       add: 'Записать',
       addLabel: (what: string) => `Записать: ${what}`,
-      macros: (kcal: string, protein: string, fat: string, carbs: string) =>
-        `${kcal}\u00A0ккал · Б\u00A0${protein} · Ж\u00A0${fat} · У\u00A0${carbs}`,
+      kcalLine: (kcal: string) => `${kcal}\u00A0ккал`,
+      bju: (protein: string, fat: string, carbs: string) =>
+        `Б\u00A0${protein} · Ж\u00A0${fat} · У\u00A0${carbs}`,
     },
     hero: {
       greet: {
