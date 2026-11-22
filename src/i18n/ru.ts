@@ -323,18 +323,16 @@ export const ru = {
       title: 'Чем добрать норму',
       left: (kcal: string) => `Осталось ${kcal}\u00A0ккал`,
       hint: 'Из того, что вы обычно едите, в ваших обычных порциях.',
-      hintStore: 'Из того, что вы едите, и простых продуктов, которые легко купить.',
       hintEvening: 'Вечером без мяса и творога: лёгкое перед сном.',
       buy: 'Что докупить в магазине',
       empty:
-        'Под остаток дня ничего не нашлось: жиров, углеводов или калорий почти не осталось. Хватит воды, овощей или нежирного белка.',
+        'Из того, что вы уже ели, ничего не подходит под остаток дня. Загляните в «Что докупить»: там простые продукты из магазина.',
       add: 'Записать',
       addLabel: (what: string) => `Записать: ${what}`,
       bju: (protein: string, fat: string, carbs: string) =>
         `Б\u00A0${protein} · Ж\u00A0${fat} · У\u00A0${carbs}`,
       bjuShort: (protein: string, fat: string, carbs: string) =>
         `Б\u00A0${protein} Ж\u00A0${fat} У\u00A0${carbs}`,
-      toBuy: (names: string) => `Докупить: ${names}`,
       kcalBju: (kcal: string, bju: string) => `${kcal}\u00A0ккал · ${bju}`,
     },
     hero: {

@@ -55,7 +55,7 @@ export function TopUpCard({
         ...(leftCarbs === undefined ? {} : { carbs: leftCarbs }),
       },
       3,
-      { hour, eatenToday, goalType },
+      { hour, eatenToday, goalType, ownOnly: true },
     );
   }, [history, today, leftKcal, leftProtein, leftFat, leftCarbs, hour, goalType]);
   const left = { kcal: leftKcal, protein: leftProtein };
@@ -111,16 +111,6 @@ export function TopUpCard({
                         ),
                       )}
                     </span>
-                    {o.items.some((h) => h.store) && (
-                      <span className={styles.topUpBuy}>
-                        {t.toBuy(
-                          o.items
-                            .filter((h) => h.store)
-                            .map((h) => h.name)
-                            .join(', '),
-                        )}
-                      </span>
-                    )}
                   </span>
                   <Button variant="secondary" aria-label={t.addLabel(what)} onClick={() => log(o)}>
                     {t.add}
@@ -130,7 +120,7 @@ export function TopUpCard({
             })}
           </ul>
           <p className={styles.topUpHint}>
-            {ideas.some((o) => o.items.some((h) => h.store)) ? t.hintStore : t.hint}
+            {t.hint}
             {isEvening(hour) ? ` ${t.hintEvening}` : ''}
           </p>
         </>

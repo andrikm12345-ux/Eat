@@ -306,4 +306,11 @@ describe('top up the day', () => {
       for (const o of ideas) expect(o.total.fat).toBeLessThanOrEqual(1);
     });
   });
+
+  it("the card uses only the person's own foods, never the shop list", () => {
+    const own: Habit[] = [{ name: 'Кефир мой', grams: 250, per100g: per(40, 3.4), uses: 4 }];
+    const ideas = topUps(own, { kcal: 600, protein: 40 }, 5, { hour: 14, ownOnly: true });
+    for (const o of ideas) expect(o.items.every((h) => !h.store)).toBe(true);
+    expect(topUps([], { kcal: 600, protein: 40 }, 5, { hour: 14, ownOnly: true })).toEqual([]);
+  });
 });

@@ -213,6 +213,8 @@ export type TopUpContext = {
   goalType?: GoalType;
   /** Only the shop list ("what to buy"), not the person's own foods. */
   storeOnly?: boolean;
+  /** Only the person's own foods from the diary, not the shop list. */
+  ownOnly?: boolean;
   /** At most this many minutes of getting the food ready, all items together. */
   maxMinutes?: number | null;
 };
@@ -306,7 +308,7 @@ export function topUps(
     return true;
   };
   const own = ctx.storeOnly ? [] : habits.filter(allowed);
-  const shop = STORE_FOODS.filter(allowed);
+  const shop = ctx.ownOnly ? [] : STORE_FOODS.filter(allowed);
   // Foods eaten more than once come first: a one-off (a whole carton of a milkshake) is not a
   // habit. With too few repeated foods everything in the diary is used.
   const repeated = own.filter((h) => h.uses >= 2);
