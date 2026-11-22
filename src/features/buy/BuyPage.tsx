@@ -49,6 +49,7 @@ export default function BuyPage() {
       kcal: Math.round(day.goal.kcal + bonus - eaten.kcal),
       protein: Math.max(0, Math.round(day.goal.protein - eaten.protein)),
       fat: Math.round(day.goal.fat - eaten.fat),
+      carbs: Math.round(day.goal.carbs - eaten.carbs),
       goalType: day.goal.type,
       eatenToday: day.entries.flatMap((e) => e.items.map((i) => i.name)),
     };
@@ -57,13 +58,18 @@ export default function BuyPage() {
   const ideas = useMemo(
     () =>
       left
-        ? topUps([], { kcal: left.kcal, protein: left.protein, fat: left.fat }, 5, {
-            hour,
-            eatenToday: left.eatenToday,
-            goalType: left.goalType,
-            storeOnly: true,
-            maxMinutes: MAX_MINUTES[time],
-          })
+        ? topUps(
+            [],
+            { kcal: left.kcal, protein: left.protein, fat: left.fat, carbs: left.carbs },
+            5,
+            {
+              hour,
+              eatenToday: left.eatenToday,
+              goalType: left.goalType,
+              storeOnly: true,
+              maxMinutes: MAX_MINUTES[time],
+            },
+          )
         : [],
     [left, hour, time],
   );

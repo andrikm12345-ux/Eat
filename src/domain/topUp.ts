@@ -278,7 +278,7 @@ export function habitsFrom(entries: readonly Entry[]): Habit[] {
  */
 export function topUps(
   habits: readonly Habit[],
-  left: { kcal: number; protein: number; fat?: number },
+  left: { kcal: number; protein: number; fat?: number; carbs?: number },
   count = 3,
   ctx: TopUpContext = {},
 ): TopUp[] {
@@ -313,18 +313,26 @@ export function topUps(
       const minutes = items.reduce((m, h) => m + (h.minutes ?? 0), 0);
       if (ctx.maxMinutes != null && minutes > ctx.maxMinutes) return;
       const total = sumNutrients(items.map((h) => scaleNutrients(h.per100g, h.grams)));
-      // Not over the calories left (a small margin), and worth eating.
-      if (total.kcal > left.kcal * 1.05 + 20 || total.kcal < Math.min(150, left.kcal * 0.35))
-        return;
+      const lose = ctx.goalType === 'lose';
       const gain = ctx.goalType === 'gain';
+      // Losing: never over what is left (no margin), and a light bite is fine. Others: a small
+      // margin over, and worth eating.
+      const over = lose ? 0 : left.kcal * 0.05 + 20;
+      const minKcal = lose ? Math.min(100, left.kcal * 0.25) : Math.min(150, left.kcal * 0.35);
+      if (total.kcal > left.kcal + over || total.kcal < minKcal) return;
       // Far more protein than is needed is not a plan either.
       if (left.protein > 5 && total.protein > left.protein * 1.6 + 10) return;
       // Gaining: worth eating only if it brings a good part of what is still to eat.
       if (gain && left.kcal >= 400 && total.kcal < left.kcal * 0.45) return;
-      // The fat left for the day is a limit too ("жиров уже не надо"), softer when gaining.
+      // Fat and carbs left for the day are limits too: strict when losing, a little slack when
+      // keeping, fat only a bit when gaining, carbs free when gaining.
       const fatLeft = left.fat === undefined ? undefined : Math.max(0, left.fat);
-      const fatSlack = fatLeft === undefined ? 0 : fatLeft * (gain ? 0.15 : 0.1) + 5;
+      const fatSlack = lose ? 0 : fatLeft === undefined ? 0 : fatLeft * (gain ? 0.15 : 0.1) + 5;
       if (fatLimit && fatLeft !== undefined && total.fat > fatLeft + fatSlack) return;
+      const carbsLeft = left.carbs === undefined ? undefined : Math.max(0, left.carbs);
+      const carbsSlack = lose ? 0 : carbsLeft === undefined ? 0 : carbsLeft * 0.1 + 5;
+      if (fatLimit && !gain && carbsLeft !== undefined && total.carbs > carbsLeft + carbsSlack)
+        return;
       const fill = total.kcal / left.kcal;
       const protein = left.protein > 5 ? Math.min(total.protein, left.protein) / left.protein : 0;
       const usual = items.reduce((s, h) => s + h.uses, 0) / (items.length * maxUses);
@@ -362,16 +370,30 @@ export function topUps(
   };
   build(true);
   // Nothing lean enough: better something than an empty card.
-  if (options.length === 0) build(false);
+  // Not when losing: the limits of the day are not bent, an empty card says so instead.
+  if (options.length === 0 && ctx.goalType !== 'lose') build(false);
   options.sort((a, b) => b.score - a.score);
   const picked: TopUp[] = [];
   const seen = new Set<string>();
-  for (const o of options) {
-    if (picked.length >= count) break;
+  const take = (o: (typeof options)[number]) => {
     const names = o.items.map((h) => h.name);
-    if (names.every((x) => seen.has(x))) continue;
+    if (names.every((x) => seen.has(x))) return;
     names.forEach((x) => seen.add(x));
     picked.push({ items: o.items, total: o.total, minutes: o.minutes });
+  };
+  // Losing: the best idea first, then lighter ones (not more than 70% of what is left): if
+  // there is room to eat less, it is offered.
+  const ordered =
+    ctx.goalType === 'lose' && options.length > 0
+      ? [
+          options[0]!,
+          ...options.filter((o) => o.total.kcal <= left.kcal * 0.7),
+          ...options.slice(1),
+        ]
+      : options;
+  for (const o of ordered) {
+    if (picked.length >= count) break;
+    take(o);
   }
   return picked;
 }

@@ -169,4 +169,45 @@ describe('top up the day', () => {
         for (const h of o.items) expect(usual.has(`${h.name}${h.grams}`)).toBe(true);
     });
   });
+
+  describe('losing: never over what is left, and lighter is offered', () => {
+    const left = { kcal: 500, protein: 40, fat: 8, carbs: 40 };
+    const lose = (maxMinutes: number | null) =>
+      topUps([], left, 3, { hour: 14, goalType: 'lose', storeOnly: true, maxMinutes });
+
+    it('calories, fat and carbs of every idea are within what is left', () => {
+      for (const m of [5, 15, null]) {
+        for (const o of lose(m)) {
+          expect(o.total.kcal).toBeLessThanOrEqual(left.kcal);
+          expect(o.total.fat).toBeLessThanOrEqual(left.fat);
+          expect(o.total.carbs).toBeLessThanOrEqual(left.carbs);
+        }
+      }
+    });
+
+    it('offers lighter ideas next to the best one (up to 70% of the calories left)', () => {
+      const ideas = lose(null);
+      expect(ideas.length).toBeGreaterThanOrEqual(2);
+      expect(ideas.slice(1).some((o) => o.total.kcal <= left.kcal * 0.7)).toBe(true);
+    });
+
+    it('nothing fits a day that has no fat left: empty, limits are not bent', () => {
+      const none = topUps(
+        [{ name: 'Масло', grams: 20, per100g: per(899, 0), uses: 5 }],
+        { kcal: 300, protein: 0, fat: 0, carbs: 0 },
+        3,
+        { hour: 14, goalType: 'lose', storeOnly: true, maxMinutes: null },
+      );
+      for (const o of none) {
+        expect(o.total.fat).toBe(0);
+        expect(o.total.carbs).toBe(0);
+      }
+    });
+
+    it('a day with calories over: nothing', () => {
+      expect(
+        topUps([], { kcal: 60, protein: 0 }, 3, { goalType: 'lose', storeOnly: true }),
+      ).toEqual([]);
+    });
+  });
 });

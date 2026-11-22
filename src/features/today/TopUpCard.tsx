@@ -38,6 +38,7 @@ export function TopUpCard({
   const leftKcal = Math.round(goal.kcal - totals.kcal);
   const leftProtein = Math.max(0, Math.round(goal.protein - totals.protein));
   const leftFat = goal.fat > 0 ? Math.round(goal.fat - totals.fat) : undefined;
+  const leftCarbs = goal.carbs > 0 ? Math.round(goal.carbs - totals.carbs) : undefined;
   const hour = new Date().getHours();
   const goalType = goal.type;
   const ideas = useMemo(() => {
@@ -47,11 +48,16 @@ export function TopUpCard({
       .flatMap((e) => e.items.map((i) => i.name));
     return topUps(
       habitsFrom(history),
-      { kcal: leftKcal, protein: leftProtein, ...(leftFat === undefined ? {} : { fat: leftFat }) },
+      {
+        kcal: leftKcal,
+        protein: leftProtein,
+        ...(leftFat === undefined ? {} : { fat: leftFat }),
+        ...(leftCarbs === undefined ? {} : { carbs: leftCarbs }),
+      },
       3,
       { hour, eatenToday, goalType },
     );
-  }, [history, today, leftKcal, leftProtein, leftFat, hour, goalType]);
+  }, [history, today, leftKcal, leftProtein, leftFat, leftCarbs, hour, goalType]);
   const left = { kcal: leftKcal, protein: leftProtein };
   if (!history || left.kcal < 150) return null;
 
