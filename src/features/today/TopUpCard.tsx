@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { repos } from '../../db/repos';
 import { addDays, toLocalTime } from '../../domain/dates';
 import { formatGrams, formatKcal } from '../../domain/format';
-import { habitsFrom, topUps, type TopUp } from '../../domain/topUp';
+import { habitsFrom, isEvening, topUps, type TopUp } from '../../domain/topUp';
 import type { Goal, Nutrients } from '../../domain/types';
 import { ru } from '../../i18n/ru';
 import { reviewKey, useReview } from '../../state/review';
@@ -37,10 +37,21 @@ export function TopUpCard({
   const history = useLiveQuery(() => repos.entries.inRange(addDays(today, -365), today), [today]);
   const leftKcal = Math.round(goal.kcal - totals.kcal);
   const leftProtein = Math.max(0, Math.round(goal.protein - totals.protein));
-  const ideas = useMemo(
-    () => (history ? topUps(habitsFrom(history), { kcal: leftKcal, protein: leftProtein }) : []),
-    [history, leftKcal, leftProtein],
-  );
+  const leftFat = goal.fat > 0 ? Math.round(goal.fat - totals.fat) : undefined;
+  const hour = new Date().getHours();
+  const goalType = goal.type;
+  const ideas = useMemo(() => {
+    if (!history) return [];
+    const eatenToday = history
+      .filter((e) => e.date === today)
+      .flatMap((e) => e.items.map((i) => i.name));
+    return topUps(
+      habitsFrom(history),
+      { kcal: leftKcal, protein: leftProtein, ...(leftFat === undefined ? {} : { fat: leftFat }) },
+      3,
+      { hour, eatenToday, goalType },
+    );
+  }, [history, today, leftKcal, leftProtein, leftFat, hour, goalType]);
   const left = { kcal: leftKcal, protein: leftProtein };
   if (!history || left.kcal < 150) return null;
 
@@ -90,7 +101,10 @@ export function TopUpCard({
               );
             })}
           </ul>
-          <p className={styles.topUpHint}>{t.hint}</p>
+          <p className={styles.topUpHint}>
+            {ideas.some((o) => o.items.some((h) => h.store)) ? t.hintStore : t.hint}
+            {isEvening(hour) ? ` ${t.hintEvening}` : ''}
+          </p>
         </>
       )}
       <LinkButton to={`/cook${addQs(today)}`} variant="text">

@@ -213,24 +213,31 @@ describe('Чем добрать норму', () => {
   it('suggests usual foods for what is left and opens the check screen', async () => {
     const d = today();
     useUi.setState({ date: d });
-    const curd = await repos.foods.add({
-      name: 'Творог 5%',
-      per100g: { kcal: 121, protein: 17, fat: 5, carbs: 3 },
+    const rice = await repos.foods.add({
+      name: 'Рис с овощами',
+      per100g: { kcal: 121, protein: 17, fat: 1, carbs: 3 },
       servings: [],
       source: 'base',
       verified: true,
     });
     for (const back of [1, 2, 3])
-      await logFood(repos, curd, 200, { date: addDays(d, -back), time: '18:00' });
-    // something eaten today, so the card appears
-    await logFood(repos, curd, 100, { date: d, time: '08:00' });
+      await logFood(repos, rice, 200, { date: addDays(d, -back), time: '18:00' });
+    // something else eaten today, so the card appears (what was eaten today is not offered again)
+    const kefir = await repos.foods.add({
+      name: 'Каша овсяная',
+      per100g: { kcal: 100, protein: 3, fat: 1, carbs: 20 },
+      servings: [],
+      source: 'base',
+      verified: true,
+    });
+    await logFood(repos, kefir, 100, { date: d, time: '08:00' });
     const user = userEvent.setup();
     const { router } = await renderApp('/');
     const card = (await screen.findByText(ru.today.topUp.title)).closest('section') as HTMLElement;
     expect(within(card).getByText(/Осталось/)).toBeVisible();
-    await user.click(within(card).getAllByRole('button', { name: /Записать: Творог 5%/ })[0]!);
+    await user.click(within(card).getAllByRole('button', { name: /Записать: Рис с овощами/ })[0]!);
     await waitFor(() => expect(router.state.location.pathname).toBe('/review'));
-    expect(await screen.findByText('Творог 5%')).toBeVisible();
+    expect(await screen.findByText('Рис с овощами')).toBeVisible();
   });
 
   it('all entries of the day are inside the flow scrolling box (the card does not stretch)', async () => {
