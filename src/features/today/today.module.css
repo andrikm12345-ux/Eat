@@ -621,6 +621,11 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+.topUpBuy {
+  font-size: var(--fs-6);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
 .topUpPrep {
   font-size: var(--fs-6);
   color: var(--text-muted);

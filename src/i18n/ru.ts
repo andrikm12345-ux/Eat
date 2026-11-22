@@ -333,6 +333,7 @@ export const ru = {
         `Б\u00A0${protein} · Ж\u00A0${fat} · У\u00A0${carbs}`,
       bjuShort: (protein: string, fat: string, carbs: string) =>
         `Б\u00A0${protein} Ж\u00A0${fat} У\u00A0${carbs}`,
+      toBuy: (names: string) => `Докупить: ${names}`,
       kcalBju: (kcal: string, bju: string) => `${kcal}\u00A0ккал · ${bju}`,
     },
     hero: {

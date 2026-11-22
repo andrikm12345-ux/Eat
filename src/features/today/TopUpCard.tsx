@@ -111,6 +111,16 @@ export function TopUpCard({
                         ),
                       )}
                     </span>
+                    {o.items.some((h) => h.store) && (
+                      <span className={styles.topUpBuy}>
+                        {t.toBuy(
+                          o.items
+                            .filter((h) => h.store)
+                            .map((h) => h.name)
+                            .join(', '),
+                        )}
+                      </span>
+                    )}
                   </span>
                   <Button variant="secondary" aria-label={t.addLabel(what)} onClick={() => log(o)}>
                     {t.add}
