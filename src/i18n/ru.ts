@@ -1194,6 +1194,7 @@ export const ru = {
     source: {
       ai_photo: 'по фото',
       ai_text: 'описание словами · ИИ',
+      catalog: 'из списка продуктов',
       text: 'описание словами · по базе',
       barcode: 'штрихкод',
       manual: 'вручную',
@@ -1202,7 +1203,7 @@ export const ru = {
       quick: 'быстрые ккал',
     },
     /** Saved before «по базе» had its own mark: it cannot be told from a really manual one. */
-    sourceOldManual: 'вручную или по базе',
+    sourceOldManual: 'вручную или из списка продуктов',
     sourceUnknown: 'способ не указан',
     cookDeleteDay: 'Удалить',
     cookDelete: (at: string) => `Удалить подборку ${at}`,

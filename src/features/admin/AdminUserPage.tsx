@@ -22,7 +22,7 @@ import { useSwipeBack } from '../../ui/useSwipeBack';
 const t = ru.admin;
 
 /** Records saved before this moment have no «описание словами · по базе»: it was saved as «вручную». */
-const BY_BASE_SINCE = '2026-11-22T09:05:00Z';
+const BY_BASE_SINCE = '2026-11-22T17:58:00Z';
 const sourceLabel = (e: { source?: string; createdAt?: string }) => {
   if (e.source === 'manual' && (e.createdAt ?? '') < BY_BASE_SINCE) return t.sourceOldManual;
   return (e.source && t.source[e.source as keyof typeof t.source]) || t.sourceUnknown;

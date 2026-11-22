@@ -116,6 +116,8 @@ export type EntryItem = {
 
 export type EntrySource =
   | 'manual'
+  /** A product picked from the list (search, own products) and a portion entered. */
+  | 'catalog'
   | 'barcode'
   | 'ai_photo'
   | 'ai_text'

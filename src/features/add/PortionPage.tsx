@@ -48,7 +48,7 @@ function Portion({ food }: { food: Food }) {
 
   async function add() {
     if (!valid) return;
-    await logFood(repos, food, Math.round(total * 10) / 10, { date, time });
+    await logFood(repos, food, Math.round(total * 10) / 10, { date, time }, 'catalog');
     setDate(date);
     toast({ text: t.added(food.name) });
     navigate('/');
