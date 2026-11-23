@@ -12,6 +12,14 @@ export function useLeaving<T extends Item>(items: T[]) {
   const prev = useRef<Map<string, T> | null>(null);
   const [ghosts, setGhosts] = useState<T[]>([]);
   const fresh = useRef(new Set<string>());
+  // Each removal has its own timer. It must outlive the next update of the list: when entries
+  // change one after another (a sync does that) a timer cancelled by the next update would leave
+  // its ghost on screen for good: an invisible row with a time that still counts in "×N".
+  const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
+  useEffect(() => {
+    const all = timers.current;
+    return () => all.forEach(clearTimeout);
+  }, []);
 
   useEffect(() => {
     const now = new Map(items.map((i) => [i.id, i]));
@@ -22,11 +30,11 @@ export function useLeaving<T extends Item>(items: T[]) {
     const gone = [...before.values()].filter((i) => !now.has(i.id));
     if (gone.length === 0) return;
     setGhosts((g) => [...g, ...gone]);
-    const t = setTimeout(
-      () => setGhosts((g) => g.filter((x) => !gone.some((y) => y.id === x.id))),
-      LEAVE_MS,
-    );
-    return () => clearTimeout(t);
+    const t = setTimeout(() => {
+      timers.current.delete(t);
+      setGhosts((g) => g.filter((x) => !gone.some((y) => y.id === x.id)));
+    }, LEAVE_MS);
+    timers.current.add(t);
   }, [items]);
 
   const ids = new Set(items.map((i) => i.id));

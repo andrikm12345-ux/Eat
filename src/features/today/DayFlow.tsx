@@ -97,7 +97,11 @@ export function DayFlow({ entries }: { entries: Entry[] }) {
             )}
           </>
         ) : (
-          <StackRow stack={stack} onOpen={() => toggle(id)} />
+          // A row that is only leaving (a ghost) neither counts nor adds its calories.
+          (() => {
+            const live = stack.filter((e) => !leaving.has(e.id));
+            return live.length ? <StackRow stack={live} onOpen={() => toggle(id)} /> : null;
+          })()
         )}
       </div>,
     );
