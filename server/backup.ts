@@ -70,7 +70,7 @@ export async function backup(d: Deps, req: Request, repo: string): Promise<Respo
       const text = await d.store.get(path);
       if (text !== null) files[path] = text;
     }
-    return json(seal(d.secret, prefix, files, d.now()));
+    return json(seal(d.backupKey ?? d.secret, prefix, files, d.now()));
   }
 
   if (req.method === 'POST') {
@@ -82,7 +82,7 @@ export async function backup(d: Deps, req: Request, repo: string): Promise<Respo
     }
     let files: Record<string, string>;
     try {
-      files = open(d.secret, sealed);
+      files = open(d.backupKey ?? d.secret, sealed);
     } catch {
       // Wrong key (a different AUTH_SECRET) or a damaged file: nothing is written.
       return json({ error: 'cannot_decrypt' }, 422);

@@ -18,7 +18,8 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     env:
-      SITE: https://dnevnik-theta.vercel.app
+      # The address of the site: set the repository variable SITE_URL when the host changes.
+      SITE: ${{ vars.SITE_URL || 'https://dnevnik-theta.vercel.app' }}
     steps:
       - uses: actions/checkout@v4
 

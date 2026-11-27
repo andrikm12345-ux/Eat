@@ -49,6 +49,9 @@ export function envDeps(): Deps {
       .split(',')
       .map((l) => l.trim().toLowerCase())
       .filter(Boolean),
+    ...((process.env.BACKUP_KEY ?? '').length >= 32
+      ? { backupKey: process.env.BACKUP_KEY as string }
+      : {}),
     knownLogins: (process.env.KNOWN_LOGINS ?? '')
       .split(',')
       .map((l) => l.trim().toLowerCase())
@@ -68,6 +71,9 @@ export function envDeps(): Deps {
       modelText: process.env.AI_MODEL_TEXT?.trim() || 'mimo-v2.6-flash:free',
       modelVision: process.env.AI_MODEL_VISION?.trim() || 'mimo-v2.6-flash:free',
       dailyLimit: Number(process.env.AI_DAILY_LIMIT) || 60,
+      ...(Number(process.env.AI_BUDGET_MS) > 0
+        ? { budgetMs: Number(process.env.AI_BUDGET_MS) }
+        : {}),
     },
   };
 }

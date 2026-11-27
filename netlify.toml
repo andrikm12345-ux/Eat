@@ -1,0 +1,42 @@
+# Netlify settings (the same app also builds on Vercel: see vercel.json).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# The app is one page: every address that is not a file opens it. /api/* goes to the function.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    "Cache-Control" = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    "Cache-Control" = "no-cache"
+    "Content-Type" = "application/manifest+json"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    "Cache-Control" = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    "X-Content-Type-Options" = "nosniff"
+    "Referrer-Policy" = "no-referrer"
+    "Content-Security-Policy" = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https:; media-src 'self' blob: mediastream:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    "X-Frame-Options" = "DENY"
+    "Permissions-Policy" = "camera=(self), microphone=(), geolocation=()"

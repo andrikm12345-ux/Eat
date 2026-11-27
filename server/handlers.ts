@@ -48,6 +48,54 @@ export async function readCreds(d: Deps, userId: string): Promise<Credentials | 
 }
 
 /**
+ * After the app moved to another host the secret changed, so ids (derived from it) differ. The
+ * account of this login under its OLD id is found through the readable login kept in `meta/`.
+ * An account that was only restored (no password) is not an account anyone can sign in to.
+ */
+async function legacyAccount(
+  d: Deps,
+  login: string,
+  newId: string,
+): Promise<{ id: string; creds: Credentials; meta: string } | null> {
+  if (!d.store.list) return null;
+  for (const path of await d.store.list('meta/')) {
+    const id = path.slice('meta/'.length).replace(/\.json$/, '');
+    if (id === newId) continue;
+    const meta = await d.store.get(path);
+    let found: { login?: string } | null = null;
+    try {
+      found = meta ? (JSON.parse(meta) as { login?: string }) : null;
+    } catch {
+      found = null;
+    }
+    if (found?.login !== login) continue;
+    const creds = await readCreds(d, id);
+    if (creds) return { id, creds, meta: meta as string };
+  }
+  return null;
+}
+
+const hasPassword = (c: Credentials) => !c.restored && c.hash !== '';
+
+/** Moves an old account (checked with its password) under the new id: credentials, meta, diary. */
+async function adoptLegacy(
+  d: Deps,
+  userId: string,
+  login: string,
+  old: { id: string; creds: Credentials; meta: string },
+): Promise<void> {
+  await d.store.put(credPath(userId), JSON.stringify({ ...old.creds, sessionsFrom: d.now() }));
+  try {
+    const meta = JSON.parse(old.meta) as Record<string, unknown>;
+    await d.store.put(metaPath(userId), JSON.stringify({ ...meta, login, lastLogin: d.now() }));
+  } catch {
+    await touchMeta(d, userId, login, true);
+  }
+  const diary = await d.store.get(`users/${old.id}.json`);
+  if (diary !== null) await d.store.put(`users/${userId}.json`, diary);
+}
+
+/**
  * The user a request belongs to: a valid token of an existing account that was issued after
  * the last password change (a password change signs every older device out).
  */
@@ -134,6 +182,9 @@ export async function register(d: Deps, req: Request): Promise<Response> {
   if ('fail' in c) return c.fail;
   const userId = userIdFor(d.secret, c.login);
   if (await readCreds(d, userId)) return json({ error: 'taken' }, 409);
+  // Taken by an account that moved with the host (it has a password); a password-less one is not.
+  const old = await legacyAccount(d, c.login, userId);
+  if (old && hasPassword(old.creds)) return json({ error: 'taken' }, 409);
   const { creds, recoveryCode } = await newAccount(c.password);
   // Sessions issued before this moment belong to nobody: an old token of the same login (from
   // before the storage was replaced) must not open a newly registered account.
@@ -206,7 +257,16 @@ export async function login(d: Deps, req: Request): Promise<Response> {
   const userId = userIdFor(d.secret, c.login);
   const locked = await lockedReply(d, req, userId);
   if (locked) return locked;
-  const creds = await readCreds(d, userId);
+  let creds = await readCreds(d, userId);
+  if (!creds) {
+    // The same person after a move to another host: the old account, checked with the password.
+    const old = await legacyAccount(d, c.login, userId);
+    if (old && hasPassword(old.creds)) {
+      if (!(await checkSecret(old.creds, c.password))) return failed(d, req, userId);
+      await adoptLegacy(d, userId, c.login, old);
+      creds = await readCreds(d, userId);
+    }
+  }
   // Unknown users cost the same hashing time, so timing does not reveal them.
   const ok = creds ? await checkSecret(creds, c.password) : (await hashSecret(c.password), false);
   if (!creds || !ok) return failed(d, req, creds ? userId : undefined);
@@ -229,7 +289,15 @@ export async function resetPassword(d: Deps, req: Request): Promise<Response> {
   const userId = userIdFor(d.secret, c.login);
   const locked = await lockedReply(d, req, userId);
   if (locked) return locked;
-  const creds = await readCreds(d, userId);
+  let creds = await readCreds(d, userId);
+  if (!creds) {
+    // An account that moved with the host: the recovery code is checked against the old one.
+    const old = await legacyAccount(d, c.login, userId);
+    if (old?.creds.recovery && (await checkSecret(old.creds.recovery, code))) {
+      await adoptLegacy(d, userId, c.login, old);
+      creds = await readCreds(d, userId);
+    }
+  }
   const ok = creds?.recovery
     ? await checkSecret(creds.recovery, code)
     : (await hashSecret(code), false);

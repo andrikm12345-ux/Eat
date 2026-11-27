@@ -202,6 +202,10 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
   // The model usually answers in 5-15 s, but now and then a request just hangs. A text request
   // that gets no answer in TRY_MS is cut and sent once more (a hung one rarely hangs twice);
   // a photo takes longer, so it gets one long try.
+  // The platform's request limit (Vercel 90 s, Netlify 60 s) is AI_BUDGET_MS: the tries must fit.
+  const budget = cfg.budgetMs ?? 90_000;
+  const visionMs = Math.max(10_000, budget - 3_000);
+  const tryMs = Math.min(TRY_MS, Math.max(8_000, Math.floor((budget - 4_000) / 2)));
   const isTimeout = (e: unknown) => (e as { name?: string } | null)?.name === 'TimeoutError';
   let upstream: Response;
   let answer: string;
@@ -210,13 +214,13 @@ export async function aiChat(d: Deps, req: Request): Promise<Response> {
   try {
     let r;
     try {
-      r = await attempt(body.vision ? 87_000 : TRY_MS);
+      r = await attempt(body.vision ? visionMs : tryMs);
     } catch (e) {
       // A DOMException is not always an Error instance, so only the name is checked.
       if (!isTimeout(e) || body.vision) throw e;
       retried = true;
       note('timeout, retrying', undefined, {}, false);
-      r = await attempt(TRY_MS);
+      r = await attempt(tryMs);
     }
     upstream = r.up;
     answer = r.text;

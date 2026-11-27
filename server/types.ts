@@ -31,6 +31,8 @@ export type Deps = {
    * password) from a valid signed token until this moment (ms). Absent = never.
    */
   restoreUntil?: number;
+  /** Key of the backups when it must not depend on the host (BACKUP_KEY); else AUTH_SECRET. */
+  backupKey?: string;
   /** For tests: replaces fetch when calling the AI service. */
   fetchImpl?: typeof fetch;
 };
@@ -41,6 +43,8 @@ export type SharedAiEnv = {
   baseUrl: string;
   modelText: string;
   modelVision: string;
+  /** The platform's time limit for one request, ms (default 90 000, Netlify 60 000). */
+  budgetMs?: number;
   /** Requests per user per day (administrators are not limited). */
   dailyLimit: number;
 };
