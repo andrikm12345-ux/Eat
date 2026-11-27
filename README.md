@@ -443,6 +443,9 @@ Redeploy). Исключение — `AUTH_SECRET`: его заново выпу�
 
 ## Хостинг (Vercel или Netlify)
 
+Сейчас сайт работает на Netlify: https://dnevnik12345.netlify.app (проект `dnevnik12345`). Vercel заблокировал
+аккаунт 23.11.2026, старый адрес `dnevnik-theta.vercel.app` недоступен.
+
 Один и тот же код работает на обоих: на Vercel адреса `/api/*` берутся из папки `api/`, на Netlify их все
 обслуживает одна функция `netlify/functions/api.mts` (она передаёт запрос тем же обработчикам). Настройки
 Netlify лежат в `netlify.toml`, Vercel в `vercel.json`.
