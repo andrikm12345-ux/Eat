@@ -16,6 +16,12 @@ import type { Deps } from './types.js';
  * POST /api/backup  <that JSON>   → writes the paths back
  */
 const ALLOWED = ['creds/', 'meta/', 'users/', 'admin/', 'usage/', 'search-usage/'] as const;
+/**
+ * The server settings (keys, tokens) travel as one more sealed part named `env/`. It is only read
+ * (never written back by a restore: it is not in ALLOWED) and only when BACKUP_KEY is set, so they
+ * are never sealed with a key made from one of them.
+ */
+const ENV_PART = 'env/';
 /** Backups skip short-lived things (counters of wrong passwords, AI jobs, audit, health). */
 const part = (p: string) => ALLOWED.some((a) => p.startsWith(a));
 
@@ -64,6 +70,11 @@ export async function backup(d: Deps, req: Request, repo: string): Promise<Respo
 
   if (req.method === 'GET') {
     const prefix = new URL(req.url).searchParams.get('prefix') ?? '';
+    if (prefix === ENV_PART) {
+      const env = d.backupKey && d.envSnapshot ? d.envSnapshot() : {};
+      const files = Object.fromEntries(Object.entries(env).map(([k, v]) => [`env/${k}`, v]));
+      return json(seal(d.backupKey ?? d.secret, prefix, files, d.now()));
+    }
     if (!part(prefix)) return json({ error: 'bad_prefix' }, 400);
     const files: Record<string, string> = {};
     for (const path of await d.store.list(prefix)) {

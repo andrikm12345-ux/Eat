@@ -33,6 +33,12 @@ export type Deps = {
   restoreUntil?: number;
   /** Key of the backups when it must not depend on the host (BACKUP_KEY); else AUTH_SECRET. */
   backupKey?: string;
+  /**
+   * Settings (secrets included) worth keeping next to the backups, read on demand. Only used when
+   * `backupKey` is set (they are sealed with a key that is not one of them). Never includes
+   * BACKUP_KEY itself.
+   */
+  envSnapshot?: () => Record<string, string>;
   /** For tests: replaces fetch when calling the AI service. */
   fetchImpl?: typeof fetch;
 };

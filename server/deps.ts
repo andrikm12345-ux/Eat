@@ -27,6 +27,28 @@ export function parseUserLabels(raw: string | undefined): Record<string, Record<
   }
 }
 
+/** Settings kept in the backup (sealed with BACKUP_KEY). BACKUP_KEY itself is never in it. */
+export const BACKED_UP_ENV = [
+  'AUTH_SECRET',
+  'KV_REST_API_URL',
+  'KV_REST_API_TOKEN',
+  'UPSTASH_REDIS_REST_URL',
+  'UPSTASH_REDIS_REST_TOKEN',
+  'ADMIN_LOGINS',
+  'AI_API_KEY',
+  'AI_BASE_URL',
+  'AI_MODEL_TEXT',
+  'AI_MODEL_VISION',
+  'AI_DAILY_LIMIT',
+  'AI_BUDGET_MS',
+  'SEARCH_API_KEY',
+  'SEARCH_DAILY_LIMIT',
+  'SIGNUP_DISABLED',
+  'USER_LABELS',
+  'RESTORE_UNTIL',
+  'SCRYPT_COST',
+] as const;
+
 /** Production wiring from environment variables. */
 export function envDeps(): Deps {
   const secret = process.env.AUTH_SECRET;
@@ -55,6 +77,13 @@ export function envDeps(): Deps {
     ...((process.env.BACKUP_KEY ?? '').length >= 32
       ? { backupKey: process.env.BACKUP_KEY as string }
       : {}),
+    envSnapshot: () =>
+      Object.fromEntries(
+        BACKED_UP_ENV.flatMap((name) => {
+          const v = process.env[name];
+          return v ? [[name, v] as const] : [];
+        }),
+      ),
     knownLogins: (process.env.KNOWN_LOGINS ?? '')
       .split(',')
       .map((l) => l.trim().toLowerCase())

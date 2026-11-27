@@ -176,3 +176,45 @@ describe('the backup key does not depend on the host', () => {
     expect(fresh.data.get('creds/a.json')).toBe('C');
   });
 });
+
+describe('server settings in the backup (env/)', () => {
+  const KEY = 'k'.repeat(40);
+  const env = () => ({ AUTH_SECRET: SECRET, AI_API_KEY: 'ai-key', KV_REST_API_TOKEN: 'kv-token' });
+
+  it('are sealed with BACKUP_KEY and readable only with it', async () => {
+    const d = { ...deps(), backupKey: KEY, envSnapshot: env };
+    const res = await call(d, 'GET', '?prefix=env/');
+    expect(res.status).toBe(200);
+    const sealed = (await res.json()) as Sealed;
+    expect(JSON.stringify(sealed)).not.toContain('ai-key');
+    expect(open(KEY, sealed)).toEqual({
+      'env/AUTH_SECRET': SECRET,
+      'env/AI_API_KEY': 'ai-key',
+      'env/KV_REST_API_TOKEN': 'kv-token',
+    });
+    expect(() => open(SECRET, sealed)).toThrow();
+  });
+
+  it('are left out when there is no separate BACKUP_KEY (no key made from the secret itself)', async () => {
+    const d = { ...deps(), envSnapshot: env };
+    const sealed = (await (await call(d, 'GET', '?prefix=env/')).json()) as Sealed;
+    expect(open(SECRET, sealed)).toEqual({});
+  });
+
+  it('only the backup job may read them', async () => {
+    const d = { ...deps(), backupKey: KEY, envSnapshot: env };
+    expect((await call(d, 'GET', '?prefix=env/', null)).status).toBe(401);
+    expect((await call(d, 'GET', '?prefix=env/', jwt({ ref: 'refs/heads/other' }))).status).toBe(
+      403,
+    );
+  });
+
+  it('a restore never writes them back into the storage', async () => {
+    const store = memory();
+    const d = { ...deps(SECRET, store), backupKey: KEY };
+    const sealed = seal(KEY, 'env/', { 'env/AUTH_SECRET': 'evil', 'creds/x.json': '{"a":1}' }, NOW);
+    const res = await call(d, 'POST', '', restoreJwt(), sealed);
+    expect(await res.json()).toEqual({ ok: true, written: 1 });
+    expect([...store.data.keys()]).toEqual(['creds/x.json']);
+  });
+});
