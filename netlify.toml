@@ -2,6 +2,9 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  # A build costs credits: skip it when nothing the site is made of has changed (docs, Cloudflare
+  # files, tests of other hosts, workflows). Exit code 0 = skip, 1 = build.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- src server api netlify public index.html package.json package-lock.json vite.config.ts netlify.toml tsconfig.json tsconfig.app.json tsconfig.node.json tsconfig.server.json"
 
 [build.environment]
   NODE_VERSION = "22"

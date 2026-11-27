@@ -6,6 +6,7 @@ import {
   hashSecret,
   isValidLogin,
   isValidPassword,
+  needsRehash,
   normalizeLogin,
   normalizeRecovery,
   userIdFor,
@@ -62,7 +63,7 @@ async function legacyAccount(
     const id = path.slice('meta/'.length).replace(/\.json$/, '');
     if (id === newId) continue;
     const meta = await d.store.get(path);
-    let found: { login?: string } | null = null;
+    let found: { login?: string } | null;
     try {
       found = meta ? (JSON.parse(meta) as { login?: string }) : null;
     } catch {
@@ -279,6 +280,19 @@ export async function login(d: Deps, req: Request): Promise<Response> {
   const ok = creds ? await checkSecret(creds, c.password) : (await hashSecret(c.password), false);
   if (!creds || !ok) return failed(d, req, creds ? userId : undefined);
   await clearFailures(d, req, userId);
+  // The host's hashing cost changed (e.g. a move to a host with a CPU cap): the password is known
+  // right now, so the hash is renewed with the new cost, the rest of the account stays as it is.
+  if (needsRehash(creds)) {
+    try {
+      const { n: _old, ...rest } = creds;
+      await d.store.put(
+        credPath(userId),
+        JSON.stringify({ ...rest, ...(await hashSecret(c.password)) }),
+      );
+    } catch (e) {
+      console.error('rehash failed', e);
+    }
+  }
   await touchMeta(d, userId, c.login, false);
   return json({ token: createSession(d.secret, userId, d.now()), login: c.login });
 }

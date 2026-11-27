@@ -39,7 +39,30 @@ export function userIdFor(secret: string, login: string): string {
     .slice(0, 40);
 }
 
-export type Secret = { salt: string; hash: string };
+/** scrypt cost of every hash made before the cost became configurable. */
+export const DEFAULT_SCRYPT_N = 16384;
+/** Allowed costs (powers of two): lower is cheaper for the CPU (some hosts cap it) and weaker. */
+const MIN_SCRYPT_N = 1024;
+
+let currentN = DEFAULT_SCRYPT_N;
+
+/** The cost for new hashes. An invalid value keeps the default, so a typo cannot weaken anything. */
+export function setScryptCost(n: number | undefined): void {
+  const ok =
+    typeof n === 'number' &&
+    Number.isInteger(n) &&
+    n >= MIN_SCRYPT_N &&
+    n <= DEFAULT_SCRYPT_N &&
+    (n & (n - 1)) === 0;
+  currentN = ok ? n : DEFAULT_SCRYPT_N;
+}
+
+export type Secret = {
+  salt: string;
+  hash: string;
+  /** scrypt cost the hash was made with; absent means the original 16384. */
+  n?: number;
+};
 export type Credentials = Secret & {
   /** Sessions issued before this moment (ms) are no longer valid: set when the password changes. */
   sessionsFrom?: number;
@@ -52,21 +75,29 @@ export type Credentials = Secret & {
   restored?: boolean;
 };
 
-const derive = (value: string, salt: string) =>
+const derive = (value: string, salt: string, n: number) =>
   new Promise<string>((resolve, reject) =>
-    scrypt(value, Buffer.from(salt, 'hex'), 64, (err, key) =>
-      err ? reject(err) : resolve(key.toString('hex')),
+    scrypt(
+      value,
+      Buffer.from(salt, 'hex'),
+      64,
+      { N: n, r: 8, p: 1, maxmem: 128 * 8 * n * 2 },
+      (err, key) => (err ? reject(err) : resolve(key.toString('hex'))),
     ),
   );
 
 export async function hashSecret(value: string): Promise<Secret> {
   const salt = randomBytes(16).toString('hex');
-  return { salt, hash: await derive(value, salt) };
+  const hash = await derive(value, salt, currentN);
+  return currentN === DEFAULT_SCRYPT_N ? { salt, hash } : { salt, hash, n: currentN };
 }
 
 export async function checkSecret(secret: Secret, value: string): Promise<boolean> {
-  return safeEqual(await derive(value, secret.salt), secret.hash);
+  return safeEqual(await derive(value, secret.salt, secret.n ?? DEFAULT_SCRYPT_N), secret.hash);
 }
+
+/** The hash was made with another cost than the one this host uses now (re-hashed at sign-in). */
+export const needsRehash = (secret: Secret): boolean => (secret.n ?? DEFAULT_SCRYPT_N) !== currentN;
 
 /** 32 symbols without look-alikes (no 0/O/1/I): 20 of them ≈ 100 bits. */
 const RECOVERY_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';

@@ -21,6 +21,9 @@ jobs:
     env:
       # The address of the site: set the repository variable SITE_URL when the host changes.
       SITE: ${{ vars.SITE_URL || 'https://dnevnik12345.netlify.app' }}
+      # Optional second address (the standby host): used when the first does not answer, so the
+      # copies keep being made even if the main host is paused. Set the variable SITE_URL_FALLBACK.
+      SITE_FALLBACK: ${{ vars.SITE_URL_FALLBACK }}
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Back up
@@ -51,7 +54,12 @@ jobs:
           for p in $parts; do
             name=$(echo "$p" | tr '/' '_')
             code=$(curl -sS -m 120 -o "data/$day/$name.json" -w '%{http_code}' \
-              -H "Authorization: Bearer $(jwt)" "$SITE/api/backup?prefix=$p")
+              -H "Authorization: Bearer $(jwt)" "$SITE/api/backup?prefix=$p" || echo 000)
+            if [ "$code" != "200" ] && [ -n "$SITE_FALLBACK" ]; then
+              echo "part $p answered $code on $SITE, trying $SITE_FALLBACK"
+              code=$(curl -sS -m 120 -o "data/$day/$name.json" -w '%{http_code}' \
+                -H "Authorization: Bearer $(jwt)" "$SITE_FALLBACK/api/backup?prefix=$p" || echo 000)
+            fi
             if [ "$code" != "200" ]; then echo "part $p answered $code"; exit 1; fi
           done
           # A copy much smaller than the previous one may mean the storage was emptied: say so loudly.

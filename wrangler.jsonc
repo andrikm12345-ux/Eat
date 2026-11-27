@@ -9,5 +9,13 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"],
   },
+  // Keep the variables and secrets typed into the Cloudflare dashboard when the code is deployed.
+  "keep_vars": true,
+  "vars": {
+    // The free plan allows 10 ms of CPU per request; the full password hashing takes ~45 ms.
+    // This cheaper cost is used only here (Netlify keeps the full one); hashes are renewed at the
+    // next sign-in. On a paid plan delete this line.
+    "SCRYPT_COST": "4096",
+  },
   "observability": { "enabled": true },
 }

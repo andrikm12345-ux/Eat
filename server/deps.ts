@@ -1,4 +1,4 @@
-import { randomDelayMs } from './auth.js';
+import { randomDelayMs, setScryptCost } from './auth.js';
 import { blobStore } from './blobStore.js';
 import { redisConfigFromEnv, redisStore } from './redisStore.js';
 import type { Deps } from './types.js';
@@ -31,6 +31,9 @@ export function parseUserLabels(raw: string | undefined): Record<string, Record<
 export function envDeps(): Deps {
   const secret = process.env.AUTH_SECRET;
   if (!secret || secret.length < 32) throw new Error('AUTH_SECRET is not configured');
+  // Optional, for hosts that cap CPU time per request (Cloudflare free plan: 10 ms). Unset = the
+  // full cost; existing hashes keep working and are renewed at the next sign-in.
+  setScryptCost(process.env.SCRYPT_COST ? Number(process.env.SCRYPT_COST) : undefined);
   return {
     secret,
     // Upstash Redis when connected (KV_REST_API_*), else the private Blob store.
