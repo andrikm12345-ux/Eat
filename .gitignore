@@ -6,3 +6,4 @@ coverage
 .vercel
 .DS_Store
 *.tsbuildinfo
+.wrangler
