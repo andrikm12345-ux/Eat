@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # The address of the site: set the repository variable SITE_URL when the host changes.
-      SITE: ${{ vars.SITE_URL || 'https://dnevnik-theta.vercel.app' }}
+      SITE: ${{ vars.SITE_URL || 'https://dnevnik12345.netlify.app' }}
     steps:
       - uses: actions/checkout@v4
 
