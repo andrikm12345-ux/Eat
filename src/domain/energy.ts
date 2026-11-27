@@ -1,3 +1,4 @@
+import { BODY_FAT_MAX, BODY_FAT_MIN } from './body';
 import type { ActivityLevel, Sex } from './types';
 
 /** Physical activity level multipliers. */
@@ -36,6 +37,9 @@ export function wizardBmr(p: {
   const mifflin = bmrMifflin(p);
   const bf = p.bodyFat;
   if (!bf || bf.ageDays > FRESH_BODY_FAT_DAYS || bf.ageDays < 0) return mifflin;
+  // A body fat below the essential minimum (or above 60 %) is a mistake in the measurements: it
+  // must not move the metabolic rate (a 3 % estimate once added about 300 kcal).
+  if (!(bf.pct >= BODY_FAT_MIN[p.sex] && bf.pct <= BODY_FAT_MAX)) return mifflin;
   const katch = bmrKatch(p.kg * (1 - bf.pct / 100));
   return (mifflin + katch) / 2;
 }

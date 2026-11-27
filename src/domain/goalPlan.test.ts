@@ -188,3 +188,30 @@ describe('fast gains and the floor', () => {
     expect(planGoal(base).rateKgPerWeek).toBe(-0.4);
   });
 });
+
+describe('an absurd body-fat estimate does not move the calories', () => {
+  const her = {
+    sex: 'female' as const,
+    birthDate: '1986-05-01',
+    heightCm: 169,
+    weightKg: 84,
+    activityLevel: 'light' as const,
+    goalType: 'lose' as const,
+    rateKgPerWeek: -0.62,
+    today: '2026-11-20',
+  };
+
+  it('3 % fat (impossible for a woman) is ignored: 1540 kcal, not 1840', () => {
+    const wrong = planGoal({ ...her, bodyFatPct: 3 });
+    const none = planGoal({ ...her, bodyFatPct: null });
+    expect(wrong.kcal).toBe(none.kcal);
+    expect(wrong.kcal).toBe(1540);
+    expect(wrong.macros.protein).toBe(115);
+    expect(wrong.rateKgPerWeek).toBeCloseTo(-0.52, 2);
+  });
+
+  it('a believable body fat still counts (the mean of Mifflin and Katch-McArdle)', () => {
+    const ok = planGoal({ ...her, bodyFatPct: 40 });
+    expect(ok.bmr).not.toBe(planGoal({ ...her, bodyFatPct: null }).bmr);
+  });
+});
