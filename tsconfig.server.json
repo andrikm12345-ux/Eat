@@ -13,5 +13,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["server", "api", "netlify"]
+  "include": ["server", "api", "netlify", "cloudflare"]
 }
