@@ -114,7 +114,54 @@ export type OffSearchResult =
 const hasNutrition = (d: FoodDraft) =>
   d.per100g.kcal > 0 || d.per100g.protein + d.per100g.fat + d.per100g.carbs > 0;
 
-/** Text search in Open Food Facts (Russian products first). Never throws. */
+/**
+ * The newer Open Food Facts search service: fast and steady, while the old `search.pl` often
+ * answers "temporarily unavailable". Brands come as a list there.
+ */
+export const offFastSearchUrl = (q: string, limit = 24) =>
+  `https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&page_size=${limit}&langs=ru&fields=${FIELDS},countries_tags`;
+
+type SearchProduct = Omit<OffProduct, 'brands'> & {
+  brands?: string | string[];
+  countries_tags?: string[];
+};
+
+/** One search attempt against one service. `null` products: the answer was not a usable list. */
+async function searchOnce(
+  url: string,
+  pick: (body: Record<string, unknown>) => SearchProduct[] | null,
+  opts: { fetchImpl?: typeof fetch; timeoutMs?: number; retryDelayMs?: number },
+): Promise<{ kind: 'ok'; products: SearchProduct[] } | { kind: 'error'; message: string }> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? OFF_TIMEOUT_MS * 2);
+  try {
+    const res = await fetchRetry(
+      opts.fetchImpl ?? fetch,
+      url,
+      { signal: ctrl.signal, headers: { Accept: 'application/json' } },
+      ctrl.signal,
+      opts.retryDelayMs ?? RETRY_DELAY_MS,
+    );
+    if (!res.ok) return { kind: 'error', message: `HTTP ${res.status}` };
+    const products = pick((await res.json()) as Record<string, unknown>);
+    return products ? { kind: 'ok', products } : { kind: 'error', message: 'format' };
+  } catch {
+    return { kind: 'error', message: ctrl.signal.aborted ? 'timeout' : 'network' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const brandText = (b: string | string[] | undefined): string | undefined =>
+  (Array.isArray(b) ? b : [b])
+    .map((x) => x?.replace(/^[a-z]{2}:/, '').trim())
+    .find((x) => x)
+    ?.toString();
+
+/**
+ * Text search in Open Food Facts (Russian products first). Tries the fast service first and the
+ * old one when it fails. Never throws.
+ */
 export async function searchOff(
   q: string,
   opts: {
@@ -126,40 +173,38 @@ export async function searchOff(
 ): Promise<OffSearchResult> {
   const online = opts.online ?? (typeof navigator === 'undefined' ? true : navigator.onLine);
   if (!online) return { kind: 'offline' };
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? OFF_TIMEOUT_MS * 2);
-  try {
-    const res = await fetchRetry(
-      opts.fetchImpl ?? fetch,
+  let res = await searchOnce(
+    offFastSearchUrl(q),
+    (b) => (Array.isArray(b.hits) ? (b.hits as SearchProduct[]) : null),
+    opts,
+  );
+  const firstError = res.kind === 'error' ? res.message : null;
+  if (res.kind === 'error') {
+    res = await searchOnce(
       offSearchUrl(q),
-      { signal: ctrl.signal, headers: { Accept: 'application/json' } },
-      ctrl.signal,
-      opts.retryDelayMs ?? RETRY_DELAY_MS,
+      (b) => (Array.isArray(b.products) ? (b.products as SearchProduct[]) : []),
+      opts,
     );
-    if (!res.ok) return { kind: 'error', message: `HTTP ${res.status}` };
-    const body = (await res.json()) as {
-      products?: (OffProduct & { countries_tags?: string[] })[];
-    };
-    const seen = new Set<string>();
-    const ranked = (body.products ?? [])
-      .map((p) => ({ p, ru: p.countries_tags?.includes('en:russia') ? 0 : 1 }))
-      .sort((a, b) => a.ru - b.ru);
-    const drafts: FoodDraft[] = [];
-    for (const { p } of ranked) {
-      const code = p.code ?? '';
-      const d = mapOffProduct({ status: 1, product: p }, code);
-      if (!d || !hasNutrition(d) || seen.has(`${d.name}|${d.brand ?? ''}|${d.per100g.kcal}`))
-        continue;
-      seen.add(`${d.name}|${d.brand ?? ''}|${d.per100g.kcal}`);
-      drafts.push(d);
-    }
-    return { kind: 'ok', drafts };
-  } catch {
-    if (ctrl.signal.aborted) return { kind: 'error', message: 'timeout' };
-    return { kind: 'error', message: 'network' };
-  } finally {
-    clearTimeout(timer);
   }
+  if (res.kind === 'error') return { kind: 'error', message: firstError ?? res.message };
+  const seen = new Set<string>();
+  const ranked = res.products
+    .map((p) => ({ p, ru: p.countries_tags?.includes('en:russia') ? 0 : 1 }))
+    .sort((a, b) => a.ru - b.ru);
+  const drafts: FoodDraft[] = [];
+  for (const { p } of ranked) {
+    const code = p.code ?? '';
+    const brands = brandText(p.brands);
+    const d = mapOffProduct(
+      { status: 1, product: { ...p, ...(brands ? { brands } : {}) } as OffProduct },
+      code,
+    );
+    if (!d || !hasNutrition(d) || seen.has(`${d.name}|${d.brand ?? ''}|${d.per100g.kcal}`))
+      continue;
+    seen.add(`${d.name}|${d.brand ?? ''}|${d.per100g.kcal}`);
+    drafts.push(d);
+  }
+  return { kind: 'ok', drafts };
 }
 
 /** Saves a search result as an (unverified) OFF food; reuses an existing one by barcode. */

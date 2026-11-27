@@ -172,7 +172,6 @@ export default function AccountPage() {
                 {t.adminOpen}
               </Button>
             )}
-            <p>{t.signOutHint}</p>
             {session.restored && (
               <Card title={t.restoredTitle}>
                 <p>{t.restoredText}</p>
@@ -271,6 +270,7 @@ export default function AccountPage() {
                 </Button>
               </Card>
             )}
+            <p>{t.signOutHint}</p>
             <Button block variant="secondary" onClick={() => void signOut(repos)}>
               {t.signOut}
             </Button>

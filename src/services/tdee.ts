@@ -1,6 +1,6 @@
 import { ageOn, daysBetween, parseLocalDate, weekStart } from '../domain/dates';
 import { proposeCheckin } from '../domain/checkin';
-import { bmrMifflin, startingTdee } from '../domain/energy';
+import { bmrMifflin, startingTdee, wizardBmr } from '../domain/energy';
 import { computeMacros } from '../domain/macros';
 import {
   computeTdeeSeries,
@@ -62,11 +62,21 @@ export async function recomputeTdee(r: Repos, today: LocalDate): Promise<TdeeSta
   }
 
   const startKg = trendOn(trend, start) ?? daily[0]?.kg ?? 70;
-  const bmr = bmrMifflin({
+  // The same starting rate the goal wizard used: Mifflin, with Katch-McArdle when a believable
+  // body-fat measurement from the weeks around the start is known (else the two screens differ).
+  const nearBf = (await r.measurements.list())
+    .filter((m) => m.bodyFatPct !== undefined && Math.abs(daysBetween(m.date, start)) <= 30)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .at(-1);
+  const bmr = wizardBmr({
     sex: profile.sex,
     kg: startKg,
     heightCm: profile.heightCm,
     age: ageOn(profile.birthDate, start),
+    bodyFat:
+      nearBf?.bodyFatPct !== undefined
+        ? { pct: nearBf.bodyFatPct, ageDays: Math.abs(daysBetween(nearBf.date, start)) }
+        : null,
   });
   const tdee0 = startingTdee(bmr, profile.activityLevel);
   const rows = computeTdeeSeries(

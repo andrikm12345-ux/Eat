@@ -49,6 +49,7 @@ export async function loadWeekReport(r: Repos, weekStart: string): Promise<WeekR
   const sex = profile?.sex ?? 'male';
   const age = profile ? ageOn(profile.birthDate, to) : 35;
   const liveMetas = metas.filter((m) => !m.deletedAt);
+  const waterDays = liveMetas.filter((m) => m.waterMl > 0);
   const stepDays = liveMetas.filter((m) => typeof m.steps === 'number');
   const live: Workout[] = workouts.filter((w) => !w.deletedAt);
   return {
@@ -62,7 +63,10 @@ export async function loadWeekReport(r: Repos, weekStart: string): Promise<WeekR
     topKcal: topSources(entries, 'kcal'),
     topProtein: topSources(entries, 'protein'),
     micros: microReport(items, Math.max(1, summary.loggedDays), sex, age),
-    waterAvg: liveMetas.reduce((s, m) => s + m.waterMl, 0) / 7,
+    // Like steps: the average of the days with water noted (a day without it is not a dry day).
+    waterAvg: waterDays.length
+      ? waterDays.reduce((s, m) => s + m.waterMl, 0) / waterDays.length
+      : 0,
     stepsAvg: stepDays.length
       ? stepDays.reduce((s, m) => s + (m.steps as number), 0) / stepDays.length
       : null,

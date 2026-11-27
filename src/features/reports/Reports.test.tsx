@@ -58,7 +58,7 @@ describe('weekly report (no AI, no network)', () => {
     const vitC = w.micros.find((m) => m.def.key === 'vitC')!;
     expect(vitC).toMatchObject({ coverage: 0, lowData: true });
     expect(w.workouts).toEqual({ count: 1, minutes: 30, kcal: 300 });
-    expect(w.waterAvg).toBe(200);
+    expect(w.waterAvg).toBe(1400);
     expect(w.stepsAvg).toBe(9000);
     const agg = weeklyAggregates(w);
     expect(JSON.stringify(agg)).not.toMatch(/data:image|base64/);

@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { Link, useNavigate } from 'react-router';
+import { getSession } from '../../services/account';
 import { navyBodyFat } from '../../domain/body';
 import { addDays, ageOn, formatDateRu, isLocalDate, toLocalDate } from '../../domain/dates';
 import { PAL } from '../../domain/energy';
@@ -76,6 +78,7 @@ export default function WizardPage() {
 
 function Wizard({ initial, editing, today }: { initial: Draft; editing: boolean; today: string }) {
   const navigate = useNavigate();
+  const signedIn = useLiveQuery(async () => !!(await getSession(repos)), []) ?? true;
   const [d, setD] = useState<Draft>(initial);
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -93,6 +96,14 @@ function Wizard({ initial, editing, today }: { initial: Draft; editing: boolean;
     target:
       d.targetWeightKg === null || inRange(d.targetWeightKg, 30, 300) ? null : t.invalid.target,
   };
+  // What stops the step: said under the disabled button instead of a general phrase.
+  const stepProblems = [
+    errors.birthDate ?? errors.height,
+    errors.weight,
+    errors.rate ?? errors.target,
+    null,
+    null,
+  ];
   const stepValid = [
     !errors.birthDate && !errors.height,
     !errors.weight,
@@ -176,7 +187,7 @@ function Wizard({ initial, editing, today }: { initial: Draft; editing: boolean;
       <div className={styles.body}>
         {name === 'about' && (
           <>
-            {!editing && (
+            {!editing && !signedIn && (
               <p className={styles.stepHint}>
                 <Link to="/account">{ru.account.haveAccount}</Link>
               </p>
@@ -345,7 +356,7 @@ function Wizard({ initial, editing, today }: { initial: Draft; editing: boolean;
           <Button
             onClick={() => setStep(step + 1)}
             disabled={!stepValid[step]}
-            hint={ru.hints.step}
+            hint={stepProblems[step] ?? ru.hints.step}
           >
             {t.next}
           </Button>

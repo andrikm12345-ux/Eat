@@ -501,10 +501,16 @@ describe('account page', () => {
 
 describe('entry points', () => {
   it('wizard and the menu link to the account page', async () => {
-    await renderApp('/wizard', { seed: false });
+    await renderApp('/wizard', { seed: false, signedOut: true });
     expect(await screen.findByRole('link', { name: ru.account.haveAccount })).toHaveAttribute(
       'href',
       '/account',
     );
+  });
+
+  it('a signed-in person is not asked to sign in again in the wizard', async () => {
+    await renderApp('/wizard', { seed: false });
+    await screen.findByText(ru.wizard.stepHints.about);
+    expect(screen.queryByRole('link', { name: ru.account.haveAccount })).toBeNull();
   });
 });

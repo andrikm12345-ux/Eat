@@ -6,6 +6,7 @@ import {
   cacheOffDraft,
   fetchOff,
   lookupBarcode,
+  offFastSearchUrl,
   offSearchUrl,
   offUrl,
   searchOff,
@@ -144,6 +145,7 @@ describe('OFF text search', () => {
         per100g: { kcal: 72 },
       });
     }
+    expect(offFastSearchUrl('чудо коктейль')).toContain('q=%D1%87%D1%83%D0%B4%D0%BE');
     expect(offSearchUrl('чудо коктейль')).toContain('search_terms=%D1%87%D1%83%D0%B4%D0%BE');
     expect(await searchOff('x', { fetchImpl: json({}), online: true })).toEqual({
       kind: 'ok',
@@ -168,7 +170,9 @@ describe('OFF text search', () => {
     const flaky = vi
       .fn()
       .mockRejectedValueOnce(new TypeError('Failed to fetch'))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ products: [] }), { status: 200 }));
+      .mockImplementation(
+        async () => new Response(JSON.stringify({ products: [] }), { status: 200 }),
+      );
     expect(
       await searchOff('x', {
         fetchImpl: flaky as unknown as typeof fetch,
@@ -189,6 +193,49 @@ describe('OFF text search', () => {
         online: true,
       }),
     ).toEqual({ kind: 'error', message: 'timeout' });
+  });
+
+  it('uses the fast service first, with brands as a list, and the old one when it fails', async () => {
+    const hit = {
+      code: '7',
+      product_name: 'Творог',
+      brands: ['xx:ПРОСТОКВАШИНО'],
+      nutriments: {
+        'energy-kcal_100g': 134,
+        proteins_100g: 10.8,
+        fat_100g: 4,
+        carbohydrates_100g: 13.8,
+      },
+    };
+    const urls: string[] = [];
+    const fast = vi.fn(async (u: string) => {
+      urls.push(u);
+      return Response.json({ hits: [hit] });
+    });
+    const r = await searchOff('творог', {
+      fetchImpl: fast as unknown as typeof fetch,
+      online: true,
+    });
+    expect(r.kind === 'ok' && r.drafts[0]).toMatchObject({
+      name: 'Творог',
+      brand: 'ПРОСТОКВАШИНО',
+    });
+    expect(urls).toHaveLength(1);
+    expect(urls[0]).toContain('search.openfoodfacts.org');
+    // The fast service is down: the old one answers.
+    const calls: string[] = [];
+    const mixed = vi.fn(async (u: string) => {
+      calls.push(u);
+      return u.includes('search.openfoodfacts.org')
+        ? new Response('x', { status: 503 })
+        : Response.json({ products: [{ ...hit, brands: 'Простоквашино' }] });
+    });
+    const r2 = await searchOff('творог', {
+      fetchImpl: mixed as unknown as typeof fetch,
+      online: true,
+    });
+    expect(r2.kind === 'ok' && r2.drafts).toHaveLength(1);
+    expect(calls).toHaveLength(2);
   });
 
   it('caches a result once per barcode', async () => {

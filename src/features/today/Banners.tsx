@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Link } from 'react-router';
 import { toLocalDate } from '../../domain/dates';
-import { backupDue, measurementDue, nothingLoggedYet, weighOverdue } from '../../domain/reminders';
+import { backupDue, measurementDue, weighOverdue } from '../../domain/reminders';
 import { repos } from '../../db/repos';
 import { bannerDismissKey, SETTINGS } from '../../db/settingsKeys';
 import { ru } from '../../i18n/ru';
@@ -33,21 +33,6 @@ export function Banners() {
       });
     }
     {
-      const todayEntries = await repos.entries.byDate(today);
-      const now = new Date();
-      if (
-        nothingLoggedYet(
-          now.getHours() * 60 + now.getMinutes(),
-          todayEntries.map((e) => e.time),
-        ) &&
-        !(await dismissed('breakfast'))
-      ) {
-        out.push({
-          id: 'breakfast',
-          text: ru.banners.breakfast,
-          action: { label: ru.banners.breakfastAction, to: '/add/search' },
-        });
-      }
       const lastW = (await repos.weights.latest())?.date ?? null;
       const overdue = weighOverdue(lastW, today);
       if (overdue !== null && !(await dismissed('weigh'))) {

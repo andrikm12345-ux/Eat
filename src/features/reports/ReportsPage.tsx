@@ -81,7 +81,9 @@ function WeekBars({ w, today }: { w: WeekReport; today: string }) {
   const max = Math.max(1, ...w.dayKcal.map((d) => Math.max(d.kcal, d.goal ?? 0))) * 1.08;
   const goals = w.dayKcal.map((d) => d.goal).filter((g): g is number => g !== null);
   const goal = goals.length ? goals.reduce((a, b) => a + b, 0) / goals.length : null;
-  const inGoal = w.dayKcal.filter((d) => dayStatus(d.kcal, d.goal ?? undefined) === 'close').length;
+  const inGoal = w.dayKcal.filter(
+    (d) => d.kcal > 0 && dayStatus(d.kcal, d.goal ?? undefined) === 'close',
+  ).length;
   return (
     <>
       <div className={styles.bars} role="img" aria-label={t.bars}>
@@ -116,7 +118,7 @@ function WeekBars({ w, today }: { w: WeekReport; today: string }) {
       {w.loggedDays > 0 && (
         <p className={sky.sub}>
           {t.heroAvg(formatKcal(w.avg.kcal))}
-          {goal !== null && <> · {t.heroInGoal(inGoal)}</>}
+          {goal !== null && <> · {t.heroInGoal(inGoal, w.loggedDays)}</>}
         </p>
       )}
     </>
