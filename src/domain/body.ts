@@ -1,13 +1,14 @@
 import type { Sex } from './types';
 
-export const BODY_FAT_MIN = 3;
+/** An estimate outside this range is a mistake in the measurements, not a result. */
+export const BODY_FAT_MIN = 5;
 export const BODY_FAT_MAX = 60;
-
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
 /**
  * US Navy body-fat estimate (all lengths in cm). Returns `null` when inputs are
- * missing/invalid or a logarithm argument is ≤ 0. Result is clamped to 3–60 %.
+ * missing/invalid, a logarithm argument is ≤ 0, or the result is outside 5–60 % (an absurd
+ * measurement must not turn into a believable number: it used to be clamped to 3 %, and that
+ * "lean" figure then drove the protein target up).
  */
 export function navyBodyFat(p: {
   sex: Sex;
@@ -31,7 +32,8 @@ export function navyBodyFat(p: {
   }
   // Non-physical input (e.g. absurd circumferences) can push density to ≤ 0.
   if (density <= 0) return null;
-  return clamp(495 / density - 450, BODY_FAT_MIN, BODY_FAT_MAX);
+  const pct = 495 / density - 450;
+  return pct >= BODY_FAT_MIN && pct <= BODY_FAT_MAX ? pct : null;
 }
 
 /** Lean body mass = weight × (1 − fat%). */

@@ -6,6 +6,7 @@ import { repos } from './db/repos';
 import { routes } from './routes';
 import { clearAiMealLabels } from './services/cleanup';
 import { startDescribeResume } from './services/describeResume';
+import { announceGoalFix } from './services/goalFixNotice';
 import { startAccountSync } from './services/sync';
 import { startTdeeSync } from './services/tdeeSync';
 import { startGamificationSync } from './services/gamificationSync';
@@ -27,6 +28,8 @@ const router = createBrowserRouter(routes);
 void ensureBaseFoods(repos).catch((e: unknown) => console.error('Base foods failed', e));
 // Old AI entries lose the meal name the AI guessed from the food alone.
 void clearAiMealLabels(repos).catch((e: unknown) => console.error('Label cleanup failed', e));
+// A goal with an overstated protein (older formula) is corrected once, with a notice.
+void announceGoalFix(repos).catch((e: unknown) => console.error('Goal fix failed', e));
 // Adaptive TDEE + weekly check-in, recomputed on start and on data changes.
 startTdeeSync(repos);
 // Cloud sync while signed in to an account.

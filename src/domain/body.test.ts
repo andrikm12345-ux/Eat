@@ -37,9 +37,13 @@ describe('navyBodyFat', () => {
     expect(navyBodyFat({ sex: 'male', heightCm: 1, neckCm: 1, waistCm: 1e9 })).toBeNull();
   });
 
-  it('clamps to 3–60 %', () => {
-    expect(navyBodyFat({ sex: 'male', heightCm: 200, neckCm: 50, waistCm: 55 })).toBe(3);
-    expect(navyBodyFat({ sex: 'male', heightCm: 150, neckCm: 30, waistCm: 200 })).toBe(60);
+  it('an absurd measurement gives no estimate (it used to be clamped to a believable 3 % or 60 %)', () => {
+    expect(navyBodyFat({ sex: 'male', heightCm: 200, neckCm: 50, waistCm: 55 })).toBeNull();
+    expect(navyBodyFat({ sex: 'male', heightCm: 150, neckCm: 30, waistCm: 200 })).toBeNull();
+    // a real, ordinary measurement still works
+    expect(
+      navyBodyFat({ sex: 'female', heightCm: 169, neckCm: 35, waistCm: 95, hipsCm: 112 }),
+    ).toBeGreaterThan(30);
   });
 });
 

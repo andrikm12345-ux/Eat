@@ -4,6 +4,7 @@ import { BASE_FOODS_SETTING } from '../db/baseFoods';
 import { ACCOUNT, getSession, signOut } from './account';
 import { ru } from '../i18n/ru';
 import { toast } from '../state/ui';
+import { announceGoalFix } from './goalFixNotice';
 import { refreshSharedAi } from './sharedAi';
 import { exportJson, importJson, isSecretSetting, parseBackup, type Backup } from './backup';
 
@@ -74,6 +75,8 @@ export async function syncNow(r: Repos): Promise<SyncResult> {
       const remote = parseBackup(body);
       remoteTables = stripTables({ ...remote, tables: pick(remote.tables) });
       pulled = (await importJson(r, { ...remote, tables: pick(remote.tables) }, 'merge')).written;
+      // Goals that arrived from the cloud with an overstated protein are corrected before the push.
+      if (pulled > 0) await announceGoalFix(r).catch(() => undefined);
     }
     const snapshot = await buildSnapshot(r);
     let pushed = false;
