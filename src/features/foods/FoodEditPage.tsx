@@ -8,6 +8,7 @@ import { Page } from '../../ui/Page';
 import { addQs, useAddTarget } from '../add/addTarget';
 import { FoodForm, type FoodDraft } from './FoodForm';
 import { Loading } from '../../ui/states';
+import { knownStores } from '../../domain/price';
 
 const t = ru.foods;
 
@@ -19,6 +20,7 @@ export default function FoodEditPage() {
   const target = useAddTarget();
   const food = useLiveQuery(async () => (id ? ((await repos.foods.get(id)) ?? null) : null), [id]);
   const log = params.get('log') === '1';
+  const stores = useLiveQuery(async () => knownStores(await repos.foods.list()), []) ?? [];
 
   if (id && food === undefined)
     return (
@@ -34,6 +36,9 @@ export default function FoodEditPage() {
         barcode: food.barcode,
         per100g: food.per100g,
         servings: food.servings,
+        store: food.store,
+        price: food.price,
+        priceGrams: food.priceGrams,
       }
     : {
         name: params.get('name') ?? '',
@@ -47,6 +52,7 @@ export default function FoodEditPage() {
       <FoodForm
         key={food?.id ?? 'new'}
         initial={initial}
+        stores={stores}
         saveLabel={log ? t.saveAndLog : t.save}
         extraActions={
           food ? (
@@ -71,6 +77,9 @@ export default function FoodEditPage() {
               ...d,
               brand: d.brand,
               barcode: d.barcode,
+              store: d.store,
+              price: d.price,
+              priceGrams: d.priceGrams,
               verified: true,
             });
             toast({ text: t.saved });

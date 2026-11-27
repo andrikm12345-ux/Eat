@@ -4,6 +4,7 @@ import { atwaterKcal, isKcalInconsistent, scaleNutrients } from '../../domain/nu
 import type { Food, Nutrients, Serving } from '../../domain/types';
 import { ru } from '../../i18n/ru';
 import { isValidEan } from '../../domain/ean';
+import { formatRub, pricePer100g } from '../../domain/price';
 import { Button, Card, Chips, Notice, NumberField, Row, TextField } from '../../ui/kit';
 import styles from './foodForm.module.css';
 
@@ -15,22 +16,42 @@ export type FoodDraft = {
   barcode?: string | undefined;
   per100g: Partial<Nutrients>;
   servings: Serving[];
+  store?: string | undefined;
+  price?: number | undefined;
+  priceGrams?: number | undefined;
 };
+
+type Saved = Pick<Food, 'name' | 'per100g' | 'servings'> & {
+  brand?: string;
+  barcode?: string;
+  store?: string;
+  price?: number;
+  priceGrams?: number;
+};
+
+/** What the price is for: 100 g, a kilo or a pack with its own weight. */
+type PriceFor = '100' | '1000' | 'pack';
+const PRICE_OPTIONS = [
+  { value: '100', label: t.priceFor100 },
+  { value: '1000', label: t.priceForKg },
+  { value: 'pack', label: t.priceForPack },
+] as const;
 
 const OPTIONAL = ['fiber', 'sugar', 'satFat', 'salt'] as const;
 
 /** Food editor. Returns a complete per-100 g record (kcal from Atwater when empty). */
 export function FoodForm({
   initial,
+  stores = [],
   onSave,
   saveLabel = t.save,
   extraActions,
   logger,
 }: {
   initial: FoodDraft;
-  onSave: (
-    d: Pick<Food, 'name' | 'per100g' | 'servings'> & { brand?: string; barcode?: string },
-  ) => void | Promise<void>;
+  /** Shops entered before, offered as quick choices. */
+  stores?: string[];
+  onSave: (d: Saved) => void | Promise<void>;
   saveLabel?: string;
   extraActions?: React.ReactNode;
   /**
@@ -38,10 +59,7 @@ export function FoodForm({
    * as the grams change, and one button saves the food and logs it.
    */
   logger?: {
-    onLog: (
-      d: Pick<Food, 'name' | 'per100g' | 'servings'> & { brand?: string; barcode?: string },
-      grams: number,
-    ) => void | Promise<void>;
+    onLog: (d: Saved, grams: number) => void | Promise<void>;
   };
 }) {
   const [name, setName] = useState(initial.name);
@@ -52,6 +70,26 @@ export function FoodForm({
     initial.servings,
   );
   const [grams, setGrams] = useState<number | null>(100);
+  const [store, setStore] = useState(initial.store ?? '');
+  const [price, setPrice] = useState<number | null>(initial.price ?? null);
+  const [priceFor, setPriceFor] = useState<PriceFor>(
+    initial.priceGrams === 100
+      ? '100'
+      : initial.priceGrams === 1000
+        ? '1000'
+        : initial.priceGrams
+          ? 'pack'
+          : '1000',
+  );
+  const [packGrams, setPackGrams] = useState<number | null>(
+    initial.priceGrams && initial.priceGrams !== 100 && initial.priceGrams !== 1000
+      ? initial.priceGrams
+      : null,
+  );
+  const priceGrams = priceFor === 'pack' ? packGrams : Number(priceFor);
+  const per100Price = pricePer100g(price ?? undefined, priceGrams ?? undefined);
+  const priceNeedsGrams =
+    price !== null && price > 0 && priceFor === 'pack' && !(packGrams && packGrams > 0);
   const val = (k: string) => (typeof n[k] === 'number' ? (n[k] as number) : null);
   const set = (k: string) => (v: number | null) => setN((p) => ({ ...p, [k]: v }));
 
@@ -73,7 +111,7 @@ export function FoodForm({
   const nameOk = name.trim().length > 0;
   const kcalOk = kcal >= 0 && kcal <= 900;
   const macrosOk = macros.protein + macros.fat + macros.carbs <= 100.5;
-  const valid = nameOk && kcalOk && macrosOk && !noGrams;
+  const valid = nameOk && kcalOk && macrosOk && !noGrams && !priceNeedsGrams;
   /** What is missing, said under the disabled save button. */
   const problem = !nameOk
     ? t.needName
@@ -83,7 +121,9 @@ export function FoodForm({
         ? t.macrosRange
         : noGrams
           ? t.servingNeedsGrams(noGrams.label.trim())
-          : null;
+          : priceNeedsGrams
+            ? t.packNeedsGrams
+            : null;
   const portion = scaleNutrients(per100g, grams ?? 0);
   const gramsOk = grams !== null && grams > 0 && grams < 5000;
   const code = barcode.trim();
@@ -93,6 +133,8 @@ export function FoodForm({
     servings: validServings,
     ...(brand.trim() ? { brand: brand.trim() } : {}),
     ...(barcode.trim() ? { barcode: barcode.trim() } : {}),
+    ...(store.trim() ? { store: store.trim() } : {}),
+    ...(price !== null && price > 0 && priceGrams && priceGrams > 0 ? { price, priceGrams } : {}),
   });
   const codeSuspicious = [8, 12, 13].includes(code.length) && !isValidEan(code);
 
@@ -108,6 +150,30 @@ export function FoodForm({
           inputMode="numeric"
           {...(codeSuspicious ? { hint: t.barcodeCheck } : {})}
         />
+      </Card>
+      <Card title={t.buyTitle}>
+        <TextField label={t.store} value={store} onChange={setStore} />
+        {stores.length > 0 && (
+          <Chips
+            label={t.store}
+            value={store.trim()}
+            onChange={setStore}
+            options={stores.slice(0, 6).map((s) => ({ value: s, label: s }))}
+          />
+        )}
+        <NumberField label={t.price} suffix="₽" value={price} onChange={setPrice} />
+        <Chips
+          label={t.priceForLabel}
+          value={priceFor}
+          onChange={setPriceFor}
+          options={PRICE_OPTIONS}
+        />
+        {priceFor === 'pack' && (
+          <NumberField label={t.packGrams} suffix="г" value={packGrams} onChange={setPackGrams} />
+        )}
+        {per100Price !== null && (
+          <p className={styles.portionMacros}>{t.pricePer100(formatRub(per100Price))}</p>
+        )}
       </Card>
       <Card title={t.per100}>
         <NumberField

@@ -74,6 +74,11 @@ export type Food = BaseRecord & {
   lastUsedAt?: IsoDateTime;
   useCount: number;
   lastGrams?: number;
+  /** Where the person buys it ("Пятёрочка", "Рынок"). */
+  store?: string;
+  /** Price in roubles for `priceGrams` grams (a pack, a kilo, 100 g). */
+  price?: number;
+  priceGrams?: number;
   /** Normalized name for search: lower case, ё→е. */
   searchKey: string;
 };

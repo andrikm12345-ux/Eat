@@ -9,7 +9,7 @@ import { formatKcal } from '../../domain/format';
 import { cacheOffDraft, searchOff } from '../../services/off';
 import { repos } from '../../db/repos';
 import { ru } from '../../i18n/ru';
-import { Button, LinkButton } from '../../ui/kit';
+import { Button, Chips, LinkButton } from '../../ui/kit';
 import { Page } from '../../ui/Page';
 import { useAddTarget } from './addTarget';
 import { useCatalog } from './catalog';
@@ -22,6 +22,15 @@ const ONLINE_DEBOUNCE_MS = 600;
 /** Online results per query for this session (no repeated requests). */
 const OFF_CACHE = new Map<string, FoodDraft[]>();
 
+/** Fat filter: foods with at most this many grams of fat per 100 g (0 = filter is off). */
+const FAT_LIMITS = [0, 1, 3] as const;
+const FAT_OPTIONS = [
+  { value: 0, label: t.fatAny },
+  { value: 1, label: t.fatFree },
+  { value: 3, label: t.fatLow },
+] as const;
+const MAX_FAT_LIST = 60;
+
 /** Food picker. With `onPick` it works as an embedded chooser (e.g. "заменить на продукт"). */
 export function FoodSearch({
   onPick,
@@ -32,6 +41,7 @@ export function FoodSearch({
 }) {
   const { date, time, qs } = useAddTarget();
   const [q, setQ] = useState('');
+  const [fatMax, setFatMax] = useState<number>(FAT_LIMITS[0]);
   const catalog = useCatalog();
   const recentEntries = useLiveQuery(() => repos.entries.inRange(addDays(date, -60), date), [date]);
 
@@ -51,7 +61,19 @@ export function FoodSearch({
         .slice(0, 10),
     [catalog.foods],
   );
-  const results = q.trim() ? catalog.search(q) : [];
+  const fatOk = (f: Food) => fatMax === 0 || (f.per100g.fat <= fatMax && f.per100g.kcal > 0);
+  const results = q.trim() ? catalog.search(q, fatMax ? 300 : 50).filter(fatOk) : [];
+  // No query with the filter on: the lean foods of the whole base, most protein first.
+  const lean = useMemo(
+    () =>
+      fatMax === 0
+        ? []
+        : (catalog.foods ?? [])
+            .filter((f) => f.per100g.fat <= fatMax && f.per100g.kcal > 0)
+            .sort((a, b) => b.per100g.protein - a.per100g.protein || a.per100g.fat - b.per100g.fat)
+            .slice(0, MAX_FAT_LIST),
+    [catalog.foods, fatMax],
+  );
   const [off, setOff] = useState<{
     q: string;
     state: 'busy' | 'ok' | 'offline' | 'error';
@@ -116,6 +138,7 @@ export function FoodSearch({
           enterKeyHint="search"
         />
       </div>
+      <Chips label={t.fatLabel} value={fatMax} options={FAT_OPTIONS} onChange={setFatMax} />
       {!onPick && (
         <div className={styles.actions}>
           <LinkButton to={`/foods/new${qs}&log=1`} variant="secondary">
@@ -178,6 +201,12 @@ export function FoodSearch({
               }
             </>
           )}
+        </>
+      ) : fatMax > 0 ? (
+        <>
+          <h2 className={styles.sectionTitle}>{fatMax === 1 ? t.fatFreeTitle : t.fatLowTitle}</h2>
+          {lean.length > 0 ? list(lean) : <p className={styles.muted}>{t.nothing}</p>}
+          <p className={styles.muted}>{t.fatHint}</p>
         </>
       ) : (
         <>

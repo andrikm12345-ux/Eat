@@ -427,12 +427,8 @@ export function topUps(
   // Losing: the best idea first, then lighter ones (not more than 70% of what is left): if
   // there is room to eat less, it is offered.
   const ordered =
-    ctx.goalType === 'lose' && options.length > 0
-      ? [
-          options[0]!,
-          ...options.filter((o) => o.total.kcal <= left.kcal * 0.7),
-          ...options.slice(1),
-        ]
+    ctx.goalType === 'lose' && options[0]
+      ? [options[0], ...options.filter((o) => o.total.kcal <= left.kcal * 0.7), ...options.slice(1)]
       : options;
   for (const o of ordered) {
     if (picked.length >= count) break;
