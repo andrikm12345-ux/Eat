@@ -4,6 +4,16 @@
 начала следующего месяца), его можно за несколько минут поднять на **Cloudflare Workers**. Всё
 для этого уже подготовлено в ветке `cloudflare`, ничего не запущено.
 
+## Состояние на 27.11.2026
+
+- В Cloudflare создан Worker **`eat`** как **заглушка** (отвечает «not launched», публичного адреса
+  `workers.dev` нет). Приложение в него **не выложено**.
+- В него **уже внесены секреты** (взяты из Netlify): `AUTH_SECRET`, `KV_REST_API_URL`,
+  `KV_REST_API_TOKEN`, `BACKUP_KEY`, `ADMIN_LOGINS`, `AI_API_KEY`, `AI_MODEL_TEXT`, `AI_MODEL_VISION`.
+  Если на Netlify значение изменится, его надо обновить и в Cloudflare. `SCRYPT_COST` задаётся
+  из `wrangler.jsonc` при выкладке, вносить не надо.
+- Подключения к GitHub у этого Worker'а **нет** (его надо создать в момент переезда, см. ниже).
+
 ## Что уже готово
 
 | Что                             | Где                                                                                                    | Состояние                            |
@@ -53,6 +63,9 @@
 
 ## Переезд (когда понадобится), по шагам
 
+0. В Cloudflare: Workers & Pages → `eat` → Settings → Build (Git connection) → подключите репозиторий
+   `andrikm12345-ux/Eat`, ветка `main`, команда сборки `npm run build`, команда выкладки
+   `npx wrangler deploy`. Переменные при этом сохранятся (`keep_vars`).
 1. Влейте ветку `cloudflare` в `main` (на GitHub: Pull requests → New → `cloudflare` → Merge).
    Netlify при этом соберётся только если изменился код сайта. Если Netlify уже на паузе, это не
    страшно.
