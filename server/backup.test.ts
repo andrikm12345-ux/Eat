@@ -160,3 +160,19 @@ describe('backup and restore', () => {
     expect([...fresh.data.keys()]).toEqual(['creds/ok.json']);
   });
 });
+
+describe('the backup key does not depend on the host', () => {
+  it('with BACKUP_KEY a copy opens with that key, not with AUTH_SECRET (so it survives a move)', async () => {
+    const KEY = 'k'.repeat(40);
+    const d = { ...deps(), backupKey: KEY };
+    await d.store.put('creds/a.json', 'C');
+    const sealed = (await (await call(d, 'GET', '?prefix=creds/')).json()) as Sealed;
+    expect(open(KEY, sealed)).toEqual({ 'creds/a.json': 'C' });
+    expect(() => open(SECRET, sealed)).toThrow();
+    // a new host with a different AUTH_SECRET but the same BACKUP_KEY restores it
+    const fresh = memory();
+    const d2 = { ...deps('n'.repeat(40), fresh), backupKey: KEY };
+    expect((await call(d2, 'POST', '', restoreJwt(), sealed)).status).toBe(200);
+    expect(fresh.data.get('creds/a.json')).toBe('C');
+  });
+});

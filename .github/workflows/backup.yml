@@ -1,11 +1,12 @@
-# Weekly encrypted backup of the storage into the `backups` branch (see README, «Резервные копии»).
+# Daily encrypted backup of the storage into the `backups` branch (see README, «Резервные копии»).
 # No secret is shared: the job proves who it is with the identity token GitHub gives it (OIDC), the
-# server checks GitHub's signature. The files are AES-256-GCM encrypted by the server, which holds
-# the key (derived from AUTH_SECRET): nobody else can read them.
+# server checks GitHub's signature. The files are AES-256-GCM encrypted by the server with BACKUP_KEY:
+# nobody else can read them. The branch is rebuilt as ONE commit each run (the last 30 days), so the
+# repository does not grow with every backup.
 name: Backup
 on:
   schedule:
-    - cron: '17 3 * * 0'
+    - cron: '17 3 * * *'
   workflow_dispatch:
 
 permissions:
@@ -20,9 +21,8 @@ jobs:
     env:
       # The address of the site: set the repository variable SITE_URL when the host changes.
       SITE: ${{ vars.SITE_URL || 'https://dnevnik12345.netlify.app' }}
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
-
       - name: Back up
         run: |
           set -euo pipefail
@@ -30,16 +30,20 @@ jobs:
             curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
               "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=dnevnik-backup" | jq -r .value
           }
+          day=$(date -u +%F)
+          url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          rm -rf /tmp/bk
+          if git ls-remote --exit-code --heads "$url" backups >/dev/null 2>&1; then
+            git clone -q --depth 1 --branch backups "$url" /tmp/bk
+            cd /tmp/bk
+            git checkout -q --orphan fresh
+          else
+            git init -q -b fresh /tmp/bk
+            cd /tmp/bk
+            git remote add origin "$url"
+          fi
           git config user.name "backup-bot"
           git config user.email "backup-bot@users.noreply.github.com"
-          if git ls-remote --exit-code --heads origin backups >/dev/null 2>&1; then
-            git fetch origin backups
-            git checkout -B backups origin/backups
-          else
-            git checkout --orphan backups
-            git rm -rf . >/dev/null 2>&1 || true
-          fi
-          day=$(date -u +%F)
           rm -rf "data/$day"
           mkdir -p "data/$day"
           parts="creds/ meta/ admin/ usage/ search-usage/"
@@ -50,8 +54,19 @@ jobs:
               -H "Authorization: Bearer $(jwt)" "$SITE/api/backup?prefix=$p")
             if [ "$code" != "200" ]; then echo "part $p answered $code"; exit 1; fi
           done
-          # keep the last 8 backups (about two months)
-          ls -1d data/* | head -n -8 | xargs -r rm -rf
-          git add data
-          git commit -m "backup $day"
-          git push origin backups
+          # A copy much smaller than the previous one may mean the storage was emptied: say so loudly.
+          prev=$(ls -1d data/* | grep -v "data/$day" | tail -1 || true)
+          if [ -n "$prev" ]; then
+            now_size=$(du -sb "data/$day" | cut -f1)
+            old_size=$(du -sb "$prev" | cut -f1)
+            echo "size: today $now_size bytes, previous ($prev) $old_size bytes"
+            if [ "$now_size" -lt $((old_size / 2)) ]; then
+              echo "::warning title=Backup is much smaller than the previous one::today $now_size bytes, previous $old_size bytes. Check the storage before the older copies are pruned."
+            fi
+          fi
+          # keep the last 30 days
+          ls -1d data/* | head -n -30 | xargs -r rm -rf
+          git add -A
+          git commit -q -m "backup $day"
+          git push -q --force origin fresh:backups
+          echo "backup $day done: $(ls data | wc -l) day(s) kept"
