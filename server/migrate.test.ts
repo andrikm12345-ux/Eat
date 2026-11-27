@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createSession, sessionInfo, userIdFor } from './auth.js';
+import { adminUsers } from './admin.js';
 import { getSync, login, putSync, register, resetPassword } from './handlers.js';
 import type { Deps, Store } from './types.js';
 
@@ -14,6 +15,11 @@ const memory = (): Store & { data: Map<string, string> } => {
     get: async (p) => data.get(p) ?? null,
     put: async (p, b) => void data.set(p, b),
     list: async (prefix) => [...data.keys()].filter((k) => k.startsWith(prefix)),
+    remove: async (prefix) => {
+      const hit = [...data.keys()].filter((k) => k.startsWith(prefix));
+      hit.forEach((k) => data.delete(k));
+      return hit.length;
+    },
   };
 };
 const deps = (secret: string, store: Store, over: Partial<Deps> = {}): Deps => ({
@@ -145,5 +151,37 @@ describe('accounts after the move to another host (new AUTH_SECRET)', () => {
     const d = deps(OLD, store);
     expect((await login(d, post({ login: 'ivan', password: 'password-one' }))).status).toBe(200);
     expect([...store.data.keys()].filter((k) => k.startsWith('creds/'))).toHaveLength(1);
+  });
+
+  it('after the move the old record is gone, so the administrator sees the person once', async () => {
+    const store = memory();
+    await oldAccount(store);
+    const admin = await oldAccount(store, 'blackjack');
+    const d = deps(NEW, store, { adminLogins: ['blackjack'] });
+    const list = async (token: string) =>
+      (await (
+        await adminUsers(
+          d,
+          new Request('http://x/api/admin', { headers: { authorization: `Bearer ${token}` } }),
+        )
+      ).json()) as { users: { login: string; legacy: boolean }[]; pending: string[] };
+    // the administrator signs in first: moved, and sees the other one as "not signed in yet"
+    const adminLogin = await login(d, post({ login: 'blackjack', password: 'password-one' }));
+    const token = ((await adminLogin.json()) as { token: string }).token;
+    let seen = await list(token);
+    expect(seen.users.map((u) => [u.login, u.legacy]).sort()).toEqual([
+      ['blackjack', false],
+      ['ivan', true],
+    ]);
+    // then the other signs in: one entry each, nobody is "legacy", old keys are removed
+    await login(d, post({ login: 'ivan', password: 'password-one' }));
+    seen = await list(token);
+    expect(seen.users.map((u) => [u.login, u.legacy]).sort()).toEqual([
+      ['blackjack', false],
+      ['ivan', false],
+    ]);
+    const oldId = userIdFor(OLD, 'ivan');
+    expect([...store.data.keys()].some((k) => k.includes(oldId))).toBe(false);
+    expect(admin.token).toBeTruthy();
   });
 });

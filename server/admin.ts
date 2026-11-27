@@ -88,13 +88,15 @@ export async function adminUsers(d: Deps, req: Request): Promise<Response> {
         entries: alive(snap?.tables?.entries).length,
         cookSearches: cookHistory(snap, await readHidden(d, uid)).length,
         me: uid === s.userId,
+        // An account of the old host that has not signed in on the new one yet.
+        legacy: !!meta.login && userIdFor(d.secret, meta.login) !== uid,
       };
     }),
   );
   users.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
   // People known from before a storage move who have not opened the app since.
-  const here = new Set(ids);
-  const pending = (d.knownLogins ?? []).filter((l) => !here.has(userIdFor(d.secret, l)));
+  const here = new Set(users.map((u) => u.login).filter(Boolean));
+  const pending = (d.knownLogins ?? []).filter((l) => !here.has(l));
   return json({ users, pending });
 }
 

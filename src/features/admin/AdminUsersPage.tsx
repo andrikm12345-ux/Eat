@@ -62,6 +62,7 @@ export default function AdminUsersPage() {
                         {u.login ?? t.unknownLogin}
                         {u.me ? ` (${t.you})` : ''}
                       </span>
+                      {u.legacy && <span className={styles.sub}>{t.notMoved}</span>}
                       <span className={styles.sub}>{t.registered(when(u.createdAt))}</span>
                       <span className={styles.sub}>{t.lastLogin(when(u.lastLogin))}</span>
                       <span className={styles.sub}>{t.entriesCount(u.entries)}</span>

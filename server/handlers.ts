@@ -93,6 +93,14 @@ async function adoptLegacy(
   }
   const diary = await d.store.get(`users/${old.id}.json`);
   if (diary !== null) await d.store.put(`users/${userId}.json`, diary);
+  // The account now exists once: the old record goes (no twin in the administrator's list, and
+  // it cannot come back after the account is deleted). Only after the copy is confirmed.
+  const moved =
+    (await readCreds(d, userId)) !== null &&
+    (diary === null || (await d.store.get(`users/${userId}.json`)) === diary);
+  if (moved && d.store.remove) {
+    for (const kind of ['creds', 'meta', 'users']) await d.store.remove(`${kind}/${old.id}.json`);
+  }
 }
 
 /**

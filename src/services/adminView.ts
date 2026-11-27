@@ -4,6 +4,8 @@ import { getSession } from './account';
 import type { CookHistoryEntry } from './cookHistory';
 
 export type AdminUser = {
+  /** An account of the old host that has not signed in on the new one yet. */
+  legacy?: boolean;
   id: string;
   login: string | null;
   createdAt: number | null;
