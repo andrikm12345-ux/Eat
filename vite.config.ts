@@ -5,12 +5,14 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { fileURLToPath } from 'node:url';
 
 const THEME_LIGHT = '#f4f1ec';
+/** Build commit: Netlify gives COMMIT_REF, Vercel VERCEL_GIT_COMMIT_SHA. */
+const COMMIT = process.env.COMMIT_REF ?? process.env.VERCEL_GIT_COMMIT_SHA ?? '';
 
 export default defineConfig(({ mode }) => ({
   define: {
     __APP_VERSION__: JSON.stringify(
       `${process.env.npm_package_version ?? '0.0.0'}+${new Date().toISOString().slice(0, 10)}${
-        process.env.VERCEL_GIT_COMMIT_SHA ? `.${process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7)}` : ''
+        COMMIT ? `.${COMMIT.slice(0, 7)}` : ''
       }`,
     ),
   },
