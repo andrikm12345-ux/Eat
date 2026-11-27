@@ -93,11 +93,14 @@ export async function adminUsers(d: Deps, req: Request): Promise<Response> {
       };
     }),
   );
-  users.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+  // A leftover old-host record of someone who already has an account here is not shown twice.
+  const current = new Set(users.filter((u) => !u.legacy).map((u) => u.login));
+  const shown = users.filter((u) => !(u.legacy && current.has(u.login)));
+  shown.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
   // People known from before a storage move who have not opened the app since.
-  const here = new Set(users.map((u) => u.login).filter(Boolean));
+  const here = new Set(shown.map((u) => u.login).filter(Boolean));
   const pending = (d.knownLogins ?? []).filter((l) => !here.has(l));
-  return json({ users, pending });
+  return json({ users: shown, pending });
 }
 
 /** Only accounts the assistant made while testing carry this login prefix. */

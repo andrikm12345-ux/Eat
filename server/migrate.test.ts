@@ -184,4 +184,23 @@ describe('accounts after the move to another host (new AUTH_SECRET)', () => {
     expect([...store.data.keys()].some((k) => k.includes(oldId))).toBe(false);
     expect(admin.token).toBeTruthy();
   });
+
+  it('a leftover old record next to the moved account is not listed twice', async () => {
+    const store = memory();
+    await oldAccount(store, 'blackjack');
+    const d = deps(NEW, store, { adminLogins: ['blackjack'] });
+    const res = await login(d, post({ login: 'blackjack', password: 'password-one' }));
+    const token = ((await res.json()) as { token: string }).token;
+    // simulate the old record coming back (e.g. a move made before the old record was removed)
+    const oldId = userIdFor(OLD, 'blackjack');
+    await store.put(`creds/${oldId}.json`, '{"salt":"00","hash":"00"}');
+    await store.put(`meta/${oldId}.json`, JSON.stringify({ login: 'blackjack', createdAt: 1 }));
+    const list = (await (
+      await adminUsers(
+        d,
+        new Request('http://x/api/admin', { headers: { authorization: `Bearer ${token}` } }),
+      )
+    ).json()) as { users: { login: string }[] };
+    expect(list.users.map((u) => u.login)).toEqual(['blackjack']);
+  });
 });
