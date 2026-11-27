@@ -20,14 +20,12 @@ const when = (ms: number | null) => (ms ? new Date(ms).toLocaleString('ru-RU') :
 export default function AdminUsersPage() {
   useSwipeBack(true, useGoBack());
   const [users, setUsers] = useState<AdminUser[] | null>(null);
-  const [pending, setPending] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const reload = () =>
     loadAdminUsers(repos).then((r) => {
       if (r.ok) {
         setUsers(r.data);
-        setPending(r.pending);
       } else setError(r.reason === 'forbidden' ? t.forbidden : t.loadError);
     });
 
@@ -75,7 +73,6 @@ export default function AdminUsersPage() {
                 </li>
               ))}
             </ul>
-            {pending.length > 0 && <Notice tone="info">{t.pending(pending.join(', '))}</Notice>}
             {users.some((u) => u.login?.startsWith('claude-test')) && (
               <Button variant="danger" block onClick={() => void cleanTests()}>
                 {t.cleanTests}
