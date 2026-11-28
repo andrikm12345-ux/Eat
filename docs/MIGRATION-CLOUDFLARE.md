@@ -4,7 +4,20 @@
 начала следующего месяца), его можно за несколько минут поднять на **Cloudflare Workers**. Всё
 для этого уже подготовлено в ветке `cloudflare`, ничего не запущено.
 
-## Состояние на 27.11.2026
+## Переезд выполнен 28.11.2026
+
+Сайт работает на **https://eat.andrikm12345.workers.dev** (Cloudflare Workers). Данные те же
+(Upstash), копии идут через этот адрес, Netlify остаётся запасным (`SITE_URL_FALLBACK` по умолчанию).
+Проверено на живом адресе: вход (в том числе с паролем, созданным на Netlify), регистрация,
+синхронизация 1 МБ, второе устройство видит данные, ИИ доступен, ночная копия прошла.
+
+**Выложить новую версию на Cloudflare вручную** (если не подключён GitHub):
+`COMMIT_REF=$(git rev-parse HEAD) npm run build && CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=...
+npx wrangler@4 deploy`. Автовыкладка из GitHub включается в Cloudflare: Workers & Pages → `eat` →
+Settings → Builds → Connect (репозиторий `Eat`, ветка `main`, сборка `npm run build`, выкладка
+`npx wrangler deploy`).
+
+## Состояние на 27.11.2026 (до переезда)
 
 - В Cloudflare создан Worker **`eat`** как **заглушка** (отвечает «not launched», публичного адреса
   `workers.dev` нет). Приложение в него **не выложено**.
