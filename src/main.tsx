@@ -12,6 +12,7 @@ import { startTdeeSync } from './services/tdeeSync';
 import { startGamificationSync } from './services/gamificationSync';
 import { startTodayWatcher, toast } from './state/ui';
 import { startKeyboardWatcher } from './ui/keyboard';
+import { browserEnv, startResumeGuard } from './ui/resumeGuard';
 import { startNoZoom } from './ui/noZoom';
 import { initErrorReporting } from './services/errorReport';
 import { ru } from './i18n/ru';
@@ -44,6 +45,8 @@ startDescribeResume(repos, (path) => void router.navigate(path));
 startTodayWatcher();
 // No empty strip between the tab bar and the phone keyboard.
 startKeyboardWatcher();
+// After the phone resumes the app, a broken layout (shifted sideways, blank strip) is repaired.
+startResumeGuard(browserEnv());
 // Pinching and double-tap do not zoom the screen.
 startNoZoom();
 // A forgotten error in the background must not pass unnoticed.

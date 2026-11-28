@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Suspense, useCallback, useEffect } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import {
   Navigate,
   Outlet,
@@ -13,11 +13,14 @@ import { repos } from '../db/repos';
 import { ACCOUNT } from '../services/account';
 import { AddSheet } from '../features/add/AddSheet';
 import { WeighSheet } from '../features/weight/WeighSheet';
+import { forceUpdate } from '../pwa/forceUpdate';
 import { UpdateBanner } from '../pwa/UpdateBanner';
+import { ru } from '../i18n/ru';
 import { useUi } from '../state/ui';
 import { BackBar } from './BackBar';
 import { ADD_TABS, MAIN_TABS } from './nav';
 import { Loading } from './states';
+import { Button, Card } from './kit';
 import { BottomNav } from './BottomNav';
 import { ToastHost } from './ToastHost';
 import { AchievementCard } from './AchievementCard';
@@ -36,6 +39,26 @@ function pageClass(pathname: string, navType: string) {
   if (MAIN_TABS.has(pathname)) return 'page-tab';
   return navType === 'POP' ? 'page-back' : 'page-fwd';
 }
+
+/** The phone's storage did not answer for a long time: say so, with ways out, instead of a white screen. */
+function StuckNotice() {
+  return (
+    <main className={styles.main}>
+      <Card title={ru.stuck.title}>
+        <p>{ru.stuck.text}</p>
+        <Button block onClick={() => window.location.reload()}>
+          {ru.stuck.reload}
+        </Button>
+        <Button block variant="secondary" onClick={() => void forceUpdate()}>
+          {ru.stuck.update}
+        </Button>
+      </Card>
+    </main>
+  );
+}
+
+/** How long the first read of the local database may take before the notice appears. */
+export const STUCK_AFTER_MS = 6000;
 
 export function AppShell() {
   const [params, setParams] = useSearchParams();
@@ -77,7 +100,22 @@ export function AppShell() {
   );
   // A swipe to the right anywhere goes back; not on "Сегодня" (there it moves the day).
   useSwipeBack(!!signedIn && profile !== null && pathname !== '/', goBack);
-  if (signedIn === undefined) return null;
+  const [stuck, setStuck] = useState(false);
+  useEffect(() => {
+    if (signedIn !== undefined) return;
+    const t = window.setTimeout(() => setStuck(true), STUCK_AFTER_MS);
+    return () => window.clearTimeout(t);
+  }, [signedIn]);
+  // Never an empty screen: a skeleton while the local database answers, a notice if it does not.
+  if (signedIn === undefined) {
+    return stuck ? (
+      <StuckNotice />
+    ) : (
+      <main className={styles.main}>
+        <Loading />
+      </main>
+    );
+  }
   if (!signedIn) return <Navigate to="/welcome" replace />;
   if (profile === null) return <Navigate to="/wizard" replace />;
 
