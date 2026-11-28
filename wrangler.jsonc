@@ -10,6 +10,9 @@
     "run_worker_first": ["/api/*"],
   },
   // Keep the variables and secrets typed into the Cloudflare dashboard when the code is deployed.
+  // Public address eat.<account>.workers.dev; no per-version preview addresses.
+  "workers_dev": true,
+  "preview_urls": false,
   "keep_vars": true,
   "vars": {
     // The free plan allows 10 ms of CPU per request; the full password hashing takes ~45 ms.

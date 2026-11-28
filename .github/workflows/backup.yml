@@ -20,10 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # The address of the site: set the repository variable SITE_URL when the host changes.
-      SITE: ${{ vars.SITE_URL || 'https://dnevnik12345.netlify.app' }}
+      SITE: ${{ vars.SITE_URL || 'https://eat.andrikm12345.workers.dev' }}
       # Optional second address (the standby host): used when the first does not answer, so the
       # copies keep being made even if the main host is paused. Set the variable SITE_URL_FALLBACK.
-      SITE_FALLBACK: ${{ vars.SITE_URL_FALLBACK }}
+      SITE_FALLBACK: ${{ vars.SITE_URL_FALLBACK || 'https://dnevnik12345.netlify.app' }}
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Back up
